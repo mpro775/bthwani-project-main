@@ -1,0 +1,149 @@
+# تفعيل محرك إعادة الكتابة
+RewriteEngine On
+
+# فرض HTTPS (قم بإلغاء التعليق إذا كان لديك SSL)
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# إزالة الشرطات اللاحقة
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)/$ /$1 [L,R=301]
+
+# التعامل مع React Router (SPA)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.html [L]
+
+# تحسينات إضافية للأداء
+# تقليل حجم الصور تلقائياً للطلبات الصغيرة
+RewriteCond %{REQUEST_FILENAME} \.(jpg|jpeg|png|gif|webp)$ [NC]
+RewriteCond %{REQUEST_URI} ^/images/
+RewriteRule ^(.*)$ /images/optimized/$1 [L]
+
+# ترويسات الأمان والأداء
+<IfModule mod_headers.c>
+    # ترويسات الأمان
+    Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # ترويسات التخزين المؤقت
+    <FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|webp|avif)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+
+    # ترويسات مضادة للتخزين المؤقت للملفات الديناميكية
+    <FilesMatch "\.(html|htm|php)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires 0
+    </FilesMatch>
+</IfModule>
+
+# الضغط - تفعيل Gzip وBrotli لتحسين الأداء
+<IfModule mod_deflate.c>
+    # ضغط Gzip للنصوص والملفات الثابتة
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE text/javascript
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE application/font-woff
+    AddOutputFilterByType DEFLATE application/font-woff2
+    AddOutputFilterByType DEFLATE font/woff
+    AddOutputFilterByType DEFLATE font/woff2
+
+    # ضغط الصور بنسبة أقل للحفاظ على الجودة
+    AddOutputFilterByType DEFLATE image/png
+    AddOutputFilterByType DEFLATE image/jpg
+    AddOutputFilterByType DEFLATE image/jpeg
+    AddOutputFilterByType DEFLATE image/gif
+    AddOutputFilterByType DEFLATE image/svg+xml
+    AddOutputFilterByType DEFLATE image/webp
+    AddOutputFilterByType DEFLATE image/avif
+</IfModule>
+
+# تفعيل ضغط Brotli إذا كان متوفراً (أفضل من Gzip)
+<IfModule mod_brotli.c>
+    AddOutputFilterByType BROTLI_COMPRESS text/plain
+    AddOutputFilterByType BROTLI_COMPRESS text/html
+    AddOutputFilterByType BROTLI_COMPRESS text/xml
+    AddOutputFilterByType BROTLI_COMPRESS text/css
+    AddOutputFilterByType BROTLI_COMPRESS text/javascript
+    AddOutputFilterByType BROTLI_COMPRESS application/xml
+    AddOutputFilterByType BROTLI_COMPRESS application/xhtml+xml
+    AddOutputFilterByType BROTLI_COMPRESS application/rss+xml
+    AddOutputFilterByType BROTLI_COMPRESS application/javascript
+    AddOutputFilterByType BROTLI_COMPRESS application/x-javascript
+    AddOutputFilterByType BROTLI_COMPRESS application/json
+    AddOutputFilterByType BROTLI_COMPRESS application/font-woff
+    AddOutputFilterByType BROTLI_COMPRESS application/font-woff2
+    AddOutputFilterByType BROTLI_COMPRESS font/woff
+    AddOutputFilterByType BROTLI_COMPRESS font/woff2
+</IfModule>
+
+# التخزين المؤقت في المتصفح لتحسين الأداء
+<IfModule mod_expires.c>
+    ExpiresActive on
+
+    # الصور والأصول الساكنة (سنة واحدة)
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/avif "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/x-icon "access plus 1 year"
+    ExpiresByType image/vnd.microsoft.icon "access plus 1 year"
+
+    # الخطوط (سنة واحدة)
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType application/font-woff "access plus 1 year"
+    ExpiresByType application/font-woff2 "access plus 1 year"
+    ExpiresByType application/font-sfnt "access plus 1 year"
+    ExpiresByType font/ttf "access plus 1 year"
+    ExpiresByType font/otf "access plus 1 year"
+
+    # CSS وJavaScript (شهر واحد)
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    ExpiresByType application/x-javascript "access plus 1 month"
+
+    # ملفات أخرى (أسبوع واحد)
+    ExpiresByType application/json "access plus 1 week"
+    ExpiresByType application/xml "access plus 1 week"
+    ExpiresByType text/xml "access plus 1 week"
+
+    # ملفات HTML (لا تخزن مؤقتاً)
+    ExpiresByType text/html "access plus 0 seconds"
+</IfModule>
+
+# منع الوصول إلى الملفات الحساسة
+<FilesMatch "\.(env|log|sql|md|txt|yml|yaml|json|lock)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+<FilesMatch "\.map$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+<Files ~ "^\..*">
+    Deny from all
+</Files>
+
+# صفحات الخطأ المخصصة
+ErrorDocument 404 /index.html
+ErrorDocument 500 /index.html

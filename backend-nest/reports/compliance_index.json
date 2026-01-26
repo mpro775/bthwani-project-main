@@ -1,0 +1,1452 @@
+[
+  {
+    "requirement": "Personal Data Encryption",
+    "requirementId": "DP-01",
+    "artifact": "sanitization.helper.ts",
+    "evidencePath": "src/common/utils/sanitization.helper.ts:16",
+    "evidenceLine": 16,
+    "owner": "Security Team",
+    "status": "Implemented",
+    "notes": "'pinCodeHash',"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "sanitization.helper.ts",
+    "evidencePath": "src/common/utils/sanitization.helper.ts:99",
+    "evidenceLine": 99,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "* إزالة حقل متداخل (مثل security.pinCodeHash)"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "user.entity.ts",
+    "evidencePath": "src/modules/auth/entities/user.entity.ts:50",
+    "evidenceLine": 50,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "pinCodeHash?: string;"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "driver.service.ts",
+    "evidencePath": "src/modules/driver/driver.service.ts:8",
+    "evidenceLine": 8,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "import * as bcrypt from 'bcrypt';"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "driver.service.ts",
+    "evidencePath": "src/modules/driver/driver.service.ts:40",
+    "evidenceLine": 40,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "const hashedPassword = await bcrypt.hash(createDriverDto.password, 10);"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "... and 19 more",
+    "evidencePath": "",
+    "owner": "",
+    "status": "Implemented"
+  },
+  {
+    "requirement": "Data Minimization",
+    "requirementId": "DP-02",
+    "artifact": "pagination.dto.ts",
+    "evidencePath": "src/common/dto/pagination.dto.ts:7",
+    "evidenceLine": 7,
+    "owner": "Development Team",
+    "status": "Implemented",
+    "notes": "@IsOptional()"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "pagination.dto.ts",
+    "evidencePath": "src/common/dto/pagination.dto.ts:14",
+    "evidenceLine": 14,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "@IsOptional()"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "pagination.dto.ts",
+    "evidencePath": "src/common/dto/pagination.dto.ts:24",
+    "evidenceLine": 24,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "@IsOptional()"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "pagination.dto.ts",
+    "evidencePath": "src/common/dto/pagination.dto.ts:29",
+    "evidenceLine": 29,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "@IsOptional()"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "location-update.dto.ts",
+    "evidencePath": "src/gateways/dto/location-update.dto.ts:14",
+    "evidenceLine": 14,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "@IsOptional()"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "... and 292 more",
+    "evidencePath": "",
+    "owner": "",
+    "status": "Implemented"
+  },
+  {
+    "requirement": "Data Retention Policy",
+    "requirementId": "DP-03",
+    "artifact": "app.module.ts",
+    "evidencePath": "src/app.module.ts:6",
+    "evidenceLine": 6,
+    "owner": "Data Team",
+    "status": "Implemented",
+    "notes": "import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "app.module.ts",
+    "evidencePath": "src/app.module.ts:75",
+    "evidenceLine": 75,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "ttl: parseInt(process.env.CACHE_TTL || '600', 10),"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "app.module.ts",
+    "evidencePath": "src/app.module.ts:80",
+    "evidenceLine": 80,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "ThrottlerModule.forRoot(["
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "app.module.ts",
+    "evidencePath": "src/app.module.ts:83",
+    "evidenceLine": 83,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "ttl: 60000, // 60 ثانية"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "app.module.ts",
+    "evidencePath": "src/app.module.ts:88",
+    "evidenceLine": 88,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "ttl: 60000, // 60 ثانية"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "... and 221 more",
+    "evidencePath": "",
+    "owner": "",
+    "status": "Implemented"
+  },
+  {
+    "requirement": "User Consent Tracking",
+    "requirementId": "CM-01",
+    "artifact": "consent.guard.ts",
+    "evidencePath": "src/common/guards/consent.guard.ts:3",
+    "evidenceLine": 3,
+    "owner": "Legal Team",
+    "status": "Implemented",
+    "notes": "import { ConsentService } from '../../modules/auth/services/consent.service';"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "consent.guard.ts",
+    "evidencePath": "src/common/guards/consent.guard.ts:4",
+    "evidenceLine": 4,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "import { ConsentType } from '../../modules/auth/dto/consent.dto';"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "consent.guard.ts",
+    "evidencePath": "src/common/guards/consent.guard.ts:7",
+    "evidenceLine": 7,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "export const REQUIRED_CONSENTS_KEY = 'requiredConsents';"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "consent.guard.ts",
+    "evidencePath": "src/common/guards/consent.guard.ts:8",
+    "evidenceLine": 8,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "export const RequireConsents = (...consents: ConsentType[]) =>"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "consent.guard.ts",
+    "evidencePath": "src/common/guards/consent.guard.ts:9",
+    "evidenceLine": 9,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "SetMetadata(REQUIRED_CONSENTS_KEY, consents);"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "... and 315 more",
+    "evidencePath": "",
+    "owner": "",
+    "status": "Implemented"
+  },
+  {
+    "requirement": "Opt-out Mechanisms",
+    "requirementId": "CM-02",
+    "artifact": "admin.controller.ts",
+    "evidencePath": "src/modules/admin/admin.controller.ts:142",
+    "evidenceLine": 142,
+    "owner": "Product Team",
+    "status": "Implemented",
+    "notes": "// ==================== Withdrawals Management ===================="
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "admin.controller.ts",
+    "evidencePath": "src/modules/admin/admin.controller.ts:144",
+    "evidenceLine": 144,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "@Get('withdrawals')"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "admin.controller.ts",
+    "evidencePath": "src/modules/admin/admin.controller.ts:146",
+    "evidenceLine": 146,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "async getWithdrawals("
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "admin.controller.ts",
+    "evidencePath": "src/modules/admin/admin.controller.ts:152",
+    "evidenceLine": 152,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "return this.adminService.getWithdrawals(status, userModel, page, limit);"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "admin.controller.ts",
+    "evidencePath": "src/modules/admin/admin.controller.ts:155",
+    "evidenceLine": 155,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "@Get('withdrawals/pending')"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "... and 91 more",
+    "evidencePath": "",
+    "owner": "",
+    "status": "Implemented"
+  },
+  {
+    "requirement": "Right to Access",
+    "requirementId": "DSR-01",
+    "artifact": "app.module.ts",
+    "evidencePath": "src/app.module.ts:13",
+    "evidenceLine": 13,
+    "owner": "Development Team",
+    "status": "Implemented",
+    "notes": "import { MetricsInterceptor } from './common/interceptors/metrics.interceptor';"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "app.module.ts",
+    "evidencePath": "src/app.module.ts:30",
+    "evidenceLine": 30,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "import { MerchantModule } from './modules/merchant/merchant.module';"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "app.module.ts",
+    "evidencePath": "src/app.module.ts:38",
+    "evidenceLine": 38,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "import { MetricsModule } from './modules/metrics/metrics.module';"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "metrics.interceptor.ts",
+    "evidencePath": "src/common/interceptors/metrics.interceptor.ts:9",
+    "evidenceLine": 9,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "import { MetricsService } from '../services/metrics.service';"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "admin.controller.ts",
+    "evidencePath": "src/modules/admin/admin.controller.ts:618",
+    "evidenceLine": 618,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "@Get('quality/metrics')"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "... and 34 more",
+    "evidencePath": "",
+    "owner": "",
+    "status": "Implemented"
+  },
+  {
+    "requirement": "Right to Erasure",
+    "requirementId": "DSR-02",
+    "artifact": "notification.gateway.ts",
+    "evidencePath": "src/gateways/notification.gateway.ts:106",
+    "evidenceLine": 106,
+    "owner": "Development Team",
+    "status": "Implemented",
+    "notes": "this.connectedUsers.delete(userId);"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "consent.service.ts",
+    "evidencePath": "src/modules/auth/services/consent.service.ts:251",
+    "evidenceLine": 251,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "async deleteAllUserConsents(userId: string): Promise<void> {"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "consent.service.ts",
+    "evidencePath": "src/modules/auth/services/consent.service.ts:259",
+    "evidenceLine": 259,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "this.logger.log(`All consents deleted for user ${userId}`);"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "consent.service.ts",
+    "evidencePath": "src/modules/auth/services/consent.service.ts:261",
+    "evidenceLine": 261,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "this.logger.error(`Failed to delete user consents: ${error.message}`, error.stack);"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "user.controller.ts",
+    "evidencePath": "src/modules/user/user.controller.ts:104",
+    "evidenceLine": 104,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "return this.userService.deleteAddress(userId, addressId);"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "... and 2 more",
+    "evidencePath": "",
+    "owner": "",
+    "status": "Implemented"
+  },
+  {
+    "requirement": "Right to Rectification",
+    "requirementId": "DSR-03",
+    "artifact": "auth.controller.ts",
+    "evidencePath": "src/modules/auth/auth.controller.ts:49",
+    "evidenceLine": 49,
+    "owner": "Development Team",
+    "status": "Implemented",
+    "notes": "async updateProfile("
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "auth.controller.ts",
+    "evidencePath": "src/modules/auth/auth.controller.ts:53",
+    "evidenceLine": 53,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "return this.authService.updateProfile(userId, updateDto);"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "auth.service.ts",
+    "evidencePath": "src/modules/auth/auth.service.ts:93",
+    "evidenceLine": 93,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "async updateProfile(userId: string, updateDto: Partial<RegisterDto>) {"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "driver.controller.ts",
+    "evidencePath": "src/modules/driver/driver.controller.ts:90",
+    "evidenceLine": 90,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "async updateProfile("
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "driver.controller.ts",
+    "evidencePath": "src/modules/driver/driver.controller.ts:94",
+    "evidenceLine": 94,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "return this.driverService.updateProfile(driverId, body);"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "... and 9 more",
+    "evidencePath": "",
+    "owner": "",
+    "status": "Implemented"
+  },
+  {
+    "requirement": "Right to Data Portability",
+    "requirementId": "DSR-04",
+    "artifact": "app.controller.ts",
+    "evidencePath": "src/app.controller.ts:5",
+    "evidenceLine": 5,
+    "owner": "Development Team",
+    "status": "Implemented",
+    "notes": "export class AppController {"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "app.module.ts",
+    "evidencePath": "src/app.module.ts:171",
+    "evidenceLine": 171,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "export class AppModule implements NestModule {"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "app.service.ts",
+    "evidencePath": "src/app.service.ts:4",
+    "evidenceLine": 4,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "export class AppService {"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "throttler.config.ts",
+    "evidencePath": "src/common/config/throttler.config.ts:7",
+    "evidenceLine": 7,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "export const ThrottlerConfig = {"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "auth.decorator.ts",
+    "evidencePath": "src/common/decorators/auth.decorator.ts:10",
+    "evidenceLine": 10,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "export const Auth = (type: AuthType = AuthType.JWT) =>"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "... and 503 more",
+    "evidencePath": "",
+    "owner": "",
+    "status": "Implemented"
+  },
+  {
+    "requirement": "Access Control",
+    "requirementId": "SEC-01",
+    "artifact": "roles.guard.ts",
+    "evidencePath": "src/common/guards/roles.guard.ts:28",
+    "evidenceLine": 28,
+    "owner": "Security Team",
+    "status": "Implemented",
+    "notes": "export class RolesGuard implements CanActivate {"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "admin.controller.ts",
+    "evidencePath": "src/modules/admin/admin.controller.ts:14",
+    "evidenceLine": 14,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "import { RolesGuard } from '../../common/guards/roles.guard';"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "admin.controller.ts",
+    "evidencePath": "src/modules/admin/admin.controller.ts:21",
+    "evidenceLine": 21,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "admin.controller.ts",
+    "evidencePath": "src/modules/admin/admin.controller.ts:23",
+    "evidenceLine": 23,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "@Roles('admin', 'superadmin')"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "admin.controller.ts",
+    "evidencePath": "src/modules/admin/admin.controller.ts:1390",
+    "evidenceLine": 1390,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "@Roles('superadmin')"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "... and 239 more",
+    "evidencePath": "",
+    "owner": "",
+    "status": "Implemented"
+  },
+  {
+    "requirement": "Authentication",
+    "requirementId": "SEC-02",
+    "artifact": "app.module.ts",
+    "evidencePath": "src/app.module.ts:45",
+    "evidenceLine": 45,
+    "owner": "Security Team",
+    "status": "Implemented",
+    "notes": "import jwtConfig from './config/jwt.config';"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "app.module.ts",
+    "evidencePath": "src/app.module.ts:54",
+    "evidenceLine": 54,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "load: [databaseConfig, cacheConfig, firebaseConfig, jwtConfig, appConfig],"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "auth.decorator.ts",
+    "evidencePath": "src/common/decorators/auth.decorator.ts:10",
+    "evidenceLine": 10,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "export const Auth = (type: AuthType = AuthType.JWT) =>"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "unified-auth.guard.ts",
+    "evidencePath": "src/common/guards/unified-auth.guard.ts:1",
+    "evidenceLine": 1,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "interface JWTPayload {"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "unified-auth.guard.ts",
+    "evidencePath": "src/common/guards/unified-auth.guard.ts:7",
+    "evidenceLine": 7,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "interface VendorJWTPayload {"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "... and 369 more",
+    "evidencePath": "",
+    "owner": "",
+    "status": "Implemented"
+  },
+  {
+    "requirement": "Session Management",
+    "requirementId": "SEC-03",
+    "artifact": "idempotency.middleware.ts",
+    "evidencePath": "src/common/middleware/idempotency.middleware.ts:13",
+    "evidenceLine": 13,
+    "owner": "Security Team",
+    "status": "Implemented",
+    "notes": "// Cache في الذاكرة للسرعة (يمكن استبداله بـ Redis في Production)"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "cache.helper.ts",
+    "evidencePath": "src/common/utils/cache.helper.ts:13",
+    "evidenceLine": 13,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "* ملاحظة: يعمل بشكل أفضل مع Redis"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "cache.helper.ts",
+    "evidencePath": "src/common/utils/cache.helper.ts:20",
+    "evidenceLine": 20,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "// For Redis: use KEYS pattern matching"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "transaction.helper.ts",
+    "evidencePath": "src/common/utils/transaction.helper.ts:1",
+    "evidenceLine": 1,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "import { Connection, ClientSession } from 'mongoose';"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "transaction.helper.ts",
+    "evidencePath": "src/common/utils/transaction.helper.ts:18",
+    "evidenceLine": 18,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "*   async (session) => {"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "... and 228 more",
+    "evidencePath": "",
+    "owner": "",
+    "status": "Implemented"
+  },
+  {
+    "requirement": "Input Validation",
+    "requirementId": "SEC-04",
+    "artifact": "pagination.dto.ts",
+    "evidencePath": "src/common/dto/pagination.dto.ts:1",
+    "evidenceLine": 1,
+    "owner": "Security Team",
+    "status": "Implemented",
+    "notes": "import { IsOptional, IsNumber, IsString, Min, Max } from 'class-validator';"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "driver.gateway.ts",
+    "evidencePath": "src/gateways/driver.gateway.ts:11",
+    "evidenceLine": 11,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "import { Logger, UsePipes, ValidationPipe } from '@nestjs/common';"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "driver.gateway.ts",
+    "evidencePath": "src/gateways/driver.gateway.ts:185",
+    "evidenceLine": 185,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "@UsePipes(new ValidationPipe({ transform: true, whitelist: true }))"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "driver.gateway.ts",
+    "evidencePath": "src/gateways/driver.gateway.ts:215",
+    "evidenceLine": 215,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "// البيانات مضمونة صحتها من ValidationPipe"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "driver.gateway.ts",
+    "evidencePath": "src/gateways/driver.gateway.ts:232",
+    "evidenceLine": 232,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "@UsePipes(new ValidationPipe({ transform: true, whitelist: true }))"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "... and 298 more",
+    "evidencePath": "",
+    "owner": "",
+    "status": "Implemented"
+  },
+  {
+    "requirement": "Audit Trail",
+    "requirementId": "AUD-01",
+    "artifact": "app.module.ts",
+    "evidencePath": "src/app.module.ts:11",
+    "evidenceLine": 11,
+    "owner": "Compliance Team",
+    "status": "Implemented",
+    "notes": "import { AppLoggerService } from './common/services/logger.service';"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "app.module.ts",
+    "evidencePath": "src/app.module.ts:154",
+    "evidenceLine": 154,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "AppLoggerService,"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "global-exception.filter.ts",
+    "evidencePath": "src/common/filters/global-exception.filter.ts:7",
+    "evidenceLine": 7,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "Logger,"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "global-exception.filter.ts",
+    "evidencePath": "src/common/filters/global-exception.filter.ts:23",
+    "evidenceLine": 23,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "private readonly logger = new Logger(GlobalExceptionFilter.name);"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "global-exception.filter.ts",
+    "evidencePath": "src/common/filters/global-exception.filter.ts:55",
+    "evidenceLine": 55,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "this.logger.error('Critical Error:', {"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "... and 238 more",
+    "evidencePath": "",
+    "owner": "",
+    "status": "Implemented"
+  },
+  {
+    "requirement": "Transaction History",
+    "requirementId": "AUD-02",
+    "artifact": "wallet-event.entity.ts",
+    "evidencePath": "src/modules/wallet/entities/wallet-event.entity.ts:4",
+    "evidenceLine": 4,
+    "owner": "Finance Team",
+    "status": "Implemented",
+    "notes": "export enum WalletEventType {"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "wallet-event.entity.ts",
+    "evidencePath": "src/modules/wallet/entities/wallet-event.entity.ts:17",
+    "evidenceLine": 17,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "export interface WalletEventMetadata {"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "wallet-event.entity.ts",
+    "evidencePath": "src/modules/wallet/entities/wallet-event.entity.ts:31",
+    "evidenceLine": 31,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "@Schema({ timestamps: true, collection: 'wallet_events' })"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "wallet-event.entity.ts",
+    "evidencePath": "src/modules/wallet/entities/wallet-event.entity.ts:32",
+    "evidenceLine": 32,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "export class WalletEvent extends Document {"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "wallet-event.entity.ts",
+    "evidencePath": "src/modules/wallet/entities/wallet-event.entity.ts:36",
+    "evidenceLine": 36,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "@Prop({ required: true, enum: WalletEventType, index: true })"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "... and 198 more",
+    "evidencePath": "",
+    "owner": "",
+    "status": "Implemented"
+  },
+  {
+    "requirement": "Purpose Limitation",
+    "requirementId": "DP-04",
+    "artifact": "auth.controller.ts",
+    "evidencePath": "src/modules/auth/auth.controller.ts:118",
+    "evidenceLine": 118,
+    "owner": "Legal Team",
+    "status": "Implemented",
+    "notes": "@ApiParam({ name: 'type', enum: ConsentType, description: 'نوع الموافقة' })"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "auth.controller.ts",
+    "evidencePath": "src/modules/auth/auth.controller.ts:138",
+    "evidenceLine": 138,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "@ApiQuery({ name: 'type', enum: ConsentType, required: false })"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "auth.controller.ts",
+    "evidencePath": "src/modules/auth/auth.controller.ts:171",
+    "evidenceLine": 171,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "@ApiParam({ name: 'type', enum: ConsentType, description: 'نوع الموافقة' })"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "user.entity.ts",
+    "evidencePath": "src/modules/auth/entities/user.entity.ts:67",
+    "evidenceLine": 67,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "@Prop({ type: String, enum: ['credit', 'debit'], required: true })"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "user.entity.ts",
+    "evidencePath": "src/modules/auth/entities/user.entity.ts:183",
+    "evidenceLine": 183,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "@Prop({ type: String, enum: ['ar', 'en'], default: 'ar' })"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "... and 13 more",
+    "evidencePath": "",
+    "owner": "",
+    "status": "Implemented"
+  },
+  {
+    "requirement": "Data Accuracy",
+    "requirementId": "DP-05",
+    "artifact": "unified-auth.guard.ts",
+    "evidencePath": "src/common/guards/unified-auth.guard.ts:71",
+    "evidenceLine": 71,
+    "owner": "Data Team",
+    "status": "Implemented",
+    "notes": "request.user = await this.validateFirebaseToken(token);"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "unified-auth.guard.ts",
+    "evidencePath": "src/common/guards/unified-auth.guard.ts:74",
+    "evidenceLine": 74,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "request.user = await this.validateJWT(token);"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "unified-auth.guard.ts",
+    "evidencePath": "src/common/guards/unified-auth.guard.ts:77",
+    "evidenceLine": 77,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "request.user = await this.validateVendorJWT(token);"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "unified-auth.guard.ts",
+    "evidencePath": "src/common/guards/unified-auth.guard.ts:80",
+    "evidenceLine": 80,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "request.user = await this.validateMarketerJWT(token);"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "unified-auth.guard.ts",
+    "evidencePath": "src/common/guards/unified-auth.guard.ts:105",
+    "evidenceLine": 105,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "private async validateFirebaseToken(token: string) {"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "... and 104 more",
+    "evidencePath": "",
+    "owner": "",
+    "status": "Implemented"
+  },
+  {
+    "requirement": "Third Party Data Sharing",
+    "requirementId": "TP-01",
+    "artifact": "logger.service.ts",
+    "evidencePath": "src/common/services/logger.service.ts:115",
+    "evidenceLine": 115,
+    "owner": "Legal Team",
+    "status": "Implemented",
+    "notes": "logExternalCall(service: string, endpoint: string, duration: number, statusCode?: number, context?: "
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "logger.service.ts",
+    "evidencePath": "src/common/services/logger.service.ts:116",
+    "evidenceLine": 116,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "this.log(`External API: ${service} - ${endpoint}`, {"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "env.validation.ts",
+    "evidencePath": "src/config/env.validation.ts:107",
+    "evidenceLine": 107,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "KURAIMI_API_KEY: Joi.string().optional(),"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "env.validation.ts",
+    "evidencePath": "src/config/env.validation.ts:113",
+    "evidenceLine": 113,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "SMS_API_KEY: Joi.string().optional(),"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "env.example",
+    "evidencePath": "env.example:61",
+    "evidenceLine": 61,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "KURAIMI_API_KEY=your-kuraimi-api-key"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "... and 187 more",
+    "evidencePath": "",
+    "owner": "",
+    "status": "Implemented"
+  },
+  {
+    "requirement": "Data Processing Agreements",
+    "requirementId": "TP-02",
+    "artifact": "app.module.ts",
+    "evidencePath": "src/app.module.ts:20",
+    "evidenceLine": 20,
+    "owner": "Legal Team",
+    "status": "Implemented",
+    "notes": "import { VendorModule } from './modules/vendor/vendor.module';"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "app.module.ts",
+    "evidencePath": "src/app.module.ts:30",
+    "evidenceLine": 30,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "import { MerchantModule } from './modules/merchant/merchant.module';"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "app.module.ts",
+    "evidencePath": "src/app.module.ts:107",
+    "evidenceLine": 107,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "VendorModule,"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "app.module.ts",
+    "evidencePath": "src/app.module.ts:127",
+    "evidenceLine": 127,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "MerchantModule,"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "user-role.enum.ts",
+    "evidencePath": "src/common/enums/user-role.enum.ts:6",
+    "evidenceLine": 6,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "VENDOR = 'vendor',"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "... and 419 more",
+    "evidencePath": "",
+    "owner": "",
+    "status": "Implemented"
+  },
+  {
+    "requirement": "Data Breach Detection",
+    "requirementId": "BR-01",
+    "artifact": "update-vendor.dto.ts",
+    "evidencePath": "src/modules/vendor/dto/update-vendor.dto.ts:19",
+    "evidenceLine": 19,
+    "owner": "Security Team",
+    "status": "Implemented",
+    "notes": "orderAlerts?: boolean;"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "update-vendor.dto.ts",
+    "evidencePath": "src/modules/vendor/dto/update-vendor.dto.ts:20",
+    "evidenceLine": 20,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "financialAlerts?: boolean;"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "update-vendor.dto.ts",
+    "evidencePath": "src/modules/vendor/dto/update-vendor.dto.ts:21",
+    "evidenceLine": 21,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "marketingAlerts?: boolean;"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "vendor.entity.ts",
+    "evidencePath": "src/modules/vendor/entities/vendor.entity.ts:10",
+    "evidenceLine": 10,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "orderAlerts: boolean;"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "vendor.entity.ts",
+    "evidencePath": "src/modules/vendor/entities/vendor.entity.ts:13",
+    "evidenceLine": 13,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "financialAlerts: boolean;"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "... and 351 more",
+    "evidencePath": "",
+    "owner": "",
+    "status": "Implemented"
+  },
+  {
+    "requirement": "Incident Response",
+    "requirementId": "BR-02",
+    "artifact": "global-exception.filter.ts",
+    "evidencePath": "src/common/filters/global-exception.filter.ts:22",
+    "evidenceLine": 22,
+    "owner": "Security Team",
+    "status": "Implemented",
+    "notes": "export class GlobalExceptionFilter implements ExceptionFilter {"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "global-exception.filter.ts",
+    "evidencePath": "src/common/filters/global-exception.filter.ts:23",
+    "evidenceLine": 23,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "private readonly logger = new Logger(GlobalExceptionFilter.name);"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "main.ts",
+    "evidencePath": "src/main.ts:5",
+    "evidenceLine": 5,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "import { GlobalExceptionFilter } from './common/filters/global-exception.filter';"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "main.ts",
+    "evidencePath": "src/main.ts:109",
+    "evidenceLine": 109,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "app.useGlobalFilters(new GlobalExceptionFilter());"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "email.processor.ts",
+    "evidencePath": "src/queues/processors/email.processor.ts:1",
+    "evidenceLine": 1,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "import { Processor, Process, OnQueueActive, OnQueueCompleted, OnQueueFailed } from '@nestjs/bull';"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "... and 5 more",
+    "evidencePath": "",
+    "owner": "",
+    "status": "Implemented"
+  },
+  {
+    "requirement": "Privacy Policy",
+    "requirementId": "DOC-01",
+    "artifact": "consent.guard.ts",
+    "evidencePath": "src/common/guards/consent.guard.ts:16",
+    "evidenceLine": 16,
+    "owner": "Legal Team",
+    "status": "Implemented",
+    "notes": "* @RequireConsents(ConsentType.PRIVACY_POLICY, ConsentType.TERMS_OF_SERVICE)"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "consent.guard.ts",
+    "evidencePath": "src/common/guards/consent.guard.ts:75",
+    "evidenceLine": 75,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "export class PrivacyPolicyConsentGuard implements CanActivate {"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "consent.guard.ts",
+    "evidencePath": "src/common/guards/consent.guard.ts:88",
+    "evidenceLine": 88,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "ConsentType.PRIVACY_POLICY,"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "consent.guard.ts",
+    "evidencePath": "src/common/guards/consent.guard.ts:94",
+    "evidenceLine": 94,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "missingConsents: [ConsentType.PRIVACY_POLICY],"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "consent.guard.ts",
+    "evidencePath": "src/common/guards/consent.guard.ts:95",
+    "evidenceLine": 95,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "code: 'MISSING_PRIVACY_POLICY_CONSENT',"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "... and 98 more",
+    "evidencePath": "",
+    "owner": "",
+    "status": "Implemented"
+  },
+  {
+    "requirement": "API Documentation",
+    "requirementId": "DOC-02",
+    "artifact": "pagination.dto.ts",
+    "evidencePath": "src/common/dto/pagination.dto.ts:3",
+    "evidenceLine": 3,
+    "owner": "Development Team",
+    "status": "Implemented",
+    "notes": "import { ApiPropertyOptional } from '@nestjs/swagger';"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "main.ts",
+    "evidencePath": "src/main.ts:3",
+    "evidenceLine": 3,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "main.ts",
+    "evidencePath": "src/main.ts:127",
+    "evidenceLine": 127,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "// Swagger Documentation"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "main.ts",
+    "evidencePath": "src/main.ts:143",
+    "evidenceLine": 143,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "const document = SwaggerModule.createDocument(app, config);"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "main.ts",
+    "evidencePath": "src/main.ts:144",
+    "evidenceLine": 144,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "SwaggerModule.setup('api/docs', app, document);"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "... and 383 more",
+    "evidencePath": "",
+    "owner": "",
+    "status": "Implemented"
+  },
+  {
+    "requirement": "Arabic Language Support",
+    "requirementId": "PDPL-01",
+    "artifact": "response.dto.ts",
+    "evidencePath": "src/common/dto/response.dto.ts:9",
+    "evidenceLine": 9,
+    "owner": "Localization Team",
+    "status": "Implemented",
+    "notes": "userMessage?: string; // رسالة بالعربي للمستخدم"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "global-exception.filter.ts",
+    "evidencePath": "src/common/filters/global-exception.filter.ts:16",
+    "evidenceLine": 16,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "userMessage?: string;"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "global-exception.filter.ts",
+    "evidencePath": "src/common/filters/global-exception.filter.ts:43",
+    "evidenceLine": 43,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "userMessage: this.getUserMessage(exc, status),"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "global-exception.filter.ts",
+    "evidencePath": "src/common/filters/global-exception.filter.ts:93",
+    "evidenceLine": 93,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "private getUserMessage("
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "global-exception.filter.ts",
+    "evidencePath": "src/common/filters/global-exception.filter.ts:120",
+    "evidenceLine": 120,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "(exception?.userMessage as string) ||"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "... and 161 more",
+    "evidencePath": "",
+    "owner": "",
+    "status": "Implemented"
+  },
+  {
+    "requirement": "Local Data Storage",
+    "requirementId": "PDPL-02",
+    "artifact": "app.module.ts",
+    "evidencePath": "src/app.module.ts:42",
+    "evidenceLine": 42,
+    "owner": "Infrastructure Team",
+    "status": "Implemented",
+    "notes": "import databaseConfig from './config/database.config';"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "app.module.ts",
+    "evidencePath": "src/app.module.ts:54",
+    "evidenceLine": 54,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "load: [databaseConfig, cacheConfig, firebaseConfig, jwtConfig, appConfig],"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "app.module.ts",
+    "evidencePath": "src/app.module.ts:63",
+    "evidenceLine": 63,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "// Database Module"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "app.module.ts",
+    "evidencePath": "src/app.module.ts:66",
+    "evidenceLine": 66,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/bthwani',"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "logger.service.ts",
+    "evidencePath": "src/common/services/logger.service.ts:101",
+    "evidenceLine": 101,
+    "owner": "",
+    "status": "Implemented",
+    "notes": "* Log database query"
+  },
+  {
+    "requirement": "",
+    "requirementId": "",
+    "artifact": "... and 38 more",
+    "evidencePath": "",
+    "owner": "",
+    "status": "Implemented"
+  }
+]

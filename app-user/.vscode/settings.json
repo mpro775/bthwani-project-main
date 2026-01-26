@@ -1,0 +1,63 @@
+{
+  "jest.autoRun": {
+    "watch": false,
+    "onSave": "test-file"
+  },
+  "jest.showCoverageOnLoad": true,
+  "jest.coverageFormatter": "DefaultFormatter",
+  "jest.coverageColors": {
+    "covered": "#4c1",
+    "uncovered": "#e05d44",
+    "partially-covered": "#dfb317"
+  },
+  "jest.jestCommandLine": "npm test",
+  "jest.testExplorer": {
+    "enabled": true,
+    "showInlineError": true
+  },
+  "typescript.preferences.includePackageJsonAutoImports": "on",
+  "typescript.suggest.autoImports": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "files.associations": {
+    "*.test.ts": "typescript",
+    "*.test.tsx": "typescriptreact",
+    "*.spec.ts": "typescript",
+    "*.spec.tsx": "typescriptreact"
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/coverage": true,
+    "**/.jest-cache": true,
+    "**/dist": true,
+    "**/build": true
+  },
+  "files.exclude": {
+    "**/coverage": true,
+    "**/.jest-cache": true,
+    "**/node_modules": true
+  },
+  "emmet.includeLanguages": {
+    "typescript": "html",
+    "typescriptreact": "html"
+  },
+  "emmet.triggerExpansionOnTab": true,
+  "workbench.colorCustomizations": {
+    "testing.iconPassed": "#4c1",
+    "testing.iconFailed": "#e05d44",
+    "testing.iconErrored": "#e05d44",
+    "testing.iconSkipped": "#dfb317"
+  },
+  "testing.automaticallyOpenPeekView": "never",
+  "testing.followRunningTest": true,
+  "testing.gutterEnabled": true,
+  "testing.openTesting": "openExplorer",
+  "testing.autoRun.delay": 1000,
+  "testing.autoRun.mode": "rerun",
+  "testing.automaticallyOpenTestResults": "openExplorer"
+}

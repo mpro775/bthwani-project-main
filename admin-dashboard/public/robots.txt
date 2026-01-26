@@ -1,0 +1,29 @@
+# Robots.txt for Bithawani.com
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://yourdomain.com/sitemap.xml
+
+# Disallow admin areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /static/
+
+# Allow important pages
+Allow: /
+Allow: /services/
+Allow: /for-merchants/
+Allow: /become-captain/
+Allow: /support/
+Allow: /about/
+Allow: /contact/
+Allow: /privacy/
+Allow: /terms/
+Allow: /merchant-terms/
+Allow: /safety/
+
+# Crawl delay
+Crawl-delay: 1

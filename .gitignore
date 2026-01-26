@@ -1,0 +1,15 @@
+# secrets
+app-user/*.json
+rider-app/*.json
+vendor-app/*.json
+field-marketers/*.json
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+node_modules
+*.secret.json
+
+app-user/*.json
+*.secret.json

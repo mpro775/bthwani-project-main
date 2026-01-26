@@ -1,0 +1,2735 @@
+{
+  "generatedAt": "2025-10-15T16:24:24.812Z",
+  "totalEndpoints": 110,
+  "modules": 12,
+  "endpointsByModule": {
+    "akhdimni": [
+      {
+        "method": "PATCH",
+        "path": "errands/:id/status",
+        "summary": "تحديث حالة المهمة (سائق)",
+        "roles": [
+          "driver"
+        ],
+        "module": "akhdimni",
+        "handler": "getAllErrands",
+        "file": "akhdimni.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "admin/errands",
+        "summary": "كل طلبات أخدمني (إدارة)",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "akhdimni",
+        "handler": "assignDriver",
+        "file": "akhdimni.controller.ts"
+      }
+    ],
+    "analytics": [
+      {
+        "method": "GET",
+        "path": "roas/daily",
+        "summary": "ROAS اليومي",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "analytics",
+        "handler": "getRoasSummary",
+        "file": "analytics.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "roas/summary",
+        "summary": "ملخص ROAS",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "analytics",
+        "handler": "getRoasByPlatform",
+        "file": "analytics.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "roas/by-platform",
+        "summary": "ROAS حسب المنصة",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "analytics",
+        "handler": "",
+        "file": "analytics.controller.ts"
+      },
+      {
+        "method": "POST",
+        "path": "roas/calculate",
+        "summary": "ROAS حسب المنصة",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "analytics",
+        "handler": "recordAdSpend",
+        "file": "analytics.controller.ts"
+      },
+      {
+        "method": "POST",
+        "path": "adspend",
+        "summary": "تسجيل إنفاق إعلاني",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "analytics",
+        "handler": "getAdSpend",
+        "file": "analytics.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "adspend",
+        "summary": "الإنفاق الإعلاني",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "analytics",
+        "handler": "getAdSpendSummary",
+        "file": "analytics.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "adspend/summary",
+        "summary": "ملخص الإنفاق الإعلاني",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "analytics",
+        "handler": "getKPIs",
+        "file": "analytics.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "kpis",
+        "summary": "مؤشرات الأداء الرئيسية",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "analytics",
+        "handler": "getRealTimeKPIs",
+        "file": "analytics.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "kpis",
+        "summary": "مؤشرات الأداء الرئيسية",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "analytics",
+        "handler": "getKPITrends",
+        "file": "analytics.controller.ts"
+      },
+      {
+        "method": "POST",
+        "path": "events/track",
+        "summary": "تتبع حدث تسويقي",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "analytics",
+        "handler": "getEvents",
+        "file": "analytics.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "events",
+        "summary": "الأحداث التسويقية",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "analytics",
+        "handler": "getEventsSummary",
+        "file": "analytics.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "events/summary",
+        "summary": "ملخص الأحداث",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "analytics",
+        "handler": "getConversionFunnel",
+        "file": "analytics.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "funnel/conversion",
+        "summary": "قمع التحويل",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "analytics",
+        "handler": "getDropOffPoints",
+        "file": "analytics.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "funnel/drop-off",
+        "summary": "قمع التحويل",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "analytics",
+        "handler": "",
+        "file": "analytics.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "funnel/drop-off",
+        "summary": "نقاط الانسحاب",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "analytics",
+        "handler": "getUserRetention",
+        "file": "analytics.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "users/growth",
+        "summary": "نمو المستخدمين",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "analytics",
+        "handler": "",
+        "file": "analytics.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "users/retention",
+        "summary": "معدل الاحتفاظ",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "analytics",
+        "handler": "getRevenueForecast",
+        "file": "analytics.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "users/cohort",
+        "summary": "تحليل الأفواج",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "analytics",
+        "handler": "getRevenueBreakdown",
+        "file": "analytics.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "revenue/breakdown",
+        "summary": "توقعات الإيرادات",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "analytics",
+        "handler": "getDashboardOverview",
+        "file": "analytics.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "advanced/dashboard-overview",
+        "summary": "نظرة عامة متقدمة",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "analytics",
+        "handler": "",
+        "file": "analytics.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "advanced/dashboard-overview",
+        "summary": "نظرة عامة متقدمة",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "analytics",
+        "handler": "",
+        "file": "analytics.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "advanced/cohort-analysis-advanced",
+        "summary": "تحليل المجموعات المتقدم",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "analytics",
+        "handler": "",
+        "file": "analytics.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "advanced/funnel-analysis",
+        "summary": "تحليل القمع",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "analytics",
+        "handler": "getCustomerLTV",
+        "file": "analytics.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "advanced/retention",
+        "summary": "معدل الاحتفاظ",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "analytics",
+        "handler": "",
+        "file": "analytics.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "advanced/ltv",
+        "summary": "القيمة الدائمة للعميل",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "analytics",
+        "handler": "",
+        "file": "analytics.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "advanced/churn-rate",
+        "summary": "معدل التراجع",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "analytics",
+        "handler": "getPeakHours",
+        "file": "analytics.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "advanced/geographic-distribution",
+        "summary": "التوزيع الجغرافي",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "analytics",
+        "handler": "getProductPerformance",
+        "file": "analytics.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "advanced/peak-hours",
+        "summary": "ساعات الذروة",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "analytics",
+        "handler": "getDriverPerformance",
+        "file": "analytics.controller.ts"
+      }
+    ],
+    "content": [
+      {
+        "method": "GET",
+        "path": "banners",
+        "summary": "الحصول على البانرات النشطة (public)",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "content",
+        "handler": "createBanner",
+        "file": "content.controller.ts"
+      },
+      {
+        "method": "POST",
+        "path": "banners",
+        "summary": "تسجيل نقرة على بانر",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "content",
+        "handler": "getAllBanners",
+        "file": "content.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "admin/banners",
+        "summary": "إنشاء بانر جديد",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "content",
+        "handler": "updateBanner",
+        "file": "content.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "admin/banners",
+        "summary": "كل البانرات (admin)",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "content",
+        "handler": "deleteBanner",
+        "file": "content.controller.ts"
+      },
+      {
+        "method": "DELETE",
+        "path": "sections/:id",
+        "summary": "حذف قسم",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "content",
+        "handler": "createSubscriptionPlan",
+        "file": "content.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "pages",
+        "summary": "الحصول على صفحات CMS (public)",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "content",
+        "handler": "createCMSPage",
+        "file": "content.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "pages/:slug",
+        "summary": "الحصول على صفحة CMS بالـ slug",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "content",
+        "handler": "updateCMSPage",
+        "file": "content.controller.ts"
+      },
+      {
+        "method": "PATCH",
+        "path": "admin/pages/:id",
+        "summary": "تحديث صفحة CMS",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "content",
+        "handler": "updateAppSettings",
+        "file": "content.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "faqs",
+        "summary": "تحديث إعدادات التطبيق",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "content",
+        "handler": "createFAQ",
+        "file": "content.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "faqs",
+        "summary": "الأسئلة الشائعة (public)",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "content",
+        "handler": "updateFAQ",
+        "file": "content.controller.ts"
+      },
+      {
+        "method": "POST",
+        "path": "admin/faqs",
+        "summary": "إضافة سؤال شائع",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "content",
+        "handler": "deleteFAQ",
+        "file": "content.controller.ts"
+      }
+    ],
+    "er": [
+      {
+        "method": "POST",
+        "path": "employees",
+        "summary": "",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "er",
+        "handler": "createEmployee",
+        "file": "er.controller.ts"
+      },
+      {
+        "method": "POST",
+        "path": "employees",
+        "summary": "إضافة موظف جديد",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "er",
+        "handler": "findAllEmployees",
+        "file": "er.controller.ts"
+      },
+      {
+        "method": "POST",
+        "path": "employees",
+        "summary": "إضافة موظف جديد",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "er",
+        "handler": "findEmployeeById",
+        "file": "er.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "employees",
+        "summary": "الحصول على كل الموظفين",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "er",
+        "handler": "updateEmployee",
+        "file": "er.controller.ts"
+      },
+      {
+        "method": "POST",
+        "path": "attendance/check-out",
+        "summary": "تسجيل حضور",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "er",
+        "handler": "getEmployeeAttendance",
+        "file": "er.controller.ts"
+      },
+      {
+        "method": "POST",
+        "path": "leave-requests",
+        "summary": "تقديم طلب إجازة",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "er",
+        "handler": "approveLeaveRequest",
+        "file": "er.controller.ts"
+      },
+      {
+        "method": "PATCH",
+        "path": "leave-requests/:id/approve",
+        "summary": "الموافقة على طلب إجازة",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "er",
+        "handler": "rejectLeaveRequest",
+        "file": "er.controller.ts"
+      },
+      {
+        "method": "PATCH",
+        "path": "leave-requests/:id/reject",
+        "summary": "رفض طلب إجازة",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "er",
+        "handler": "generatePayroll",
+        "file": "er.controller.ts"
+      },
+      {
+        "method": "POST",
+        "path": "payroll/generate",
+        "summary": "إنشاء كشف راتب",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "er",
+        "handler": "approvePayroll",
+        "file": "er.controller.ts"
+      },
+      {
+        "method": "PATCH",
+        "path": "payroll/:id/approve",
+        "summary": "إنشاء كشف راتب",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "er",
+        "handler": "markAsPaid",
+        "file": "er.controller.ts"
+      },
+      {
+        "method": "PATCH",
+        "path": "payroll/:id/mark-paid",
+        "summary": "تحديد كدفع",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "er",
+        "handler": "createAccount",
+        "file": "er.controller.ts"
+      },
+      {
+        "method": "POST",
+        "path": "accounts",
+        "summary": "تحديد كدفع",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "er",
+        "handler": "findAllAccounts",
+        "file": "er.controller.ts"
+      },
+      {
+        "method": "POST",
+        "path": "accounts",
+        "summary": "إنشاء حساب",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "er",
+        "handler": "findAccountById",
+        "file": "er.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "accounts",
+        "summary": "دليل الحسابات",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "er",
+        "handler": "createJournalEntry",
+        "file": "er.controller.ts"
+      },
+      {
+        "method": "POST",
+        "path": "journal-entries",
+        "summary": "الحصول على حساب",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "er",
+        "handler": "getJournalEntries",
+        "file": "er.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "journal-entries",
+        "summary": "الحصول على قيود اليومية",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "er",
+        "handler": "postJournalEntry",
+        "file": "er.controller.ts"
+      },
+      {
+        "method": "PATCH",
+        "path": "journal-entries/:id/post",
+        "summary": "ترحيل قيد",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "er",
+        "handler": "getTrialBalance",
+        "file": "er.controller.ts"
+      }
+    ],
+    "finance": [
+      {
+        "method": "POST",
+        "path": "commissions",
+        "summary": "",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "finance",
+        "handler": "create",
+        "file": "finance.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "commissions/my",
+        "summary": "الحصول على عمولاتي",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "finance",
+        "handler": "approve",
+        "file": "finance.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "commissions/stats/my",
+        "summary": "إحصائيات عمولاتي",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "finance",
+        "handler": "cancel",
+        "file": "finance.controller.ts"
+      },
+      {
+        "method": "PATCH",
+        "path": "commissions/:id/approve",
+        "summary": "الموافقة على عمولة",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "finance",
+        "handler": "createPayoutBatch",
+        "file": "finance.controller.ts"
+      },
+      {
+        "method": "POST",
+        "path": "payouts/batches",
+        "summary": "إنشاء دفعة من العمولات",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "finance",
+        "handler": "getPayoutBatches",
+        "file": "finance.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "payouts/batches",
+        "summary": "الحصول على كل الدفعات",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "finance",
+        "handler": "findById",
+        "file": "finance.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "payouts/batches/:id",
+        "summary": "الحصول على كل الدفعات",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "finance",
+        "handler": "getBatchItems",
+        "file": "finance.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "payouts/batches/:id",
+        "summary": "الحصول على دفعة",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "finance",
+        "handler": "approvePayoutBatch",
+        "file": "finance.controller.ts"
+      },
+      {
+        "method": "PATCH",
+        "path": "payouts/batches/:id/approve",
+        "summary": "الحصول على عناصر دفعة",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "finance",
+        "handler": "completePayoutBatch",
+        "file": "finance.controller.ts"
+      },
+      {
+        "method": "PATCH",
+        "path": "payouts/batches/:id/complete",
+        "summary": "إكمال دفعة",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "finance",
+        "handler": "create",
+        "file": "finance.controller.ts"
+      },
+      {
+        "method": "POST",
+        "path": "settlements",
+        "summary": "إكمال دفعة",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "finance",
+        "handler": "getEntitySettlements",
+        "file": "finance.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "settlements/entity/:entityId",
+        "summary": "إنشاء تسوية",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "finance",
+        "handler": "findById",
+        "file": "finance.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "settlements/:id",
+        "summary": "الحصول على تسويات كيان",
+        "roles": [
+          "admin",
+          "superadmin",
+          "vendor",
+          "driver"
+        ],
+        "module": "finance",
+        "handler": "approveSettlement",
+        "file": "finance.controller.ts"
+      },
+      {
+        "method": "PATCH",
+        "path": "settlements/:id/approve",
+        "summary": "الموافقة على تسوية",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "finance",
+        "handler": "createCoupon",
+        "file": "finance.controller.ts"
+      },
+      {
+        "method": "POST",
+        "path": "coupons/validate",
+        "summary": "إنشاء كوبون",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "finance",
+        "handler": "findAll",
+        "file": "finance.controller.ts"
+      },
+      {
+        "method": "POST",
+        "path": "coupons/validate",
+        "summary": "التحقق من كوبون",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "finance",
+        "handler": "updateCoupon",
+        "file": "finance.controller.ts"
+      },
+      {
+        "method": "PATCH",
+        "path": "coupons/:id",
+        "summary": "الحصول على كل الكوبونات",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "finance",
+        "handler": "createReconciliation",
+        "file": "finance.controller.ts"
+      },
+      {
+        "method": "POST",
+        "path": "reconciliations",
+        "summary": "إنشاء مطابقة مالية",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "finance",
+        "handler": "findAll",
+        "file": "finance.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "reconciliations",
+        "summary": "الحصول على كل المطابقات",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "finance",
+        "handler": "findById",
+        "file": "finance.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "reconciliations",
+        "summary": "الحصول على كل المطابقات",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "finance",
+        "handler": "addActualTotals",
+        "file": "finance.controller.ts"
+      },
+      {
+        "method": "PATCH",
+        "path": "reconciliations/:id/actual-totals",
+        "summary": "إضافة الإجماليات الفعلية",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "finance",
+        "handler": "addReconciliationIssue",
+        "file": "finance.controller.ts"
+      },
+      {
+        "method": "POST",
+        "path": "reconciliations/:id/issues",
+        "summary": "إضافة مشكلة للمطابقة",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "finance",
+        "handler": "resolveReconciliationIssue",
+        "file": "finance.controller.ts"
+      },
+      {
+        "method": "POST",
+        "path": "reports/daily",
+        "summary": "حل مشكلة في المطابقة",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "finance",
+        "handler": "generateDailyReport",
+        "file": "finance.controller.ts"
+      },
+      {
+        "method": "POST",
+        "path": "reports/daily",
+        "summary": "إنشاء تقرير يومي",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "finance",
+        "handler": "getDailyReport",
+        "file": "finance.controller.ts"
+      },
+      {
+        "method": "POST",
+        "path": "reports/daily",
+        "summary": "إنشاء تقرير يومي",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "finance",
+        "handler": "getReports",
+        "file": "finance.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "reports",
+        "summary": "الحصول على التقارير",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "finance",
+        "handler": "finalizeReport",
+        "file": "finance.controller.ts"
+      }
+    ],
+    "merchant": [
+      {
+        "method": "GET",
+        "path": ":id",
+        "summary": "إنشاء تاجر جديد",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "merchant",
+        "handler": "findMerchantById",
+        "file": "merchant.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": ":id",
+        "summary": "الحصول على كل التجار",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "merchant",
+        "handler": "updateMerchant",
+        "file": "merchant.controller.ts"
+      },
+      {
+        "method": "PATCH",
+        "path": ":id",
+        "summary": "الحصول على تاجر محدد",
+        "roles": [
+          "admin",
+          "superadmin",
+          "vendor"
+        ],
+        "module": "merchant",
+        "handler": "deleteMerchant",
+        "file": "merchant.controller.ts"
+      },
+      {
+        "method": "DELETE",
+        "path": ":id",
+        "summary": "حذف تاجر",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "merchant",
+        "handler": "createProductCatalog",
+        "file": "merchant.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "catalog/products",
+        "summary": "إضافة منتج للكتالوج",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "merchant",
+        "handler": "updateProductCatalog",
+        "file": "merchant.controller.ts"
+      },
+      {
+        "method": "PATCH",
+        "path": "products/:id/stock",
+        "summary": "تحديث مخزون منتج",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "merchant",
+        "handler": "createCategory",
+        "file": "merchant.controller.ts"
+      },
+      {
+        "method": "POST",
+        "path": "categories",
+        "summary": "إنشاء فئة منتجات",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "merchant",
+        "handler": "updateCategory",
+        "file": "merchant.controller.ts"
+      },
+      {
+        "method": "PATCH",
+        "path": "categories/:id",
+        "summary": "تحديث فئة",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "merchant",
+        "handler": "createAttribute",
+        "file": "merchant.controller.ts"
+      },
+      {
+        "method": "POST",
+        "path": "attributes",
+        "summary": "إنشاء خاصية منتج",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "merchant",
+        "handler": "updateAttribute",
+        "file": "merchant.controller.ts"
+      }
+    ],
+    "notification": [
+      {
+        "method": "DELETE",
+        "path": "suppression/channel/:channel",
+        "summary": "إلغاء حظر قناة محددة",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "notification",
+        "handler": "getSuppressionStats",
+        "file": "notification.controller.ts"
+      }
+    ],
+    "promotion": [
+      {
+        "method": "POST",
+        "path": ":id/click",
+        "summary": "تسجيل نقرة على عرض",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "promotion",
+        "handler": "createPromotion",
+        "file": "promotion.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": ":id",
+        "summary": "إنشاء عرض ترويجي",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "promotion",
+        "handler": "findById",
+        "file": "promotion.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": ":id",
+        "summary": "الحصول على كل العروض",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "promotion",
+        "handler": "updatePromotion",
+        "file": "promotion.controller.ts"
+      },
+      {
+        "method": "PATCH",
+        "path": ":id",
+        "summary": "الحصول على عرض محدد",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "promotion",
+        "handler": "delete",
+        "file": "promotion.controller.ts"
+      },
+      {
+        "method": "DELETE",
+        "path": ":id",
+        "summary": "تحديث عرض",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "promotion",
+        "handler": "getStatistics",
+        "file": "promotion.controller.ts"
+      }
+    ],
+    "store": [
+      {
+        "method": "POST",
+        "path": "products",
+        "summary": "إنشاء منتج",
+        "roles": [
+          "admin",
+          "superadmin",
+          "vendor"
+        ],
+        "module": "store",
+        "handler": "updateStore",
+        "file": "store.controller.ts"
+      }
+    ],
+    "user": [
+      {
+        "method": "DELETE",
+        "path": "deactivate",
+        "summary": "إلغاء تفعيل الحساب",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "user",
+        "handler": "",
+        "file": "user.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "pin/status",
+        "summary": "حالة رمز PIN",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "user",
+        "handler": "",
+        "file": "user.controller.ts"
+      }
+    ],
+    "utility": [
+      {
+        "method": "GET",
+        "path": "options",
+        "summary": "الحصول على خيارات الغاز والماء (public)",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "utility",
+        "handler": "create",
+        "file": "utility.controller.ts"
+      },
+      {
+        "method": "POST",
+        "path": "calculate-price",
+        "summary": "حساب سعر خدمة الغاز أو الماء",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "utility",
+        "handler": "getAllPricing",
+        "file": "utility.controller.ts"
+      },
+      {
+        "method": "POST",
+        "path": "pricing",
+        "summary": "إنشاء تسعير لمدينة",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "utility",
+        "handler": "findByCity",
+        "file": "utility.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "pricing",
+        "summary": "الحصول على كل التسعيرات",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "utility",
+        "handler": "updatePricing",
+        "file": "utility.controller.ts"
+      },
+      {
+        "method": "PATCH",
+        "path": "pricing/:city",
+        "summary": "الحصول على تسعير مدينة",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "utility",
+        "handler": "delete",
+        "file": "utility.controller.ts"
+      }
+    ],
+    "wallet": [
+      {
+        "method": "GET",
+        "path": "transactions",
+        "summary": "جلب سجل المعاملات",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "wallet",
+        "handler": "",
+        "file": "wallet.controller.ts"
+      },
+      {
+        "method": "POST",
+        "path": "transaction",
+        "summary": "إنشاء معاملة جديدة (للإدارة)",
+        "roles": [
+          "admin",
+          "superadmin"
+        ],
+        "module": "wallet",
+        "handler": "",
+        "file": "wallet.controller.ts"
+      },
+      {
+        "method": "GET",
+        "path": "audit",
+        "summary": "تدقيق حالة المحفظة",
+        "roles": [
+          "admin"
+        ],
+        "module": "wallet",
+        "handler": "",
+        "file": "wallet.controller.ts"
+      }
+    ]
+  },
+  "allEndpoints": [
+    {
+      "method": "PATCH",
+      "path": "errands/:id/status",
+      "summary": "تحديث حالة المهمة (سائق)",
+      "roles": [
+        "driver"
+      ],
+      "module": "akhdimni",
+      "handler": "getAllErrands",
+      "file": "akhdimni.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "admin/errands",
+      "summary": "كل طلبات أخدمني (إدارة)",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "akhdimni",
+      "handler": "assignDriver",
+      "file": "akhdimni.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "roas/daily",
+      "summary": "ROAS اليومي",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "analytics",
+      "handler": "getRoasSummary",
+      "file": "analytics.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "roas/summary",
+      "summary": "ملخص ROAS",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "analytics",
+      "handler": "getRoasByPlatform",
+      "file": "analytics.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "roas/by-platform",
+      "summary": "ROAS حسب المنصة",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "analytics",
+      "handler": "",
+      "file": "analytics.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "roas/calculate",
+      "summary": "ROAS حسب المنصة",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "analytics",
+      "handler": "recordAdSpend",
+      "file": "analytics.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "adspend",
+      "summary": "تسجيل إنفاق إعلاني",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "analytics",
+      "handler": "getAdSpend",
+      "file": "analytics.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "adspend",
+      "summary": "الإنفاق الإعلاني",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "analytics",
+      "handler": "getAdSpendSummary",
+      "file": "analytics.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "adspend/summary",
+      "summary": "ملخص الإنفاق الإعلاني",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "analytics",
+      "handler": "getKPIs",
+      "file": "analytics.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "kpis",
+      "summary": "مؤشرات الأداء الرئيسية",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "analytics",
+      "handler": "getRealTimeKPIs",
+      "file": "analytics.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "kpis",
+      "summary": "مؤشرات الأداء الرئيسية",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "analytics",
+      "handler": "getKPITrends",
+      "file": "analytics.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "events/track",
+      "summary": "تتبع حدث تسويقي",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "analytics",
+      "handler": "getEvents",
+      "file": "analytics.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "events",
+      "summary": "الأحداث التسويقية",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "analytics",
+      "handler": "getEventsSummary",
+      "file": "analytics.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "events/summary",
+      "summary": "ملخص الأحداث",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "analytics",
+      "handler": "getConversionFunnel",
+      "file": "analytics.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "funnel/conversion",
+      "summary": "قمع التحويل",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "analytics",
+      "handler": "getDropOffPoints",
+      "file": "analytics.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "funnel/drop-off",
+      "summary": "قمع التحويل",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "analytics",
+      "handler": "",
+      "file": "analytics.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "funnel/drop-off",
+      "summary": "نقاط الانسحاب",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "analytics",
+      "handler": "getUserRetention",
+      "file": "analytics.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "users/growth",
+      "summary": "نمو المستخدمين",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "analytics",
+      "handler": "",
+      "file": "analytics.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "users/retention",
+      "summary": "معدل الاحتفاظ",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "analytics",
+      "handler": "getRevenueForecast",
+      "file": "analytics.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "users/cohort",
+      "summary": "تحليل الأفواج",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "analytics",
+      "handler": "getRevenueBreakdown",
+      "file": "analytics.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "revenue/breakdown",
+      "summary": "توقعات الإيرادات",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "analytics",
+      "handler": "getDashboardOverview",
+      "file": "analytics.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "advanced/dashboard-overview",
+      "summary": "نظرة عامة متقدمة",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "analytics",
+      "handler": "",
+      "file": "analytics.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "advanced/dashboard-overview",
+      "summary": "نظرة عامة متقدمة",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "analytics",
+      "handler": "",
+      "file": "analytics.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "advanced/cohort-analysis-advanced",
+      "summary": "تحليل المجموعات المتقدم",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "analytics",
+      "handler": "",
+      "file": "analytics.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "advanced/funnel-analysis",
+      "summary": "تحليل القمع",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "analytics",
+      "handler": "getCustomerLTV",
+      "file": "analytics.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "advanced/retention",
+      "summary": "معدل الاحتفاظ",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "analytics",
+      "handler": "",
+      "file": "analytics.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "advanced/ltv",
+      "summary": "القيمة الدائمة للعميل",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "analytics",
+      "handler": "",
+      "file": "analytics.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "advanced/churn-rate",
+      "summary": "معدل التراجع",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "analytics",
+      "handler": "getPeakHours",
+      "file": "analytics.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "advanced/geographic-distribution",
+      "summary": "التوزيع الجغرافي",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "analytics",
+      "handler": "getProductPerformance",
+      "file": "analytics.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "advanced/peak-hours",
+      "summary": "ساعات الذروة",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "analytics",
+      "handler": "getDriverPerformance",
+      "file": "analytics.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "banners",
+      "summary": "الحصول على البانرات النشطة (public)",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "content",
+      "handler": "createBanner",
+      "file": "content.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "banners",
+      "summary": "تسجيل نقرة على بانر",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "content",
+      "handler": "getAllBanners",
+      "file": "content.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "admin/banners",
+      "summary": "إنشاء بانر جديد",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "content",
+      "handler": "updateBanner",
+      "file": "content.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "admin/banners",
+      "summary": "كل البانرات (admin)",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "content",
+      "handler": "deleteBanner",
+      "file": "content.controller.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "sections/:id",
+      "summary": "حذف قسم",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "content",
+      "handler": "createSubscriptionPlan",
+      "file": "content.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "pages",
+      "summary": "الحصول على صفحات CMS (public)",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "content",
+      "handler": "createCMSPage",
+      "file": "content.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "pages/:slug",
+      "summary": "الحصول على صفحة CMS بالـ slug",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "content",
+      "handler": "updateCMSPage",
+      "file": "content.controller.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "admin/pages/:id",
+      "summary": "تحديث صفحة CMS",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "content",
+      "handler": "updateAppSettings",
+      "file": "content.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "faqs",
+      "summary": "تحديث إعدادات التطبيق",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "content",
+      "handler": "createFAQ",
+      "file": "content.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "faqs",
+      "summary": "الأسئلة الشائعة (public)",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "content",
+      "handler": "updateFAQ",
+      "file": "content.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "admin/faqs",
+      "summary": "إضافة سؤال شائع",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "content",
+      "handler": "deleteFAQ",
+      "file": "content.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "employees",
+      "summary": "",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "er",
+      "handler": "createEmployee",
+      "file": "er.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "employees",
+      "summary": "إضافة موظف جديد",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "er",
+      "handler": "findAllEmployees",
+      "file": "er.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "employees",
+      "summary": "إضافة موظف جديد",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "er",
+      "handler": "findEmployeeById",
+      "file": "er.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "employees",
+      "summary": "الحصول على كل الموظفين",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "er",
+      "handler": "updateEmployee",
+      "file": "er.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "attendance/check-out",
+      "summary": "تسجيل حضور",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "er",
+      "handler": "getEmployeeAttendance",
+      "file": "er.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "leave-requests",
+      "summary": "تقديم طلب إجازة",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "er",
+      "handler": "approveLeaveRequest",
+      "file": "er.controller.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "leave-requests/:id/approve",
+      "summary": "الموافقة على طلب إجازة",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "er",
+      "handler": "rejectLeaveRequest",
+      "file": "er.controller.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "leave-requests/:id/reject",
+      "summary": "رفض طلب إجازة",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "er",
+      "handler": "generatePayroll",
+      "file": "er.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "payroll/generate",
+      "summary": "إنشاء كشف راتب",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "er",
+      "handler": "approvePayroll",
+      "file": "er.controller.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "payroll/:id/approve",
+      "summary": "إنشاء كشف راتب",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "er",
+      "handler": "markAsPaid",
+      "file": "er.controller.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "payroll/:id/mark-paid",
+      "summary": "تحديد كدفع",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "er",
+      "handler": "createAccount",
+      "file": "er.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "accounts",
+      "summary": "تحديد كدفع",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "er",
+      "handler": "findAllAccounts",
+      "file": "er.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "accounts",
+      "summary": "إنشاء حساب",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "er",
+      "handler": "findAccountById",
+      "file": "er.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "accounts",
+      "summary": "دليل الحسابات",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "er",
+      "handler": "createJournalEntry",
+      "file": "er.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "journal-entries",
+      "summary": "الحصول على حساب",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "er",
+      "handler": "getJournalEntries",
+      "file": "er.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "journal-entries",
+      "summary": "الحصول على قيود اليومية",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "er",
+      "handler": "postJournalEntry",
+      "file": "er.controller.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "journal-entries/:id/post",
+      "summary": "ترحيل قيد",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "er",
+      "handler": "getTrialBalance",
+      "file": "er.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "commissions",
+      "summary": "",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "finance",
+      "handler": "create",
+      "file": "finance.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "commissions/my",
+      "summary": "الحصول على عمولاتي",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "finance",
+      "handler": "approve",
+      "file": "finance.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "commissions/stats/my",
+      "summary": "إحصائيات عمولاتي",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "finance",
+      "handler": "cancel",
+      "file": "finance.controller.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "commissions/:id/approve",
+      "summary": "الموافقة على عمولة",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "finance",
+      "handler": "createPayoutBatch",
+      "file": "finance.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "payouts/batches",
+      "summary": "إنشاء دفعة من العمولات",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "finance",
+      "handler": "getPayoutBatches",
+      "file": "finance.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "payouts/batches",
+      "summary": "الحصول على كل الدفعات",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "finance",
+      "handler": "findById",
+      "file": "finance.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "payouts/batches/:id",
+      "summary": "الحصول على كل الدفعات",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "finance",
+      "handler": "getBatchItems",
+      "file": "finance.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "payouts/batches/:id",
+      "summary": "الحصول على دفعة",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "finance",
+      "handler": "approvePayoutBatch",
+      "file": "finance.controller.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "payouts/batches/:id/approve",
+      "summary": "الحصول على عناصر دفعة",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "finance",
+      "handler": "completePayoutBatch",
+      "file": "finance.controller.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "payouts/batches/:id/complete",
+      "summary": "إكمال دفعة",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "finance",
+      "handler": "create",
+      "file": "finance.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "settlements",
+      "summary": "إكمال دفعة",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "finance",
+      "handler": "getEntitySettlements",
+      "file": "finance.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "settlements/entity/:entityId",
+      "summary": "إنشاء تسوية",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "finance",
+      "handler": "findById",
+      "file": "finance.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "settlements/:id",
+      "summary": "الحصول على تسويات كيان",
+      "roles": [
+        "admin",
+        "superadmin",
+        "vendor",
+        "driver"
+      ],
+      "module": "finance",
+      "handler": "approveSettlement",
+      "file": "finance.controller.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "settlements/:id/approve",
+      "summary": "الموافقة على تسوية",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "finance",
+      "handler": "createCoupon",
+      "file": "finance.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "coupons/validate",
+      "summary": "إنشاء كوبون",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "finance",
+      "handler": "findAll",
+      "file": "finance.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "coupons/validate",
+      "summary": "التحقق من كوبون",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "finance",
+      "handler": "updateCoupon",
+      "file": "finance.controller.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "coupons/:id",
+      "summary": "الحصول على كل الكوبونات",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "finance",
+      "handler": "createReconciliation",
+      "file": "finance.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "reconciliations",
+      "summary": "إنشاء مطابقة مالية",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "finance",
+      "handler": "findAll",
+      "file": "finance.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "reconciliations",
+      "summary": "الحصول على كل المطابقات",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "finance",
+      "handler": "findById",
+      "file": "finance.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "reconciliations",
+      "summary": "الحصول على كل المطابقات",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "finance",
+      "handler": "addActualTotals",
+      "file": "finance.controller.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "reconciliations/:id/actual-totals",
+      "summary": "إضافة الإجماليات الفعلية",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "finance",
+      "handler": "addReconciliationIssue",
+      "file": "finance.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "reconciliations/:id/issues",
+      "summary": "إضافة مشكلة للمطابقة",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "finance",
+      "handler": "resolveReconciliationIssue",
+      "file": "finance.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "reports/daily",
+      "summary": "حل مشكلة في المطابقة",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "finance",
+      "handler": "generateDailyReport",
+      "file": "finance.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "reports/daily",
+      "summary": "إنشاء تقرير يومي",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "finance",
+      "handler": "getDailyReport",
+      "file": "finance.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "reports/daily",
+      "summary": "إنشاء تقرير يومي",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "finance",
+      "handler": "getReports",
+      "file": "finance.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "reports",
+      "summary": "الحصول على التقارير",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "finance",
+      "handler": "finalizeReport",
+      "file": "finance.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": ":id",
+      "summary": "إنشاء تاجر جديد",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "merchant",
+      "handler": "findMerchantById",
+      "file": "merchant.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": ":id",
+      "summary": "الحصول على كل التجار",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "merchant",
+      "handler": "updateMerchant",
+      "file": "merchant.controller.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": ":id",
+      "summary": "الحصول على تاجر محدد",
+      "roles": [
+        "admin",
+        "superadmin",
+        "vendor"
+      ],
+      "module": "merchant",
+      "handler": "deleteMerchant",
+      "file": "merchant.controller.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": ":id",
+      "summary": "حذف تاجر",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "merchant",
+      "handler": "createProductCatalog",
+      "file": "merchant.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "catalog/products",
+      "summary": "إضافة منتج للكتالوج",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "merchant",
+      "handler": "updateProductCatalog",
+      "file": "merchant.controller.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "products/:id/stock",
+      "summary": "تحديث مخزون منتج",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "merchant",
+      "handler": "createCategory",
+      "file": "merchant.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "categories",
+      "summary": "إنشاء فئة منتجات",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "merchant",
+      "handler": "updateCategory",
+      "file": "merchant.controller.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "categories/:id",
+      "summary": "تحديث فئة",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "merchant",
+      "handler": "createAttribute",
+      "file": "merchant.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "attributes",
+      "summary": "إنشاء خاصية منتج",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "merchant",
+      "handler": "updateAttribute",
+      "file": "merchant.controller.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "suppression/channel/:channel",
+      "summary": "إلغاء حظر قناة محددة",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "notification",
+      "handler": "getSuppressionStats",
+      "file": "notification.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": ":id/click",
+      "summary": "تسجيل نقرة على عرض",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "promotion",
+      "handler": "createPromotion",
+      "file": "promotion.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": ":id",
+      "summary": "إنشاء عرض ترويجي",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "promotion",
+      "handler": "findById",
+      "file": "promotion.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": ":id",
+      "summary": "الحصول على كل العروض",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "promotion",
+      "handler": "updatePromotion",
+      "file": "promotion.controller.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": ":id",
+      "summary": "الحصول على عرض محدد",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "promotion",
+      "handler": "delete",
+      "file": "promotion.controller.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": ":id",
+      "summary": "تحديث عرض",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "promotion",
+      "handler": "getStatistics",
+      "file": "promotion.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "products",
+      "summary": "إنشاء منتج",
+      "roles": [
+        "admin",
+        "superadmin",
+        "vendor"
+      ],
+      "module": "store",
+      "handler": "updateStore",
+      "file": "store.controller.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "deactivate",
+      "summary": "إلغاء تفعيل الحساب",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "user",
+      "handler": "",
+      "file": "user.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "pin/status",
+      "summary": "حالة رمز PIN",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "user",
+      "handler": "",
+      "file": "user.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "options",
+      "summary": "الحصول على خيارات الغاز والماء (public)",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "utility",
+      "handler": "create",
+      "file": "utility.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "calculate-price",
+      "summary": "حساب سعر خدمة الغاز أو الماء",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "utility",
+      "handler": "getAllPricing",
+      "file": "utility.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "pricing",
+      "summary": "إنشاء تسعير لمدينة",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "utility",
+      "handler": "findByCity",
+      "file": "utility.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "pricing",
+      "summary": "الحصول على كل التسعيرات",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "utility",
+      "handler": "updatePricing",
+      "file": "utility.controller.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "pricing/:city",
+      "summary": "الحصول على تسعير مدينة",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "utility",
+      "handler": "delete",
+      "file": "utility.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "transactions",
+      "summary": "جلب سجل المعاملات",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "wallet",
+      "handler": "",
+      "file": "wallet.controller.ts"
+    },
+    {
+      "method": "POST",
+      "path": "transaction",
+      "summary": "إنشاء معاملة جديدة (للإدارة)",
+      "roles": [
+        "admin",
+        "superadmin"
+      ],
+      "module": "wallet",
+      "handler": "",
+      "file": "wallet.controller.ts"
+    },
+    {
+      "method": "GET",
+      "path": "audit",
+      "summary": "تدقيق حالة المحفظة",
+      "roles": [
+        "admin"
+      ],
+      "module": "wallet",
+      "handler": "",
+      "file": "wallet.controller.ts"
+    }
+  ],
+  "summary": {
+    "byModule": [
+      {
+        "module": "akhdimni",
+        "count": 2
+      },
+      {
+        "module": "analytics",
+        "count": 28
+      },
+      {
+        "module": "content",
+        "count": 11
+      },
+      {
+        "module": "er",
+        "count": 17
+      },
+      {
+        "module": "finance",
+        "count": 26
+      },
+      {
+        "module": "merchant",
+        "count": 9
+      },
+      {
+        "module": "notification",
+        "count": 1
+      },
+      {
+        "module": "promotion",
+        "count": 5
+      },
+      {
+        "module": "store",
+        "count": 1
+      },
+      {
+        "module": "user",
+        "count": 2
+      },
+      {
+        "module": "utility",
+        "count": 5
+      },
+      {
+        "module": "wallet",
+        "count": 3
+      }
+    ],
+    "byMethod": {
+      "PATCH": 18,
+      "GET": 56,
+      "POST": 31,
+      "DELETE": 5
+    }
+  }
+}

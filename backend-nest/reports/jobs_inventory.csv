@@ -1,0 +1,33 @@
+REGISTERED QUEUES
+Queue Name,Registered In,Line
+"notifications","src/queues/queues.module.ts",31
+"notifications-dlq","src/queues/queues.module.ts",32
+"emails","src/queues/queues.module.ts",33
+"emails-dlq","src/queues/queues.module.ts",34
+"orders","src/queues/queues.module.ts",35
+"orders-dlq","src/queues/queues.module.ts",36
+"reports","src/queues/queues.module.ts",37
+
+QUEUE JOBS
+Processor,Queue Name,Job Name,Job Type,Data Interface,File,Line,OnActive,OnCompleted,OnFailed
+"EmailProcessor","emails","send-email","sendEmail","SendEmailJobData","src/queues/processors/email.processor.ts",25,No,No,No
+"EmailProcessor","emails","send-bulk-emails","sendBulkEmails","SendBulkEmailsJobData","src/queues/processors/email.processor.ts",46,No,No,No
+"EmailProcessor","emails","send-order-confirmation","sendOrderConfirmation","{ email: string; orderDetails: any }","src/queues/processors/email.processor.ts",74,No,No,No
+"EmailProcessor","emails","send-password-reset","sendPasswordReset","{ email: string; resetToken: string }","src/queues/processors/email.processor.ts",89,No,No,No
+"EmailProcessor","emails","send-welcome-email","sendWelcomeEmail","{ email: string; name: string }","src/queues/processors/email.processor.ts",107,No,No,No
+"NotificationProcessor","notifications","send-notification","sendNotification","SendNotificationJobData","src/queues/processors/notification.processor.ts",24,No,No,No
+"NotificationProcessor","notifications","send-bulk-notifications","sendBulkNotifications","SendBulkNotificationsJobData","src/queues/processors/notification.processor.ts",55,No,No,No
+"NotificationProcessor","notifications","send-order-update","sendOrderUpdate","{ orderId: string; status: string; userId: string }","src/queues/processors/notification.processor.ts",90,No,No,No
+"OrderProcessor","orders","process-order","processOrder","ProcessOrderJobData","src/queues/processors/order.processor.ts",22,No,No,No
+"OrderProcessor","orders","generate-invoice","generateInvoice","GenerateInvoiceJobData","src/queues/processors/order.processor.ts",52,No,No,No
+"OrderProcessor","orders","calculate-commission","calculateCommission","{ orderId: string; amount: number; marketerId?: string }","src/queues/processors/order.processor.ts",76,No,No,No
+"OrderProcessor","orders","update-analytics","updateAnalytics","{ orderId: string; eventType: string; data: any }","src/queues/processors/order.processor.ts",99,No,No,No
+
+SUMMARY
+Metric,Count
+"Total Queues",7
+"Total Jobs",12
+"Total Processors",3
+"Jobs with OnActive Hook",0
+"Jobs with OnCompleted Hook",0
+"Jobs with OnFailed Hook",0

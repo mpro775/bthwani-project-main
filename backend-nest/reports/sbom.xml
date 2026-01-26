@@ -1,0 +1,615 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bom xmlns="http://cyclonedx.org/schema/bom/1.4" serialNumber="urn:uuid:4cd71638-2918-4976-af01-8758d1a686dc" version="1">
+  <metadata>
+    <timestamp>2025-10-18T14:53:42.343Z</timestamp>
+    <component type="application">
+      <name>bthwani-backend-nest</name>
+      <version>0.0.1</version>
+      <description>BThwani Backend Service</description>
+    </component>
+  </metadata>
+  <components>
+    <component type="library">
+      <name>@nestjs/bull</name>
+      <version>11.0.4</version>
+      <description>Nest - modern, fast, powerful node.js web framework (@bull)</description>
+      <purl>pkg:npm/@nestjs/bull@11.0.4</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>@nestjs/cache-manager</name>
+      <version>3.0.1</version>
+      <description>Nest - modern, fast, powerful node.js web framework (@cache-manager)</description>
+      <purl>pkg:npm/@nestjs/cache-manager@3.0.1</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>@nestjs/common</name>
+      <version>11.1.6</version>
+      <description>Nest - modern, fast, powerful node.js web framework (@common)</description>
+      <purl>pkg:npm/@nestjs/common@11.1.6</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>@nestjs/config</name>
+      <version>4.0.2</version>
+      <description>Nest - modern, fast, powerful node.js web framework (@config)</description>
+      <purl>pkg:npm/@nestjs/config@4.0.2</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>@nestjs/core</name>
+      <version>11.1.6</version>
+      <description>Nest - modern, fast, powerful node.js web framework (@core)</description>
+      <purl>pkg:npm/@nestjs/core@11.1.6</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>@nestjs/cqrs</name>
+      <version>11.0.3</version>
+      <description>A lightweight CQRS module for Nest framework (node.js)</description>
+      <purl>pkg:npm/@nestjs/cqrs@11.0.3</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>@nestjs/jwt</name>
+      <version>11.0.1</version>
+      <description>Nest - modern, fast, powerful node.js web framework (@jwt)</description>
+      <purl>pkg:npm/@nestjs/jwt@11.0.1</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>@nestjs/mongoose</name>
+      <version>11.0.3</version>
+      <description>Nest - modern, fast, powerful node.js web framework (@mongoose)</description>
+      <purl>pkg:npm/@nestjs/mongoose@11.0.3</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>@nestjs/passport</name>
+      <version>11.0.5</version>
+      <description>Nest - modern, fast, powerful node.js web framework (@passport)</description>
+      <purl>pkg:npm/@nestjs/passport@11.0.5</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>@nestjs/platform-express</name>
+      <version>11.1.6</version>
+      <description>Nest - modern, fast, powerful node.js web framework (@platform-express)</description>
+      <purl>pkg:npm/@nestjs/platform-express@11.1.6</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>@nestjs/platform-socket.io</name>
+      <version>11.1.6</version>
+      <description>Nest - modern, fast, powerful node.js web framework (@platform-socket.io)</description>
+      <purl>pkg:npm/@nestjs/platform-socket.io@11.1.6</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>@nestjs/schedule</name>
+      <version>6.0.1</version>
+      <description>Nest - modern, fast, powerful node.js web framework (@schedule)</description>
+      <purl>pkg:npm/@nestjs/schedule@6.0.1</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>@nestjs/swagger</name>
+      <version>11.2.0</version>
+      <description>Nest - modern, fast, powerful node.js web framework (@swagger)</description>
+      <purl>pkg:npm/@nestjs/swagger@11.2.0</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>@nestjs/terminus</name>
+      <version>11.0.0</version>
+      <description>Terminus integration provides readiness/liveness health checks for NestJS.</description>
+      <purl>pkg:npm/@nestjs/terminus@11.0.0</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>@nestjs/throttler</name>
+      <version>6.4.0</version>
+      <description>A Rate-Limiting module for NestJS to work on Express, Fastify, Websockets, Socket.IO, and GraphQL, all rolled up into a simple package.</description>
+      <purl>pkg:npm/@nestjs/throttler@6.4.0</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>@nestjs/websockets</name>
+      <version>11.1.6</version>
+      <description>Nest - modern, fast, powerful node.js web framework (@websockets)</description>
+      <purl>pkg:npm/@nestjs/websockets@11.1.6</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>bcrypt</name>
+      <version>6.0.0</version>
+      <description>A bcrypt library for NodeJS.</description>
+      <purl>pkg:npm/bcrypt@6.0.0</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>bull</name>
+      <version>4.16.5</version>
+      <description>Job manager</description>
+      <purl>pkg:npm/bull@4.16.5</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>cache-manager</name>
+      <version>7.2.4</version>
+      <description>Cache Manager for Node.js</description>
+      <purl>pkg:npm/cache-manager@7.2.4</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>cache-manager-redis-store</name>
+      <version>3.0.1</version>
+      <description>Redis store for node-cache-manager</description>
+      <purl>pkg:npm/cache-manager-redis-store@3.0.1</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>class-transformer</name>
+      <version>0.5.1</version>
+      <description>Proper decorator-based transformation / serialization / deserialization of plain javascript objects to class constructors</description>
+      <purl>pkg:npm/class-transformer@0.5.1</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>class-validator</name>
+      <version>0.14.2</version>
+      <description>Decorator-based property validation for classes.</description>
+      <purl>pkg:npm/class-validator@0.14.2</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>dayjs</name>
+      <version>1.11.18</version>
+      <description>2KB immutable date time library alternative to Moment.js with the same modern API </description>
+      <purl>pkg:npm/dayjs@1.11.18</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>express-rate-limit</name>
+      <version>8.1.0</version>
+      <description>Basic IP rate-limiting middleware for Express. Use to limit repeated requests to public APIs and/or endpoints such as password reset.</description>
+      <purl>pkg:npm/express-rate-limit@8.1.0</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>express-timeout-handler</name>
+      <version>2.2.2</version>
+      <description>Express timeout middleware that ensures a response is returned to the client on a timeout event.</description>
+      <purl>pkg:npm/express-timeout-handler@2.2.2</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>firebase-admin</name>
+      <version>13.5.0</version>
+      <description>Firebase admin SDK for Node.js</description>
+      <purl>pkg:npm/firebase-admin@13.5.0</purl>
+      <licenses>
+        <license><id>Apache-2.0</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>geolib</name>
+      <version>3.3.4</version>
+      <purl>pkg:npm/geolib@3.3.4</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>helmet</name>
+      <version>8.1.0</version>
+      <description>help secure Express/Connect apps with various HTTP headers</description>
+      <purl>pkg:npm/helmet@8.1.0</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>joi</name>
+      <version>18.0.1</version>
+      <description>Object schema validation</description>
+      <purl>pkg:npm/joi@18.0.1</purl>
+      <licenses>
+        <license><id>BSD-3-Clause</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>mongoose</name>
+      <version>8.19.1</version>
+      <description>Mongoose MongoDB ODM</description>
+      <purl>pkg:npm/mongoose@8.19.1</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>nest-winston</name>
+      <version>1.10.2</version>
+      <description>A Nest module wrapper for winston</description>
+      <purl>pkg:npm/nest-winston@1.10.2</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>passport</name>
+      <version>0.7.0</version>
+      <description>Simple, unobtrusive authentication for Node.js.</description>
+      <purl>pkg:npm/passport@0.7.0</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>passport-custom</name>
+      <version>1.1.1</version>
+      <description>Custom authentication strategy for Passport.</description>
+      <purl>pkg:npm/passport-custom@1.1.1</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>passport-jwt</name>
+      <version>4.0.1</version>
+      <description>Passport authentication strategy using JSON Web Tokens</description>
+      <purl>pkg:npm/passport-jwt@4.0.1</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>redis</name>
+      <version>5.8.3</version>
+      <description>A modern, high performance Redis client</description>
+      <purl>pkg:npm/redis@5.8.3</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>reflect-metadata</name>
+      <version>0.2.2</version>
+      <description>Polyfill for Metadata Reflection API</description>
+      <purl>pkg:npm/reflect-metadata@0.2.2</purl>
+      <licenses>
+        <license><id>Apache-2.0</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>rxjs</name>
+      <version>7.8.2</version>
+      <description>Reactive Extensions for modern JavaScript</description>
+      <purl>pkg:npm/rxjs@7.8.2</purl>
+      <licenses>
+        <license><id>Apache-2.0</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>socket.io</name>
+      <version>4.8.1</version>
+      <description>node.js realtime framework server</description>
+      <purl>pkg:npm/socket.io@4.8.1</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>winston</name>
+      <version>3.18.3</version>
+      <description>A logger for just about everything.</description>
+      <purl>pkg:npm/winston@3.18.3</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>@eslint/eslintrc</name>
+      <version>3.3.1</version>
+      <description>The legacy ESLintRC config file format for ESLint</description>
+      <purl>pkg:npm/@eslint/eslintrc@3.3.1</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>@eslint/js</name>
+      <version>9.37.0</version>
+      <description>ESLint JavaScript language implementation</description>
+      <purl>pkg:npm/@eslint/js@9.37.0</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>@nestjs/cli</name>
+      <version>11.0.10</version>
+      <description>Nest - modern, fast, powerful node.js web framework (@cli)</description>
+      <purl>pkg:npm/@nestjs/cli@11.0.10</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>@nestjs/schematics</name>
+      <version>11.0.9</version>
+      <description>Nest - modern, fast, powerful node.js web framework (@schematics)</description>
+      <purl>pkg:npm/@nestjs/schematics@11.0.9</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>@nestjs/testing</name>
+      <version>11.1.6</version>
+      <description>Nest - modern, fast, powerful node.js web framework (@testing)</description>
+      <purl>pkg:npm/@nestjs/testing@11.1.6</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>@types/bcrypt</name>
+      <version>6.0.0</version>
+      <description>TypeScript definitions for bcrypt</description>
+      <purl>pkg:npm/@types/bcrypt@6.0.0</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>@types/express</name>
+      <version>5.0.3</version>
+      <description>TypeScript definitions for express</description>
+      <purl>pkg:npm/@types/express@5.0.3</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>@types/jest</name>
+      <version>30.0.0</version>
+      <description>TypeScript definitions for jest</description>
+      <purl>pkg:npm/@types/jest@30.0.0</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>@types/js-yaml</name>
+      <version>4.0.9</version>
+      <description>TypeScript definitions for js-yaml</description>
+      <purl>pkg:npm/@types/js-yaml@4.0.9</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>@types/node</name>
+      <version>22.18.10</version>
+      <description>TypeScript definitions for node</description>
+      <purl>pkg:npm/@types/node@22.18.10</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>@types/passport-jwt</name>
+      <version>4.0.1</version>
+      <description>TypeScript definitions for passport-jwt</description>
+      <purl>pkg:npm/@types/passport-jwt@4.0.1</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>@types/supertest</name>
+      <version>6.0.3</version>
+      <description>TypeScript definitions for supertest</description>
+      <purl>pkg:npm/@types/supertest@6.0.3</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>eslint</name>
+      <version>9.37.0</version>
+      <description>An AST-based pattern checker for JavaScript.</description>
+      <purl>pkg:npm/eslint@9.37.0</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>eslint-config-prettier</name>
+      <version>10.1.8</version>
+      <description>Turns off all rules that are unnecessary or might conflict with Prettier.</description>
+      <purl>pkg:npm/eslint-config-prettier@10.1.8</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>eslint-plugin-prettier</name>
+      <version>5.5.4</version>
+      <description>Runs prettier as an eslint rule</description>
+      <purl>pkg:npm/eslint-plugin-prettier@5.5.4</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>globals</name>
+      <version>16.4.0</version>
+      <description>Global identifiers from different JavaScript environments</description>
+      <purl>pkg:npm/globals@16.4.0</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>jest</name>
+      <version>30.2.0</version>
+      <description>Delightful JavaScript Testing.</description>
+      <purl>pkg:npm/jest@30.2.0</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>js-yaml</name>
+      <version>4.1.0</version>
+      <description>YAML 1.2 parser and serializer</description>
+      <purl>pkg:npm/js-yaml@4.1.0</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>prettier</name>
+      <version>3.6.2</version>
+      <description>Prettier is an opinionated code formatter</description>
+      <purl>pkg:npm/prettier@3.6.2</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>source-map-support</name>
+      <version>0.5.21</version>
+      <description>Fixes stack traces for files with source maps</description>
+      <purl>pkg:npm/source-map-support@0.5.21</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>supertest</name>
+      <version>7.1.4</version>
+      <description>SuperAgent driven library for testing HTTP servers</description>
+      <purl>pkg:npm/supertest@7.1.4</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>ts-jest</name>
+      <version>29.4.5</version>
+      <description>A Jest transformer with source map support that lets you use Jest to test projects written in TypeScript</description>
+      <purl>pkg:npm/ts-jest@29.4.5</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>ts-loader</name>
+      <version>9.5.4</version>
+      <description>TypeScript loader for webpack</description>
+      <purl>pkg:npm/ts-loader@9.5.4</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>ts-morph</name>
+      <version>24.0.0</version>
+      <description>TypeScript compiler wrapper for static analysis and code manipulation.</description>
+      <purl>pkg:npm/ts-morph@24.0.0</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>ts-node</name>
+      <version>10.9.2</version>
+      <description>TypeScript execution environment and REPL for node.js, with source map support</description>
+      <purl>pkg:npm/ts-node@10.9.2</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>tsconfig-paths</name>
+      <version>4.2.0</version>
+      <description>Load node modules according to tsconfig paths, in run-time or via API.</description>
+      <purl>pkg:npm/tsconfig-paths@4.2.0</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>typescript</name>
+      <version>5.9.3</version>
+      <description>TypeScript is a language for application scale JavaScript development</description>
+      <purl>pkg:npm/typescript@5.9.3</purl>
+      <licenses>
+        <license><id>Apache-2.0</id></license>
+      </licenses>
+    </component>
+    <component type="library">
+      <name>typescript-eslint</name>
+      <version>8.46.1</version>
+      <description>Tooling which enables you to use TypeScript with ESLint</description>
+      <purl>pkg:npm/typescript-eslint@8.46.1</purl>
+      <licenses>
+        <license><id>MIT</id></license>
+      </licenses>
+    </component>
+  </components>
+</bom>

@@ -1,0 +1,324 @@
+{
+  "generated_at": "2025-10-14T21:37:21.097Z",
+  "summary": {
+    "total_checks": 12,
+    "implemented": 11,
+    "partial": 1,
+    "missing": 0,
+    "coverage_percentage": 96
+  },
+  "checks": [
+    {
+      "id": "H1",
+      "name": "Health Endpoint",
+      "description": "Basic /health endpoint is available",
+      "category": "Basic",
+      "priority": "High",
+      "status": "implemented",
+      "evidence": [
+        {
+          "file": "src/modules/health/health.controller.ts",
+          "line": 20,
+          "code": "export class HealthController {"
+        },
+        {
+          "file": "src/modules/health/health.module.ts",
+          "line": 3,
+          "code": "import { HealthController } from './health.controller';"
+        },
+        {
+          "file": "src/modules/health/health.module.ts",
+          "line": 10,
+          "code": "controllers: [HealthController],"
+        }
+      ],
+      "recommendations": []
+    },
+    {
+      "id": "H2",
+      "name": "Terminus Module",
+      "description": "@nestjs/terminus module for professional health checks",
+      "category": "Advanced",
+      "priority": "Medium",
+      "status": "implemented",
+      "evidence": [
+        {
+          "file": "src/modules/health/health.controller.ts",
+          "line": 9,
+          "code": "} from '@nestjs/terminus';"
+        },
+        {
+          "file": "src/modules/health/health.module.ts",
+          "line": 2,
+          "code": "import { TerminusModule } from '@nestjs/terminus';"
+        },
+        {
+          "file": "src/modules/health/indicators/queue.health.ts",
+          "line": 6,
+          "code": "} from '@nestjs/terminus';"
+        }
+      ],
+      "recommendations": []
+    },
+    {
+      "id": "H3",
+      "name": "Liveness Probe",
+      "description": "Kubernetes liveness probe endpoint",
+      "category": "Kubernetes",
+      "priority": "High",
+      "status": "implemented",
+      "evidence": [
+        {
+          "file": "src/modules/health/health.controller.ts",
+          "line": 69,
+          "code": "@ApiOperation({ summary: 'Liveness Probe - للـ Kubernetes' })"
+        },
+        {
+          "file": "tools/audit/health-readiness.ts",
+          "line": 8,
+          "code": "* - Readiness/Liveness probes"
+        },
+        {
+          "file": "tools/audit/health-readiness.ts",
+          "line": 169,
+          "code": "// 3. Liveness Probe"
+        }
+      ],
+      "recommendations": []
+    },
+    {
+      "id": "H4",
+      "name": "Readiness Probe",
+      "description": "Kubernetes readiness probe endpoint",
+      "category": "Kubernetes",
+      "priority": "High",
+      "status": "implemented",
+      "evidence": [
+        {
+          "file": "src/modules/health/health.controller.ts",
+          "line": 82,
+          "code": "@ApiOperation({ summary: 'Readiness Probe - للـ Kubernetes' })"
+        },
+        {
+          "file": "tools/audit/dr_probe.ts",
+          "line": 3,
+          "code": "* Disaster Recovery & Backup Readiness Probe"
+        },
+        {
+          "file": "tools/audit/health-readiness.ts",
+          "line": 3,
+          "code": "* Health/Readiness - Gap Report"
+        }
+      ],
+      "recommendations": []
+    },
+    {
+      "id": "H5",
+      "name": "Startup Probe",
+      "description": "Kubernetes startup probe for slow-starting containers",
+      "category": "Kubernetes",
+      "priority": "Low",
+      "status": "implemented",
+      "evidence": [
+        {
+          "file": "src/modules/health/health.controller.ts",
+          "line": 134,
+          "code": "@ApiOperation({ summary: 'Startup Probe - للـ Kubernetes' })"
+        },
+        {
+          "file": "tools/audit/health-readiness.ts",
+          "line": 213,
+          "code": "// 5. Startup Probe"
+        },
+        {
+          "file": "tools/audit/health-readiness.ts",
+          "line": 214,
+          "code": "console.log('📋 Checking startup probe...');"
+        }
+      ],
+      "recommendations": []
+    },
+    {
+      "id": "H6",
+      "name": "MongoDB Health Check",
+      "description": "MongoDB/Mongoose connection health verification",
+      "category": "Database",
+      "priority": "High",
+      "status": "implemented",
+      "evidence": [
+        {
+          "file": "src/modules/health/health.controller.ts",
+          "line": 5,
+          "code": "MongooseHealthIndicator,"
+        },
+        {
+          "file": "src/modules/health/health.controller.ts",
+          "line": 24,
+          "code": "private readonly db: MongooseHealthIndicator,"
+        },
+        {
+          "file": "tools/audit/health-readiness.ts",
+          "line": 9,
+          "code": "* - Memory/Disk/MongoDB health indicators"
+        }
+      ],
+      "recommendations": []
+    },
+    {
+      "id": "H7",
+      "name": "Memory Health Check",
+      "description": "Memory usage monitoring and threshold checks",
+      "category": "System Resources",
+      "priority": "Medium",
+      "status": "implemented",
+      "evidence": [
+        {
+          "file": "src/common/services/metrics.service.ts",
+          "line": 242,
+          "code": "const memUsage = process.memoryUsage();"
+        },
+        {
+          "file": "src/common/services/metrics.service.ts",
+          "line": 247,
+          "code": "'# TYPE nodejs_memory_heap_used_bytes gauge',"
+        },
+        {
+          "file": "src/common/services/metrics.service.ts",
+          "line": 248,
+          "code": "`nodejs_memory_heap_used_bytes ${memUsage.heapUsed}`,"
+        }
+      ],
+      "recommendations": []
+    },
+    {
+      "id": "H8",
+      "name": "Disk Health Check",
+      "description": "Disk space monitoring and threshold checks",
+      "category": "System Resources",
+      "priority": "Low",
+      "status": "implemented",
+      "evidence": [
+        {
+          "file": "src/modules/health/health.controller.ts",
+          "line": 7,
+          "code": "DiskHealthIndicator,"
+        },
+        {
+          "file": "src/modules/health/health.controller.ts",
+          "line": 26,
+          "code": "private readonly disk: DiskHealthIndicator,"
+        },
+        {
+          "file": "tools/audit/health-readiness.ts",
+          "line": 291,
+          "code": "const diskHealthCheck = searchInFiles('DiskHealthIndicator|disk.*space', ['ts']);"
+        }
+      ],
+      "recommendations": []
+    },
+    {
+      "id": "H9",
+      "name": "Redis/Cache Health Check",
+      "description": "Redis connection and cache availability check",
+      "category": "Cache",
+      "priority": "Medium",
+      "status": "partial",
+      "evidence": [
+        {
+          "file": "src/modules/health/health.controller.ts",
+          "line": 15,
+          "code": "import { RedisHealthIndicator } from './indicators/redis.health';"
+        },
+        {
+          "file": "src/modules/health/health.controller.ts",
+          "line": 27,
+          "code": "private readonly redis: RedisHealthIndicator,"
+        },
+        {
+          "file": "src/modules/health/health.module.ts",
+          "line": 4,
+          "code": "import { RedisHealthIndicator } from './indicators/redis.health';"
+        }
+      ],
+      "recommendations": []
+    },
+    {
+      "id": "H10",
+      "name": "Custom Health Indicators",
+      "description": "Custom health indicators for business-critical services",
+      "category": "Custom",
+      "priority": "Low",
+      "status": "implemented",
+      "evidence": [
+        {
+          "file": "src/modules/health/indicators/queue.health.ts",
+          "line": 11,
+          "code": "export class QueueHealthIndicator extends HealthIndicator {"
+        },
+        {
+          "file": "src/modules/health/indicators/redis.health.ts",
+          "line": 12,
+          "code": "export class RedisHealthIndicator extends HealthIndicator {"
+        },
+        {
+          "file": "tools/audit/health-readiness.ts",
+          "line": 339,
+          "code": "'implements.*HealthIndicator|extends.*HealthIndicator',"
+        }
+      ],
+      "recommendations": []
+    },
+    {
+      "id": "H11",
+      "name": "Standardized Response Format",
+      "description": "Consistent health check response format",
+      "category": "Format",
+      "priority": "Medium",
+      "status": "implemented",
+      "evidence": [
+        {
+          "file": "src/modules/health/health.controller.ts",
+          "line": 178,
+          "code": "status: 'ok',"
+        },
+        {
+          "file": "src/modules/health/indicators/queue.health.ts",
+          "line": 63,
+          "code": "const allHealthy = queueStatuses.every((q) => q.connected);"
+        },
+        {
+          "file": "tools/audit/dr_probe.ts",
+          "line": 495,
+          "code": "const status = runbook.found ? '✅' : '❌';"
+        }
+      ],
+      "recommendations": []
+    },
+    {
+      "id": "H12",
+      "name": "Detailed Health Endpoint",
+      "description": "Detailed health information for debugging",
+      "category": "Debugging",
+      "priority": "Low",
+      "status": "implemented",
+      "evidence": [
+        {
+          "file": "src/modules/health/health.controller.ts",
+          "line": 165,
+          "code": "@ApiOperation({ summary: 'Detailed Health Check - فحص تفصيلي' })"
+        },
+        {
+          "file": "tools/audit/health-readiness.ts",
+          "line": 383,
+          "code": "// 12. Detailed Health Endpoint"
+        },
+        {
+          "file": "tools/audit/health-readiness.ts",
+          "line": 384,
+          "code": "console.log('📋 Checking detailed health endpoint...');"
+        }
+      ],
+      "recommendations": []
+    }
+  ]
+}

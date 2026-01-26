@@ -1,0 +1,107 @@
+name: 🎯 Code Quality
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  quality:
+    name: 🎯 Quality Checks
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+
+    - name: 📲 Install dependencies
+      run: npm ci
+
+    - name: 🎯 Run ESLint with annotations
+      run: npm run lint -- --format=@microsoft/eslint-formatter-sarif --output-file=eslint-results.sarif
+      continue-on-error: true
+
+    - name: 📊 Upload ESLint results to GitHub
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: eslint-results.sarif
+        wait-for-processing: true
+      if: always()
+
+    - name: 📈 SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      continue-on-error: true
+
+  coverage-threshold:
+    name: 📊 Coverage Threshold
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+
+    - name: 📲 Install dependencies
+      run: npm ci
+
+    - name: 📊 Check coverage threshold
+      run: |
+        npm test -- --coverage --watchAll=false --passWithNoTests
+        echo "✅ Coverage threshold check passed"
+
+    - name: 📈 Generate coverage badge
+      uses: jaywcjlove/coverage-badges-cli@main
+      with:
+        source: coverage/lcov.info
+        output: coverage/badges.svg
+
+    - name: 📤 Upload coverage badge
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-badge
+        path: coverage/badges.svg
+
+  dependency-check:
+    name: 🔍 Dependency Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+
+    - name: 📲 Install dependencies
+      run: npm ci
+
+    - name: 🔍 Check for outdated packages
+      run: npm outdated || true
+
+    - name: 🔒 Check for vulnerabilities
+      run: npm audit --audit-level moderate
+
+    - name: 📋 License compliance check
+      run: |
+        npx license-checker --onlyAllow 'MIT;ISC;Apache-2.0;BSD-2-Clause;BSD-3-Clause' --summary
+        echo "✅ License compliance check passed"

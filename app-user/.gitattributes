@@ -1,0 +1,6 @@
+# تعامُل آلي مع نهاية الأسطر
+* text=auto
+
+# تأكّد من بقاء السكريبتات التنفيذية بصيغة Unix
+*.sh text eol=lf
+android/gradlew text eol=lf

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+    <!-- الصفحة الرئيسية -->
+    <url>
+        <loc>https://bthwaniapp.com/</loc>
+        <lastmod>2025-01-10</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+    </url>
+
+    <!-- المتاجر -->
+    <url>
+        <loc>https://bthwaniapp.com/stores</loc>
+        <lastmod>2025-01-10</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+    </url>
+
+    <!-- الفئات -->
+    <url>
+        <loc>https://bthwaniapp.com/categories</loc>
+        <lastmod>2025-01-10</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- سلة المشتريات -->
+    <url>
+        <loc>https://bthwaniapp.com/cart</loc>
+        <lastmod>2025-01-10</lastmod>
+        <changefreq>never</changefreq>
+        <priority>0.3</priority>
+    </url>
+
+    <!-- البحث -->
+    <url>
+        <loc>https://bthwaniapp.com/search</loc>
+        <lastmod>2025-01-10</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+
+    <!-- خدمة أخدمني -->
+    <url>
+        <loc>https://bthwaniapp.com/akhdimni</loc>
+        <lastmod>2025-01-10</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- خدمة الغاز -->
+    <url>
+        <loc>https://bthwaniapp.com/gas</loc>
+        <lastmod>2025-01-10</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- خدمة الماء -->
+    <url>
+        <loc>https://bthwaniapp.com/water</loc>
+        <lastmod>2025-01-10</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- الطلبات -->
+    <url>
+        <loc>https://bthwaniapp.com/orders</loc>
+        <lastmod>2025-01-10</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.6</priority>
+    </url>
+
+    <!-- المفضلة -->
+    <url>
+        <loc>https://bthwaniapp.com/favorites</loc>
+        <lastmod>2025-01-10</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.5</priority>
+    </url>
+
+    <!-- الإشعارات -->
+    <url>
+        <loc>https://bthwaniapp.com/notifications</loc>
+        <lastmod>2025-01-10</lastmod>
+        <changefreq>hourly</changefreq>
+        <priority>0.4</priority>
+    </url>
+
+    <!-- الملف الشخصي -->
+    <url>
+        <loc>https://bthwaniapp.com/profile</loc>
+        <lastmod>2025-01-10</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.3</priority>
+    </url>
+
+    <!-- صفحات التفاصيل الديناميكية (سيتم توليدها ديناميكيًا في المستقبل) -->
+    <!-- مثال: متجر محدد -->
+    <!-- <url>
+        <loc>https://bthwaniapp.com/stores/123</loc>
+        <lastmod>2025-01-10</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url> -->
+
+    <!-- مثال: منتج محدد -->
+    <!-- <url>
+        <loc>https://bthwaniapp.com/delivery/product/456</loc>
+        <lastmod>2025-01-10</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.7</priority>
+    </url> -->
+
+</urlset>

@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+
+# Disallow sensitive pages
+Disallow: /checkout
+Disallow: /payment
+Disallow: /admin
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://bthwaniapp.com/sitemap.xml
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1

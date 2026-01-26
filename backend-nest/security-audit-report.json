@@ -1,0 +1,176 @@
+{
+  "timestamp": "2025-10-22T14:44:44.429Z",
+  "summary": {
+    "issues": 1,
+    "warnings": 1,
+    "passed": 10,
+    "overall": "FAIL"
+  },
+  "issues": [
+    {
+      "severity": "CRITICAL",
+      "category": "Secrets Management",
+      "title": "Hardcoded secrets detected",
+      "description": "23 potential secrets found in codebase",
+      "findings": [
+        {
+          "file": "docker-compose.yml",
+          "line": 16,
+          "pattern": "mongodb.*uri",
+          "match": "MONGODB_URI: ${MONGODB_URI..."
+        },
+        {
+          "file": "docker-compose.yml",
+          "line": 19,
+          "pattern": "redis.*password",
+          "match": "REDIS_PASSWORD: ${REDIS_PASSWORD..."
+        },
+        {
+          "file": "docker-compose.yml",
+          "line": 61,
+          "pattern": "redis.*password",
+          "match": "redis-server --appendonly yes ${REDIS_PASSWORD:+--..."
+        },
+        {
+          "file": "env.example",
+          "line": 30,
+          "pattern": "key\\s*[:=]\\s*['\"][^'\"]*['\"]",
+          "match": "KEY=\"-----BEGIN PRIVATE KEY-----\\nYOUR_PRIVATE_KEY..."
+        },
+        {
+          "file": "env.example",
+          "line": 30,
+          "pattern": "firebase.*key",
+          "match": "FIREBASE_PRIVATE_KEY=\"-----BEGIN PRIVATE KEY-----\\..."
+        },
+        {
+          "file": "env.example",
+          "line": 11,
+          "pattern": "mongodb.*uri",
+          "match": "MONGODB_URI..."
+        },
+        {
+          "file": "env.example",
+          "line": 12,
+          "pattern": "mongodb.*uri",
+          "match": "MONGODB_URI..."
+        },
+        {
+          "file": "env.example",
+          "line": 37,
+          "pattern": "redis.*password",
+          "match": "REDIS_PASSWORD..."
+        },
+        {
+          "file": "PRODUCTION_GAPS_CLOSED.md",
+          "line": 292,
+          "pattern": "redis.*password",
+          "match": "REDIS_PASSWORD..."
+        },
+        {
+          "file": "PRODUCTION_GAPS_CLOSED.md",
+          "line": 301,
+          "pattern": "redis.*password",
+          "match": "REDIS_PASSWORD..."
+        },
+        {
+          "file": "PRODUCTION_GAPS_CLOSED.md",
+          "line": 306,
+          "pattern": "redis.*password",
+          "match": "REDIS_PASSWORD=strong-password..."
+        },
+        {
+          "file": "SECURITY_SETUP.md",
+          "line": 100,
+          "pattern": "secret\\s*[:=]\\s*['\"][^'\"]*['\"]",
+          "match": "SECRET=\"production-secret-key\"..."
+        },
+        {
+          "file": "SECURITY_SETUP.md",
+          "line": 117,
+          "pattern": "secret\\s*[:=]\\s*['\"][^'\"]*['\"]",
+          "match": "secret=\"...\"..."
+        },
+        {
+          "file": "SECURITY_SETUP.md",
+          "line": 101,
+          "pattern": "key\\s*[:=]\\s*['\"][^'\"]*['\"]",
+          "match": "KEY=\"-----BEGIN PRIVATE KEY-----...\"..."
+        },
+        {
+          "file": "SECURITY_SETUP.md",
+          "line": 118,
+          "pattern": "key\\s*[:=]\\s*['\"][^'\"]*['\"]",
+          "match": "key=\"...\"..."
+        },
+        {
+          "file": "SECURITY_SETUP.md",
+          "line": 16,
+          "pattern": "firebase.*key",
+          "match": "Firebase Private Key..."
+        },
+        {
+          "file": "SECURITY_SETUP.md",
+          "line": 27,
+          "pattern": "firebase.*key",
+          "match": "FIREBASE_PRIVATE_KEY..."
+        },
+        {
+          "file": "SECURITY_SETUP.md",
+          "line": 101,
+          "pattern": "firebase.*key",
+          "match": "FIREBASE_PRIVATE_KEY=\"-----BEGIN PRIVATE KEY..."
+        },
+        {
+          "file": "SECURITY_SETUP.md",
+          "line": 118,
+          "pattern": "firebase.*key",
+          "match": "firebase_key..."
+        },
+        {
+          "file": "SECURITY_SETUP.md",
+          "line": 223,
+          "pattern": "firebase.*key",
+          "match": "Firebase key..."
+        },
+        {
+          "file": "SECURITY_SETUP.md",
+          "line": 99,
+          "pattern": "mongodb.*uri",
+          "match": "MONGODB_URI..."
+        },
+        {
+          "file": "SECURITY_SETUP.md",
+          "line": 116,
+          "pattern": "mongodb.*uri",
+          "match": "mongodb_uri..."
+        },
+        {
+          "file": "SECURITY_SETUP.md",
+          "line": 147,
+          "pattern": "mongodb.*uri",
+          "match": "mongodb-uri..."
+        }
+      ],
+      "recommendation": "Move all secrets to environment variables and use secret management service"
+    }
+  ],
+  "warnings": [
+    "⚠️  JWT authentication not found in main.ts"
+  ],
+  "passed": [
+    "✅ Security headers (Helmet) configured",
+    "✅ Role-based authorization implemented",
+    "✅ Input validation with class-validator implemented",
+    "✅ Data encryption implemented",
+    "✅ CORS properly configured",
+    "✅ Rate limiting implemented",
+    "✅ No known vulnerable dependencies",
+    "✅ API contract defined",
+    "✅ API error responses documented",
+    "✅ Webhook signature verification implemented"
+  ],
+  "recommendations": [
+    "Implement proper secret management with environment variables"
+  ]
+}

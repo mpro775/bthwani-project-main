@@ -1,0 +1,75 @@
+{
+  "meta": {
+    "generated_at": "2025-10-19 11:35:22",
+    "timezone": "Asia/Aden"
+  },
+  "evidence": [
+    {
+      "id": "FE-ORPHANS-0",
+      "files": [
+        "artifacts/fe_orphans.csv"
+      ],
+      "accept": "rows=0"
+    },
+    {
+      "id": "TYPED-CLIENTS-MERGED",
+      "files": [
+        "artifacts/grep_raw_fetch.txt",
+        "artifacts/typed_usage_report.txt"
+      ],
+      "accept": "no raw fetch/axios; typed usage > 0"
+    },
+    {
+      "id": "ROUTE-UNIQUENESS",
+      "files": [
+        "artifacts/route_duplicates.csv"
+      ],
+      "accept": "rows=0"
+    },
+    {
+      "id": "CONTRACT-TESTS",
+      "files": [
+        "artifacts/contract_tests.junit.xml"
+      ],
+      "accept": "failures=0"
+    },
+    {
+      "id": "SECRETS-0",
+      "files": [
+        "artifacts/gitleaks.sarif"
+      ],
+      "accept": "findings=0"
+    },
+    {
+      "id": "SBOM-SIGNED",
+      "files": [
+        "artifacts/sbom.cdx.json",
+        "artifacts/cosign.verify.txt"
+      ],
+      "accept": "verify OK"
+    },
+    {
+      "id": "OBS-DASH-ALERTS",
+      "files": [
+        "artifacts/dash_screenshots/*.png",
+        "artifacts/alert_fire_log.txt"
+      ],
+      "accept": "alerts fired + runbooks"
+    },
+    {
+      "id": "MTTR-<=30m",
+      "files": [
+        "artifacts/incidents.csv"
+      ],
+      "accept": "MTTR_p50<=30m"
+    },
+    {
+      "id": "DR-PROOF",
+      "files": [
+        "artifacts/dr_report.md",
+        "artifacts/backup_restore_logs.txt"
+      ],
+      "accept": "RPO,RTO within limits"
+    }
+  ]
+}

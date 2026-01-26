@@ -1,0 +1,40 @@
+{
+  "login": {
+    "title": "Login",
+    "email": "Email",
+    "password": "Password"
+  },
+  "common": {
+    "add": "Add",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "errors": {
+    "network": "Network error",
+    "invalidEmail": "Invalid email",
+    "required": "This field is required"
+  },
+  "success": {
+    "saved": "Saved successfully",
+    "deleted": "Deleted successfully",
+    "updated": "Updated successfully"
+  },
+  "cart": {
+    "items_zero": "No items",
+    "items_one": "1 item",
+    "items_other": "{{count}} items"
+  },
+  "welcome": {
+    "message": "Hello {{name}}"
+  },
+  "order": {
+    "status": "Order #{{orderNumber}}"
+  },
+  "date": {
+    "format": "{{date, MMMM DD, YYYY}}"
+  },
+  "number": {
+    "format": "{{value, number}}"
+  }
+}

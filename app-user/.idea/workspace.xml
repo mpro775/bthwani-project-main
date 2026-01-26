@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="NONE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="90787bd8-bb0b-4abb-8589-f3a7d894637a" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/res/values/strings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/android/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/android/gradle.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/android/settings.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.json" beforeDir="false" afterPath="$PROJECT_DIR$/app.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/banners/banner1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/banners/banner2.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/banners/banner3.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/banners/grocery1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/banners/grocery2.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/gradient-bg.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/assets/gradient-bg.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/icon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/icons/beauty.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/icons/bread.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/icons/electronics.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/icons/fruits.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/icons/gifts.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/icons/juice.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/icons/market.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/icons/meat.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/icons/milk.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/icons/restaurant.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/icons/rice.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/icons/store.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/icons/sweets.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/logos/giftshop.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/logos/istanbul.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/products/apple.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/products/banana.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/products/milk.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/restaurants/item1.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/assets/restaurants/item1.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/trending/item1.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/assets/trending/item1.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/trending/item3.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/assets/trending/item3.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/eas.json" beforeDir="false" afterPath="$PROJECT_DIR$/eas.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/categoryApi.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/categoryApi.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/fonts/Cairo-Bold.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/fonts/Cairo-Regular.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/fonts/Cairo-SemiBold.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/category/CategoryBannerSlider.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/config/config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/config/config.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/delivery/CategoryDetailsScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/delivery/CategoryDetailsScreen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/delivery/GroceryDetailsScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/delivery/GroceryDetailsScreen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/delivery/GroceryScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/delivery/GroceryScreen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/axiosAuth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/axiosAuth.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/uploadFileToBunny.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/uploadFileToBunny.ts" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="2xde7IhebpicHxNt2muKRUnRYZh" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/Smart Academy/bThwaniProject/bthwani-dev/bThwaniApp/android"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="90787bd8-bb0b-4abb-8589-f3a7d894637a" name="Changes" comment="" />
+      <created>1748272211553</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1748272211553</updated>
+    </task>
+    <servers />
+  </component>
+</project>

@@ -1,0 +1,28 @@
+name: proof-guards
+on:
+  pull_request:
+    branches: [ main ]
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps
+        run: npm ci || yarn install || true
+      - name: Check route uniqueness (OpenAPI)
+        run: node scripts/check-route-uniqueness.js openapi/openapi.json > artifacts/route_duplicates.csv
+      - name: Block raw fetch/axios
+        run: bash scripts/block_raw_fetch.sh > artifacts/grep_raw_fetch.txt
+      - name: FE orphans check
+        run: node scripts/check-fe-orphans.js > artifacts/fe_orphans.csv
+      - name: Contract tests
+        run: npm run test:contract -- --reporter=junit --reporter-options mochaFile=artifacts/contract_tests.junit.xml || exit 1
+      - name: Secrets scan (gitleaks)
+        run: bash scripts/secrets_scan.sh
+      - name: SBOM + cosign verify
+        run: bash scripts/sbom_sign.sh
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: proof-artifacts
+          path: artifacts/**

@@ -1,0 +1,517 @@
+{
+  "generated_at": "2025-10-14T21:37:28.972Z",
+  "summary": {
+    "total_checks": 15,
+    "implemented": 13,
+    "partial": 2,
+    "missing": 0,
+    "coverage_percentage": 93
+  },
+  "checks": [
+    {
+      "id": "P1",
+      "name": "Idempotency Middleware",
+      "description": "Middleware to prevent duplicate payment/transaction operations",
+      "category": "Idempotency",
+      "status": "implemented",
+      "evidence": [
+        {
+          "file": "src/common/middleware/idempotency.middleware.ts",
+          "line": 7,
+          "code": "* Idempotency Middleware"
+        },
+        {
+          "file": "src/common/middleware/idempotency.middleware.ts",
+          "line": 12,
+          "code": "export class IdempotencyMiddleware implements NestMiddleware {"
+        }
+      ],
+      "notes": "Idempotency middleware is implemented"
+    },
+    {
+      "id": "P2",
+      "name": "Idempotency Key Header",
+      "description": "Usage of Idempotency-Key header for request deduplication",
+      "category": "Idempotency",
+      "status": "implemented",
+      "evidence": [
+        {
+          "file": "src/common/middleware/idempotency.middleware.ts",
+          "line": 9,
+          "code": "* يستخدم مفتاح Idempotency-Key في الـ headers"
+        },
+        {
+          "file": "src/common/middleware/idempotency.middleware.ts",
+          "line": 52,
+          "code": "const idempotencyKey = req.headers['idempotency-key'] as string;"
+        },
+        {
+          "file": "src/common/middleware/idempotency.middleware.ts",
+          "line": 54,
+          "code": "if (!idempotencyKey) {"
+        },
+        {
+          "file": "src/common/middleware/idempotency.middleware.ts",
+          "line": 58,
+          "code": "message: 'Idempotency-Key header is required',"
+        },
+        {
+          "file": "src/common/middleware/idempotency.middleware.ts",
+          "line": 65,
+          "code": "const cached = this.cache.get(idempotencyKey);"
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "name": "Unique Transaction Identifiers",
+      "description": "Database constraints to prevent duplicate transactions",
+      "category": "Idempotency",
+      "status": "implemented",
+      "evidence": [
+        {
+          "file": "src/modules/wallet/dto/create-transaction.dto.ts",
+          "line": 64,
+          "code": "bankRef?: string;"
+        },
+        {
+          "file": "src/modules/wallet/entities/wallet-event.entity.ts",
+          "line": 18,
+          "code": "transactionId?: string;"
+        },
+        {
+          "file": "src/modules/wallet/entities/wallet-event.entity.ts",
+          "line": 74,
+          "code": "WalletEventSchema.index({ aggregateId: 1, sequence: 1 }, { unique: true });"
+        },
+        {
+          "file": "src/modules/wallet/entities/wallet-transaction.entity.ts",
+          "line": 47,
+          "code": "@Prop({ unique: true, sparse: true })"
+        },
+        {
+          "file": "src/modules/wallet/entities/wallet-transaction.entity.ts",
+          "line": 48,
+          "code": "bankRef?: string;"
+        }
+      ]
+    },
+    {
+      "id": "P4",
+      "name": "Database Transactions (ACID)",
+      "description": "Use of database transactions for atomic operations",
+      "category": "Consistency",
+      "status": "implemented",
+      "evidence": [
+        {
+          "file": "src/modules/wallet/services/wallet-event.service.ts",
+          "line": 171,
+          "code": "session.startTransaction();"
+        },
+        {
+          "file": "src/modules/wallet/wallet.service.spec.ts",
+          "line": 31,
+          "code": "startTransaction: jest.fn(),"
+        },
+        {
+          "file": "src/modules/wallet/wallet.service.spec.ts",
+          "line": 125,
+          "code": "startTransaction: jest.fn(),"
+        },
+        {
+          "file": "src/modules/wallet/wallet.service.spec.ts",
+          "line": 210,
+          "code": "startTransaction: jest.fn(),"
+        },
+        {
+          "file": "src/modules/wallet/wallet.service.ts",
+          "line": 58,
+          "code": "return TransactionHelper.executeInTransaction("
+        }
+      ]
+    },
+    {
+      "id": "P5",
+      "name": "Retry Mechanisms",
+      "description": "Retry logic for failed operations with exponential backoff",
+      "category": "Resilience",
+      "status": "implemented",
+      "evidence": [
+        {
+          "file": "src/common/utils/transaction.helper.ts",
+          "line": 61,
+          "code": "* تنفيذ عملية مع retry logic"
+        },
+        {
+          "file": "src/common/utils/transaction.helper.ts",
+          "line": 63,
+          "code": "static async executeWithRetry<T>("
+        },
+        {
+          "file": "src/common/utils/transaction.helper.ts",
+          "line": 66,
+          "code": "maxRetries: number = 3,"
+        },
+        {
+          "file": "src/common/utils/transaction.helper.ts",
+          "line": 67,
+          "code": "retryDelay: number = 1000,"
+        },
+        {
+          "file": "src/common/utils/transaction.helper.ts",
+          "line": 71,
+          "code": "for (let i = 0; i < maxRetries; i++) {"
+        }
+      ]
+    },
+    {
+      "id": "P6",
+      "name": "Request Timeouts",
+      "description": "Timeout configuration for external payment APIs",
+      "category": "Resilience",
+      "status": "implemented",
+      "evidence": [
+        {
+          "file": "src/common/filters/global-exception.filter.ts",
+          "line": 76,
+          "code": "408: 'REQUEST_TIMEOUT',         // ✅ جديد"
+        },
+        {
+          "file": "src/common/filters/global-exception.filter.ts",
+          "line": 88,
+          "code": "504: 'GATEWAY_TIMEOUT',         // ✅ جديد"
+        },
+        {
+          "file": "src/common/interceptors/timeout.interceptor.ts",
+          "line": 6,
+          "code": "RequestTimeoutException,"
+        },
+        {
+          "file": "src/common/interceptors/timeout.interceptor.ts",
+          "line": 8,
+          "code": "import { Observable, throwError, TimeoutError } from 'rxjs';"
+        },
+        {
+          "file": "src/common/interceptors/timeout.interceptor.ts",
+          "line": 9,
+          "code": "import { catchError, timeout } from 'rxjs/operators';"
+        }
+      ]
+    },
+    {
+      "id": "P7",
+      "name": "Webhook Signature Verification",
+      "description": "Verification of webhook signatures from payment providers",
+      "category": "Security",
+      "status": "partial",
+      "evidence": [
+        {
+          "file": "src/modules/order/entities/order.entity.ts",
+          "line": 240,
+          "code": "signature?: string;"
+        },
+        {
+          "file": "src/modules/order/order.controller.ts",
+          "line": 173,
+          "code": "signature: { type: 'string', description: 'توقيع العميل (اختياري)' },"
+        },
+        {
+          "file": "src/modules/order/order.controller.ts",
+          "line": 184,
+          "code": "@Body() body: { imageUrl: string; signature?: string; notes?: string },"
+        },
+        {
+          "file": "src/modules/order/order.service.ts",
+          "line": 334,
+          "code": "async setProofOfDelivery(orderId: string, pod: { imageUrl: string; signature?: string; notes?: string }, driverId: string) {"
+        },
+        {
+          "file": "src/modules/order/order.service.ts",
+          "line": 355,
+          "code": "signature: pod.signature,"
+        }
+      ],
+      "notes": "Some signature verification found"
+    },
+    {
+      "id": "P8",
+      "name": "Payment Status States",
+      "description": "Comprehensive payment status tracking (pending, completed, failed, etc.)",
+      "category": "Consistency",
+      "status": "implemented",
+      "evidence": [
+        {
+          "file": "src/modules/wallet/entities/wallet-transaction.entity.ts",
+          "line": 36,
+          "code": "enum: ['pending', 'completed', 'failed', 'reversed'],"
+        },
+        {
+          "file": "src/modules/wallet/entities/wallet-transaction.entity.ts",
+          "line": 37,
+          "code": "default: 'completed',"
+        },
+        {
+          "file": "src/modules/wallet/entities/wallet-transaction.entity.ts",
+          "line": 66,
+          "code": "partialFilterExpression: { method: 'escrow', status: 'pending' },"
+        },
+        {
+          "file": "src/modules/wallet/services/wallet-event.service.ts",
+          "line": 210,
+          "code": "`Event replay completed for user ${userId}. Events: ${events.length}, Balance: ${calculatedState.balance}`,"
+        },
+        {
+          "file": "src/modules/wallet/services/wallet-event.service.ts",
+          "line": 222,
+          "code": "`Event replay failed for user ${userId}: ${(error as Error).message}`,"
+        }
+      ]
+    },
+    {
+      "id": "P9",
+      "name": "Balance Validation",
+      "description": "Validation of sufficient balance before debit operations",
+      "category": "Validation",
+      "status": "implemented",
+      "evidence": [
+        {
+          "file": "src/modules/wallet/wallet.service.spec.ts",
+          "line": 151,
+          "code": "it('should throw error for debit when insufficient balance', async () => {"
+        },
+        {
+          "file": "src/modules/wallet/wallet.service.ts",
+          "line": 75,
+          "code": "WalletHelper.validateBalance("
+        },
+        {
+          "file": "src/modules/wallet/wallet.service.ts",
+          "line": 146,
+          "code": "WalletHelper.validateBalance("
+        },
+        {
+          "file": "src/modules/wallet/wallet.service.ts",
+          "line": 391,
+          "code": "code: 'INSUFFICIENT_BALANCE',"
+        },
+        {
+          "file": "src/modules/wallet/wallet.service.ts",
+          "line": 392,
+          "code": "message: 'Insufficient balance',"
+        }
+      ]
+    },
+    {
+      "id": "P10",
+      "name": "Atomic Balance Updates",
+      "description": "Atomic database operations for balance modifications",
+      "category": "Consistency",
+      "status": "implemented",
+      "evidence": [
+        {
+          "file": "src/modules/wallet/wallet.service.ts",
+          "line": 201,
+          "code": "$inc: {"
+        },
+        {
+          "file": "src/modules/wallet/wallet.service.ts",
+          "line": 253,
+          "code": "$inc: { 'wallet.onHold': -amount },"
+        },
+        {
+          "file": "src/modules/wallet/wallet.service.ts",
+          "line": 304,
+          "code": "$inc: {"
+        },
+        {
+          "file": "src/modules/wallet/wallet.service.ts",
+          "line": 589,
+          "code": "$inc: {"
+        },
+        {
+          "file": "src/modules/wallet/wallet.service.ts",
+          "line": 602,
+          "code": "$inc: {"
+        }
+      ]
+    },
+    {
+      "id": "P11",
+      "name": "Transaction Reversal",
+      "description": "Mechanism to reverse/rollback failed transactions",
+      "category": "Resilience",
+      "status": "implemented",
+      "evidence": [
+        {
+          "file": "src/modules/wallet/entities/wallet-event.entity.ts",
+          "line": 9,
+          "code": "REFUND = 'REFUND',"
+        },
+        {
+          "file": "src/modules/wallet/entities/wallet-transaction.entity.ts",
+          "line": 36,
+          "code": "enum: ['pending', 'completed', 'failed', 'reversed'],"
+        },
+        {
+          "file": "src/modules/wallet/services/wallet-event.service.ts",
+          "line": 136,
+          "code": "case WalletEventType.REFUND:"
+        },
+        {
+          "file": "src/modules/wallet/services/wallet-event.service.ts",
+          "line": 220,
+          "code": "await session.abortTransaction();"
+        },
+        {
+          "file": "src/modules/wallet/wallet.controller.ts",
+          "line": 99,
+          "code": "@Post('refund')"
+        }
+      ]
+    },
+    {
+      "id": "P12",
+      "name": "Event Sourcing",
+      "description": "Event sourcing for wallet transaction history and audit trail",
+      "category": "Audit Trail",
+      "status": "implemented",
+      "evidence": [
+        {
+          "file": "src/modules/wallet/entities/wallet-event.entity.ts",
+          "line": 4,
+          "code": "export enum WalletEventType {"
+        },
+        {
+          "file": "src/modules/wallet/entities/wallet-event.entity.ts",
+          "line": 17,
+          "code": "export interface WalletEventMetadata {"
+        },
+        {
+          "file": "src/modules/wallet/entities/wallet-event.entity.ts",
+          "line": 31,
+          "code": "@Schema({ timestamps: true, collection: 'wallet_events' })"
+        },
+        {
+          "file": "src/modules/wallet/entities/wallet-event.entity.ts",
+          "line": 32,
+          "code": "export class WalletEvent extends Document {"
+        },
+        {
+          "file": "src/modules/wallet/entities/wallet-event.entity.ts",
+          "line": 36,
+          "code": "@Prop({ required: true, enum: WalletEventType, index: true })"
+        }
+      ]
+    },
+    {
+      "id": "P13",
+      "name": "Double-Spending Prevention",
+      "description": "Mechanisms to prevent double-spending (e.g., balance holds)",
+      "category": "Security",
+      "status": "implemented",
+      "evidence": [
+        {
+          "file": "src/modules/wallet/dto/create-transaction.dto.ts",
+          "line": 38,
+          "code": "'escrow',"
+        },
+        {
+          "file": "src/modules/wallet/dto/create-transaction.dto.ts",
+          "line": 49,
+          "code": "'escrow',"
+        },
+        {
+          "file": "src/modules/wallet/entities/wallet-transaction.entity.ts",
+          "line": 25,
+          "code": "'escrow',"
+        },
+        {
+          "file": "src/modules/wallet/entities/wallet-transaction.entity.ts",
+          "line": 66,
+          "code": "partialFilterExpression: { method: 'escrow', status: 'pending' },"
+        },
+        {
+          "file": "src/modules/wallet/interfaces/wallet-event.interface.ts",
+          "line": 15,
+          "code": "onHold: number;"
+        }
+      ]
+    },
+    {
+      "id": "P14",
+      "name": "Correlation/Causation IDs",
+      "description": "Tracking IDs for distributed transaction tracing",
+      "category": "Audit Trail",
+      "status": "implemented",
+      "evidence": [
+        {
+          "file": "src/modules/wallet/entities/wallet-event.entity.ts",
+          "line": 58,
+          "code": "correlationId?: string; // لربط الأحداث المرتبطة"
+        },
+        {
+          "file": "src/modules/wallet/entities/wallet-event.entity.ts",
+          "line": 61,
+          "code": "causationId?: string; // الحدث الذي سبب هذا الحدث"
+        },
+        {
+          "file": "src/modules/wallet/entities/wallet-event.entity.ts",
+          "line": 77,
+          "code": "WalletEventSchema.index({ correlationId: 1 });"
+        },
+        {
+          "file": "src/modules/wallet/interfaces/wallet-event.interface.ts",
+          "line": 8,
+          "code": "correlationId?: string;"
+        },
+        {
+          "file": "src/modules/wallet/interfaces/wallet-event.interface.ts",
+          "line": 9,
+          "code": "causationId?: string;"
+        }
+      ]
+    },
+    {
+      "id": "P15",
+      "name": "Payment Endpoint Rate Limiting",
+      "description": "Rate limiting to prevent abuse of payment endpoints",
+      "category": "Security",
+      "status": "partial",
+      "evidence": [
+        {
+          "file": "src/modules/wallet/wallet.controller.ts",
+          "line": 54,
+          "code": "@Throttle({ strict: { ttl: 60000, limit: 10 } })  // ✅ 10 معاملات في الدقيقة (admin)"
+        },
+        {
+          "file": "src/modules/wallet/wallet.controller.ts",
+          "line": 181,
+          "code": "@Throttle({ strict: { ttl: 60000, limit: 10 } })  // ✅ 10 طلبات سحب في الدقيقة"
+        },
+        {
+          "file": "src/modules/wallet/wallet.controller.ts",
+          "line": 372,
+          "code": "@Throttle({ strict: { ttl: 60000, limit: 5 } })  // ✅ 5 تحويلات كحد أقصى في الدقيقة"
+        },
+        {
+          "file": "src/common/config/throttler.config.ts",
+          "line": 42,
+          "code": "* @Throttle({ strict: { ttl: 60000, limit: 10 } })"
+        },
+        {
+          "file": "src/common/config/throttler.config.ts",
+          "line": 48,
+          "code": "* @Throttle(ThrottlerConfig.strict)"
+        }
+      ],
+      "notes": "Global rate limiting may be configured in main.ts"
+    }
+  ],
+  "modules_scanned": [
+    "wallet",
+    "payment",
+    "order",
+    "finance",
+    "common"
+  ]
+}

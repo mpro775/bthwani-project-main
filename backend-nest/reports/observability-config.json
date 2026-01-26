@@ -1,0 +1,17 @@
+{
+  "tracing": {
+    "enabled": true,
+    "serviceName": "bthwani-backend",
+    "endpoint": "http://localhost:4318/v1/traces"
+  },
+  "metrics": {
+    "enabled": true,
+    "endpoint": "http://localhost:9091",
+    "interval": 15000
+  },
+  "logging": {
+    "enabled": true,
+    "level": "info",
+    "format": "json"
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "app": {
+    "name": "bThwani",
+    "slogan": "Fast Delivery Service"
+  },
+  "nav": {
+    "home": "Home",
+    "orders": "My Orders",
+    "favorites": "Favorites",
+    "profile": "Profile",
+    "search": "Search",
+    "cart": "Cart"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Sign Up",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "fullName": "Full Name",
+    "phone": "Phone Number",
+    "forgotPassword": "Forgot Password?",
+    "dontHaveAccount": "Don't have an account?",
+    "alreadyHaveAccount": "Already have an account?",
+    "verifyOTP": "Verify Code",
+    "enterOTP": "Enter the code sent to your email",
+    "resendOTP": "Resend Code",
+    "resetPassword": "Reset Password"
+  },
+  "delivery": {
+    "categories": "Categories",
+    "trending": "Trending",
+    "deals": "Deals",
+    "newProducts": "New Products",
+    "dailyOffers": "Daily Offers",
+    "stores": "Stores",
+    "products": "Products",
+    "addToCart": "Add to Cart",
+    "viewDetails": "View Details",
+    "orderNow": "Order Now"
+  },
+  "cart": {
+    "title": "Shopping Cart",
+    "empty": "Cart is empty",
+    "subtotal": "Subtotal",
+    "delivery": "Delivery Fee",
+    "total": "Total",
+    "checkout": "Checkout",
+    "continueShopping": "Continue Shopping"
+  },
+  "orders": {
+    "title": "My Orders",
+    "orderNumber": "Order Number",
+    "status": "Status",
+    "date": "Date",
+    "total": "Total",
+    "viewDetails": "View Details",
+    "trackOrder": "Track Order",
+    "rateOrder": "Rate Order",
+    "pending": "Pending",
+    "confirmed": "Confirmed",
+    "preparing": "Preparing",
+    "onTheWay": "On the Way",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled"
+  },
+  "profile": {
+    "title": "Profile",
+    "editProfile": "Edit Profile",
+    "addresses": "Addresses",
+    "addAddress": "Add Address",
+    "editAddress": "Edit Address",
+    "deleteAddress": "Delete Address",
+    "setDefault": "Set as Default",
+    "settings": "Settings",
+    "language": "Language",
+    "notifications": "Notifications",
+    "help": "Help",
+    "support": "Support",
+    "howToUse": "How to Use"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Operation successful",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "close": "Close"
+  }
+}

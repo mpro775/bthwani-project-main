@@ -1,0 +1,185 @@
+{
+  "queues": [
+    {
+      "name": "notifications",
+      "registeredIn": "src/queues/queues.module.ts",
+      "line": 31
+    },
+    {
+      "name": "notifications-dlq",
+      "registeredIn": "src/queues/queues.module.ts",
+      "line": 32
+    },
+    {
+      "name": "emails",
+      "registeredIn": "src/queues/queues.module.ts",
+      "line": 33
+    },
+    {
+      "name": "emails-dlq",
+      "registeredIn": "src/queues/queues.module.ts",
+      "line": 34
+    },
+    {
+      "name": "orders",
+      "registeredIn": "src/queues/queues.module.ts",
+      "line": 35
+    },
+    {
+      "name": "orders-dlq",
+      "registeredIn": "src/queues/queues.module.ts",
+      "line": 36
+    },
+    {
+      "name": "reports",
+      "registeredIn": "src/queues/queues.module.ts",
+      "line": 37
+    }
+  ],
+  "jobs": [
+    {
+      "processor": "EmailProcessor",
+      "queueName": "emails",
+      "jobName": "send-email",
+      "jobType": "sendEmail",
+      "dataInterface": "SendEmailJobData",
+      "file": "src/queues/processors/email.processor.ts",
+      "line": 25,
+      "hasOnActive": false,
+      "hasOnCompleted": false,
+      "hasOnFailed": false
+    },
+    {
+      "processor": "EmailProcessor",
+      "queueName": "emails",
+      "jobName": "send-bulk-emails",
+      "jobType": "sendBulkEmails",
+      "dataInterface": "SendBulkEmailsJobData",
+      "file": "src/queues/processors/email.processor.ts",
+      "line": 46,
+      "hasOnActive": false,
+      "hasOnCompleted": false,
+      "hasOnFailed": false
+    },
+    {
+      "processor": "EmailProcessor",
+      "queueName": "emails",
+      "jobName": "send-order-confirmation",
+      "jobType": "sendOrderConfirmation",
+      "dataInterface": "{ email: string; orderDetails: any }",
+      "file": "src/queues/processors/email.processor.ts",
+      "line": 74,
+      "hasOnActive": false,
+      "hasOnCompleted": false,
+      "hasOnFailed": false
+    },
+    {
+      "processor": "EmailProcessor",
+      "queueName": "emails",
+      "jobName": "send-password-reset",
+      "jobType": "sendPasswordReset",
+      "dataInterface": "{ email: string; resetToken: string }",
+      "file": "src/queues/processors/email.processor.ts",
+      "line": 89,
+      "hasOnActive": false,
+      "hasOnCompleted": false,
+      "hasOnFailed": false
+    },
+    {
+      "processor": "EmailProcessor",
+      "queueName": "emails",
+      "jobName": "send-welcome-email",
+      "jobType": "sendWelcomeEmail",
+      "dataInterface": "{ email: string; name: string }",
+      "file": "src/queues/processors/email.processor.ts",
+      "line": 107,
+      "hasOnActive": false,
+      "hasOnCompleted": false,
+      "hasOnFailed": false
+    },
+    {
+      "processor": "NotificationProcessor",
+      "queueName": "notifications",
+      "jobName": "send-notification",
+      "jobType": "sendNotification",
+      "dataInterface": "SendNotificationJobData",
+      "file": "src/queues/processors/notification.processor.ts",
+      "line": 24,
+      "hasOnActive": false,
+      "hasOnCompleted": false,
+      "hasOnFailed": false
+    },
+    {
+      "processor": "NotificationProcessor",
+      "queueName": "notifications",
+      "jobName": "send-bulk-notifications",
+      "jobType": "sendBulkNotifications",
+      "dataInterface": "SendBulkNotificationsJobData",
+      "file": "src/queues/processors/notification.processor.ts",
+      "line": 55,
+      "hasOnActive": false,
+      "hasOnCompleted": false,
+      "hasOnFailed": false
+    },
+    {
+      "processor": "NotificationProcessor",
+      "queueName": "notifications",
+      "jobName": "send-order-update",
+      "jobType": "sendOrderUpdate",
+      "dataInterface": "{ orderId: string; status: string; userId: string }",
+      "file": "src/queues/processors/notification.processor.ts",
+      "line": 90,
+      "hasOnActive": false,
+      "hasOnCompleted": false,
+      "hasOnFailed": false
+    },
+    {
+      "processor": "OrderProcessor",
+      "queueName": "orders",
+      "jobName": "process-order",
+      "jobType": "processOrder",
+      "dataInterface": "ProcessOrderJobData",
+      "file": "src/queues/processors/order.processor.ts",
+      "line": 22,
+      "hasOnActive": false,
+      "hasOnCompleted": false,
+      "hasOnFailed": false
+    },
+    {
+      "processor": "OrderProcessor",
+      "queueName": "orders",
+      "jobName": "generate-invoice",
+      "jobType": "generateInvoice",
+      "dataInterface": "GenerateInvoiceJobData",
+      "file": "src/queues/processors/order.processor.ts",
+      "line": 52,
+      "hasOnActive": false,
+      "hasOnCompleted": false,
+      "hasOnFailed": false
+    },
+    {
+      "processor": "OrderProcessor",
+      "queueName": "orders",
+      "jobName": "calculate-commission",
+      "jobType": "calculateCommission",
+      "dataInterface": "{ orderId: string; amount: number; marketerId?: string }",
+      "file": "src/queues/processors/order.processor.ts",
+      "line": 76,
+      "hasOnActive": false,
+      "hasOnCompleted": false,
+      "hasOnFailed": false
+    },
+    {
+      "processor": "OrderProcessor",
+      "queueName": "orders",
+      "jobName": "update-analytics",
+      "jobType": "updateAnalytics",
+      "dataInterface": "{ orderId: string; eventType: string; data: any }",
+      "file": "src/queues/processors/order.processor.ts",
+      "line": 99,
+      "hasOnActive": false,
+      "hasOnCompleted": false,
+      "hasOnFailed": false
+    }
+  ]
+}

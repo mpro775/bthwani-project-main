@@ -1,0 +1,6 @@
+{
+  "hooks": {
+    "pre-commit": "npm run test:fast",
+    "pre-push": "npm test -- --coverage --watchAll=false"
+  }
+}

@@ -1,0 +1,67 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* تحسينات الوصول (Accessibility) */
+* {
+  /* تحسين التباين للنصوص */
+  color-scheme: light dark;
+}
+
+/* دعم التنقل بالكيبورد */
+*:focus-visible {
+  outline: 2px solid #FF500D;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* تحسين تباين الألوان */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #1A3052;
+    --text-color: #FFFFFF;
+    --primary-color: #FF500D;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-color: #FFFFFF;
+    --text-color: #1A3052;
+    --primary-color: #FF500D;
+  }
+}
+
+/* تحسين قراءة النصوص */
+body {
+  font-family: "Cairo", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: var(--bg-color);
+}
+
+/* تحسين الروابط للوصول */
+a:focus,
+button:focus,
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid #FF500D;
+  outline-offset: 2px;
+}
+
+/* تحسين تباين الأزرار */
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* تحسين قراءة النصوص الصغيرة */
+small,
+.caption,
+.MuiTypography-caption {
+  font-size: 0.875rem;
+  line-height: 1.4;
+}

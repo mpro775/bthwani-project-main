@@ -1,0 +1,393 @@
+{
+  "dashboard": {
+    "title": "BThwani - SLO Tracking & Burn Rate",
+    "tags": ["bthwani", "slo", "reliability"],
+    "timezone": "browser",
+    "time": {
+      "from": "now-30d",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "SLO Status - Error Budget (99.9%)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "(1 - (sum(rate(http_requests_total{status=~\"5..\"}[30d])) / sum(rate(http_requests_total[30d])))) * 100",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "value": null,
+                  "color": "red"
+                },
+                {
+                  "value": 99.9,
+                  "color": "green"
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "SLO Status - Latency (P95 < 2s)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[30d]))",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "seconds",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "value": null,
+                  "color": "green"
+                },
+                {
+                  "value": 2,
+                  "color": "red"
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 6,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "SLO Status - Availability (99.95%)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "avg_over_time(up{job=\"bthwani-backend\"}[30d]) * 100",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "value": null,
+                  "color": "red"
+                },
+                {
+                  "value": 99.95,
+                  "color": "green"
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 4,
+        "title": "Error Budget Burn Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{status=~\"5..\"}[1h]) / rate(http_requests_total[1h])",
+            "legendFormat": "Error Rate (1h)",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(http_requests_total{status=~\"5..\"}[6h]) / rate(http_requests_total[6h])",
+            "legendFormat": "Error Rate (6h)",
+            "refId": "B"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "percent",
+            "min": 0
+          }
+        ],
+        "thresholds": [
+          {
+            "value": 0.001,
+            "colorMode": "warning",
+            "op": "gt",
+            "fill": true,
+            "line": true,
+            "yaxis": "left"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 6
+        }
+      },
+      {
+        "id": 5,
+        "title": "Multi-Window Burn Rate Alerts",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "ALERTS{alertname=~\"ErrorBudgetBurn.*\"}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "align": "left"
+            }
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 6
+        }
+      },
+      {
+        "id": 6,
+        "title": "Latency Budget Tracking",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[1h]))",
+            "legendFormat": "P95 (1h)",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[6h]))",
+            "legendFormat": "P95 (6h)",
+            "refId": "B"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[24h]))",
+            "legendFormat": "P95 (24h)",
+            "refId": "C"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "seconds",
+            "min": 0
+          }
+        ],
+        "thresholds": [
+          {
+            "value": 2,
+            "colorMode": "critical",
+            "op": "gt",
+            "fill": true,
+            "line": true,
+            "yaxis": "left"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 14
+        }
+      },
+      {
+        "id": 7,
+        "title": "Error Budget Remaining",
+        "type": "bargauge",
+        "targets": [
+          {
+            "expr": "(1 - (sum(rate(http_requests_total{status=~\"5..\"}[30d])) / sum(rate(http_requests_total[30d])))) * 100",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "value": null,
+                  "color": "red"
+                },
+                {
+                  "value": 50,
+                  "color": "yellow"
+                },
+                {
+                  "value": 90,
+                  "color": "green"
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 14
+        }
+      },
+      {
+        "id": 8,
+        "title": "MTTR Tracking",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "avg_over_time(alert_resolution_time_seconds[30d])",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "seconds"
+          }
+        },
+        "thresholds": {
+          "mode": "absolute",
+          "steps": [
+            {
+              "value": null,
+              "color": "green"
+            },
+            {
+              "value": 1800,
+              "color": "yellow"
+            },
+            {
+              "value": 3600,
+              "color": "red"
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 0,
+          "y": 22
+        }
+      },
+      {
+        "id": 9,
+        "title": "MTTD Tracking",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "avg_over_time(alert_detection_time_seconds[30d])",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "seconds"
+          }
+        },
+        "thresholds": {
+          "mode": "absolute",
+          "steps": [
+            {
+              "value": null,
+              "color": "green"
+            },
+            {
+              "value": 300,
+              "color": "yellow"
+            },
+            {
+              "value": 600,
+              "color": "red"
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 8,
+          "y": 22
+        }
+      },
+      {
+        "id": 10,
+        "title": "SLO Burn Rate History",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{status=~\"5..\"}[1d]) / rate(http_requests_total[1d])",
+            "legendFormat": "Daily Error Rate",
+            "refId": "A"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "percent",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 16,
+          "x": 0,
+          "y": 28
+        }
+      }
+    ],
+    "time": {
+      "from": "now-30d",
+      "to": "now"
+    },
+    "timepicker": {},
+    "templating": {
+      "list": []
+    },
+    "annotations": {
+      "list": [
+        {
+          "builtIn": 1,
+          "datasource": "-- Grafana --",
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "type": "dashboard"
+        }
+      ]
+    },
+    "refresh": "1m",
+    "schemaVersion": 27,
+    "version": 0,
+    "links": []
+  }
+}

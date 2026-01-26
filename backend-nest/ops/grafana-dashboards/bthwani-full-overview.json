@@ -1,0 +1,463 @@
+{
+  "dashboard": {
+    "title": "BThwani - Full Observability Overview",
+    "tags": ["bthwani", "observability", "production"],
+    "timezone": "browser",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "timepicker": {},
+    "templating": {
+      "list": []
+    },
+    "annotations": {
+      "list": [
+        {
+          "builtIn": 1,
+          "datasource": "-- Grafana --",
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "type": "dashboard"
+        }
+      ]
+    },
+    "editable": true,
+    "gnetId": null,
+    "graphTooltip": 0,
+    "id": null,
+    "iteration": 1609459200000,
+    "links": [],
+    "panels": [
+      {
+        "id": 1,
+        "title": "RPS - Requests per Second (Last 5m)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(rate(http_requests_total[5m])) by (method)",
+            "legendFormat": "{{method}}",
+            "refId": "A"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "reqps",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "LAT - Latency Percentiles (P50/P95/P99)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(http_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "P50",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "P95",
+            "refId": "B"
+          },
+          {
+            "expr": "histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "P99",
+            "refId": "C"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "seconds",
+            "min": 0
+          }
+        ],
+        "thresholds": [
+          {
+            "value": 2,
+            "colorMode": "critical",
+            "op": "gt",
+            "fill": true,
+            "line": true,
+            "yaxis": "left"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "ERR - Error Rate by Status Code",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(rate(http_requests_total{status=~\"4..\"}[5m])) by (status)",
+            "legendFormat": "{{status}} errors",
+            "refId": "A"
+          },
+          {
+            "expr": "sum(rate(http_requests_total{status=~\"5..\"}[5m])) by (status)",
+            "legendFormat": "{{status}} errors",
+            "refId": "B"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "reqps",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 8
+        }
+      },
+      {
+        "id": 4,
+        "title": "SAT - System Saturation",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(process_cpu_seconds_total[5m]) * 100",
+            "legendFormat": "CPU %",
+            "refId": "A"
+          },
+          {
+            "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100",
+            "legendFormat": "Memory %",
+            "refId": "B"
+          },
+          {
+            "expr": "(1 - (node_filesystem_avail_bytes{mountpoint=\"/\"} / node_filesystem_size_bytes{mountpoint=\"/\"})) * 100",
+            "legendFormat": "Disk %",
+            "refId": "C"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "percent",
+            "min": 0,
+            "max": 100
+          }
+        ],
+        "thresholds": [
+          {
+            "value": 80,
+            "colorMode": "warning",
+            "op": "gt",
+            "fill": true,
+            "line": true,
+            "yaxis": "left"
+          },
+          {
+            "value": 90,
+            "colorMode": "critical",
+            "op": "gt",
+            "fill": true,
+            "line": true,
+            "yaxis": "left"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 8
+        }
+      },
+      {
+        "id": 5,
+        "title": "Database Connections",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "mongodb_connections{state=\"active\"}",
+            "legendFormat": "Active",
+            "refId": "A"
+          },
+          {
+            "expr": "mongodb_connections{state=\"available\"}",
+            "legendFormat": "Available",
+            "refId": "B"
+          },
+          {
+            "expr": "mongodb_connections{state=\"current\"}",
+            "legendFormat": "Current",
+            "refId": "C"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "connections",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 16
+        }
+      },
+      {
+        "id": 6,
+        "title": "Redis Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "redis_keyspace_hits_total / (redis_keyspace_hits_total + redis_keyspace_misses_total)",
+            "legendFormat": "Cache Hit Rate",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(redis_commands_total[5m])",
+            "legendFormat": "Commands/sec",
+            "refId": "B"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "percent",
+            "min": 0,
+            "max": 100
+          },
+          {
+            "unit": "ops",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 16
+        }
+      },
+      {
+        "id": 7,
+        "title": "Business Metrics - Orders",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(orders_created_total[5m])",
+            "legendFormat": "Orders Created",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(orders_completed_total[5m])",
+            "legendFormat": "Orders Completed",
+            "refId": "B"
+          },
+          {
+            "expr": "rate(orders_failed_total[5m])",
+            "legendFormat": "Orders Failed",
+            "refId": "C"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "orders/min",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 24
+        }
+      },
+      {
+        "id": 8,
+        "title": "Business Metrics - Payments",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(payments_total[5m])",
+            "legendFormat": "Total Payments",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(payments_succeeded_total[5m])",
+            "legendFormat": "Successful Payments",
+            "refId": "B"
+          },
+          {
+            "expr": "rate(payments_failed_total[5m])",
+            "legendFormat": "Failed Payments",
+            "refId": "C"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "payments/min",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 24
+        }
+      },
+      {
+        "id": 9,
+        "title": "SLO Status - Error Budget",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "(1 - (sum(rate(http_requests_total{status=~\"5..\"}[30d])) / sum(rate(http_requests_total[30d])))) * 100",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent"
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 0,
+          "y": 32
+        }
+      },
+      {
+        "id": 10,
+        "title": "SLO Status - Latency Budget",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[30d]))",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "seconds"
+          }
+        },
+        "thresholds": {
+          "mode": "absolute",
+          "steps": [
+            {
+              "value": null,
+              "color": "green"
+            },
+            {
+              "value": 2,
+              "color": "yellow"
+            },
+            {
+              "value": 5,
+              "color": "red"
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 8,
+          "y": 32
+        }
+      },
+      {
+        "id": 11,
+        "title": "SLO Status - Availability",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "(1 - (sum(rate(http_requests_total{status=~\"5..\"}[30d])) / sum(rate(http_requests_total[30d])))) * 100",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent"
+          }
+        },
+        "thresholds": {
+          "mode": "absolute",
+          "steps": [
+            {
+              "value": null,
+              "color": "red"
+            },
+            {
+              "value": 99.9,
+              "color": "yellow"
+            },
+            {
+              "value": 99.95,
+              "color": "green"
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 16,
+          "y": 32
+        }
+      },
+      {
+        "id": 12,
+        "title": "Alert Status",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "ALERTS",
+            "legendFormat": "__name__",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "align": "left"
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 38
+        }
+      }
+    ],
+    "schemaVersion": 27,
+    "style": "dark",
+    "tags": ["bthwani", "observability", "production"],
+    "templating": {
+      "list": []
+    },
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "",
+    "title": "BThwani - Full Observability Overview",
+    "uid": "bthwani-full-overview",
+    "version": 1
+  }
+}

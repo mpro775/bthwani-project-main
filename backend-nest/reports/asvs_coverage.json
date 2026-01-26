@@ -1,0 +1,2517 @@
+{
+  "generated_at": "2025-10-14T21:37:13.184Z",
+  "summary": {
+    "total_checks": 30,
+    "passed": 30,
+    "failed": 0,
+    "l1_passed": 17,
+    "l1_total": 17,
+    "l2_passed": 13,
+    "l2_total": 13,
+    "l3_passed": 0,
+    "l3_total": 0,
+    "overall_score": 100
+  },
+  "checks": [
+    {
+      "id": "V1.1",
+      "category": "Architecture",
+      "name": "API Versioning",
+      "description": "API versioning is implemented to support backward compatibility",
+      "level": "L1",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "src/main.ts",
+          "line": 116,
+          "code": "app.enableVersioning({"
+        }
+      ]
+    },
+    {
+      "id": "V1.2",
+      "category": "Architecture",
+      "name": "Environment Configuration",
+      "description": "Environment variables are validated and managed",
+      "level": "L1",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "src/app.module.ts",
+          "line": 47,
+          "code": "import { envValidationSchema } from './config/env.validation';"
+        },
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 161,
+          "code": "evidence: searchPattern('env.validation', ['ts']),"
+        }
+      ]
+    },
+    {
+      "id": "V2.1",
+      "category": "Authentication",
+      "name": "JWT Authentication",
+      "description": "JWT-based authentication is implemented",
+      "level": "L1",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "src/modules/auth/auth.module.ts",
+          "line": 12,
+          "code": "import { JwtStrategy } from './strategies/jwt.strategy';"
+        },
+        {
+          "file": "src/modules/auth/auth.module.ts",
+          "line": 52,
+          "code": "JwtStrategy,"
+        },
+        {
+          "file": "src/modules/auth/auth.module.ts",
+          "line": 63,
+          "code": "JwtStrategy,"
+        },
+        {
+          "file": "src/modules/auth/strategies/jwt.strategy.ts",
+          "line": 13,
+          "code": "export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {"
+        },
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 175,
+          "code": "evidence: searchPattern('JwtStrategy', ['ts']),"
+        }
+      ]
+    },
+    {
+      "id": "V2.2",
+      "category": "Authentication",
+      "name": "Firebase Authentication",
+      "description": "Firebase authentication is configured",
+      "level": "L1",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "src/common/guards/unified-auth.guard.ts",
+          "line": 25,
+          "code": "import * as admin from 'firebase-admin';"
+        },
+        {
+          "file": "src/main.ts",
+          "line": 9,
+          "code": "import * as admin from 'firebase-admin';"
+        },
+        {
+          "file": "src/modules/auth/auth.service.ts",
+          "line": 11,
+          "code": "import * as admin from 'firebase-admin';"
+        },
+        {
+          "file": "src/modules/auth/strategies/firebase.strategy.ts",
+          "line": 5,
+          "code": "import * as admin from 'firebase-admin';"
+        },
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 186,
+          "code": "evidence: searchPattern('firebase-admin', ['ts']),"
+        }
+      ]
+    },
+    {
+      "id": "V2.3",
+      "category": "Authentication",
+      "name": "Password Hashing",
+      "description": "Passwords are hashed using bcrypt",
+      "level": "L1",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "src/modules/driver/driver.service.ts",
+          "line": 8,
+          "code": "import * as bcrypt from 'bcrypt';"
+        },
+        {
+          "file": "src/modules/driver/driver.service.ts",
+          "line": 40,
+          "code": "const hashedPassword = await bcrypt.hash(createDriverDto.password, 10);"
+        },
+        {
+          "file": "src/modules/user/user.controller.ts",
+          "line": 153,
+          "code": "description: 'تعيين رمز PIN من 4-6 أرقام مع تشفير bcrypt',"
+        },
+        {
+          "file": "src/modules/user/user.service.ts",
+          "line": 13,
+          "code": "import * as bcrypt from 'bcrypt';"
+        },
+        {
+          "file": "src/modules/user/user.service.ts",
+          "line": 307,
+          "code": "// تشفير PIN باستخدام bcrypt"
+        },
+        {
+          "file": "src/modules/user/user.service.ts",
+          "line": 308,
+          "code": "const pinCodeHash = await bcrypt.hash(setPinDto.pin, this.SALT_ROUNDS);"
+        },
+        {
+          "file": "src/modules/user/user.service.ts",
+          "line": 374,
+          "code": "const isValid = await bcrypt.compare("
+        },
+        {
+          "file": "src/modules/vendor/vendor.service.ts",
+          "line": 8,
+          "code": "import * as bcrypt from 'bcrypt';"
+        },
+        {
+          "file": "src/modules/vendor/vendor.service.ts",
+          "line": 35,
+          "code": "const hashedPassword = await bcrypt.hash(createVendorDto.password, 10);"
+        },
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 194,
+          "code": "description: 'Passwords are hashed using bcrypt',"
+        },
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 197,
+          "code": "evidence: searchPattern('bcrypt', ['ts']),"
+        },
+        {
+          "file": "tools/audit/compliance_index.ts",
+          "line": 44,
+          "code": "searchPatterns: ['encrypt|bcrypt|crypto|hash', 'password.*hash', 'pin.*encrypt'],"
+        }
+      ]
+    },
+    {
+      "id": "V3.1",
+      "category": "Session",
+      "name": "Redis Session Store",
+      "description": "Redis is used for session/cache management",
+      "level": "L2",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "src/common/middleware/idempotency.middleware.ts",
+          "line": 13,
+          "code": "// Cache في الذاكرة للسرعة (يمكن استبداله بـ Redis في Production)"
+        },
+        {
+          "file": "src/common/utils/cache.helper.ts",
+          "line": 13,
+          "code": "* ملاحظة: يعمل بشكل أفضل مع Redis"
+        },
+        {
+          "file": "src/common/utils/cache.helper.ts",
+          "line": 20,
+          "code": "// For Redis: use KEYS pattern matching"
+        },
+        {
+          "file": "src/config/cache.config.ts",
+          "line": 10,
+          "code": "// Redis configuration (optional)"
+        },
+        {
+          "file": "src/config/cache.config.ts",
+          "line": 11,
+          "code": "store: process.env.REDIS_HOST ? 'redis' : 'memory',"
+        },
+        {
+          "file": "src/config/cache.config.ts",
+          "line": 12,
+          "code": "host: process.env.REDIS_HOST || 'localhost',"
+        },
+        {
+          "file": "src/config/cache.config.ts",
+          "line": 13,
+          "code": "port: parseInt(process.env.REDIS_PORT || '6379', 10),"
+        },
+        {
+          "file": "src/config/cache.config.ts",
+          "line": 14,
+          "code": "password: process.env.REDIS_PASSWORD,"
+        },
+        {
+          "file": "src/config/cache.config.ts",
+          "line": 15,
+          "code": "db: parseInt(process.env.REDIS_DB || '0', 10),"
+        },
+        {
+          "file": "src/config/env.validation.ts",
+          "line": 56,
+          "code": "// Redis (Required for Production)"
+        },
+        {
+          "file": "src/config/env.validation.ts",
+          "line": 57,
+          "code": "REDIS_HOST: Joi.string().when('NODE_ENV', {"
+        },
+        {
+          "file": "src/config/env.validation.ts",
+          "line": 60,
+          "code": "'any.required': 'REDIS_HOST is required in production environment',"
+        },
+        {
+          "file": "src/config/env.validation.ts",
+          "line": 64,
+          "code": "REDIS_PORT: Joi.number()"
+        },
+        {
+          "file": "src/config/env.validation.ts",
+          "line": 69,
+          "code": "'any.required': 'REDIS_PORT is required in production environment',"
+        },
+        {
+          "file": "src/config/env.validation.ts",
+          "line": 73,
+          "code": "REDIS_PASSWORD: Joi.string().when('NODE_ENV', {"
+        },
+        {
+          "file": "src/config/env.validation.ts",
+          "line": 76,
+          "code": "'any.required': 'REDIS_PASSWORD is required in production environment',"
+        },
+        {
+          "file": "src/config/env.validation.ts",
+          "line": 78,
+          "code": "'REDIS_PASSWORD must be at least 8 characters in production',"
+        },
+        {
+          "file": "src/config/env.validation.ts",
+          "line": 82,
+          "code": "REDIS_TLS: Joi.boolean().default(false),"
+        },
+        {
+          "file": "src/config/env.validation.ts",
+          "line": 83,
+          "code": "REDIS_DB: Joi.number().default(0),"
+        },
+        {
+          "file": "src/modules/admin/admin.service.ts",
+          "line": 937,
+          "code": "redis: 'connected',"
+        },
+        {
+          "file": "src/modules/admin/admin.service.ts",
+          "line": 1230,
+          "code": "// TODO: Clear Redis cache"
+        },
+        {
+          "file": "src/modules/health/health.controller.ts",
+          "line": 15,
+          "code": "import { RedisHealthIndicator } from './indicators/redis.health';"
+        },
+        {
+          "file": "src/modules/health/health.controller.ts",
+          "line": 27,
+          "code": "private readonly redis: RedisHealthIndicator,"
+        },
+        {
+          "file": "src/modules/health/health.controller.ts",
+          "line": 58,
+          "code": "// فحص Redis/Cache"
+        },
+        {
+          "file": "src/modules/health/health.controller.ts",
+          "line": 59,
+          "code": "() => this.redis.isHealthy('cache'),"
+        },
+        {
+          "file": "src/modules/health/health.controller.ts",
+          "line": 94,
+          "code": "// Redis/Cache يجب أن يكون متاحاً"
+        },
+        {
+          "file": "src/modules/health/health.controller.ts",
+          "line": 95,
+          "code": "() => this.redis.isHealthy('cache'),"
+        },
+        {
+          "file": "src/modules/health/health.controller.ts",
+          "line": 122,
+          "code": "() => this.redis.isHealthy('cache'),"
+        },
+        {
+          "file": "src/modules/health/health.controller.ts",
+          "line": 123,
+          "code": "() => this.redis.checkPerformance('cache_performance', 100), // 100ms threshold"
+        },
+        {
+          "file": "src/modules/health/health.module.ts",
+          "line": 4,
+          "code": "import { RedisHealthIndicator } from './indicators/redis.health';"
+        },
+        {
+          "file": "src/modules/health/health.module.ts",
+          "line": 11,
+          "code": "providers: [RedisHealthIndicator, QueueHealthIndicator],"
+        },
+        {
+          "file": "src/modules/health/indicators/queue.health.ts",
+          "line": 34,
+          "code": "// التحقق من الاتصال بـ Redis (التي تستخدمها Bull)"
+        },
+        {
+          "file": "src/modules/health/indicators/redis.health.ts",
+          "line": 12,
+          "code": "export class RedisHealthIndicator extends HealthIndicator {"
+        },
+        {
+          "file": "src/modules/health/indicators/redis.health.ts",
+          "line": 18,
+          "code": "* فحص صحة اتصال Redis/Cache"
+        },
+        {
+          "file": "src/modules/health/indicators/redis.health.ts",
+          "line": 50,
+          "code": "throw new HealthCheckError('Redis/Cache health check failed', result);"
+        },
+        {
+          "file": "src/modules/health/indicators/redis.health.ts",
+          "line": 55,
+          "code": "* فحص أداء Redis"
+        },
+        {
+          "file": "src/queues/queues.module.ts",
+          "line": 13,
+          "code": "redis: {"
+        },
+        {
+          "file": "src/queues/queues.module.ts",
+          "line": 14,
+          "code": "host: configService.get('REDIS_HOST', 'localhost'),"
+        },
+        {
+          "file": "src/queues/queues.module.ts",
+          "line": 15,
+          "code": "port: configService.get('REDIS_PORT', 6379),"
+        },
+        {
+          "file": "src/queues/queues.module.ts",
+          "line": 16,
+          "code": "password: configService.get('REDIS_PASSWORD'),"
+        },
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 207,
+          "code": "name: 'Redis Session Store',"
+        },
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 208,
+          "code": "description: 'Redis is used for session/cache management',"
+        },
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 211,
+          "code": "evidence: searchPattern('redis', ['ts']),"
+        },
+        {
+          "file": "tools/audit/compliance_index.ts",
+          "line": 138,
+          "code": "searchPatterns: ['session|redis', 'timeout|expire'],"
+        },
+        {
+          "file": "tools/audit/dr_probe.ts",
+          "line": 99,
+          "code": "// Check Redis persistence"
+        },
+        {
+          "file": "tools/audit/dr_probe.ts",
+          "line": 100,
+          "code": "this.checkRedisBackup();"
+        },
+        {
+          "file": "tools/audit/dr_probe.ts",
+          "line": 150,
+          "code": "const hasRedisVolume = content.includes('redis-data');"
+        },
+        {
+          "file": "tools/audit/dr_probe.ts",
+          "line": 154,
+          "code": "configured: hasMongoVolume && hasRedisVolume,"
+        },
+        {
+          "file": "tools/audit/dr_probe.ts",
+          "line": 159,
+          "code": "notes: hasMongoVolume && hasRedisVolume"
+        },
+        {
+          "file": "tools/audit/dr_probe.ts",
+          "line": 167,
+          "code": "* Check Redis persistence"
+        },
+        {
+          "file": "tools/audit/dr_probe.ts",
+          "line": 169,
+          "code": "private checkRedisBackup(): void {"
+        },
+        {
+          "file": "tools/audit/dr_probe.ts",
+          "line": 176,
+          "code": "const hasVolume = content.includes('redis-data');"
+        },
+        {
+          "file": "tools/audit/dr_probe.ts",
+          "line": 179,
+          "code": "service: 'Redis',"
+        },
+        {
+          "file": "tools/audit/dr_probe.ts",
+          "line": 350,
+          "code": "component: 'Redis Cache',"
+        },
+        {
+          "file": "tools/audit/dr_probe.ts",
+          "line": 353,
+          "code": "backupStrategy: this.getBackupStrategy('Redis'),"
+        },
+        {
+          "file": "tools/audit/dr_probe.ts",
+          "line": 355,
+          "code": "status: this.getComponentStatus('Redis'),"
+        },
+        {
+          "file": "tools/audit/dr_probe.ts",
+          "line": 604,
+          "code": "content += '- Redis: RTO=5 minutes, RPO=1 minute\\n';"
+        },
+        {
+          "file": "tools/audit/health-readiness.ts",
+          "line": 311,
+          "code": "// 9. Redis/Cache Health Check"
+        },
+        {
+          "file": "tools/audit/health-readiness.ts",
+          "line": 312,
+          "code": "console.log('📋 Checking Redis/Cache health...');"
+        },
+        {
+          "file": "tools/audit/health-readiness.ts",
+          "line": 313,
+          "code": "const redisHealthCheck = searchInFiles("
+        },
+        {
+          "file": "tools/audit/health-readiness.ts",
+          "line": 314,
+          "code": "'redis.*ping|cache.*health|RedisHealthIndicator',"
+        },
+        {
+          "file": "tools/audit/health-readiness.ts",
+          "line": 320,
+          "code": "name: 'Redis/Cache Health Check',"
+        },
+        {
+          "file": "tools/audit/health-readiness.ts",
+          "line": 321,
+          "code": "description: 'Redis connection and cache availability check',"
+        },
+        {
+          "file": "tools/audit/health-readiness.ts",
+          "line": 324,
+          "code": "status: redisHealthCheck.length > 0 ? 'partial' : 'missing',"
+        },
+        {
+          "file": "tools/audit/health-readiness.ts",
+          "line": 325,
+          "code": "evidence: redisHealthCheck.slice(0, 3),"
+        },
+        {
+          "file": "tools/audit/health-readiness.ts",
+          "line": 327,
+          "code": "redisHealthCheck.length === 0"
+        },
+        {
+          "file": "tools/audit/health-readiness.ts",
+          "line": 329,
+          "code": "'Add Redis health check using custom indicator',"
+        },
+        {
+          "file": "tools/audit/health-readiness.ts",
+          "line": 330,
+          "code": "'Verify Redis connectivity with PING command',"
+        },
+        {
+          "file": "tools/audit/notif_delivery.ts",
+          "line": 158,
+          "code": "description: 'Bull/Redis queue for async notification processing',"
+        },
+        {
+          "file": "tools/audit/openapi-export.ts",
+          "line": 32,
+          "code": "process.env.REDIS_HOST = 'localhost';"
+        },
+        {
+          "file": "tools/audit/openapi-export.ts",
+          "line": 33,
+          "code": "process.env.REDIS_PORT = '6379';"
+        },
+        {
+          "file": "tools/audit/openapi-export.ts",
+          "line": 34,
+          "code": "process.env.REDIS_PASSWORD = 'dummy-password';"
+        },
+        {
+          "file": "tools/audit/throttling-check.ts",
+          "line": 705,
+          "code": "content += '- **Redis للتخزين المؤقت**: استخدام Redis بدلاً من الذاكرة لـ rate limiting في بيئة multi-server\\n';"
+        },
+        {
+          "file": "tools/audit/throttling-check.ts",
+          "line": 715,
+          "code": "content += '- [ ] إعداد Redis للـ production\\n';"
+        }
+      ]
+    },
+    {
+      "id": "V4.1",
+      "category": "Access Control",
+      "name": "Role-Based Access Control",
+      "description": "RBAC is implemented with guards",
+      "level": "L1",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "src/common/guards/roles.guard.ts",
+          "line": 28,
+          "code": "export class RolesGuard implements CanActivate {"
+        },
+        {
+          "file": "src/modules/admin/admin.controller.ts",
+          "line": 14,
+          "code": "import { RolesGuard } from '../../common/guards/roles.guard';"
+        },
+        {
+          "file": "src/modules/admin/admin.controller.ts",
+          "line": 21,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/analytics/analytics.controller.ts",
+          "line": 12,
+          "code": "import { RolesGuard } from '../../common/guards/roles.guard';"
+        },
+        {
+          "file": "src/modules/analytics/analytics.controller.ts",
+          "line": 18,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/auth/auth.module.ts",
+          "line": 15,
+          "code": "import { RolesGuard } from '../../common/guards/roles.guard';"
+        },
+        {
+          "file": "src/modules/auth/auth.module.ts",
+          "line": 55,
+          "code": "RolesGuard,"
+        },
+        {
+          "file": "src/modules/driver/driver.controller.ts",
+          "line": 17,
+          "code": "import { RolesGuard } from '../../common/guards/roles.guard';"
+        },
+        {
+          "file": "src/modules/driver/driver.controller.ts",
+          "line": 28,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/legal/legal.controller.ts",
+          "line": 25,
+          "code": "import { RolesGuard } from '../../common/guards/roles.guard';"
+        },
+        {
+          "file": "src/modules/legal/legal.controller.ts",
+          "line": 116,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/legal/legal.controller.ts",
+          "line": 128,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/legal/legal.controller.ts",
+          "line": 141,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/legal/legal.controller.ts",
+          "line": 154,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/legal/legal.controller.ts",
+          "line": 166,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/legal/legal.controller.ts",
+          "line": 179,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/legal/legal.controller.ts",
+          "line": 192,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/marketer/marketer.controller.ts",
+          "line": 14,
+          "code": "import { RolesGuard } from '../../common/guards/roles.guard';"
+        },
+        {
+          "file": "src/modules/marketer/marketer.controller.ts",
+          "line": 20,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/notification/notification.controller.ts",
+          "line": 18,
+          "code": "import { RolesGuard } from '../../common/guards/roles.guard';"
+        },
+        {
+          "file": "src/modules/notification/notification.controller.ts",
+          "line": 30,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/order/order-cqrs.controller.ts",
+          "line": 14,
+          "code": "import { RolesGuard } from '../../common/guards/roles.guard';"
+        },
+        {
+          "file": "src/modules/order/order-cqrs.controller.ts",
+          "line": 36,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/order/order.controller.ts",
+          "line": 24,
+          "code": "import { RolesGuard } from '../../common/guards/roles.guard';"
+        },
+        {
+          "file": "src/modules/order/order.controller.ts",
+          "line": 30,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/store/store.controller.ts",
+          "line": 8,
+          "code": "import { RolesGuard } from '../../common/guards/roles.guard';"
+        },
+        {
+          "file": "src/modules/store/store.controller.ts",
+          "line": 14,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/user/user.controller.ts",
+          "line": 19,
+          "code": "import { RolesGuard } from '../../common/guards/roles.guard';"
+        },
+        {
+          "file": "src/modules/user/user.controller.ts",
+          "line": 26,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/vendor/vendor.controller.ts",
+          "line": 17,
+          "code": "import { RolesGuard } from '../../common/guards/roles.guard';"
+        },
+        {
+          "file": "src/modules/vendor/vendor.controller.ts",
+          "line": 28,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/wallet/wallet.controller.ts",
+          "line": 17,
+          "code": "import { RolesGuard } from '../../common/guards/roles.guard';"
+        },
+        {
+          "file": "src/modules/wallet/wallet.controller.ts",
+          "line": 24,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 225,
+          "code": "evidence: searchPattern('RolesGuard', ['ts']),"
+        },
+        {
+          "file": "tools/audit/compliance_index.ts",
+          "line": 122,
+          "code": "searchPatterns: ['@Roles|RolesGuard', 'auth.*guard', '@UseGuards'],"
+        }
+      ]
+    },
+    {
+      "id": "V4.2",
+      "category": "Access Control",
+      "name": "Authorization Guards",
+      "description": "Authentication guards are properly configured",
+      "level": "L1",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "src/common/guards/unified-auth.guard.ts",
+          "line": 36,
+          "code": "export class UnifiedAuthGuard implements CanActivate {"
+        },
+        {
+          "file": "src/modules/admin/admin.controller.ts",
+          "line": 13,
+          "code": "import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';"
+        },
+        {
+          "file": "src/modules/admin/admin.controller.ts",
+          "line": 21,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/analytics/analytics.controller.ts",
+          "line": 11,
+          "code": "import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';"
+        },
+        {
+          "file": "src/modules/analytics/analytics.controller.ts",
+          "line": 18,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/auth/auth.controller.ts",
+          "line": 10,
+          "code": "import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';"
+        },
+        {
+          "file": "src/modules/auth/auth.controller.ts",
+          "line": 35,
+          "code": "@UseGuards(UnifiedAuthGuard)"
+        },
+        {
+          "file": "src/modules/auth/auth.controller.ts",
+          "line": 45,
+          "code": "@UseGuards(UnifiedAuthGuard)"
+        },
+        {
+          "file": "src/modules/auth/auth.controller.ts",
+          "line": 59,
+          "code": "@UseGuards(UnifiedAuthGuard)"
+        },
+        {
+          "file": "src/modules/auth/auth.controller.ts",
+          "line": 87,
+          "code": "@UseGuards(UnifiedAuthGuard)"
+        },
+        {
+          "file": "src/modules/auth/auth.controller.ts",
+          "line": 114,
+          "code": "@UseGuards(UnifiedAuthGuard)"
+        },
+        {
+          "file": "src/modules/auth/auth.controller.ts",
+          "line": 134,
+          "code": "@UseGuards(UnifiedAuthGuard)"
+        },
+        {
+          "file": "src/modules/auth/auth.controller.ts",
+          "line": 153,
+          "code": "@UseGuards(UnifiedAuthGuard)"
+        },
+        {
+          "file": "src/modules/auth/auth.controller.ts",
+          "line": 167,
+          "code": "@UseGuards(UnifiedAuthGuard)"
+        },
+        {
+          "file": "src/modules/auth/auth.module.ts",
+          "line": 14,
+          "code": "import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';"
+        },
+        {
+          "file": "src/modules/auth/auth.module.ts",
+          "line": 54,
+          "code": "UnifiedAuthGuard,"
+        },
+        {
+          "file": "src/modules/auth/auth.module.ts",
+          "line": 65,
+          "code": "UnifiedAuthGuard,"
+        },
+        {
+          "file": "src/modules/driver/driver.controller.ts",
+          "line": 16,
+          "code": "import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';"
+        },
+        {
+          "file": "src/modules/driver/driver.controller.ts",
+          "line": 28,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/legal/legal.controller.ts",
+          "line": 24,
+          "code": "import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';"
+        },
+        {
+          "file": "src/modules/legal/legal.controller.ts",
+          "line": 69,
+          "code": "@UseGuards(UnifiedAuthGuard)"
+        },
+        {
+          "file": "src/modules/legal/legal.controller.ts",
+          "line": 89,
+          "code": "@UseGuards(UnifiedAuthGuard)"
+        },
+        {
+          "file": "src/modules/legal/legal.controller.ts",
+          "line": 100,
+          "code": "@UseGuards(UnifiedAuthGuard)"
+        },
+        {
+          "file": "src/modules/legal/legal.controller.ts",
+          "line": 116,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/legal/legal.controller.ts",
+          "line": 128,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/legal/legal.controller.ts",
+          "line": 141,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/legal/legal.controller.ts",
+          "line": 154,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/legal/legal.controller.ts",
+          "line": 166,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/legal/legal.controller.ts",
+          "line": 179,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/legal/legal.controller.ts",
+          "line": 192,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/marketer/marketer.controller.ts",
+          "line": 13,
+          "code": "import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';"
+        },
+        {
+          "file": "src/modules/marketer/marketer.controller.ts",
+          "line": 20,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/notification/notification.controller.ts",
+          "line": 17,
+          "code": "import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';"
+        },
+        {
+          "file": "src/modules/notification/notification.controller.ts",
+          "line": 30,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/order/order-cqrs.controller.ts",
+          "line": 13,
+          "code": "import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';"
+        },
+        {
+          "file": "src/modules/order/order-cqrs.controller.ts",
+          "line": 36,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/order/order.controller.ts",
+          "line": 23,
+          "code": "import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';"
+        },
+        {
+          "file": "src/modules/order/order.controller.ts",
+          "line": 30,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/store/store.controller.ts",
+          "line": 7,
+          "code": "import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';"
+        },
+        {
+          "file": "src/modules/store/store.controller.ts",
+          "line": 14,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/user/user.controller.ts",
+          "line": 18,
+          "code": "import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';"
+        },
+        {
+          "file": "src/modules/user/user.controller.ts",
+          "line": 26,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/vendor/vendor.controller.ts",
+          "line": 16,
+          "code": "import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';"
+        },
+        {
+          "file": "src/modules/vendor/vendor.controller.ts",
+          "line": 28,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "src/modules/wallet/wallet.controller.ts",
+          "line": 16,
+          "code": "import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';"
+        },
+        {
+          "file": "src/modules/wallet/wallet.controller.ts",
+          "line": 24,
+          "code": "@UseGuards(UnifiedAuthGuard, RolesGuard)"
+        },
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 236,
+          "code": "evidence: searchPattern('AuthGuard', ['ts']),"
+        },
+        {
+          "file": "tools/audit/inventory.ts",
+          "line": 166,
+          "code": "const authGuard = this.extractAuthGuards(method);"
+        },
+        {
+          "file": "tools/audit/inventory.ts",
+          "line": 183,
+          "code": "auth_guard: authGuard,"
+        },
+        {
+          "file": "tools/audit/inventory.ts",
+          "line": 261,
+          "code": "private extractAuthGuards(method: MethodDeclaration): string {"
+        }
+      ]
+    },
+    {
+      "id": "V5.1",
+      "category": "Validation",
+      "name": "Global Validation Pipe",
+      "description": "ValidationPipe is enabled globally for input validation",
+      "level": "L1",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "src/main.ts",
+          "line": 2,
+          "code": "import { ValidationPipe, VersioningType } from '@nestjs/common';"
+        },
+        {
+          "file": "src/main.ts",
+          "line": 98,
+          "code": "new ValidationPipe({"
+        }
+      ]
+    },
+    {
+      "id": "V5.2",
+      "category": "Validation",
+      "name": "DTO Validation",
+      "description": "DTOs use class-validator decorators",
+      "level": "L1",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "src/common/dto/pagination.dto.ts",
+          "line": 1,
+          "code": "import { IsOptional, IsNumber, IsString, Min, Max } from 'class-validator';"
+        },
+        {
+          "file": "src/gateways/dto/driver-status.dto.ts",
+          "line": 1,
+          "code": "import { IsBoolean } from 'class-validator';"
+        },
+        {
+          "file": "src/gateways/dto/join-room.dto.ts",
+          "line": 1,
+          "code": "import { IsString, IsNotEmpty, IsMongoId } from 'class-validator';"
+        },
+        {
+          "file": "src/gateways/dto/location-update.dto.ts",
+          "line": 1,
+          "code": "import { IsNumber, IsOptional, Min, Max } from 'class-validator';"
+        },
+        {
+          "file": "src/modules/akhdimni/dto/create-errand.dto.ts",
+          "line": 11,
+          "code": "} from 'class-validator';"
+        },
+        {
+          "file": "src/modules/auth/dto/consent.dto.ts",
+          "line": 1,
+          "code": "import { IsEnum, IsString, IsBoolean, IsOptional, IsNotEmpty } from 'class-validator';"
+        },
+        {
+          "file": "src/modules/auth/dto/firebase-auth.dto.ts",
+          "line": 1,
+          "code": "import { IsNotEmpty, IsString } from 'class-validator';"
+        },
+        {
+          "file": "src/modules/auth/dto/register-with-consent.dto.ts",
+          "line": 1,
+          "code": "import { IsString, IsEmail, IsBoolean, IsOptional, IsNotEmpty, ValidateNested, IsArray } from 'class-validator';"
+        },
+        {
+          "file": "src/modules/auth/dto/register.dto.ts",
+          "line": 1,
+          "code": "import { IsEmail, IsNotEmpty, IsString, IsOptional } from 'class-validator';"
+        },
+        {
+          "file": "src/modules/cart/dto/add-to-cart.dto.ts",
+          "line": 9,
+          "code": "} from 'class-validator';"
+        },
+        {
+          "file": "src/modules/cart/dto/shein-cart.dto.ts",
+          "line": 1,
+          "code": "import { IsString, IsNumber, IsOptional, IsObject, Min } from 'class-validator';"
+        },
+        {
+          "file": "src/modules/content/dto/create-banner.dto.ts",
+          "line": 10,
+          "code": "} from 'class-validator';"
+        },
+        {
+          "file": "src/modules/content/dto/create-section.dto.ts",
+          "line": 9,
+          "code": "} from 'class-validator';"
+        },
+        {
+          "file": "src/modules/content/dto/create-subscription.dto.ts",
+          "line": 10,
+          "code": "} from 'class-validator';"
+        },
+        {
+          "file": "src/modules/driver/dto/create-driver.dto.ts",
+          "line": 10,
+          "code": "} from 'class-validator';"
+        },
+        {
+          "file": "src/modules/driver/dto/update-location.dto.ts",
+          "line": 1,
+          "code": "import { IsNumber, IsNotEmpty } from 'class-validator';"
+        },
+        {
+          "file": "src/modules/er/dto/create-chart-account.dto.ts",
+          "line": 1,
+          "code": "import { IsNotEmpty, IsString, IsEnum, IsOptional, IsMongoId } from 'class-validator';"
+        },
+        {
+          "file": "src/modules/er/dto/create-employee.dto.ts",
+          "line": 14,
+          "code": "} from 'class-validator';"
+        },
+        {
+          "file": "src/modules/er/dto/create-journal-entry.dto.ts",
+          "line": 12,
+          "code": "} from 'class-validator';"
+        },
+        {
+          "file": "src/modules/er/dto/create-leave-request.dto.ts",
+          "line": 1,
+          "code": "import { IsNotEmpty, IsString, IsEnum, IsOptional, IsArray, IsUrl } from 'class-validator';"
+        },
+        {
+          "file": "src/modules/finance/dto/create-commission.dto.ts",
+          "line": 9,
+          "code": "} from 'class-validator';"
+        },
+        {
+          "file": "src/modules/finance/dto/create-coupon.dto.ts",
+          "line": 12,
+          "code": "} from 'class-validator';"
+        },
+        {
+          "file": "src/modules/finance/dto/create-payout-batch.dto.ts",
+          "line": 1,
+          "code": "import { IsString, IsEnum, IsOptional, IsDateString } from 'class-validator';"
+        },
+        {
+          "file": "src/modules/finance/dto/create-reconciliation.dto.ts",
+          "line": 7,
+          "code": "} from 'class-validator';"
+        },
+        {
+          "file": "src/modules/finance/dto/create-settlement.dto.ts",
+          "line": 10,
+          "code": "} from 'class-validator';"
+        },
+        {
+          "file": "src/modules/legal/dto/create-privacy-policy.dto.ts",
+          "line": 2,
+          "code": "import { IsString, IsNotEmpty, IsOptional, IsBoolean, IsDateString } from 'class-validator';"
+        },
+        {
+          "file": "src/modules/legal/dto/create-terms-of-service.dto.ts",
+          "line": 2,
+          "code": "import { IsString, IsNotEmpty, IsOptional, IsBoolean, IsDateString } from 'class-validator';"
+        },
+        {
+          "file": "src/modules/legal/dto/record-consent.dto.ts",
+          "line": 2,
+          "code": "import { IsString, IsNotEmpty, IsBoolean, IsOptional, IsIn } from 'class-validator';"
+        },
+        {
+          "file": "src/modules/merchant/dto/create-attribute.dto.ts",
+          "line": 10,
+          "code": "} from 'class-validator';"
+        },
+        {
+          "file": "src/modules/merchant/dto/create-category.dto.ts",
+          "line": 9,
+          "code": "} from 'class-validator';"
+        },
+        {
+          "file": "src/modules/merchant/dto/create-merchant-product.dto.ts",
+          "line": 11,
+          "code": "} from 'class-validator';"
+        },
+        {
+          "file": "src/modules/merchant/dto/create-merchant.dto.ts",
+          "line": 9,
+          "code": "} from 'class-validator';"
+        },
+        {
+          "file": "src/modules/merchant/dto/create-product-catalog.dto.ts",
+          "line": 9,
+          "code": "} from 'class-validator';"
+        },
+        {
+          "file": "src/modules/notification/dto/create-notification.dto.ts",
+          "line": 1,
+          "code": "import { IsNotEmpty, IsString, IsOptional, IsArray } from 'class-validator';"
+        },
+        {
+          "file": "src/modules/notification/dto/suppression.dto.ts",
+          "line": 1,
+          "code": "import { IsEnum, IsString, IsOptional, IsDate, IsBoolean, IsArray } from 'class-validator';"
+        },
+        {
+          "file": "src/modules/order/dto/create-order.dto.ts",
+          "line": 11,
+          "code": "} from 'class-validator';"
+        },
+        {
+          "file": "src/modules/order/dto/update-order-status.dto.ts",
+          "line": 1,
+          "code": "import { IsEnum, IsOptional, IsString } from 'class-validator';"
+        },
+        {
+          "file": "src/modules/promotion/dto/create-promotion.dto.ts",
+          "line": 12,
+          "code": "} from 'class-validator';"
+        },
+        {
+          "file": "src/modules/store/dto/create-product.dto.ts",
+          "line": 10,
+          "code": "} from 'class-validator';"
+        },
+        {
+          "file": "src/modules/store/dto/create-store.dto.ts",
+          "line": 11,
+          "code": "} from 'class-validator';"
+        },
+        {
+          "file": "src/modules/user/dto/add-address.dto.ts",
+          "line": 1,
+          "code": "import { IsNotEmpty, IsString, IsOptional, ValidateNested } from 'class-validator';"
+        },
+        {
+          "file": "src/modules/user/dto/set-pin.dto.ts",
+          "line": 1,
+          "code": "import { IsString, Length, Matches } from 'class-validator';"
+        },
+        {
+          "file": "src/modules/user/dto/update-user.dto.ts",
+          "line": 1,
+          "code": "import { IsOptional, IsString, IsEnum, IsBoolean } from 'class-validator';"
+        },
+        {
+          "file": "src/modules/utility/dto/create-utility-pricing.dto.ts",
+          "line": 11,
+          "code": "} from 'class-validator';"
+        },
+        {
+          "file": "src/modules/vendor/dto/create-vendor.dto.ts",
+          "line": 9,
+          "code": "} from 'class-validator';"
+        },
+        {
+          "file": "src/modules/vendor/dto/update-vendor.dto.ts",
+          "line": 1,
+          "code": "import { IsOptional, IsBoolean, IsObject } from 'class-validator';"
+        },
+        {
+          "file": "src/modules/wallet/dto/create-transaction.dto.ts",
+          "line": 9,
+          "code": "} from 'class-validator';"
+        },
+        {
+          "file": "src/modules/wallet/dto/wallet-balance.dto.ts",
+          "line": 1,
+          "code": "import { IsNotEmpty, IsMongoId, IsEnum } from 'class-validator';"
+        },
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 258,
+          "code": "description: 'DTOs use class-validator decorators',"
+        },
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 261,
+          "code": "evidence: searchPattern('class-validator', ['ts']),"
+        },
+        {
+          "file": "tools/audit/compliance_index.ts",
+          "line": 146,
+          "code": "searchPatterns: ['ValidationPipe|class-validator', '@IsString|@IsEmail', 'sanitize'],"
+        }
+      ]
+    },
+    {
+      "id": "V5.3",
+      "category": "Validation",
+      "name": "Input Sanitization",
+      "description": "Input sanitization helpers are available",
+      "level": "L2",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "src/common/utils/index.ts",
+          "line": 13,
+          "code": "export { SanitizationHelper } from './sanitization.helper';"
+        },
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 269,
+          "code": "description: 'Input sanitization helpers are available',"
+        },
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 272,
+          "code": "evidence: searchPattern('sanitization.helper', ['ts']),"
+        }
+      ]
+    },
+    {
+      "id": "V5.4",
+      "category": "Validation",
+      "name": "Whitelist & Transform",
+      "description": "ValidationPipe configured with whitelist and transform",
+      "level": "L2",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "src/main.ts",
+          "line": 99,
+          "code": "whitelist: true,"
+        }
+      ]
+    },
+    {
+      "id": "V7.1",
+      "category": "Error Handling",
+      "name": "Global Exception Filter",
+      "description": "Global exception filter is implemented",
+      "level": "L1",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "src/common/filters/global-exception.filter.ts",
+          "line": 22,
+          "code": "export class GlobalExceptionFilter implements ExceptionFilter {"
+        },
+        {
+          "file": "src/common/filters/global-exception.filter.ts",
+          "line": 23,
+          "code": "private readonly logger = new Logger(GlobalExceptionFilter.name);"
+        },
+        {
+          "file": "src/main.ts",
+          "line": 5,
+          "code": "import { GlobalExceptionFilter } from './common/filters/global-exception.filter';"
+        },
+        {
+          "file": "src/main.ts",
+          "line": 109,
+          "code": "app.useGlobalFilters(new GlobalExceptionFilter());"
+        },
+        {
+          "file": "test/error-codes.e2e-spec.ts",
+          "line": 5,
+          "code": "import { GlobalExceptionFilter } from '../src/common/filters/global-exception.filter';"
+        },
+        {
+          "file": "test/error-codes.e2e-spec.ts",
+          "line": 20,
+          "code": "app.useGlobalFilters(new GlobalExceptionFilter());"
+        },
+        {
+          "file": "test/error-codes.e2e-spec.ts",
+          "line": 249,
+          "code": "// التحقق من أن GlobalExceptionFilter يدعم جميع الأكواد"
+        },
+        {
+          "file": "test/error-codes.e2e-spec.ts",
+          "line": 250,
+          "code": "const filter = new GlobalExceptionFilter();"
+        },
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 297,
+          "code": "evidence: searchPattern('GlobalExceptionFilter', ['ts']),"
+        }
+      ]
+    },
+    {
+      "id": "V7.2",
+      "category": "Logging",
+      "name": "Structured Logging",
+      "description": "Winston logging is configured",
+      "level": "L1",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 1,
+          "code": "import { WinstonModule } from 'nest-winston';"
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 2,
+          "code": "import * as winston from 'winston';"
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 6,
+          "code": "const customFormat = winston.format.printf(({ timestamp, level, message, context, trace }) => {"
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 11,
+          "code": "const transports: winston.transport[] = ["
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 13,
+          "code": "new winston.transports.Console({"
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 14,
+          "code": "format: winston.format.combine("
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 15,
+          "code": "winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),"
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 16,
+          "code": "winston.format.colorize({ all: true }),"
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 26,
+          "code": "new winston.transports.File({"
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 29,
+          "code": "format: winston.format.combine("
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 30,
+          "code": "winston.format.timestamp(),"
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 31,
+          "code": "winston.format.errors({ stack: true }),"
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 32,
+          "code": "winston.format.json(),"
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 38,
+          "code": "new winston.transports.File({"
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 40,
+          "code": "format: winston.format.combine("
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 41,
+          "code": "winston.format.timestamp(),"
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 42,
+          "code": "winston.format.json(),"
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 48,
+          "code": "new winston.transports.File({"
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 51,
+          "code": "format: winston.format.combine("
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 52,
+          "code": "winston.format.timestamp(),"
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 53,
+          "code": "winston.format.json(),"
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 62,
+          "code": "new winston.transports.File({"
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 64,
+          "code": "format: winston.format.combine("
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 65,
+          "code": "winston.format.timestamp(),"
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 66,
+          "code": "winston.format.errors({ stack: true }),"
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 67,
+          "code": "winston.format.json(),"
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 76,
+          "code": "export const logger = WinstonModule.createLogger({"
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 80,
+          "code": "new winston.transports.File({"
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 82,
+          "code": "format: winston.format.combine("
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 83,
+          "code": "winston.format.timestamp(),"
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 84,
+          "code": "winston.format.errors({ stack: true }),"
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 85,
+          "code": "winston.format.json(),"
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 90,
+          "code": "new winston.transports.File({"
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 92,
+          "code": "format: winston.format.combine("
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 93,
+          "code": "winston.format.timestamp(),"
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 94,
+          "code": "winston.format.errors({ stack: true }),"
+        },
+        {
+          "file": "src/config/logger.config.ts",
+          "line": 95,
+          "code": "winston.format.json(),"
+        },
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 305,
+          "code": "description: 'Winston logging is configured',"
+        },
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 308,
+          "code": "evidence: searchPattern('winston', ['ts']),"
+        },
+        {
+          "file": "tools/audit/compliance_index.ts",
+          "line": 156,
+          "code": "searchPatterns: ['logger|winston', 'audit.*log', 'event.*sourcing'],"
+        },
+        {
+          "file": "tools/audit/obs-coverage.ts",
+          "line": 23,
+          "code": "loggerType: 'winston' | 'nestjs' | 'none';"
+        },
+        {
+          "file": "tools/audit/obs-coverage.ts",
+          "line": 182,
+          "code": "// Check for winston logger"
+        },
+        {
+          "file": "tools/audit/obs-coverage.ts",
+          "line": 183,
+          "code": "const hasWinstonImport = sourceFile"
+        },
+        {
+          "file": "tools/audit/obs-coverage.ts",
+          "line": 187,
+          "code": "imp.getModuleSpecifierValue().includes('winston') ||"
+        },
+        {
+          "file": "tools/audit/obs-coverage.ts",
+          "line": 188,
+          "code": "imp.getModuleSpecifierValue().includes('nest-winston'),"
+        },
+        {
+          "file": "tools/audit/obs-coverage.ts",
+          "line": 200,
+          "code": "return (hasLoggerImport || hasWinstonImport) && hasLoggerProperty;"
+        },
+        {
+          "file": "tools/audit/obs-coverage.ts",
+          "line": 209,
+          "code": "): 'winston' | 'nestjs' | 'none' {"
+        },
+        {
+          "file": "tools/audit/obs-coverage.ts",
+          "line": 210,
+          "code": "const hasWinston = sourceFile"
+        },
+        {
+          "file": "tools/audit/obs-coverage.ts",
+          "line": 214,
+          "code": "imp.getModuleSpecifierValue().includes('winston') ||"
+        },
+        {
+          "file": "tools/audit/obs-coverage.ts",
+          "line": 215,
+          "code": "imp.getModuleSpecifierValue().includes('nest-winston'),"
+        },
+        {
+          "file": "tools/audit/obs-coverage.ts",
+          "line": 228,
+          "code": "if (hasWinston) return 'winston';"
+        }
+      ]
+    },
+    {
+      "id": "V7.3",
+      "category": "Error Handling",
+      "name": "Safe Error Messages",
+      "description": "Error messages are sanitized for production",
+      "level": "L2",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "src/common/filters/global-exception.filter.ts",
+          "line": 16,
+          "code": "userMessage?: string;"
+        },
+        {
+          "file": "src/common/filters/global-exception.filter.ts",
+          "line": 43,
+          "code": "userMessage: this.getUserMessage(exc, status),"
+        },
+        {
+          "file": "src/common/filters/global-exception.filter.ts",
+          "line": 120,
+          "code": "(exception?.userMessage as string) ||"
+        }
+      ]
+    },
+    {
+      "id": "V8.1",
+      "category": "Data Protection",
+      "name": "Sensitive Data Encryption",
+      "description": "PIN/sensitive data encryption is implemented",
+      "level": "L2",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 333,
+          "code": "evidence: searchPattern('encrypt.*pin', ['ts']),"
+        },
+        {
+          "file": "tools/audit/compliance_index.ts",
+          "line": 44,
+          "code": "searchPatterns: ['encrypt|bcrypt|crypto|hash', 'password.*hash', 'pin.*encrypt'],"
+        }
+      ]
+    },
+    {
+      "id": "V9.1",
+      "category": "Communication",
+      "name": "CORS Configuration",
+      "description": "CORS is properly configured",
+      "level": "L1",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "src/main.ts",
+          "line": 79,
+          "code": "app.enableCors({"
+        }
+      ]
+    },
+    {
+      "id": "V9.2",
+      "category": "Communication",
+      "name": "Helmet Security Headers",
+      "description": "Helmet is configured for security headers",
+      "level": "L1",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "src/main.ts",
+          "line": 10,
+          "code": "import helmet from 'helmet';"
+        },
+        {
+          "file": "src/main.ts",
+          "line": 20,
+          "code": "helmet({"
+        }
+      ]
+    },
+    {
+      "id": "V9.3",
+      "category": "Communication",
+      "name": "HSTS (Strict Transport Security)",
+      "description": "HSTS headers are configured",
+      "level": "L2",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "src/main.ts",
+          "line": 29,
+          "code": "hsts: {"
+        }
+      ]
+    },
+    {
+      "id": "V9.4",
+      "category": "Communication",
+      "name": "Content Security Policy",
+      "description": "CSP headers are configured",
+      "level": "L2",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "src/main.ts",
+          "line": 21,
+          "code": "contentSecurityPolicy: {"
+        }
+      ]
+    },
+    {
+      "id": "V10.1",
+      "category": "Malicious Code",
+      "name": "Dependency Audit",
+      "description": "Package.json includes audit script",
+      "level": "L2",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "package.json",
+          "line": 21,
+          "code": "\"audit:inventory\": \"ts-node tools/audit/inventory.ts\","
+        },
+        {
+          "file": "package.json",
+          "line": 22,
+          "code": "\"audit:openapi\": \"ts-node tools/audit/openapi-export.ts\","
+        },
+        {
+          "file": "package.json",
+          "line": 23,
+          "code": "\"audit:parity\": \"ts-node tools/audit/parity-gap.ts\","
+        },
+        {
+          "file": "package.json",
+          "line": 24,
+          "code": "\"audit:errors\": \"ts-node tools/audit/error-taxonomy.ts\","
+        },
+        {
+          "file": "package.json",
+          "line": 25,
+          "code": "\"audit:security\": \"ts-node tools/audit/asvs-scan.ts\","
+        },
+        {
+          "file": "package.json",
+          "line": 26,
+          "code": "\"audit:health\": \"ts-node tools/audit/health-readiness.ts\","
+        },
+        {
+          "file": "package.json",
+          "line": 27,
+          "code": "\"audit:payment\": \"ts-node tools/audit/pay_idempotency.ts\","
+        },
+        {
+          "file": "package.json",
+          "line": 28,
+          "code": "\"audit:notifications\": \"ts-node tools/audit/notif_delivery.ts\","
+        },
+        {
+          "file": "package.json",
+          "line": 29,
+          "code": "\"audit:jobs\": \"ts-node tools/audit/jobs_inventory.ts\","
+        },
+        {
+          "file": "package.json",
+          "line": 30,
+          "code": "\"audit:compliance\": \"ts-node tools/audit/compliance_index.ts\","
+        },
+        {
+          "file": "package.json",
+          "line": 31,
+          "code": "\"audit:dr\": \"ts-node tools/audit/dr_probe.ts\","
+        },
+        {
+          "file": "package.json",
+          "line": 32,
+          "code": "\"audit:observability\": \"ts-node tools/audit/obs-coverage.ts\","
+        },
+        {
+          "file": "package.json",
+          "line": 33,
+          "code": "\"audit:throttling\": \"ts-node tools/audit/throttling-check.ts\","
+        },
+        {
+          "file": "package.json",
+          "line": 34,
+          "code": "\"audit:dto-schema\": \"ts-node tools/audit/dto_schema_diff.ts\","
+        },
+        {
+          "file": "package.json",
+          "line": 35,
+          "code": "\"audit:store-map\": \"ts-node tools/audit/store_backend_map.ts\","
+        },
+        {
+          "file": "package.json",
+          "line": 36,
+          "code": "\"audit:executive\": \"ts-node tools/audit/executive_snapshot.ts\""
+        }
+      ]
+    },
+    {
+      "id": "V11.1",
+      "category": "Business Logic",
+      "name": "Transaction Management",
+      "description": "Database transactions are properly handled",
+      "level": "L2",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "src/common/utils/index.ts",
+          "line": 11,
+          "code": "export { TransactionHelper } from './transaction.helper';"
+        },
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 408,
+          "code": "evidence: searchPattern('transaction.helper', ['ts']),"
+        }
+      ]
+    },
+    {
+      "id": "V11.2",
+      "category": "Business Logic",
+      "name": "Idempotency",
+      "description": "Idempotency middleware is implemented",
+      "level": "L2",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "src/app.module.ts",
+          "line": 9,
+          "code": "import { IdempotencyMiddleware } from './common/middleware/idempotency.middleware';"
+        },
+        {
+          "file": "src/app.module.ts",
+          "line": 152,
+          "code": "IdempotencyMiddleware,"
+        },
+        {
+          "file": "src/app.module.ts",
+          "line": 174,
+          "code": ".apply(CorrelationIdMiddleware, IdempotencyMiddleware)"
+        },
+        {
+          "file": "src/common/middleware/idempotency.middleware.ts",
+          "line": 7,
+          "code": "* Idempotency Middleware"
+        },
+        {
+          "file": "src/common/middleware/idempotency.middleware.ts",
+          "line": 9,
+          "code": "* يستخدم مفتاح Idempotency-Key في الـ headers"
+        },
+        {
+          "file": "src/common/middleware/idempotency.middleware.ts",
+          "line": 12,
+          "code": "export class IdempotencyMiddleware implements NestMiddleware {"
+        },
+        {
+          "file": "src/common/middleware/idempotency.middleware.ts",
+          "line": 52,
+          "code": "const idempotencyKey = req.headers['idempotency-key'] as string;"
+        },
+        {
+          "file": "src/common/middleware/idempotency.middleware.ts",
+          "line": 54,
+          "code": "if (!idempotencyKey) {"
+        },
+        {
+          "file": "src/common/middleware/idempotency.middleware.ts",
+          "line": 55,
+          "code": "// مفتاح Idempotency مطلوب للعمليات الحساسة"
+        },
+        {
+          "file": "src/common/middleware/idempotency.middleware.ts",
+          "line": 58,
+          "code": "message: 'Idempotency-Key header is required',"
+        },
+        {
+          "file": "src/common/middleware/idempotency.middleware.ts",
+          "line": 59,
+          "code": "userMessage: 'مفتاح Idempotency مطلوب لهذه العملية',"
+        },
+        {
+          "file": "src/common/middleware/idempotency.middleware.ts",
+          "line": 65,
+          "code": "const cached = this.cache.get(idempotencyKey);"
+        },
+        {
+          "file": "src/common/middleware/idempotency.middleware.ts",
+          "line": 87,
+          "code": "this.cache.set(idempotencyKey, {"
+        },
+        {
+          "file": "test/order.e2e-spec.ts",
+          "line": 45,
+          "code": "describe('POST /api/v2/order (with Idempotency)', () => {"
+        },
+        {
+          "file": "test/order.e2e-spec.ts",
+          "line": 46,
+          "code": "it('should create order with idempotency key', () => {"
+        },
+        {
+          "file": "test/order.e2e-spec.ts",
+          "line": 47,
+          "code": "const idempotencyKey = `order-${Date.now()}`;"
+        },
+        {
+          "file": "test/order.e2e-spec.ts",
+          "line": 52,
+          "code": ".set('Idempotency-Key', idempotencyKey)"
+        },
+        {
+          "file": "test/order.e2e-spec.ts",
+          "line": 74,
+          "code": "it('should require idempotency key for order creation', () => {"
+        },
+        {
+          "file": "test/wallet.e2e-spec.ts",
+          "line": 80,
+          "code": "describe('POST /api/v2/wallet/transaction (with Idempotency)', () => {"
+        },
+        {
+          "file": "test/wallet.e2e-spec.ts",
+          "line": 81,
+          "code": "it('should create transaction with idempotency key', () => {"
+        },
+        {
+          "file": "test/wallet.e2e-spec.ts",
+          "line": 82,
+          "code": "const idempotencyKey = `test-${Date.now()}`;"
+        },
+        {
+          "file": "test/wallet.e2e-spec.ts",
+          "line": 87,
+          "code": ".set('Idempotency-Key', idempotencyKey)"
+        },
+        {
+          "file": "test/wallet.e2e-spec.ts",
+          "line": 97,
+          "code": "it('should return same response for duplicate idempotency key', async () => {"
+        },
+        {
+          "file": "test/wallet.e2e-spec.ts",
+          "line": 98,
+          "code": "const idempotencyKey = `test-duplicate-${Date.now()}`;"
+        },
+        {
+          "file": "test/wallet.e2e-spec.ts",
+          "line": 103,
+          "code": ".set('Idempotency-Key', idempotencyKey)"
+        },
+        {
+          "file": "test/wallet.e2e-spec.ts",
+          "line": 114,
+          "code": ".set('Idempotency-Key', idempotencyKey)"
+        },
+        {
+          "file": "test/wallet.e2e-spec.ts",
+          "line": 126,
+          "code": "it('should require idempotency key for sensitive operations', () => {"
+        },
+        {
+          "file": "test/wallet.e2e-spec.ts",
+          "line": 134,
+          "code": "description: 'No idempotency key',"
+        },
+        {
+          "file": "test/wallet.e2e-spec.ts",
+          "line": 138,
+          "code": "expect(res.body.message).toContain('Idempotency-Key');"
+        },
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 415,
+          "code": "name: 'Idempotency',"
+        },
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 416,
+          "code": "description: 'Idempotency middleware is implemented',"
+        },
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 419,
+          "code": "evidence: searchPattern('idempotency', ['ts']),"
+        },
+        {
+          "file": "tools/audit/executive_snapshot.ts",
+          "line": 101,
+          "code": "// Payment Idempotency"
+        },
+        {
+          "file": "tools/audit/executive_snapshot.ts",
+          "line": 102,
+          "code": "if (reports.pay_idempotency) {"
+        },
+        {
+          "file": "tools/audit/executive_snapshot.ts",
+          "line": 103,
+          "code": "securityScore = reports.pay_idempotency.summary?.coverage_percentage || 0;"
+        },
+        {
+          "file": "tools/audit/executive_snapshot.ts",
+          "line": 104,
+          "code": "totalFindings += reports.pay_idempotency.summary?.missing || 0;"
+        },
+        {
+          "file": "tools/audit/executive_snapshot.ts",
+          "line": 251,
+          "code": "if (reports.pay_idempotency) {"
+        },
+        {
+          "file": "tools/audit/executive_snapshot.ts",
+          "line": 252,
+          "code": "const r = reports.pay_idempotency;"
+        },
+        {
+          "file": "tools/audit/executive_snapshot.ts",
+          "line": 259,
+          "code": "md += `- **Report:** \\`pay_idempotency.md\\`\\n\\n`;"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 3,
+          "code": "* Payments/Wallet - Idempotency & Retry Audit"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 6,
+          "code": "* - Idempotency keys"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 11,
+          "code": "* Generates: reports/pay_idempotency.md with evidence table"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 129,
+          "code": "// 1. Idempotency Middleware"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 130,
+          "code": "console.log('📋 Checking idempotency middleware...');"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 131,
+          "code": "const idempotencyMiddleware = searchInModules("
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 132,
+          "code": "'IdempotencyMiddleware|idempotency.*middleware',"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 138,
+          "code": "name: 'Idempotency Middleware',"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 140,
+          "code": "category: 'Idempotency',"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 141,
+          "code": "status: idempotencyMiddleware.length > 0 ? 'implemented' : 'missing',"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 142,
+          "code": "evidence: idempotencyMiddleware.slice(0, 5),"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 144,
+          "code": "idempotencyMiddleware.length > 0"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 145,
+          "code": "? 'Idempotency middleware is implemented'"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 146,
+          "code": ": 'No idempotency middleware found',"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 149,
+          "code": "// 2. Idempotency Key Header"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 150,
+          "code": "console.log('📋 Checking idempotency key usage...');"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 151,
+          "code": "const idempotencyKey = searchInModules("
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 152,
+          "code": "'idempotency.*key|Idempotency-Key',"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 158,
+          "code": "name: 'Idempotency Key Header',"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 159,
+          "code": "description: 'Usage of Idempotency-Key header for request deduplication',"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 160,
+          "code": "category: 'Idempotency',"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 161,
+          "code": "status: idempotencyKey.length > 0 ? 'implemented' : 'missing',"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 162,
+          "code": "evidence: idempotencyKey.slice(0, 5),"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 176,
+          "code": "category: 'Idempotency',"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 408,
+          "code": "let md = `# Payments/Wallet - Idempotency & Retry Audit\\n\\n`;"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 525,
+          "code": "md += `### Idempotency\\n`;"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 526,
+          "code": "md += `- Use unique idempotency keys for all write operations\\n`;"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 552,
+          "code": "md += `- [Stripe API Idempotency](https://stripe.com/docs/api/idempotent_requests)\\n`;"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 558,
+          "code": "md += `*Report generated by Payment/Wallet Idempotency Audit Tool*\\n`;"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 567,
+          "code": "console.log('💳 Payments/Wallet - Idempotency & Retry Audit\\n');"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 593,
+          "code": "const jsonPath = path.join(reportsDir, 'pay_idempotency.json');"
+        },
+        {
+          "file": "tools/audit/pay_idempotency.ts",
+          "line": 599,
+          "code": "const mdPath = path.join(reportsDir, 'pay_idempotency.md');"
+        }
+      ]
+    },
+    {
+      "id": "V12.1",
+      "category": "File Upload",
+      "name": "File Upload Validation",
+      "description": "File uploads are validated and restricted",
+      "level": "L2",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 433,
+          "code": "evidence: searchPattern('FileInterceptor|MulterModule', ['ts']),"
+        }
+      ]
+    },
+    {
+      "id": "V13.1",
+      "category": "API Security",
+      "name": "Rate Limiting",
+      "description": "Rate limiting is configured to prevent abuse",
+      "level": "L1",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "src/main.ts",
+          "line": 11,
+          "code": "import rateLimit from 'express-rate-limit';"
+        },
+        {
+          "file": "src/main.ts",
+          "line": 43,
+          "code": "const rateLimitTTL = parseInt(process.env.RATE_LIMIT_TTL || '60', 10); // seconds"
+        },
+        {
+          "file": "src/main.ts",
+          "line": 44,
+          "code": "const rateLimitMax = parseInt(process.env.RATE_LIMIT_MAX || '100', 10); // requests"
+        },
+        {
+          "file": "src/main.ts",
+          "line": 47,
+          "code": "rateLimit({"
+        },
+        {
+          "file": "src/main.ts",
+          "line": 48,
+          "code": "windowMs: rateLimitTTL * 1000, // تحويل إلى milliseconds"
+        },
+        {
+          "file": "src/main.ts",
+          "line": 49,
+          "code": "max: rateLimitMax, // عدد الطلبات المسموحة"
+        }
+      ]
+    },
+    {
+      "id": "V13.2",
+      "category": "API Security",
+      "name": "Request Timeout",
+      "description": "Request timeouts are configured",
+      "level": "L2",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "src/common/interceptors/timeout.interceptor.ts",
+          "line": 19,
+          "code": "export class TimeoutInterceptor implements NestInterceptor {"
+        },
+        {
+          "file": "src/common/interceptors/timeout.interceptor.ts",
+          "line": 39,
+          "code": "'TimeoutInterceptor',"
+        },
+        {
+          "file": "src/main.ts",
+          "line": 7,
+          "code": "import { TimeoutInterceptor } from './common/interceptors/timeout.interceptor';"
+        },
+        {
+          "file": "src/main.ts",
+          "line": 112,
+          "code": "new TimeoutInterceptor(30000), // 30 seconds timeout"
+        },
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 458,
+          "code": "evidence: searchPattern('TimeoutInterceptor', ['ts']),"
+        }
+      ]
+    },
+    {
+      "id": "V13.3",
+      "category": "API Security",
+      "name": "API Documentation",
+      "description": "OpenAPI/Swagger documentation is available",
+      "level": "L1",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "src/main.ts",
+          "line": 3,
+          "code": "import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';"
+        },
+        {
+          "file": "src/main.ts",
+          "line": 143,
+          "code": "const document = SwaggerModule.createDocument(app, config);"
+        },
+        {
+          "file": "src/main.ts",
+          "line": 144,
+          "code": "SwaggerModule.setup('api/docs', app, document);"
+        }
+      ]
+    },
+    {
+      "id": "V13.4",
+      "category": "API Security",
+      "name": "CSRF Protection",
+      "description": "CSRF protection mechanisms are in place",
+      "level": "L2",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 6,
+          "code": "* Checks: Helmet, CORS, Rate-Limit, CSRF, ValidationPipe, Versioning, etc."
+        },
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 476,
+          "code": "name: 'CSRF Protection',"
+        },
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 477,
+          "code": "description: 'CSRF protection mechanisms are in place',"
+        },
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 480,
+          "code": "evidence: searchPattern('csrf|csurf', ['ts']),"
+        }
+      ]
+    },
+    {
+      "id": "V14.1",
+      "category": "Configuration",
+      "name": "Environment Variables",
+      "description": "Environment configuration is properly managed",
+      "level": "L1",
+      "passed": true,
+      "evidence": [
+        {
+          "file": "src/app.module.ts",
+          "line": 2,
+          "code": "import { ConfigModule } from '@nestjs/config';"
+        },
+        {
+          "file": "src/common/guards/unified-auth.guard.ts",
+          "line": 23,
+          "code": "import { ConfigService } from '@nestjs/config';"
+        },
+        {
+          "file": "src/config/app.config.ts",
+          "line": 1,
+          "code": "import { registerAs } from '@nestjs/config';"
+        },
+        {
+          "file": "src/config/cache.config.ts",
+          "line": 1,
+          "code": "import { registerAs } from '@nestjs/config';"
+        },
+        {
+          "file": "src/config/database.config.ts",
+          "line": 1,
+          "code": "import { registerAs } from '@nestjs/config';"
+        },
+        {
+          "file": "src/config/firebase.config.ts",
+          "line": 1,
+          "code": "import { registerAs } from '@nestjs/config';"
+        },
+        {
+          "file": "src/config/jwt.config.ts",
+          "line": 1,
+          "code": "import { registerAs } from '@nestjs/config';"
+        },
+        {
+          "file": "src/gateways/driver.gateway.ts",
+          "line": 13,
+          "code": "import { ConfigService } from '@nestjs/config';"
+        },
+        {
+          "file": "src/gateways/gateways.module.ts",
+          "line": 3,
+          "code": "import { ConfigModule, ConfigService } from '@nestjs/config';"
+        },
+        {
+          "file": "src/gateways/notification.gateway.ts",
+          "line": 13,
+          "code": "import { ConfigService } from '@nestjs/config';"
+        },
+        {
+          "file": "src/gateways/order.gateway.ts",
+          "line": 13,
+          "code": "import { ConfigService } from '@nestjs/config';"
+        },
+        {
+          "file": "src/modules/auth/auth.module.ts",
+          "line": 5,
+          "code": "import { ConfigModule, ConfigService } from '@nestjs/config';"
+        },
+        {
+          "file": "src/modules/auth/auth.service.ts",
+          "line": 8,
+          "code": "import { ConfigService } from '@nestjs/config';"
+        },
+        {
+          "file": "src/modules/auth/strategies/jwt.strategy.ts",
+          "line": 4,
+          "code": "import { ConfigService } from '@nestjs/config';"
+        },
+        {
+          "file": "src/queues/queues.module.ts",
+          "line": 3,
+          "code": "import { ConfigModule, ConfigService } from '@nestjs/config';"
+        },
+        {
+          "file": "tools/audit/asvs-scan.ts",
+          "line": 494,
+          "code": "evidence: searchPattern('@nestjs/config', ['ts']),"
+        }
+      ]
+    },
+    {
+      "id": "V14.2",
+      "category": "Configuration",
+      "name": "Secrets Management",
+      "description": "Secrets are not hardcoded in source code",
+      "level": "L1",
+      "passed": true,
+      "evidence": [
+        {
+          "file": ".gitignore",
+          "line": 39,
+          "code": ".env"
+        },
+        {
+          "file": ".gitignore",
+          "line": 40,
+          "code": ".env.development.local"
+        },
+        {
+          "file": ".gitignore",
+          "line": 41,
+          "code": ".env.test.local"
+        },
+        {
+          "file": ".gitignore",
+          "line": 42,
+          "code": ".env.production.local"
+        },
+        {
+          "file": ".gitignore",
+          "line": 43,
+          "code": ".env.local"
+        }
+      ]
+    }
+  ]
+}

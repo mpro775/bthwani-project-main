@@ -1,0 +1,8 @@
+route,files
+"PATCH :id/status","admin/amani.admin.controller.ts; admin/arabon.admin.controller.ts; admin/es3afni.admin.controller.ts; admin/kawader.admin.controller.ts; admin/kenz.admin.controller.ts; admin/maarouf.admin.controller.ts; admin/payments.admin.controller.ts; admin/sanad.admin.controller.ts"
+"DELETE :id","admin/amani.admin.controller.ts; admin/arabon.admin.controller.ts; admin/es3afni.admin.controller.ts; admin/kawader.admin.controller.ts; admin/kenz.admin.controller.ts; admin/maarouf.admin.controller.ts; admin/payments.admin.controller.ts; admin/sanad.admin.controller.ts; cart/cart.controller.ts; er/employees-compat.controller.ts"
+"GET :id","admin/kawader.admin.controller.ts; admin/kenz.admin.controller.ts; admin/maarouf.admin.controller.ts; admin/payments.admin.controller.ts; admin/sanad.admin.controller.ts; akhdimni/errands.controller.ts; order/order.controller.ts; store/delivery-store.controller.ts"
+"GET stats/overview","admin/kawader.admin.controller.ts; admin/kenz.admin.controller.ts; admin/maarouf.admin.controller.ts; admin/payments.admin.controller.ts; admin/sanad.admin.controller.ts"
+"GET drivers/available","akhdimni/errands.controller.ts; driver/driver.controller.ts"
+"GET user/:userId","cart/cart.controller.ts; order/order.controller.ts"
+"GET search","store/delivery-store.controller.ts; user/user.controller.ts"

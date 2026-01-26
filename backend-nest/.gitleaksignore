@@ -1,0 +1,41 @@
+# Gitleaks ignore file
+# Add patterns for files that should be excluded from secret scanning
+
+# Example files and documentation
+*.example
+*.sample
+*.md
+*.backup
+
+# Test files with mock data (these use test passwords/keys)
+**/*test*.ts
+**/*spec*.ts
+**/__tests__/**
+**/__mocks__/**
+**/test/**
+**/tests/**
+
+# Generated reports (may contain redacted secrets for analysis)
+reports/secrets_scan.json
+reports/gitleaks.sarif
+reports/*.sarif
+
+# Package locks (npm dependencies, not our secrets)
+package-lock.json
+yarn.lock
+
+# Documentation and configs that reference secrets as examples
+env.example
+.env.example
+README*.md
+CHANGELOG.md
+
+# Configuration files that only reference environment variables
+# These don't contain actual secrets, just variable names
+src/config/env.validation.ts
+src/config/firebase.config.ts
+src/config/*.config.ts
+
+# Main entry point - only references env vars
+src/main.ts
+

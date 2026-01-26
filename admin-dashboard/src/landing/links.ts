@@ -1,0 +1,15 @@
+export const LINKS = {
+  appStore: import.meta.env.VITE_APP_APP_STORE_URL || "https://apps.apple.com/app/bithawani/id1234567890",
+  googlePlay: import.meta.env.VITE_APP_GOOGLE_PLAY_URL || "https://play.google.com/store/apps/details?id=com.bthwani.app",
+  appGallery: import.meta.env.VITE_APP_APP_GALLERY_URL || "#",
+  apkDirect: import.meta.env.VITE_APP_APK_DIRECT_URL || "#",
+  whatsapp: import.meta.env.VITE_APP_WHATSAPP || "https://wa.me/967777123456",
+  phone: import.meta.env.VITE_APP_PHONE || "+967 777 123 456",
+  email: import.meta.env.VITE_APP_EMAIL || "info@bthwani.app",
+  address: import.meta.env.VITE_APP_ADDRESS || "صنعاء، اليمن",
+  deepLink: import.meta.env.VITE_APP_DEEPLINK || "bthwani://open",
+  facebook: import.meta.env.VITE_APP_FACEBOOK || "https://www.facebook.com/bithawani",
+  instagram: import.meta.env.VITE_APP_INSTAGRAM || "https://www.instagram.com/bithawani",
+  tiktok: import.meta.env.VITE_APP_TIKTOK || "https://www.tiktok.com/@bithawani",
+  webApp: import.meta.env.VITE_APP_WEB_APP || "https://bthwaniapp.com",
+};

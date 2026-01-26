@@ -1,0 +1,962 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.4",
+  "serialNumber": "urn:uuid:4cd71638-2918-4976-af01-8758d1a686dc",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2025-10-18T14:53:42.343Z",
+    "tools": [
+      {
+        "vendor": "BThwani",
+        "name": "generate-sbom",
+        "version": "1.0.0"
+      }
+    ],
+    "component": {
+      "type": "application",
+      "name": "bthwani-backend-nest",
+      "version": "0.0.1",
+      "description": "BThwani Backend Service"
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "@nestjs/bull",
+      "version": "11.0.4",
+      "description": "Nest - modern, fast, powerful node.js web framework (@bull)",
+      "purl": "pkg:npm/@nestjs/bull@11.0.4",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@nestjs/cache-manager",
+      "version": "3.0.1",
+      "description": "Nest - modern, fast, powerful node.js web framework (@cache-manager)",
+      "purl": "pkg:npm/@nestjs/cache-manager@3.0.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@nestjs/common",
+      "version": "11.1.6",
+      "description": "Nest - modern, fast, powerful node.js web framework (@common)",
+      "purl": "pkg:npm/@nestjs/common@11.1.6",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@nestjs/config",
+      "version": "4.0.2",
+      "description": "Nest - modern, fast, powerful node.js web framework (@config)",
+      "purl": "pkg:npm/@nestjs/config@4.0.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@nestjs/core",
+      "version": "11.1.6",
+      "description": "Nest - modern, fast, powerful node.js web framework (@core)",
+      "purl": "pkg:npm/@nestjs/core@11.1.6",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@nestjs/cqrs",
+      "version": "11.0.3",
+      "description": "A lightweight CQRS module for Nest framework (node.js)",
+      "purl": "pkg:npm/@nestjs/cqrs@11.0.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@nestjs/jwt",
+      "version": "11.0.1",
+      "description": "Nest - modern, fast, powerful node.js web framework (@jwt)",
+      "purl": "pkg:npm/@nestjs/jwt@11.0.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@nestjs/mongoose",
+      "version": "11.0.3",
+      "description": "Nest - modern, fast, powerful node.js web framework (@mongoose)",
+      "purl": "pkg:npm/@nestjs/mongoose@11.0.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@nestjs/passport",
+      "version": "11.0.5",
+      "description": "Nest - modern, fast, powerful node.js web framework (@passport)",
+      "purl": "pkg:npm/@nestjs/passport@11.0.5",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@nestjs/platform-express",
+      "version": "11.1.6",
+      "description": "Nest - modern, fast, powerful node.js web framework (@platform-express)",
+      "purl": "pkg:npm/@nestjs/platform-express@11.1.6",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@nestjs/platform-socket.io",
+      "version": "11.1.6",
+      "description": "Nest - modern, fast, powerful node.js web framework (@platform-socket.io)",
+      "purl": "pkg:npm/@nestjs/platform-socket.io@11.1.6",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@nestjs/schedule",
+      "version": "6.0.1",
+      "description": "Nest - modern, fast, powerful node.js web framework (@schedule)",
+      "purl": "pkg:npm/@nestjs/schedule@6.0.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@nestjs/swagger",
+      "version": "11.2.0",
+      "description": "Nest - modern, fast, powerful node.js web framework (@swagger)",
+      "purl": "pkg:npm/@nestjs/swagger@11.2.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@nestjs/terminus",
+      "version": "11.0.0",
+      "description": "Terminus integration provides readiness/liveness health checks for NestJS.",
+      "purl": "pkg:npm/@nestjs/terminus@11.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@nestjs/throttler",
+      "version": "6.4.0",
+      "description": "A Rate-Limiting module for NestJS to work on Express, Fastify, Websockets, Socket.IO, and GraphQL, all rolled up into a simple package.",
+      "purl": "pkg:npm/@nestjs/throttler@6.4.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@nestjs/websockets",
+      "version": "11.1.6",
+      "description": "Nest - modern, fast, powerful node.js web framework (@websockets)",
+      "purl": "pkg:npm/@nestjs/websockets@11.1.6",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "bcrypt",
+      "version": "6.0.0",
+      "description": "A bcrypt library for NodeJS.",
+      "purl": "pkg:npm/bcrypt@6.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "bull",
+      "version": "4.16.5",
+      "description": "Job manager",
+      "purl": "pkg:npm/bull@4.16.5",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "cache-manager",
+      "version": "7.2.4",
+      "description": "Cache Manager for Node.js",
+      "purl": "pkg:npm/cache-manager@7.2.4",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "cache-manager-redis-store",
+      "version": "3.0.1",
+      "description": "Redis store for node-cache-manager",
+      "purl": "pkg:npm/cache-manager-redis-store@3.0.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "class-transformer",
+      "version": "0.5.1",
+      "description": "Proper decorator-based transformation / serialization / deserialization of plain javascript objects to class constructors",
+      "purl": "pkg:npm/class-transformer@0.5.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "class-validator",
+      "version": "0.14.2",
+      "description": "Decorator-based property validation for classes.",
+      "purl": "pkg:npm/class-validator@0.14.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "dayjs",
+      "version": "1.11.18",
+      "description": "2KB immutable date time library alternative to Moment.js with the same modern API ",
+      "purl": "pkg:npm/dayjs@1.11.18",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "express-rate-limit",
+      "version": "8.1.0",
+      "description": "Basic IP rate-limiting middleware for Express. Use to limit repeated requests to public APIs and/or endpoints such as password reset.",
+      "purl": "pkg:npm/express-rate-limit@8.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "express-timeout-handler",
+      "version": "2.2.2",
+      "description": "Express timeout middleware that ensures a response is returned to the client on a timeout event.",
+      "purl": "pkg:npm/express-timeout-handler@2.2.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "firebase-admin",
+      "version": "13.5.0",
+      "description": "Firebase admin SDK for Node.js",
+      "purl": "pkg:npm/firebase-admin@13.5.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "geolib",
+      "version": "3.3.4",
+      "description": "",
+      "purl": "pkg:npm/geolib@3.3.4",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "helmet",
+      "version": "8.1.0",
+      "description": "help secure Express/Connect apps with various HTTP headers",
+      "purl": "pkg:npm/helmet@8.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "joi",
+      "version": "18.0.1",
+      "description": "Object schema validation",
+      "purl": "pkg:npm/joi@18.0.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-3-Clause"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "mongoose",
+      "version": "8.19.1",
+      "description": "Mongoose MongoDB ODM",
+      "purl": "pkg:npm/mongoose@8.19.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "nest-winston",
+      "version": "1.10.2",
+      "description": "A Nest module wrapper for winston",
+      "purl": "pkg:npm/nest-winston@1.10.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "passport",
+      "version": "0.7.0",
+      "description": "Simple, unobtrusive authentication for Node.js.",
+      "purl": "pkg:npm/passport@0.7.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "passport-custom",
+      "version": "1.1.1",
+      "description": "Custom authentication strategy for Passport.",
+      "purl": "pkg:npm/passport-custom@1.1.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "passport-jwt",
+      "version": "4.0.1",
+      "description": "Passport authentication strategy using JSON Web Tokens",
+      "purl": "pkg:npm/passport-jwt@4.0.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "redis",
+      "version": "5.8.3",
+      "description": "A modern, high performance Redis client",
+      "purl": "pkg:npm/redis@5.8.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "reflect-metadata",
+      "version": "0.2.2",
+      "description": "Polyfill for Metadata Reflection API",
+      "purl": "pkg:npm/reflect-metadata@0.2.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "rxjs",
+      "version": "7.8.2",
+      "description": "Reactive Extensions for modern JavaScript",
+      "purl": "pkg:npm/rxjs@7.8.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "socket.io",
+      "version": "4.8.1",
+      "description": "node.js realtime framework server",
+      "purl": "pkg:npm/socket.io@4.8.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "winston",
+      "version": "3.18.3",
+      "description": "A logger for just about everything.",
+      "purl": "pkg:npm/winston@3.18.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@eslint/eslintrc",
+      "version": "3.3.1",
+      "description": "The legacy ESLintRC config file format for ESLint",
+      "purl": "pkg:npm/@eslint/eslintrc@3.3.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@eslint/js",
+      "version": "9.37.0",
+      "description": "ESLint JavaScript language implementation",
+      "purl": "pkg:npm/@eslint/js@9.37.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@nestjs/cli",
+      "version": "11.0.10",
+      "description": "Nest - modern, fast, powerful node.js web framework (@cli)",
+      "purl": "pkg:npm/@nestjs/cli@11.0.10",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@nestjs/schematics",
+      "version": "11.0.9",
+      "description": "Nest - modern, fast, powerful node.js web framework (@schematics)",
+      "purl": "pkg:npm/@nestjs/schematics@11.0.9",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@nestjs/testing",
+      "version": "11.1.6",
+      "description": "Nest - modern, fast, powerful node.js web framework (@testing)",
+      "purl": "pkg:npm/@nestjs/testing@11.1.6",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@types/bcrypt",
+      "version": "6.0.0",
+      "description": "TypeScript definitions for bcrypt",
+      "purl": "pkg:npm/@types/bcrypt@6.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@types/express",
+      "version": "5.0.3",
+      "description": "TypeScript definitions for express",
+      "purl": "pkg:npm/@types/express@5.0.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@types/jest",
+      "version": "30.0.0",
+      "description": "TypeScript definitions for jest",
+      "purl": "pkg:npm/@types/jest@30.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@types/js-yaml",
+      "version": "4.0.9",
+      "description": "TypeScript definitions for js-yaml",
+      "purl": "pkg:npm/@types/js-yaml@4.0.9",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@types/node",
+      "version": "22.18.10",
+      "description": "TypeScript definitions for node",
+      "purl": "pkg:npm/@types/node@22.18.10",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@types/passport-jwt",
+      "version": "4.0.1",
+      "description": "TypeScript definitions for passport-jwt",
+      "purl": "pkg:npm/@types/passport-jwt@4.0.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@types/supertest",
+      "version": "6.0.3",
+      "description": "TypeScript definitions for supertest",
+      "purl": "pkg:npm/@types/supertest@6.0.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "eslint",
+      "version": "9.37.0",
+      "description": "An AST-based pattern checker for JavaScript.",
+      "purl": "pkg:npm/eslint@9.37.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "eslint-config-prettier",
+      "version": "10.1.8",
+      "description": "Turns off all rules that are unnecessary or might conflict with Prettier.",
+      "purl": "pkg:npm/eslint-config-prettier@10.1.8",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "eslint-plugin-prettier",
+      "version": "5.5.4",
+      "description": "Runs prettier as an eslint rule",
+      "purl": "pkg:npm/eslint-plugin-prettier@5.5.4",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "globals",
+      "version": "16.4.0",
+      "description": "Global identifiers from different JavaScript environments",
+      "purl": "pkg:npm/globals@16.4.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "jest",
+      "version": "30.2.0",
+      "description": "Delightful JavaScript Testing.",
+      "purl": "pkg:npm/jest@30.2.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "js-yaml",
+      "version": "4.1.0",
+      "description": "YAML 1.2 parser and serializer",
+      "purl": "pkg:npm/js-yaml@4.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "prettier",
+      "version": "3.6.2",
+      "description": "Prettier is an opinionated code formatter",
+      "purl": "pkg:npm/prettier@3.6.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "source-map-support",
+      "version": "0.5.21",
+      "description": "Fixes stack traces for files with source maps",
+      "purl": "pkg:npm/source-map-support@0.5.21",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "supertest",
+      "version": "7.1.4",
+      "description": "SuperAgent driven library for testing HTTP servers",
+      "purl": "pkg:npm/supertest@7.1.4",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "ts-jest",
+      "version": "29.4.5",
+      "description": "A Jest transformer with source map support that lets you use Jest to test projects written in TypeScript",
+      "purl": "pkg:npm/ts-jest@29.4.5",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "ts-loader",
+      "version": "9.5.4",
+      "description": "TypeScript loader for webpack",
+      "purl": "pkg:npm/ts-loader@9.5.4",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "ts-morph",
+      "version": "24.0.0",
+      "description": "TypeScript compiler wrapper for static analysis and code manipulation.",
+      "purl": "pkg:npm/ts-morph@24.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "ts-node",
+      "version": "10.9.2",
+      "description": "TypeScript execution environment and REPL for node.js, with source map support",
+      "purl": "pkg:npm/ts-node@10.9.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "tsconfig-paths",
+      "version": "4.2.0",
+      "description": "Load node modules according to tsconfig paths, in run-time or via API.",
+      "purl": "pkg:npm/tsconfig-paths@4.2.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "typescript",
+      "version": "5.9.3",
+      "description": "TypeScript is a language for application scale JavaScript development",
+      "purl": "pkg:npm/typescript@5.9.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "typescript-eslint",
+      "version": "8.46.1",
+      "description": "Tooling which enables you to use TypeScript with ESLint",
+      "purl": "pkg:npm/typescript-eslint@8.46.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    }
+  ]
+}

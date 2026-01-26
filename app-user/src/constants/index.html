@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>بثواني - تطبيق التوصيل السريع</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --primary-color: #e8402f;
+        --secondary-color: #1a3052;
+        --gradient-bg: linear-gradient(135deg, #e8402f 0%, #ff6b47 100%);
+        --text-dark: #2c3e50;
+        --text-light: #7f8c8d;
+        --bg-light: #f8f9fa;
+        --white: #ffffff;
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        --shadow-hover: 0 15px 40px rgba(0, 0, 0, 0.15);
+      }
+
+      body {
+        font-family: "Cairo", sans-serif;
+        line-height: 1.6;
+        color: var(--text-dark);
+        overflow-x: hidden;
+      }
+
+      /* Header */
+      .header {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        z-index: 1000;
+        padding: 1rem 0;
+        transition: all 0.3s ease;
+      }
+
+      .header.scrolled {
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: var(--shadow);
+      }
+
+      .nav-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .logo {
+        font-size: 2rem;
+        font-weight: 900;
+        color: var(--primary-color);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .logo i {
+        font-size: 1.5rem;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+      }
+
+      .nav-links {
+        display: flex;
+        list-style: none;
+        gap: 2rem;
+        align-items: center;
+      }
+
+      .nav-links a {
+        text-decoration: none;
+        color: var(--text-dark);
+        font-weight: 500;
+        transition: color 0.3s ease;
+        position: relative;
+      }
+
+      .nav-links a:hover {
+        color: var(--primary-color);
+      }
+
+      .nav-links a::after {
+        content: "";
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: var(--primary-color);
+        transition: width 0.3s ease;
+      }
+
+      .nav-links a:hover::after {
+        width: 100%;
+      }
+
+      /* Hero Section */
+      .hero {
+        min-height: 100vh;
+        background: linear-gradient(
+          135deg,
+          #e8402f 0%,
+          #ff6b47 50%,
+          #1a3052 100%
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: white;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)"/></svg>');
+        animation: float 20s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-20px);
+        }
+      }
+
+      .hero-content {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        position: relative;
+        z-index: 2;
+      }
+
+      .hero-title {
+        font-size: 3.5rem;
+        font-weight: 900;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        animation: fadeInUp 1s ease-out;
+      }
+
+      .hero-subtitle {
+        font-size: 1.3rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+        animation: fadeInUp 1s ease-out 0.2s both;
+      }
+
+      .download-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 2rem;
+        animation: fadeInUp 1s ease-out 0.4s both;
+      }
+
+      .download-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 2rem;
+        background: var(--white);
+        color: var(--text-dark);
+        text-decoration: none;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: var(--shadow);
+      }
+
+      .download-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-hover);
+      }
+
+      .download-btn i {
+        font-size: 1.5rem;
+      }
+
+      /* Hero Illustration */
+      .hero-illustration {
+        position: absolute;
+        right: 10%;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 0.1;
+        font-size: 20rem;
+        color: white;
+        animation: bounce 3s ease-in-out infinite;
+      }
+
+      @keyframes bounce {
+        0%,
+        20%,
+        50%,
+        80%,
+        100% {
+          transform: translateY(-50%);
+        }
+        40% {
+          transform: translateY(-60%);
+        }
+        60% {
+          transform: translateY(-55%);
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Features Section */
+      .features {
+        padding: 5rem 0;
+        background: var(--bg-light);
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+      }
+
+      .section-title {
+        text-align: center;
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--secondary-color);
+        margin-bottom: 3rem;
+      }
+
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+      }
+
+      .feature-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 20px;
+        text-align: center;
+        box-shadow: var(--shadow);
+        transition: all 0.3s ease;
+        border-top: 4px solid var(--primary-color);
+      }
+
+      .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: var(--shadow-hover);
+      }
+
+      .feature-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--gradient-bg);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 2rem;
+        color: white;
+      }
+
+      .feature-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--secondary-color);
+        margin-bottom: 1rem;
+      }
+
+      .feature-desc {
+        color: var(--text-light);
+        line-height: 1.8;
+      }
+
+      /* App Screenshots */
+      .screenshots {
+        padding: 5rem 0;
+        background: white;
+      }
+
+      .screenshots-container {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+        margin-top: 3rem;
+      }
+
+      .phone-mockup {
+        width: 250px;
+        height: 500px;
+        background: var(--gradient-bg);
+        border-radius: 30px;
+        padding: 20px;
+        box-shadow: var(--shadow-hover);
+        transition: transform 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .phone-mockup:hover {
+        transform: scale(1.05);
+      }
+
+      .phone-screen {
+        width: 100%;
+        height: 100%;
+        background: white;
+        border-radius: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-dark);
+        position: relative;
+      }
+
+      .phone-screen::before {
+        content: "";
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 4px;
+        background: var(--text-light);
+        border-radius: 2px;
+      }
+
+      .screen-content {
+        text-align: center;
+        padding: 2rem 1rem;
+      }
+
+      /* Newsletter CTA */
+      .newsletter {
+        padding: 5rem 0;
+        background: var(--secondary-color);
+        color: white;
+        text-align: center;
+      }
+
+      .newsletter-form {
+        max-width: 500px;
+        margin: 2rem auto 0;
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .newsletter-input {
+        flex: 1;
+        min-width: 250px;
+        padding: 1rem;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        outline: none;
+      }
+
+      .newsletter-btn {
+        padding: 1rem 2rem;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .newsletter-btn:hover {
+        background: #d63527;
+        transform: translateY(-2px);
+      }
+
+      /* Footer */
+      .footer {
+        background: var(--text-dark);
+        color: white;
+        padding: 3rem 0 1rem;
+        text-align: center;
+      }
+
+      .footer-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .social-links {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .social-link {
+        width: 50px;
+        height: 50px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+      }
+
+      .social-link:hover {
+        background: var(--secondary-color);
+        transform: scale(1.1);
+      }
+
+      .footer-links {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .footer-links a {
+        color: white;
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+
+      .footer-links a:hover {
+        color: var(--primary-color);
+      }
+
+      .copyright {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding-top: 1rem;
+        color: var(--text-light);
+      }
+
+      /* Mobile Menu */
+      .mobile-menu-btn {
+        display: none;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--text-dark);
+        cursor: pointer;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .nav-links {
+          display: none;
+        }
+
+        .mobile-menu-btn {
+          display: block;
+        }
+
+        .hero-title {
+          font-size: 2.5rem;
+        }
+
+        .hero-subtitle {
+          font-size: 1.1rem;
+        }
+
+        .download-buttons {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .download-btn {
+          width: 100%;
+          max-width: 300px;
+        }
+
+        .hero-illustration {
+          display: none;
+        }
+
+        .newsletter-form {
+          flex-direction: column;
+        }
+
+        .newsletter-input {
+          min-width: unset;
+        }
+
+        .screenshots-container {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .phone-mockup {
+          width: 200px;
+          height: 400px;
+        }
+      }
+
+      /* Scroll Animations */
+      .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.6s ease;
+      }
+
+      .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* Loading Animation */
+      .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header" id="header">
+      <nav class="nav-container">
+        <a href="#" class="logo">
+          <i class="fas fa-bolt"></i>
+          بثواني
+        </a>
+        <ul class="nav-links">
+          <li><a href="#features">الميزات</a></li>
+          <li><a href="#screenshots">لقطات التطبيق</a></li>
+          <li><a href="#newsletter">تواصل معنا</a></li>
+        </ul>
+        <button class="mobile-menu-btn">
+          <i class="fas fa-bars"></i>
+        </button>
+      </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-content">
+        <h1 class="hero-title">الوصول لكل ما تحتاجه... بثواني!</h1>
+        <p class="hero-subtitle">
+          تطبيق التوصيل الأسرع والأكثر موثوقية في المنطقة - اطلب الآن واستلم
+          خلال دقائق
+        </p>
+
+        <div class="download-buttons">
+          <a href="#" class="download-btn">
+            <i class="fab fa-apple"></i>
+            تحميل من App Store
+          </a>
+          <a href="#" class="download-btn">
+            <i class="fab fa-google-play"></i>
+            تحميل من Google Play
+          </a>
+        </div>
+      </div>
+      <div class="hero-illustration">
+        <i class="fas fa-shipping-fast"></i>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features fade-in" id="features">
+      <div class="container">
+        <h2 class="section-title">لماذا تختار بثواني؟</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-rocket"></i>
+            </div>
+            <h3 class="feature-title">توصيل فائق السرعة</h3>
+            <p class="feature-desc">
+              احصل على طلبك في أقل من 30 دقيقة مع أسرع فريق توصيل في المدينة
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <h3 class="feature-title">تتبع لحظي</h3>
+            <p class="feature-desc">
+              تابع مندوب التوصيل مباشرة على الخريطة واعرف موعد وصوله بالضبط
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-shield-alt"></i>
+            </div>
+            <h3 class="feature-title">دفع آمن</h3>
+            <p class="feature-desc">
+              طرق دفع متعددة وآمنة مع حماية كاملة لبياناتك المالية
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-headset"></i>
+            </div>
+            <h3 class="feature-title">دعم 24/7</h3>
+            <p class="feature-desc">
+              فريق دعم متاح على مدار الساعة لحل أي مشكلة أو استفسار
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- App Screenshots -->
+    <section class="screenshots fade-in" id="screenshots">
+      <div class="container">
+        <h2 class="section-title">لقطات من داخل التطبيق</h2>
+        <div class="screenshots-container">
+          <div class="phone-mockup">
+            <div class="phone-screen">
+              <div class="screen-content">
+                <i
+                  class="fas fa-home"
+                  style="
+                    font-size: 3rem;
+                    color: var(--primary-color);
+                    margin-bottom: 1rem;
+                  "
+                ></i>
+                <h4>الصفحة الرئيسية</h4>
+                <p>تصفح الفئات والعروض المميزة</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="phone-mockup">
+            <div class="phone-screen">
+              <div class="screen-content">
+                <i
+                  class="fas fa-shopping-cart"
+                  style="
+                    font-size: 3rem;
+                    color: var(--primary-color);
+                    margin-bottom: 1rem;
+                  "
+                ></i>
+                <h4>سلة التسوق</h4>
+                <p>أضف المنتجات واكمل الطلب بسهولة</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="phone-mockup">
+            <div class="phone-screen">
+              <div class="screen-content">
+                <i
+                  class="fas fa-route"
+                  style="
+                    font-size: 3rem;
+                    color: var(--primary-color);
+                    margin-bottom: 1rem;
+                  "
+                ></i>
+                <h4>تتبع الطلب</h4>
+                <p>تابع مندوب التوصيل على الخريطة</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Newsletter CTA -->
+    <section class="newsletter fade-in" id="newsletter">
+      <div class="container">
+        <h2 class="section-title" style="color: white">
+          كن أول من يعرف عن التحديثات
+        </h2>
+        <p>اشترك في نشرتنا البريدية للحصول على أحدث العروض والمزايا الجديدة</p>
+        <form class="newsletter-form" id="newsletterForm">
+          <input
+            type="email"
+            class="newsletter-input"
+            placeholder="أدخل بريدك الإلكتروني"
+            required
+          />
+          <button type="submit" class="newsletter-btn">
+            <span class="btn-text">اشتراك</span>
+            <span class="loading-spinner" style="display: none"></span>
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="social-links">
+          <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+
+        <div class="footer-links">
+          <a href="#">شروط الاستخدام</a>
+          <a href="#">سياسة الخصوصية</a>
+          <a href="#">من نحن</a>
+          <a href="#">تواصل معنا</a>
+        </div>
+
+        <div class="copyright">
+          <p>&copy; 2025 بثواني. جميع الحقوق محفوظة.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Header scroll effect
+      window.addEventListener("scroll", () => {
+        const header = document.getElementById("header");
+        if (window.scrollY > 100) {
+          header.classList.add("scrolled");
+        } else {
+          header.classList.remove("scrolled");
+        }
+      });
+
+      // Smooth scrolling for anchor links
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute("href"));
+          if (target) {
+            target.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          }
+        });
+      });
+
+      // Fade in animation on scroll
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: "0px 0px -50px 0px",
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+          }
+        });
+      }, observerOptions);
+
+      document.querySelectorAll(".fade-in").forEach((el) => {
+        observer.observe(el);
+      });
+
+      // Newsletter form submission
+      document
+        .getElementById("newsletterForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const btn = this.querySelector(".newsletter-btn");
+          const btnText = btn.querySelector(".btn-text");
+          const spinner = btn.querySelector(".loading-spinner");
+
+          // Show loading state
+          btnText.style.display = "none";
+          spinner.style.display = "inline-block";
+          btn.disabled = true;
+
+          // Simulate API call
+          setTimeout(() => {
+            // Reset button
+            btnText.style.display = "inline";
+            spinner.style.display = "none";
+            btn.disabled = false;
+
+            // Show success message
+            const email = this.querySelector(".newsletter-input");
+            email.value = "";
+            email.placeholder = "تم الاشتراك بنجاح! شكراً لك";
+
+            setTimeout(() => {
+              email.placeholder = "أدخل بريدك الإلكتروني";
+            }, 3000);
+          }, 2000);
+        });
+
+      // Add hover effects to download buttons
+      document.querySelectorAll(".download-btn").forEach((btn) => {
+        btn.addEventListener("mouseenter", function () {
+          this.style.transform = "translateY(-3px) scale(1.05)";
+        });
+
+        btn.addEventListener("mouseleave", function () {
+          this.style.transform = "translateY(0) scale(1)";
+        });
+      });
+
+      // Mobile menu functionality (basic implementation)
+      document
+        .querySelector(".mobile-menu-btn")
+        .addEventListener("click", function () {
+          const navLinks = document.querySelector(".nav-links");
+          if (navLinks.style.display === "flex") {
+            navLinks.style.display = "none";
+          } else {
+            navLinks.style.display = "flex";
+            navLinks.style.flexDirection = "column";
+            navLinks.style.position = "absolute";
+            navLinks.style.top = "100%";
+            navLinks.style.left = "0";
+            navLinks.style.right = "0";
+            navLinks.style.background = "white";
+            navLinks.style.boxShadow = "var(--shadow)";
+            navLinks.style.padding = "1rem";
+          }
+        });
+
+      // Add parallax effect to hero section
+      window.addEventListener("scroll", () => {
+        const scrolled = window.pageYOffset;
+        const heroIllustration = document.querySelector(".hero-illustration");
+        if (heroIllustration) {
+          heroIllustration.style.transform = `translateY(${
+            -scrolled * 0.5 - 50
+          }%)`;
+        }
+      });
+
+      // Add click animations to feature cards
+      document.querySelectorAll(".feature-card").forEach((card) => {
+        card.addEventListener("click", function () {
+          this.style.transform = "scale(0.95)";
+          setTimeout(() => {
+            this.style.transform = "translateY(-10px)";
+          }, 150);
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,251 @@
+{
+  "dashboard": {
+    "title": "BThwani - Business Metrics",
+    "tags": ["bthwani", "business", "metrics"],
+    "timezone": "browser",
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Order Volume (Last 24h)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(increase(orders_created_total[24h]))",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "orders"
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Revenue (Last 24h)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(increase(order_revenue_total[24h]))",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD"
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 6,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "Average Order Value",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(increase(order_revenue_total[24h])) / sum(increase(orders_created_total[24h]))",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD"
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 4,
+        "title": "Conversion Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "(sum(increase(orders_created_total[24h])) / sum(increase(users_visited_total[24h]))) * 100",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent"
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 18,
+          "y": 0
+        }
+      },
+      {
+        "id": 5,
+        "title": "Order Trends",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(orders_created_total[1h])",
+            "legendFormat": "Orders/hour",
+            "refId": "A"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "orders",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 6
+        }
+      },
+      {
+        "id": 6,
+        "title": "Revenue Trends",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(order_revenue_total[1h])",
+            "legendFormat": "Revenue/hour",
+            "refId": "A"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "currencyUSD",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 6
+        }
+      },
+      {
+        "id": 7,
+        "title": "Top Selling Products",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "topk(10, sum(increase(product_sold_total[24h])) by (product_name))",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "align": "left"
+            }
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 14
+        }
+      },
+      {
+        "id": 8,
+        "title": "Payment Methods Distribution",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "sum(increase(payments_by_method_total[24h])) by (method)",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 14
+        }
+      },
+      {
+        "id": 9,
+        "title": "User Acquisition",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(users_registered_total[1h])",
+            "legendFormat": "New Users",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(users_active_total[1h])",
+            "legendFormat": "Active Users",
+            "refId": "B"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "users",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 22
+        }
+      },
+      {
+        "id": 10,
+        "title": "Geographic Distribution",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "topk(10, sum(increase(orders_by_city_total[24h])) by (city))",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 22
+        }
+      }
+    ],
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "timepicker": {},
+    "templating": {
+      "list": []
+    },
+    "annotations": {
+      "list": []
+    },
+    "refresh": "5m",
+    "schemaVersion": 27,
+    "version": 0,
+    "links": []
+  }
+}

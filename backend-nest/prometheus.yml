@@ -1,0 +1,19 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'bthwani-monitor'
+
+scrape_configs:
+  - job_name: 'bthwani-backend'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['app:3000']
+        labels:
+          app: 'bthwani-backend'
+          environment: 'production'
+
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+

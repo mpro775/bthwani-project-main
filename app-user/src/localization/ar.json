@@ -1,0 +1,44 @@
+{
+  "welcome": "مرحبًا بك",
+  "login": {
+    "title": "تسجيل الدخول",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور"
+  },
+  "common": {
+    "add": "إضافة",
+    "delete": "حذف",
+    "save": "حفظ",
+    "cancel": "إلغاء"
+  },
+  "errors": {
+    "network": "خطأ في الاتصال بالشبكة",
+    "invalidEmail": "البريد الإلكتروني غير صحيح",
+    "required": "هذا الحقل مطلوب"
+  },
+  "success": {
+    "saved": "تم الحفظ بنجاح",
+    "deleted": "تم الحذف بنجاح",
+    "updated": "تم التحديث بنجاح"
+  },
+  "cart": {
+    "items_zero": "لا توجد منتجات",
+    "items_one": "منتج واحد",
+    "items_two": "منتجان",
+    "items_few": "{{count}} منتجات",
+    "items_many": "{{count}} منتجات",
+    "items_other": "{{count}} منتجات"
+  },
+  "welcome": {
+    "message": "مرحباً {{name}}"
+  },
+  "order": {
+    "status": "طلب رقم {{orderNumber}}"
+  },
+  "date": {
+    "format": "{{date, DD MMMM YYYY}}"
+  },
+  "number": {
+    "format": "{{value, number}}"
+  }
+}

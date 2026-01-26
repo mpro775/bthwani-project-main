@@ -1,0 +1,191 @@
+{
+  "meta": {
+    "generated_at": "2025-10-18 15:15:45",
+    "timezone": "Asia/Aden",
+    "plan_id": "BTW-Cursor-Closure-Plan-20251018"
+  },
+  "order": [
+    "CLOSE-001",
+    "CLOSE-002",
+    "CLOSE-003",
+    "CLOSE-004",
+    "CLOSE-005",
+    "CLOSE-006",
+    "CLOSE-007",
+    "CLOSE-008"
+  ],
+  "tasks": [
+    {
+      "id": "CLOSE-001",
+      "title": "Secrets Revocation + Vault + SBOM + Signing",
+      "owners": [
+        "@Sec",
+        "@DevOps"
+      ],
+      "due": "+3d",
+      "acceptance": [
+        "SecretsFound=0",
+        "SBOMGenerated=true",
+        "AllArtifactsSigned=true"
+      ],
+      "files": [
+        "**/*"
+      ],
+      "steps_dev": [
+        "npx gitleaks detect --no-git --redact --source .",
+        "Rotate all leaked keys and revoke old tokens",
+        "Move secrets to Vault/Secrets Manager and inject via env at deploy",
+        "Generate CycloneDX SBOM; sign images/packages with cosign; verify in CI"
+      ],
+      "steps_nondev": [
+        "Update ADR + CHANGELOG with policy changes"
+      ]
+    },
+    {
+      "id": "CLOSE-002",
+      "title": "CI Guard: Route Uniqueness (METHOD+normalized_path)",
+      "owners": [
+        "@BE",
+        "@DevOps"
+      ],
+      "due": "+2d",
+      "acceptance": [
+        "DuplicateKeys=0",
+        "CI-Guard=blocking"
+      ],
+      "files": [
+        "openapi/*",
+        "scripts/check-route-uniqueness.js"
+      ],
+      "steps_dev": [
+        "Normalize :id -> {id} then compare METHOD+path over OpenAPI paths",
+        "Fail PR on duplicates; publish artifact route report per build"
+      ]
+    },
+    {
+      "id": "CLOSE-003",
+      "title": "OpenAPI as SSoT + Typed Clients + Contract Tests",
+      "owners": [
+        "@BE",
+        "@FE"
+      ],
+      "due": "+7d",
+      "acceptance": [
+        "ParityGap<=5%",
+        "ContractTests=green",
+        "OpenAPI-lint=pass"
+      ],
+      "files": [
+        "openapi/*.yaml",
+        "clients/*",
+        "fe/*",
+        "apps/*"
+      ],
+      "steps_dev": [
+        "Normalize OpenAPI status/errors/params/DTOs",
+        "Generate typed clients (web/app) with openapi-typescript/orval",
+        "Replace raw fetch/axios with typed clients across FE",
+        "Add CI job: npm run test:contract; block on fail"
+      ]
+    },
+    {
+      "id": "CLOSE-004",
+      "title": "Fix Frontend Orphans (bind 79 calls)",
+      "owners": [
+        "@FE",
+        "@BE"
+      ],
+      "due": "+5d",
+      "acceptance": [
+        "FE_orphans=0"
+      ],
+      "strategy": [
+        "(A) Re-point FE to existing typed routes where equivalent exists",
+        "(B) Implement missing BE endpoints per spec then bind via client"
+      ],
+      "steps_dev": [
+        "Process fe_orphans list batched by surface/router",
+        "Add e2e smoke per fixed call"
+      ]
+    },
+    {
+      "id": "CLOSE-005",
+      "title": "Document BE-only Endpoints then Align",
+      "owners": [
+        "@BE"
+      ],
+      "due": "+7d",
+      "acceptance": [
+        "BE_undocumented=0"
+      ],
+      "steps_dev": [
+        "For each BE endpoint lacking spec, add to OpenAPI",
+        "Align controllers/DTOs and add contract tests"
+      ]
+    },
+    {
+      "id": "CLOSE-006",
+      "title": "Implement Spec-Only Endpoints (close 148 gaps)",
+      "owners": [
+        "@BE"
+      ],
+      "due": "+7d",
+      "acceptance": [
+        "OpenAPI_missing_in_BE=0"
+      ],
+      "steps_dev": [
+        "Implement controllers/services for paths found in spec but missing in code",
+        "Ensure status codes and schemas match; add tests"
+      ]
+    },
+    {
+      "id": "CLOSE-007",
+      "title": "Observability Baseline + Burn-rate Alerts",
+      "owners": [
+        "@Ops",
+        "@BE"
+      ],
+      "due": "+7d",
+      "acceptance": [
+        "DashboardsPresent=true",
+        "AlertsLinkedRunbooks=true",
+        "MTTR<=30m"
+      ],
+      "steps_dev": [
+        "Instrument services with OpenTelemetry tracing/metrics/logs",
+        "Create dashboards (RPS,LAT,ERR,SAT) per service",
+        "Configure multi-window burn-rate alerts with runbook URLs"
+      ]
+    },
+    {
+      "id": "CLOSE-008",
+      "title": "Error Taxonomy + UX Mapping",
+      "owners": [
+        "@BE",
+        "@FE"
+      ],
+      "due": "+7d",
+      "acceptance": [
+        ">=95% errors mapped to taxonomy"
+      ],
+      "taxonomy": [
+        "USR_4xx",
+        "VAL_422",
+        "AUTH_401",
+        "PERM_403",
+        "RAT_429",
+        "SYS_5xx",
+        "EXT_xxx"
+      ],
+      "steps_dev": [
+        "Standardize error codes and payload shape",
+        "Map FE UX: toast/inline/retry/wait per category"
+      ]
+    }
+  ],
+  "ready_for_cursor": true,
+  "notes": [
+    "Run in order to reach ParityGap<=5% and 0 contract P0/P1",
+    "Block merges on CI guards before closing PRs"
+  ]
+}

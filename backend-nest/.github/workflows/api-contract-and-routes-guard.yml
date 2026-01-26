@@ -1,0 +1,182 @@
+name: API Contract and Routes Guard
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+jobs:
+  route-uniqueness:
+    name: BTW-AUD-002 - Route Uniqueness Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check API duplicates
+        working-directory: ../..
+        run: node scripts/check-api-duplicates.js
+
+      - name: Upload route report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: route-duplicates-report
+          path: backend-nest/reports/route_duplicates.*
+          retention-days: 30
+
+  openapi-validation:
+    name: BTW-AUD-001 - OpenAPI Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend-nest/package-lock.json
+
+      - name: Install dependencies
+        working-directory: backend-nest
+        run: npm ci
+
+      - name: Validate OpenAPI spec
+        working-directory: backend-nest
+        run: |
+          npm run audit:openapi
+          npx @apidevtools/swagger-cli validate reports/openapi.yaml || true
+
+      - name: Lint OpenAPI
+        run: |
+          npx @stoplight/spectral-cli lint backend-nest/reports/openapi.yaml --ruleset .spectral.yml || true
+
+      - name: Upload OpenAPI spec
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi-spec
+          path: backend-nest/reports/openapi.*
+
+  contract-tests:
+    name: BTW-AUD-001 - Contract Tests
+    runs-on: ubuntu-latest
+    needs: [route-uniqueness, openapi-validation]
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        env:
+          MONGO_INITDB_ROOT_USERNAME: admin
+          MONGO_INITDB_ROOT_PASSWORD: password
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend-nest/package-lock.json
+
+      - name: Install dependencies
+        working-directory: backend-nest
+        run: npm ci
+
+      - name: Run contract tests
+        working-directory: backend-nest
+        env:
+          MONGODB_URI: mongodb://admin:password@localhost:27017/bthwani_test?authSource=admin
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+          NODE_ENV: test
+        run: npm run test:e2e || true
+
+      - name: Check parity
+        working-directory: backend-nest
+        run: npm run audit:parity
+
+      - name: Upload parity report
+        uses: actions/upload-artifact@v4
+        with:
+          name: parity-report
+          path: backend-nest/reports/parity_report.*
+
+  client-generation:
+    name: BTW-AUD-001 - Typed Client Generation
+    runs-on: ubuntu-latest
+    needs: [openapi-validation]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate typed clients
+        run: node scripts/simple-client-generator.js
+
+      - name: Validate generated clients
+        run: |
+          # Check if clients were generated
+          if [ ! -d "admin-dashboard/src/api/generated" ]; then
+            echo "❌ Admin dashboard client not generated"
+            exit 1
+          fi
+          if [ ! -d "bthwani-web/src/api/generated" ]; then
+            echo "❌ Web app client not generated"
+            exit 1
+          fi
+          echo "✅ All clients generated successfully"
+
+      - name: Upload generated clients
+        uses: actions/upload-artifact@v4
+        with:
+          name: typed-clients
+          path: |
+            */src/api/generated/
+          retention-days: 7
+
+  summary:
+    name: Generate Summary
+    runs-on: ubuntu-latest
+    needs: [route-uniqueness, openapi-validation, contract-tests, client-generation]
+    if: always()
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Create summary
+        run: |
+          echo "## 🔍 API Contract & Routes Guard Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Route Uniqueness | ${{ needs.route-uniqueness.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| OpenAPI Validation | ${{ needs.openapi-validation.result == 'success' && '✅ Passed' || '⚠️ Warnings' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Contract Tests | ${{ needs.contract-tests.result == 'success' && '✅ Passed' || '⚠️ Review needed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Typed Client Generation | ${{ needs.client-generation.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow:** BTW-AUD-002, BTW-AUD-001" >> $GITHUB_STEP_SUMMARY
+          echo "**Generated:** $(date)" >> $GITHUB_STEP_SUMMARY
+

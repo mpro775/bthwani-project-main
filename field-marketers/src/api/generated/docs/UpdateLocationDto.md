@@ -1,0 +1,22 @@
+# UpdateLocationDto
+
+
+## Properties
+
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**lat** | **number** | خط العرض | [default to undefined]
+**lng** | **number** | خط الطول | [default to undefined]
+
+## Example
+
+```typescript
+import { UpdateLocationDto } from './api';
+
+const instance: UpdateLocationDto = {
+    lat,
+    lng,
+};
+```
+
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

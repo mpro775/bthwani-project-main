@@ -1,0 +1,1122 @@
+{
+  "timestamp": "2025-10-18T15:07:25.576Z",
+  "totalOrphans": 79,
+  "byStrategy": {
+    "implement": 78,
+    "redirect": 0,
+    "deprecate": 0,
+    "mock": 1
+  },
+  "bySurface": {
+    "ADMIN-DASH": 63,
+    "RIDER-APP": 8,
+    "VENDOR-APP": 1,
+    "WEB-APP": 7
+  },
+  "fixes": [
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/api/content/latest",
+        "normalized_path": "/api/content/latest",
+        "file": "bthwani-project-main/admin-dashboard/public/sw.js"
+      },
+      "strategy": "MOCK",
+      "priority": "LOW",
+      "reason": "Service worker endpoint - can use mock data"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/admin/dashboard/alerts",
+        "normalized_path": "/admin/dashboard/alerts",
+        "file": "bthwani-project-main/admin-dashboard/src/api/adminOverview.ts"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/dashboard",
+      "implementation": "@Get('dashboard/alerts')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync dashboardAlerts() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/admin/dashboard/summary",
+        "normalized_path": "/admin/dashboard/summary",
+        "file": "bthwani-project-main/admin-dashboard/src/api/adminOverview.ts"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/dashboard",
+      "implementation": "@Get('dashboard/summary')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync dashboardSummary() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/admin/dashboard/timeseries",
+        "normalized_path": "/admin/dashboard/timeseries",
+        "file": "bthwani-project-main/admin-dashboard/src/api/adminOverview.ts"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/dashboard",
+      "implementation": "@Get('dashboard/timeseries')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync dashboardTimeseries() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/admin/dashboard/top",
+        "normalized_path": "/admin/dashboard/top",
+        "file": "bthwani-project-main/admin-dashboard/src/api/adminOverview.ts"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/dashboard",
+      "implementation": "@Get('dashboard/top')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync dashboardTop() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/admin/me",
+        "normalized_path": "/admin/me",
+        "file": "bthwani-project-main/admin-dashboard/src/hook/useAdminUser.ts"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/me",
+      "implementation": "@Get('me')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync me() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/features",
+        "normalized_path": "/features",
+        "file": "bthwani-project-main/admin-dashboard/src/hook/useFeatures.ts"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Feature flags - critical for feature toggles",
+      "suggestedBackendPath": "src/modules/features/features.controller.ts",
+      "implementation": "@Get('/features')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync Features() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "POST",
+        "path": "/api/leads/captain",
+        "normalized_path": "/api/leads/captain",
+        "file": "bthwani-project-main/admin-dashboard/src/landing/pages/BecomeCaptainPage.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Lead generation - important for business",
+      "suggestedBackendPath": "src/modules/leads/leads.controller.ts",
+      "implementation": "@Post('leads/captain')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync leadsCaptain() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "POST",
+        "path": "/api/support/contact",
+        "normalized_path": "/api/support/contact",
+        "file": "bthwani-project-main/admin-dashboard/src/landing/pages/ContactPage.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Customer support endpoint",
+      "suggestedBackendPath": "src/modules/support/support.controller.ts",
+      "implementation": "@Post('support/contact')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync supportContact() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "POST",
+        "path": "/api/leads/merchant",
+        "normalized_path": "/api/leads/merchant",
+        "file": "bthwani-project-main/admin-dashboard/src/landing/pages/ForMerchantsPage.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Lead generation - important for business",
+      "suggestedBackendPath": "src/modules/leads/leads.controller.ts",
+      "implementation": "@Post('leads/merchant')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync leadsMerchant() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "POST",
+        "path": "/admin/drivers",
+        "normalized_path": "/admin/drivers",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/admin/AdminDriversPage.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/drivers",
+      "implementation": "@Post('drivers')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync drivers() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/admin/vendors",
+        "normalized_path": "/admin/vendors",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/admin/AdminVendorCreatePage.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/vendors",
+      "implementation": "@Get('vendors')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync vendors() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "POST",
+        "path": "/vendor",
+        "normalized_path": "/vendor",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/admin/AdminVendorCreatePage.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/vendor",
+      "implementation": "@Post('/vendor')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync Vendor() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/admin/settings/appearance",
+        "normalized_path": "/admin/settings/appearance",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/admin/AppearanceSettingsPage.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/settings",
+      "implementation": "@Get('settings/appearance')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync settingsAppearance() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "PUT",
+        "path": "/admin/settings/appearance",
+        "normalized_path": "/admin/settings/appearance",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/admin/AppearanceSettingsPage.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/settings",
+      "implementation": "@Put('settings/appearance')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync settingsAppearance() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/admin/dashboard/alerts",
+        "normalized_path": "/admin/dashboard/alerts",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/admin/OverviewPage.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/dashboard",
+      "implementation": "@Get('dashboard/alerts')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync dashboardAlerts() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/admin/dashboard/summary",
+        "normalized_path": "/admin/dashboard/summary",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/admin/OverviewPage.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/dashboard",
+      "implementation": "@Get('dashboard/summary')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync dashboardSummary() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/admin/dashboard/timeseries",
+        "normalized_path": "/admin/dashboard/timeseries",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/admin/OverviewPage.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/dashboard",
+      "implementation": "@Get('dashboard/timeseries')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync dashboardTimeseries() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/admin/dashboard/top",
+        "normalized_path": "/admin/dashboard/top",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/admin/OverviewPage.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/dashboard",
+      "implementation": "@Get('dashboard/top')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync dashboardTop() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/admin/users/list",
+        "normalized_path": "/admin/users/list",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/admin/UserManagement.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/users",
+      "implementation": "@Get('users/list')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync usersList() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "POST",
+        "path": "/admin/users",
+        "normalized_path": "/admin/users",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/admin/UserManagement.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/users",
+      "implementation": "@Post('users')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync users() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/admin/users/list",
+        "normalized_path": "/admin/users/list",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/admin/UsersListPage.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/users",
+      "implementation": "@Get('users/list')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync usersList() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/admin/list",
+        "normalized_path": "/admin/list",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/admin/admins/api.ts"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/list",
+      "implementation": "@Get('list')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync list() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/admin/modules",
+        "normalized_path": "/admin/modules",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/admin/admins/api.ts"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/modules",
+      "implementation": "@Get('modules')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync modules() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "POST",
+        "path": "/admin/create",
+        "normalized_path": "/admin/create",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/admin/admins/api.ts"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/create",
+      "implementation": "@Post('create')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync create() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/finance/commissions/audit-log",
+        "normalized_path": "/finance/commissions/audit-log",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/admin/finance/CommissionSettingsPage.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Financial data - critical",
+      "suggestedBackendPath": "src/modules/finance/finance.controller.ts",
+      "implementation": "@Get('/finance/commissions/audit-log')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync FinanceCommissionsAuditlog() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/finance/commissions/settings",
+        "normalized_path": "/finance/commissions/settings",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/admin/finance/CommissionSettingsPage.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Financial data - critical",
+      "suggestedBackendPath": "src/modules/finance/finance.controller.ts",
+      "implementation": "@Get('/finance/commissions/settings')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync FinanceCommissionsSettings() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "POST",
+        "path": "/finance/commissions/settings",
+        "normalized_path": "/finance/commissions/settings",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/admin/finance/CommissionSettingsPage.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Financial data - critical",
+      "suggestedBackendPath": "src/modules/finance/finance.controller.ts",
+      "implementation": "@Post('/finance/commissions/settings')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync FinanceCommissionsSettings() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/admin/ops/drivers/realtime",
+        "normalized_path": "/admin/ops/drivers/realtime",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/admin/ops/OpsDriversDashboard.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/ops",
+      "implementation": "@Get('ops/drivers/realtime')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync opsDriversRealtime() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/admin/ops/heatmap",
+        "normalized_path": "/admin/ops/heatmap",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/admin/ops/OpsDriversDashboard.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/ops",
+      "implementation": "@Get('ops/heatmap')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync opsHeatmap() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/pricing-strategies",
+        "normalized_path": "/pricing-strategies",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/admin/pricing/PricingStrategiesPage.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Pricing logic - critical for business",
+      "suggestedBackendPath": "src/modules/pricing/pricing.controller.ts",
+      "implementation": "@Get('/pricing-strategies')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync Pricingstrategies() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "POST",
+        "path": "/pricing-strategies",
+        "normalized_path": "/pricing-strategies",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/admin/pricing/PricingStrategiesPage.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Pricing logic - critical for business",
+      "suggestedBackendPath": "src/modules/pricing/pricing.controller.ts",
+      "implementation": "@Post('/pricing-strategies')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync Pricingstrategies() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/admin/support/stats",
+        "normalized_path": "/admin/support/stats",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/admin/support/SupportTicketsPage.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/support",
+      "implementation": "@Get('support/stats')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync supportStats() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "POST",
+        "path": "/admin/support/tickets",
+        "normalized_path": "/admin/support/tickets",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/admin/support/SupportTicketsPage.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/support",
+      "implementation": "@Post('support/tickets')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync supportTickets() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/admin/audit-logs/my-actions?limit=3",
+        "normalized_path": "/admin/audit-logs/my-actions?limit=3",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/admin/system/AuditLogPage.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/audit-logs",
+      "implementation": "@Get('audit-logs/my-actions?limit=3')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync auditlogsMyactionslimit3() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/admin/audit-logs/stats",
+        "normalized_path": "/admin/audit-logs/stats",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/admin/system/AuditLogPage.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/audit-logs",
+      "implementation": "@Get('audit-logs/stats')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync auditlogsStats() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/admin/vendors",
+        "normalized_path": "/admin/vendors",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/admin/vendors/VendorsManagement.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/vendors",
+      "implementation": "@Get('vendors')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync vendors() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "POST",
+        "path": "/admin/vendors",
+        "normalized_path": "/admin/vendors",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/admin/vendors/VendorsManagement.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/vendors",
+      "implementation": "@Post('vendors')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync vendors() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/delivery/banners/admin",
+        "normalized_path": "/delivery/banners/admin",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/delivery/DeliveryBannersPage.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/delivery",
+      "implementation": "@Get('/delivery/banners/admin')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync DeliveryBannersAdmin() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/delivery/categories",
+        "normalized_path": "/delivery/categories",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/delivery/DeliveryBannersPage.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/delivery",
+      "implementation": "@Get('/delivery/categories')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync DeliveryCategories() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "POST",
+        "path": "/delivery/categories/bulk-reorder",
+        "normalized_path": "/delivery/categories/bulk-reorder",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/delivery/DeliveryCategoriesPage.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/delivery",
+      "implementation": "@Post('/delivery/categories/bulk-reorder')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync DeliveryCategoriesBulkreorder() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/admin/drivers/attendance",
+        "normalized_path": "/admin/drivers/attendance",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/drivers/DriversList.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/drivers",
+      "implementation": "@Get('drivers/attendance')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync driversAttendance() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/admin/driver-assets",
+        "normalized_path": "/admin/driver-assets",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/drivers/tabs/Assets.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/driver-assets",
+      "implementation": "@Get('driver-assets')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync driverassets() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/admin/drivers/docs",
+        "normalized_path": "/admin/drivers/docs",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/drivers/tabs/Documents.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/drivers",
+      "implementation": "@Get('drivers/docs')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync driversDocs() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/admin/driver-payouts",
+        "normalized_path": "/admin/driver-payouts",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/drivers/tabs/Finance.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/driver-payouts",
+      "implementation": "@Get('driver-payouts')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync driverpayouts() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/admin/driver-shifts",
+        "normalized_path": "/admin/driver-shifts",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/drivers/tabs/Shifts.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/driver-shifts",
+      "implementation": "@Get('driver-shifts')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync drivershifts() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "POST",
+        "path": "/marketing/adspend/upload",
+        "normalized_path": "/marketing/adspend/upload",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/marketing/AdSpendUpload.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/marketing",
+      "implementation": "@Post('/marketing/adspend/upload')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync MarketingAdspendUpload() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "POST",
+        "path": "/segments/preview",
+        "normalized_path": "/segments/preview",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/marketing/Segments.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/segments",
+      "implementation": "@Post('/segments/preview')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync SegmentsPreview() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "POST",
+        "path": "/segments/sync",
+        "normalized_path": "/segments/sync",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/marketing/Segments.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/segments",
+      "implementation": "@Post('/segments/sync')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync SegmentsSync() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/accounts/chart?onlyLeaf=1",
+        "normalized_path": "/accounts/chart?onlyleaf=1",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/money/JournalEntries.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/accounts",
+      "implementation": "@Get('/accounts/chart?onlyleaf=1')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync AccountsChartonlyleaf1() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/journal-entries",
+        "normalized_path": "/journal-entries",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/money/JournalEntries.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/journal-entries",
+      "implementation": "@Get('/journal-entries')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync Journalentries() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/journal-entries",
+        "normalized_path": "/journal-entries",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/money/JournalEntries.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/journal-entries",
+      "implementation": "@Get('/journal-entries')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync Journalentries() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "POST",
+        "path": "/journal-entries",
+        "normalized_path": "/journal-entries",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/money/JournalEntries.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/journal-entries",
+      "implementation": "@Post('/journal-entries')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync Journalentries() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/partners",
+        "normalized_path": "/partners",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/parteners/PartnerDetails.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/partners",
+      "implementation": "@Get('/partners')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync Partners() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "POST",
+        "path": "/partners/upsert",
+        "normalized_path": "/partners/upsert",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/parteners/PartnerDetails.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/partners",
+      "implementation": "@Post('/partners/upsert')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync PartnersUpsert() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/partners",
+        "normalized_path": "/partners",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/parteners/PartnersList.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/partners",
+      "implementation": "@Get('/partners')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync Partners() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/admin/dashboard/support-tickets",
+        "normalized_path": "/admin/dashboard/support-tickets",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/support/Inbox.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/dashboard",
+      "implementation": "@Get('dashboard/support-tickets')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync dashboardSupporttickets() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/support/reports/summary",
+        "normalized_path": "/support/reports/summary",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/support/Reports.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Customer support endpoint",
+      "suggestedBackendPath": "src/modules/support/support.controller.ts",
+      "implementation": "@Get('/support/reports/summary')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync SupportReportsSummary() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/admin/dashboard/support-tickets",
+        "normalized_path": "/admin/dashboard/support-tickets",
+        "file": "bthwani-project-main/admin-dashboard/src/pages/support/TicketView.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "HIGH",
+      "reason": "Admin dashboard endpoint - core functionality",
+      "suggestedBackendPath": "src/modules/admin/dashboard",
+      "implementation": "@Get('dashboard/support-tickets')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync dashboardSupporttickets() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/accounts/chart",
+        "normalized_path": "/accounts/chart",
+        "file": "bthwani-project-main/admin-dashboard/src/services/chartAccount.api.ts"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/accounts",
+      "implementation": "@Get('/accounts/chart')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync AccountsChart() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "GET",
+        "path": "/accounts/chart/tree",
+        "normalized_path": "/accounts/chart/tree",
+        "file": "bthwani-project-main/admin-dashboard/src/services/chartAccount.api.ts"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/accounts",
+      "implementation": "@Get('/accounts/chart/tree')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync AccountsChartTree() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "POST",
+        "path": "/accounts/chart",
+        "normalized_path": "/accounts/chart",
+        "file": "bthwani-project-main/admin-dashboard/src/services/chartAccount.api.ts"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/accounts",
+      "implementation": "@Post('/accounts/chart')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync AccountsChart() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "ADMIN-DASH",
+        "method": "POST",
+        "path": "/media/sign-upload",
+        "normalized_path": "/media/sign-upload",
+        "file": "bthwani-project-main/admin-dashboard/src/services/uploadService.ts"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/media",
+      "implementation": "@Post('/media/sign-upload')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync MediaSignupload() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "RIDER-APP",
+        "method": "GET",
+        "path": "/drivers/me",
+        "normalized_path": "/drivers/me",
+        "file": "bthwani-project-main/rider-app/app/(driver)/locations.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/drivers",
+      "implementation": "@Get('/drivers/me')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync DriversMe() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "RIDER-APP",
+        "method": "POST",
+        "path": "/drivers/locations",
+        "normalized_path": "/drivers/locations",
+        "file": "bthwani-project-main/rider-app/app/(driver)/locations.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/drivers",
+      "implementation": "@Post('/drivers/locations')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync DriversLocations() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "RIDER-APP",
+        "method": "POST",
+        "path": "/driver/login",
+        "normalized_path": "/driver/login",
+        "file": "bthwani-project-main/rider-app/src/api/auth.ts"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/driver",
+      "implementation": "@Post('/driver/login')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync DriverLogin() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "RIDER-APP",
+        "method": "GET",
+        "path": "/drivers/withdrawals/my",
+        "normalized_path": "/drivers/withdrawals/my",
+        "file": "bthwani-project-main/rider-app/src/api/driver.ts"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/drivers",
+      "implementation": "@Get('/drivers/withdrawals/my')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync DriversWithdrawalsMy() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "RIDER-APP",
+        "method": "GET",
+        "path": "/drivers/withdrawals/my",
+        "normalized_path": "/drivers/withdrawals/my",
+        "file": "bthwani-project-main/rider-app/src/api/driver.ts"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/drivers",
+      "implementation": "@Get('/drivers/withdrawals/my')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync DriversWithdrawalsMy() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "RIDER-APP",
+        "method": "POST",
+        "path": "/drivers/withdrawals/request",
+        "normalized_path": "/drivers/withdrawals/request",
+        "file": "bthwani-project-main/rider-app/src/api/driver.ts"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/drivers",
+      "implementation": "@Post('/drivers/withdrawals/request')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync DriversWithdrawalsRequest() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "RIDER-APP",
+        "method": "POST",
+        "path": "/drivers/withdrawals/request",
+        "normalized_path": "/drivers/withdrawals/request",
+        "file": "bthwani-project-main/rider-app/src/api/driver.ts"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/drivers",
+      "implementation": "@Post('/drivers/withdrawals/request')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync DriversWithdrawalsRequest() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "RIDER-APP",
+        "method": "POST",
+        "path": "/rides/sos",
+        "normalized_path": "/rides/sos",
+        "file": "bthwani-project-main/rider-app/src/componant/triggerSOS.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/rides",
+      "implementation": "@Post('/rides/sos')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync RidesSos() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "VENDOR-APP",
+        "method": "POST",
+        "path": "/vendor/auth/vendor-login",
+        "normalized_path": "/vendor/auth/vendor-login",
+        "file": "bthwani-project-main/vendor-app/src/screens/LoginScreen.tsx"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/vendor",
+      "implementation": "@Post('/vendor/auth/vendor-login')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync VendorAuthVendorlogin() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "WEB-APP",
+        "method": "POST",
+        "path": "/auth/forgot",
+        "normalized_path": "/auth/forgot",
+        "file": "bthwani-project-main/bthwani-web/src/api/auth.ts"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/auth",
+      "implementation": "@Post('/auth/forgot')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync AuthForgot() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "WEB-APP",
+        "method": "POST",
+        "path": "/auth/reset",
+        "normalized_path": "/auth/reset",
+        "file": "bthwani-project-main/bthwani-web/src/api/auth.ts"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/auth",
+      "implementation": "@Post('/auth/reset')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync AuthReset() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "WEB-APP",
+        "method": "POST",
+        "path": "/auth/reset/verify",
+        "normalized_path": "/auth/reset/verify",
+        "file": "bthwani-project-main/bthwani-web/src/api/auth.ts"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/auth",
+      "implementation": "@Post('/auth/reset/verify')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync AuthResetVerify() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "WEB-APP",
+        "method": "POST",
+        "path": "/auth/verify-otp",
+        "normalized_path": "/auth/verify-otp",
+        "file": "bthwani-project-main/bthwani-web/src/api/auth.ts"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/auth",
+      "implementation": "@Post('/auth/verify-otp')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync AuthVerifyotp() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "WEB-APP",
+        "method": "POST",
+        "path": "/notifications/register",
+        "normalized_path": "/notifications/register",
+        "file": "bthwani-project-main/bthwani-web/src/api/notifications.ts"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/notifications",
+      "implementation": "@Post('/notifications/register')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync NotificationsRegister() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "WEB-APP",
+        "method": "POST",
+        "path": "/payments/confirm",
+        "normalized_path": "/payments/confirm",
+        "file": "bthwani-project-main/bthwani-web/src/api/payments.ts"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/payments",
+      "implementation": "@Post('/payments/confirm')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync PaymentsConfirm() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    },
+    {
+      "orphan": {
+        "surface": "WEB-APP",
+        "method": "POST",
+        "path": "/payments/create-session",
+        "normalized_path": "/payments/create-session",
+        "file": "bthwani-project-main/bthwani-web/src/api/payments.ts"
+      },
+      "strategy": "IMPLEMENT",
+      "priority": "MEDIUM",
+      "reason": "Standard endpoint",
+      "suggestedBackendPath": "src/modules/payments",
+      "implementation": "@Post('/payments/create-session')\n@ApiOperation({ summary: 'TODO: Add description' })\n@ApiResponse({ status: 200, description: 'Success' })\nasync PaymentsCreatesession() {\n  // TODO: Implement logic\n  return {\n    success: true,\n    message: 'Implementation needed'\n  };\n}"
+    }
+  ]
+}

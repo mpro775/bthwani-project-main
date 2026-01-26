@@ -1,0 +1,454 @@
+{
+  "timestamp": "2025-10-18T18:59:13.215Z",
+  "totalRoutes": 473,
+  "uniqueRoutes": 439,
+  "duplicates": [
+    {
+      "key": "DELETE:{id}",
+      "method": "DELETE",
+      "normalizedPath": "{id}",
+      "occurrences": [
+        {
+          "file": ".\\src\\modules\\merchant\\merchant.controller.ts",
+          "line": 99,
+          "originalPath": ":id"
+        },
+        {
+          "file": ".\\src\\modules\\notification\\notification.controller.ts",
+          "line": 98,
+          "originalPath": ":id"
+        },
+        {
+          "file": ".\\src\\modules\\promotion\\promotion.controller.ts",
+          "line": 119,
+          "originalPath": ":id"
+        },
+        {
+          "file": ".\\src\\modules\\store\\store.controller.ts",
+          "line": 225,
+          "originalPath": ":id"
+        }
+      ]
+    },
+    {
+      "key": "GET:{id}",
+      "method": "GET",
+      "normalizedPath": "{id}",
+      "occurrences": [
+        {
+          "file": ".\\src\\modules\\driver\\driver.controller.ts",
+          "line": 53,
+          "originalPath": ":id"
+        },
+        {
+          "file": ".\\src\\modules\\merchant\\merchant.controller.ts",
+          "line": 69,
+          "originalPath": ":id"
+        },
+        {
+          "file": ".\\src\\modules\\order\\order-cqrs.controller.ts",
+          "line": 169,
+          "originalPath": ":id"
+        },
+        {
+          "file": ".\\src\\modules\\order\\order.controller.ts",
+          "line": 102,
+          "originalPath": ":id"
+        },
+        {
+          "file": ".\\src\\modules\\promotion\\promotion.controller.ts",
+          "line": 89,
+          "originalPath": ":id"
+        },
+        {
+          "file": ".\\src\\modules\\store\\delivery-store.controller.ts",
+          "line": 50,
+          "originalPath": ":id"
+        },
+        {
+          "file": ".\\src\\modules\\store\\store.controller.ts",
+          "line": 56,
+          "originalPath": ":id"
+        },
+        {
+          "file": ".\\src\\modules\\vendor\\vendor.controller.ts",
+          "line": 63,
+          "originalPath": ":id"
+        }
+      ]
+    },
+    {
+      "key": "GET:{id}/products",
+      "method": "GET",
+      "normalizedPath": "{id}/products",
+      "occurrences": [
+        {
+          "file": ".\\src\\modules\\store\\delivery-store.controller.ts",
+          "line": 61,
+          "originalPath": ":id/products"
+        },
+        {
+          "file": ".\\src\\modules\\store\\store.controller.ts",
+          "line": 79,
+          "originalPath": ":id/products"
+        }
+      ]
+    },
+    {
+      "key": "GET:commissions/my",
+      "method": "GET",
+      "normalizedPath": "commissions/my",
+      "occurrences": [
+        {
+          "file": ".\\src\\modules\\finance\\finance.controller.ts",
+          "line": 65,
+          "originalPath": "commissions/my"
+        },
+        {
+          "file": ".\\src\\modules\\marketer\\marketer.controller.ts",
+          "line": 130,
+          "originalPath": "commissions/my"
+        }
+      ]
+    },
+    {
+      "key": "GET:consent/check/{type}",
+      "method": "GET",
+      "normalizedPath": "consent/check/{type}",
+      "occurrences": [
+        {
+          "file": ".\\src\\modules\\auth\\auth.controller.ts",
+          "line": 186,
+          "originalPath": "consent/check/:type"
+        },
+        {
+          "file": ".\\src\\modules\\legal\\legal.controller.ts",
+          "line": 114,
+          "originalPath": "consent/check/:type"
+        }
+      ]
+    },
+    {
+      "key": "GET:earnings",
+      "method": "GET",
+      "normalizedPath": "earnings",
+      "occurrences": [
+        {
+          "file": ".\\src\\modules\\driver\\driver.controller.ts",
+          "line": 121,
+          "originalPath": "earnings"
+        },
+        {
+          "file": ".\\src\\modules\\marketer\\marketer.controller.ts",
+          "line": 185,
+          "originalPath": "earnings"
+        }
+      ]
+    },
+    {
+      "key": "GET:me",
+      "method": "GET",
+      "normalizedPath": "me",
+      "occurrences": [
+        {
+          "file": ".\\src\\modules\\user\\user.controller.ts",
+          "line": 43,
+          "originalPath": "me"
+        },
+        {
+          "file": ".\\src\\modules\\vendor\\vendor.controller.ts",
+          "line": 54,
+          "originalPath": "me"
+        }
+      ]
+    },
+    {
+      "key": "GET:my",
+      "method": "GET",
+      "normalizedPath": "my",
+      "occurrences": [
+        {
+          "file": ".\\src\\modules\\notification\\notification.controller.ts",
+          "line": 56,
+          "originalPath": "my"
+        },
+        {
+          "file": ".\\src\\modules\\onboarding\\onboarding.controller.ts",
+          "line": 54,
+          "originalPath": "my"
+        }
+      ]
+    },
+    {
+      "key": "GET:profile",
+      "method": "GET",
+      "normalizedPath": "profile",
+      "occurrences": [
+        {
+          "file": ".\\src\\modules\\driver\\driver.controller.ts",
+          "line": 97,
+          "originalPath": "profile"
+        },
+        {
+          "file": ".\\src\\modules\\marketer\\marketer.controller.ts",
+          "line": 28,
+          "originalPath": "profile"
+        }
+      ]
+    },
+    {
+      "key": "GET:search",
+      "method": "GET",
+      "normalizedPath": "search",
+      "occurrences": [
+        {
+          "file": ".\\src\\modules\\store\\delivery-store.controller.ts",
+          "line": 38,
+          "originalPath": "search"
+        },
+        {
+          "file": ".\\src\\modules\\user\\user.controller.ts",
+          "line": 195,
+          "originalPath": "search"
+        }
+      ]
+    },
+    {
+      "key": "GET:statistics",
+      "method": "GET",
+      "normalizedPath": "statistics",
+      "occurrences": [
+        {
+          "file": ".\\src\\modules\\driver\\driver.controller.ts",
+          "line": 157,
+          "originalPath": "statistics"
+        },
+        {
+          "file": ".\\src\\modules\\onboarding\\onboarding.controller.ts",
+          "line": 172,
+          "originalPath": "statistics"
+        }
+      ]
+    },
+    {
+      "key": "GET:user/{userid}",
+      "method": "GET",
+      "normalizedPath": "user/{userid}",
+      "occurrences": [
+        {
+          "file": ".\\src\\modules\\cart\\cart.controller.ts",
+          "line": 47,
+          "originalPath": "user/:userId"
+        },
+        {
+          "file": ".\\src\\modules\\order\\order.controller.ts",
+          "line": 54,
+          "originalPath": "user/:userId"
+        }
+      ]
+    },
+    {
+      "key": "PATCH:{id}",
+      "method": "PATCH",
+      "normalizedPath": "{id}",
+      "occurrences": [
+        {
+          "file": ".\\src\\modules\\merchant\\merchant.controller.ts",
+          "line": 82,
+          "originalPath": ":id"
+        },
+        {
+          "file": ".\\src\\modules\\promotion\\promotion.controller.ts",
+          "line": 102,
+          "originalPath": ":id"
+        },
+        {
+          "file": ".\\src\\modules\\shift\\shift.controller.ts",
+          "line": 65,
+          "originalPath": ":id"
+        },
+        {
+          "file": ".\\src\\modules\\store\\store.controller.ts",
+          "line": 94,
+          "originalPath": ":id"
+        },
+        {
+          "file": ".\\src\\modules\\vendor\\vendor.controller.ts",
+          "line": 89,
+          "originalPath": ":id"
+        }
+      ]
+    },
+    {
+      "key": "PATCH:{id}/status",
+      "method": "PATCH",
+      "normalizedPath": "{id}/status",
+      "occurrences": [
+        {
+          "file": ".\\src\\modules\\order\\order-cqrs.controller.ts",
+          "line": 88,
+          "originalPath": ":id/status"
+        },
+        {
+          "file": ".\\src\\modules\\vendor\\vendor.controller.ts",
+          "line": 105,
+          "originalPath": ":id/status"
+        }
+      ]
+    },
+    {
+      "key": "PATCH:me",
+      "method": "PATCH",
+      "normalizedPath": "me",
+      "occurrences": [
+        {
+          "file": ".\\src\\modules\\user\\user.controller.ts",
+          "line": 58,
+          "originalPath": "me"
+        },
+        {
+          "file": ".\\src\\modules\\vendor\\vendor.controller.ts",
+          "line": 74,
+          "originalPath": "me"
+        }
+      ]
+    },
+    {
+      "key": "PATCH:products/{id}",
+      "method": "PATCH",
+      "normalizedPath": "products/{id}",
+      "occurrences": [
+        {
+          "file": ".\\src\\modules\\merchant\\merchant.controller.ts",
+          "line": 235,
+          "originalPath": "products/:id"
+        },
+        {
+          "file": ".\\src\\modules\\store\\store.controller.ts",
+          "line": 155,
+          "originalPath": "products/:id"
+        }
+      ]
+    },
+    {
+      "key": "PATCH:profile",
+      "method": "PATCH",
+      "normalizedPath": "profile",
+      "occurrences": [
+        {
+          "file": ".\\src\\modules\\driver\\driver.controller.ts",
+          "line": 107,
+          "originalPath": "profile"
+        },
+        {
+          "file": ".\\src\\modules\\marketer\\marketer.controller.ts",
+          "line": 36,
+          "originalPath": "profile"
+        }
+      ]
+    },
+    {
+      "key": "POST:{id}/assign-driver",
+      "method": "POST",
+      "normalizedPath": "{id}/assign-driver",
+      "occurrences": [
+        {
+          "file": ".\\src\\modules\\order\\order-cqrs.controller.ts",
+          "line": 117,
+          "originalPath": ":id/assign-driver"
+        },
+        {
+          "file": ".\\src\\modules\\order\\order.controller.ts",
+          "line": 115,
+          "originalPath": ":id/assign-driver"
+        }
+      ]
+    },
+    {
+      "key": "POST:{id}/cancel",
+      "method": "POST",
+      "normalizedPath": "{id}/cancel",
+      "occurrences": [
+        {
+          "file": ".\\src\\modules\\order\\order-cqrs.controller.ts",
+          "line": 139,
+          "originalPath": ":id/cancel"
+        },
+        {
+          "file": ".\\src\\modules\\order\\order.controller.ts",
+          "line": 296,
+          "originalPath": ":id/cancel"
+        }
+      ]
+    },
+    {
+      "key": "POST:consent",
+      "method": "POST",
+      "normalizedPath": "consent",
+      "occurrences": [
+        {
+          "file": ".\\src\\modules\\auth\\auth.controller.ts",
+          "line": 61,
+          "originalPath": "consent"
+        },
+        {
+          "file": ".\\src\\modules\\legal\\legal.controller.ts",
+          "line": 81,
+          "originalPath": "consent"
+        }
+      ]
+    },
+    {
+      "key": "POST:products",
+      "method": "POST",
+      "normalizedPath": "products",
+      "occurrences": [
+        {
+          "file": ".\\src\\modules\\merchant\\merchant.controller.ts",
+          "line": 183,
+          "originalPath": "products"
+        },
+        {
+          "file": ".\\src\\modules\\store\\store.controller.ts",
+          "line": 68,
+          "originalPath": "products"
+        }
+      ]
+    },
+    {
+      "key": "POST:settlements",
+      "method": "POST",
+      "normalizedPath": "settlements",
+      "occurrences": [
+        {
+          "file": ".\\src\\modules\\finance\\finance.controller.ts",
+          "line": 239,
+          "originalPath": "settlements"
+        },
+        {
+          "file": ".\\src\\modules\\vendor\\vendor.controller.ts",
+          "line": 162,
+          "originalPath": "settlements"
+        }
+      ]
+    },
+    {
+      "key": "POST:wallet/transfer",
+      "method": "POST",
+      "normalizedPath": "wallet/transfer",
+      "occurrences": [
+        {
+          "file": ".\\src\\common\\config\\throttler.config.ts",
+          "line": 43,
+          "originalPath": "wallet/transfer"
+        },
+        {
+          "file": ".\\src\\common\\config\\throttler.config.ts",
+          "line": 49,
+          "originalPath": "wallet/transfer"
+        }
+      ]
+    }
+  ],
+  "status": "FAIL"
+}
