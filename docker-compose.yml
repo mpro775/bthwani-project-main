@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  # =========================================
+  # 🌐 1. Nginx Proxy Manager (The Gateway)
+  # =========================================
+  npm:
+    image: 'jc21/nginx-proxy-manager:latest'
+    container_name: bthwani-proxy
+    restart: unless-stopped
+    ports:
+      - '80:80'     # HTTP
+      - '443:443'   # HTTPS
+      - '81:81'     # Admin Panel
+    environment:
+      DB_SQLITE_FILE: "/data/database.sqlite"
+    volumes:
+      - ./npm-data:/data
+      - ./npm-letsencrypt:/etc/letsencrypt
+    networks:
+      - bthwani-network
+    healthcheck:
+      test: ["CMD", "/bin/check-health"]
+      interval: 10s
+      timeout: 3s
+
+  # =========================================
+  # 🔴 2. Redis (Cache & Queues)
+  # =========================================
+  redis:
+    image: redis:7-alpine
+    container_name: bthwani-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass "CHANGE_THIS_PASSWORD"
+    volumes:
+      - redis-data:/data
+    networks:
+      - bthwani-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "CHANGE_THIS_PASSWORD", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # =========================================
+  # ⚙️ 3. Backend API (api-bthwani)
+  # =========================================
+  backend:
+    build: ./backend
+    container_name: bthwani-backend
+    restart: unless-stopped
+    env_file: ./backend/.env
+    environment:
+      # إعدادات الاتصال الداخلية
+      - REDIS_HOST=bthwani-redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=CHANGE_THIS_PASSWORD
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - bthwani-network
+
+  # =========================================
+  # 💻 4. Website (Dashboard & Landing)
+  # =========================================
+  admin-dashboard:
+    build: ./admin-dashboard
+    container_name: bthwani-admin-dashboard
+    restart: unless-stopped
+    env_file: ./admin-dashboard/.env
+    networks:
+      - bthwani-network
+
+  # =========================================
+  # 📱 5. Web App (User Application)
+  # =========================================
+  bthwani-web:
+    build: ./bthwani-web
+    container_name: bthwani-webapp
+    restart: unless-stopped
+    env_file: ./bthwani-web/.env
+    networks:
+      - bthwani-network
+
+# =========================================
+# 🕸️ Network & Volumes
+# =========================================
+networks:
+  bthwani-network:
+    driver: bridge
+
+volumes:
+  npm-data:
+  npm-letsencrypt:
+  redis-data:
