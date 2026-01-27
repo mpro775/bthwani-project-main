@@ -29,16 +29,6 @@ const cacheRtl = createCache({
 Analytics.init();
 FeatureFlags.init();
 
-// Enable axe accessibility testing in development
-if (import.meta.env.DEV) {
-  // @ts-ignore - @axe-core/react is optional and may not be installed
-  import('@axe-core/react').then(({ default: axe }) => {
-    axe(React, ReactDOM, 1000);
-  }).catch(() => {
-    // Ignore if @axe-core/react is not installed
-  });
-}
-
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <SentryErrorBoundary

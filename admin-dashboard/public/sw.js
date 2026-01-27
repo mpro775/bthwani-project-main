@@ -3,15 +3,16 @@ const CACHE_NAME = "bithawani-v1.0.0";
 const STATIC_CACHE = "bithawani-static-v1";
 const DYNAMIC_CACHE = "bithawani-dynamic-v1";
 
-// Files to cache immediately
+// Files to cache immediately - فقط الملفات التي نعرف أنها موجودة
 const STATIC_FILES = [
   "/",
   "/index.html",
   "/manifest.json",
-  "/icons/icon-192x192.png",
-  "/icons/icon-512x512.png",
-  "/icons/apple-touch-icon.png",
   "/favicon.ico",
+  // الأيقونات - سنتحقق من وجودها قبل التخزين
+  "/icons/android-chrome-192x192.png",
+  "/icons/android-chrome-512x512.png",
+  "/icons/apple-touch-icon.png",
 ];
 
 // المسارات الشائعة للـ prefetch لتحسين الأداء
@@ -26,14 +27,9 @@ const COMMON_ROUTES = [
   "/admin/reports"
 ];
 
-// موارد إضافية للتخزين المؤقت الذكي
-const CRITICAL_RESOURCES = [
-  "/css/index-*.css",
-  "/js/index-*.js",
-  "/js/vendor-*.js",
-  "/js/mui-*.js",
-  "/fonts/*"
-];
+// موارد إضافية للتخزين المؤقت الذكي - سيتم جلبها ديناميكياً من manifest
+// لا نستخدم wildcards هنا لأنها لا تعمل مع fetch
+const CRITICAL_RESOURCES = [];
 
 // API endpoints to cache
 const API_CACHE_PATTERNS = [
@@ -50,43 +46,55 @@ self.addEventListener("install", (event) => {
       const cache = await caches.open(STATIC_CACHE);
       console.log("Service Worker: Caching static files");
 
-      // تخزين الملفات الثابتة الأساسية
-      await cache.addAll(STATIC_FILES);
+      // تخزين الملفات الثابتة الأساسية - مع معالجة الأخطاء
+      try {
+        // استخدام Promise.allSettled لتجنب فشل الكاش بالكامل إذا فشل ملف واحد
+        const cacheResults = await Promise.allSettled(
+          STATIC_FILES.map(url => 
+            cache.add(url).catch(err => {
+              console.log(`Service Worker: Failed to cache ${url}:`, err.message);
+              return null;
+            })
+          )
+        );
+        const successCount = cacheResults.filter(r => r.status === 'fulfilled' && r.value !== null).length;
+        console.log(`Service Worker: Successfully cached ${successCount}/${STATIC_FILES.length} static files`);
+      } catch (error) {
+        console.error("Service Worker: Error caching static files:", error);
+        // لا نرمي الخطأ - نستمر في العمل حتى لو فشل التخزين المؤقت
+      }
 
       // تخزين المسارات الشائعة للـ prefetch (تحسين الأداء)
+      // ملاحظة: نستخدم Promise.allSettled لتجنب فشل العملية بالكامل
       console.log("Service Worker: Prefetching common routes");
-      for (const route of COMMON_ROUTES) {
-        try {
-          // جلب المسار وتخزينه مؤقتاً لتحسين سرعة التحميل
-          const response = await fetch(route, {
-            cache: 'no-cache' // تجنب التخزين المؤقت للـ fetch هذا
-          });
-          if (response.ok) {
-            await cache.put(route, response);
-          }
-        } catch (error) {
-          console.log(`Service Worker: Failed to prefetch ${route}`);
-        }
-      }
-
-      // تخزين الموارد الحرجة إذا كانت متوفرة
-      for (const pattern of CRITICAL_RESOURCES) {
-        try {
-          const responses = await Promise.allSettled([
-            fetch(pattern.replace('*', 'index')).catch(() => null),
-            fetch(pattern.replace('*', 'vendor')).catch(() => null),
-            fetch(pattern.replace('*', 'mui')).catch(() => null)
-          ]);
-
-          for (const response of responses) {
-            if (response.status === 'fulfilled' && response.value?.ok) {
-              await cache.put(response.value.url, response.value);
+      const prefetchResults = await Promise.allSettled(
+        COMMON_ROUTES.map(async (route) => {
+          try {
+            const response = await fetch(route, {
+              cache: 'no-cache',
+              credentials: 'same-origin'
+            });
+            // فقط نخزن الردود الناجحة (200-299)
+            if (response.ok && response.status >= 200 && response.status < 300) {
+              await cache.put(route, response.clone());
+              return { route, success: true };
+            } else {
+              console.log(`Service Worker: Route ${route} returned status ${response.status}`);
+              return { route, success: false };
             }
+          } catch (error) {
+            console.log(`Service Worker: Failed to prefetch ${route}:`, error.message);
+            return { route, success: false, error: error.message };
           }
-        } catch (error) {
-          console.log(`Service Worker: Failed to cache critical resources: ${pattern}`);
-        }
-      }
+        })
+      );
+      const successfulPrefetches = prefetchResults.filter(r => 
+        r.status === 'fulfilled' && r.value?.success
+      ).length;
+      console.log(`Service Worker: Successfully prefetched ${successfulPrefetches}/${COMMON_ROUTES.length} routes`);
+
+      // الموارد الحرجة سيتم تخزينها تلقائياً عند الطلب (cache-first strategy)
+      // لا نحاول جلبها مسبقاً لأن أسماء الملفات تحتوي على hash وتتغير مع كل build
 
       // الانتقال إلى حالة التنشيط فوراً
       await self.skipWaiting();

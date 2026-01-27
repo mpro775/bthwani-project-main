@@ -25,7 +25,13 @@ export default defineConfig(({ mode }) => {
         "@hooks": resolve(__dirname, "src/hooks"),
       },
       // يمنع تحميل نسخ متعددة من React/Emotion (مهم للسرعة وتفادي hook errors)
-      dedupe: ["react", "react-dom", "@emotion/react", "@emotion/styled"],
+      dedupe: [
+        "react", 
+        "react-dom", 
+        "@emotion/react", 
+        "@emotion/styled",
+        "@tanstack/react-query"
+      ],
     },
 
     // اجعل إسقاط console/debugger للإنتاج فقط
@@ -36,6 +42,7 @@ export default defineConfig(({ mode }) => {
       include: [
         "react",
         "react-dom",
+        "@tanstack/react-query",
         "@mui/material",
         "@mui/icons-material",
         "@emotion/react",
@@ -92,25 +99,38 @@ export default defineConfig(({ mode }) => {
           chunkSizeWarningLimit: 500,
           assetsInlineLimit: 4096,
           rollupOptions: {
+            // الحفاظ على ترتيب التحميل الصحيح للـ chunks
+            preserveEntrySignatures: 'strict',
             output: {
               manualChunks: (id) => {
                 // تقسيم أكثر تفصيلاً للتحكم في حجم الـ bundles
                 if (id.includes('node_modules')) {
+                  // فصل React و React-DOM أولاً (يجب تحميلهما أولاً)
                   if (id.includes('react') || id.includes('react-dom')) {
                     return 'react-vendor';
                   }
+                  // فصل react-query مع React لتجنب مشاكل التهيئة
+                  if (id.includes('@tanstack/react-query') || id.includes('react-query')) {
+                    return 'react-vendor';
+                  }
+                  // فصل MUI و Emotion معاً (يجب تحميلهما بعد React)
+                  // ملاحظة: نضع MUI و Emotion في نفس الـ chunk لتجنب التبعيات الدائرية
                   if (id.includes('@mui') || id.includes('@emotion')) {
                     return 'mui-vendor';
                   }
+                  // فصل Firebase و Axios
                   if (id.includes('firebase') || id.includes('axios')) {
                     return 'firebase-vendor';
                   }
+                  // فصل مكتبات الرسوم المتحركة
                   if (id.includes('framer-motion') || id.includes('recharts')) {
                     return 'animation-vendor';
                   }
+                  // فصل مكتبات الخرائط
                   if (id.includes('leaflet') || id.includes('socket.io')) {
                     return 'maps-vendor';
                   }
+                  // باقي المكتبات
                   return 'other-vendor';
                 }
                 // تقسيم الكود الخاص بالتطبيق حسب الوحدات الرئيسية
@@ -135,6 +155,21 @@ export default defineConfig(({ mode }) => {
                 if (/woff|woff2|ttf|eot/i.test(ext)) return `fonts/[name]-[hash].[ext]`;
                 return `assets/[name]-[hash].[ext]`;
               },
+              // تحسين minification لتجنب مشاكل التهيئة
+              format: 'es',
+              generatedCode: {
+                constBindings: true,
+              },
+            },
+            // منع التبعيات الدائرية
+            onwarn(warning, warn) {
+              // تجاهل تحذيرات التبعيات الدائرية المعروفة
+              if (warning.code === 'CIRCULAR_DEPENDENCY') {
+                if (warning.message.includes('@mui') || warning.message.includes('@emotion')) {
+                  return;
+                }
+              }
+              warn(warning);
             },
           },
         }
