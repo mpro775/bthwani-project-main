@@ -28,8 +28,8 @@ RUN addgroup -g 1001 -S nodejs && \
 
 COPY package*.json ./
 
-# هنا فقط نثبت حزم الإنتاج
-RUN npm ci --only=production && npm cache clean --force
+# هنا فقط نثبت حزم الإنتاج (npm install + legacy-peer-deps لتجاوز تعارضات المكتبات)
+RUN npm install --production --legacy-peer-deps && npm cache clean --force
 
 # نسخ ملفات البناء
 COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist

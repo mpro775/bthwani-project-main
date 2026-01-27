@@ -2,7 +2,7 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci && npm cache clean --force
+RUN npm install --legacy-peer-deps && npm cache clean --force
 COPY . .
 # تأكد من أمر البناء الصحيح في package.json (غالباً build أو build:prod)
 RUN npm run build 
