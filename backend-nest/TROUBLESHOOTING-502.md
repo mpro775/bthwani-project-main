@@ -160,9 +160,44 @@ docker logs -f bthwani-backend
 - 🔄 **إعادة المحاولة:** Nginx Proxy Manager يحاول الاتصال تلقائياً
 - 📊 **Monitoring:** راقب الـ logs للتأكد من عدم وجود أخطاء
 
+## مشكلة: Cannot find module '/app/dist/main'
+
+إذا ظهرت هذه الرسالة في الـ logs، فهذا يعني أن عملية البناء فشلت أو أن ملفات البناء لم تُنسخ بشكل صحيح.
+
+### الحل:
+
+1. **إعادة البناء بدون cache:**
+   ```bash
+   # Linux/Mac
+   ./backend-nest/rebuild-backend.sh
+   
+   # Windows PowerShell
+   .\backend-nest\rebuild-backend.ps1
+   
+   # أو يدوياً:
+   docker-compose build --no-cache backend
+   docker-compose up -d backend
+   ```
+
+2. **فحص أخطاء البناء:**
+   ```bash
+   docker-compose build backend 2>&1 | tee build.log
+   ```
+
+3. **التحقق من وجود dist في builder stage:**
+   ```bash
+   docker build --target builder -t backend-builder ./backend-nest
+   docker run --rm backend-builder ls -la /app/dist/
+   ```
+
+4. **فحص ملفات tsconfig:**
+   - تأكد من وجود `tsconfig.json` و `tsconfig.build.json`
+   - تأكد من أن `outDir` في `tsconfig.json` هو `"./dist"`
+
 ## إذا استمرت المشكلة
 
 1. تحقق من ملف `.env` في `backend-nest/`
 2. تحقق من اتصال MongoDB و Redis
 3. راجع logs الباك إند للأخطاء
 4. تأكد من أن جميع المتغيرات البيئية صحيحة
+5. تحقق من أخطاء TypeScript في عملية البناء

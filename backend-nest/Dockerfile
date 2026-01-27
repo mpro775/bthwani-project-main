@@ -10,9 +10,24 @@ COPY package*.json ./
 # تثبيت كل الاعتماديات (بما فيها dev) للبناء — legacy-peer-deps لتجاوز تعارضات المكتبات
 RUN npm install --legacy-peer-deps && npm cache clean --force
 
+# نسخ ملفات الإعدادات أولاً
+COPY tsconfig*.json ./
+COPY nest-cli.json ./
+
+# نسخ باقي الملفات
 COPY . .
 
-RUN npm run build
+# بناء التطبيق مع التحقق من النجاح
+RUN echo "🔨 بدء عملية البناء..." && \
+    npm run build && \
+    echo "✅ البناء نجح!" || \
+    (echo "❌ Build failed!" && exit 1)
+
+# التحقق من وجود ملف dist/main.js
+RUN echo "🔍 التحقق من ملفات البناء..." && \
+    ls -la /app/dist/ && \
+    test -f /app/dist/main.js || \
+    (echo "❌ dist/main.js not found!" && ls -la /app/dist/ && exit 1)
 
 # ===================================
 # Production Stage
@@ -31,8 +46,12 @@ COPY package*.json ./
 # هنا فقط نثبت حزم الإنتاج (npm install + legacy-peer-deps لتجاوز تعارضات المكتبات)
 RUN npm install --production --legacy-peer-deps && npm cache clean --force
 
-# نسخ ملفات البناء
+# نسخ ملفات البناء مع التحقق
 COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
+
+# التحقق من وجود ملفات البناء بعد النسخ
+RUN test -f /app/dist/main.js || (echo "❌ dist/main.js not found after copy!" && exit 1)
+RUN ls -la /app/dist/ || (echo "❌ dist directory is empty!" && exit 1)
 
 USER nestjs
 
