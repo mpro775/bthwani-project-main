@@ -26,8 +26,8 @@ RUN echo "🔨 بدء عملية البناء..." && \
 # التحقق من وجود ملف dist/main.js
 RUN echo "🔍 التحقق من ملفات البناء..." && \
     ls -la /app/dist/ && \
-    test -f /app/dist/main.js || \
-    (echo "❌ dist/main.js not found!" && ls -la /app/dist/ && exit 1)
+    (test -f /app/dist/main.js || test -f /app/dist/src/main.js) || \
+    (echo "❌ dist/main.js or dist/src/main.js not found!" && ls -la /app/dist/ && exit 1)
 
 # ===================================
 # Production Stage
@@ -50,7 +50,8 @@ RUN npm install --production --legacy-peer-deps && npm cache clean --force
 COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
 
 # التحقق من وجود ملفات البناء بعد النسخ
-RUN test -f /app/dist/main.js || (echo "❌ dist/main.js not found after copy!" && exit 1)
+RUN (test -f /app/dist/main.js || test -f /app/dist/src/main.js) || \
+    (echo "❌ dist/main.js or dist/src/main.js not found after copy!" && ls -la /app/dist/ && exit 1)
 RUN ls -la /app/dist/ || (echo "❌ dist directory is empty!" && exit 1)
 
 USER nestjs
@@ -61,4 +62,5 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3000/health/liveness', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
-CMD ["node", "dist/main"]
+# استخدام المسار الصحيح بناءً على مكان الملف (بعد إضافة rootDir في tsconfig.json يجب أن يكون dist/main.js)
+CMD ["node", "dist/main.js"]
