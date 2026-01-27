@@ -94,6 +94,11 @@ export default defineConfig(({ mode }) => {
           cssCodeSplit: true,
           cssMinify: true,
           sourcemap: false,
+          // إعدادات إضافية لتحسين البناء
+          commonjsOptions: {
+            include: [/node_modules/],
+            transformMixedEsModules: true,
+          },
           outDir: "dist",
           emptyOutDir: true,
           chunkSizeWarningLimit: 500,
@@ -113,8 +118,8 @@ export default defineConfig(({ mode }) => {
                   if (id.includes('@tanstack/react-query') || id.includes('react-query')) {
                     return 'react-vendor';
                   }
-                  // فصل MUI و Emotion معاً (يجب تحميلهما بعد React)
-                  // ملاحظة: نضع MUI و Emotion في نفس الـ chunk لتجنب التبعيات الدائرية
+                  // وضع MUI و Emotion في نفس الـ chunk لتجنب التبعيات الدائرية
+                  // هذا يحل مشكلة "Cannot access 'qa' before initialization"
                   if (id.includes('@mui') || id.includes('@emotion')) {
                     return 'mui-vendor';
                   }
@@ -144,8 +149,8 @@ export default defineConfig(({ mode }) => {
                   return 'utils';
                 }
               },
-              chunkFileNames: `js/[name]-[hash].js`,
               entryFileNames: "js/[name]-[hash].js",
+              chunkFileNames: `js/[name]-[hash].js`,
               assetFileNames: (assetInfo) => {
                 const name = assetInfo.name || "";
                 const ext = name.split(".").pop() || "";
@@ -158,18 +163,39 @@ export default defineConfig(({ mode }) => {
               // تحسين minification لتجنب مشاكل التهيئة
               format: 'es',
               generatedCode: {
-                constBindings: true,
+                constBindings: false, // false لتجنب مشاكل التهيئة مع التبعيات الدائرية
               },
+              // إعدادات إضافية لضمان ترتيب التحميل الصحيح
+              interop: 'compat',
+              preserveModules: false,
             },
-            // منع التبعيات الدائرية
+            // معالجة التبعيات الدائرية والتحذيرات
             onwarn(warning, warn) {
-              // تجاهل تحذيرات التبعيات الدائرية المعروفة
+              // تجاهل تحذيرات التبعيات الدائرية المعروفة بين MUI و Emotion
               if (warning.code === 'CIRCULAR_DEPENDENCY') {
-                if (warning.message.includes('@mui') || warning.message.includes('@emotion')) {
-                  return;
+                const message = warning.message || '';
+                if (message.includes('@mui') || message.includes('@emotion')) {
+                  return; // تجاهل هذه التحذيرات
                 }
               }
+              // تجاهل تحذيرات أخرى غير حرجة
+              if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {
+                return;
+              }
               warn(warning);
+            },
+            // إعدادات إضافية لمعالجة التبعيات
+            external: [], // لا نضع أي شيء كـ external
+            treeshake: {
+              moduleSideEffects: (id) => {
+                // الحفاظ على side effects للمكتبات المهمة
+                if (id.includes('@emotion') || id.includes('@mui')) {
+                  return true;
+                }
+                return false;
+              },
+              propertyReadSideEffects: false,
+              tryCatchDeoptimization: false,
             },
           },
         }
