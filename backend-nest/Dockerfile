@@ -54,6 +54,11 @@ RUN (test -f /app/dist/main.js || test -f /app/dist/src/main.js) || \
     (echo "❌ dist/main.js or dist/src/main.js not found after copy!" && ls -la /app/dist/ && exit 1)
 RUN ls -la /app/dist/ || (echo "❌ dist directory is empty!" && exit 1)
 
+# إنشاء مجلد logs وإعطاء الصلاحيات للمستخدم nestjs
+RUN mkdir -p /app/logs && \
+    chown -R nestjs:nodejs /app/logs && \
+    chmod -R 755 /app/logs
+
 USER nestjs
 
 EXPOSE 3000
