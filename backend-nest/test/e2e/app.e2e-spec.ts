@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AppModule } from '../../src/app.module';
 import { setupTestDatabase, teardownTestDatabase } from '../setup';
 
@@ -31,7 +31,7 @@ describe('BThwani API E2E Tests (BTW-AUD-001)', () => {
 
   describe('Health Check', () => {
     it('should return 200 for health endpoint', () => {
-      return request(app.getHttpServer())
+      return request(app.getHttpServer() as any)
         .get('/health')
         .expect(200)
         .expect((res) => {
@@ -159,7 +159,7 @@ describe('BThwani API E2E Tests (BTW-AUD-001)', () => {
   describe('Security Features', () => {
     it('should enforce rate limiting', async () => {
       // Make multiple requests quickly
-      const promises = [];
+      const promises: Promise<any>[] = [];
       for (let i = 0; i < 15; i++) {
         promises.push(
           request(app.getHttpServer())
@@ -169,7 +169,7 @@ describe('BThwani API E2E Tests (BTW-AUD-001)', () => {
       }
 
       const responses = await Promise.all(promises);
-      const rateLimited = responses.some(res => res.status === 429);
+      const rateLimited = responses.some((res: any) => res.status === 429);
 
       // Should eventually hit rate limit
       expect(rateLimited).toBe(true);

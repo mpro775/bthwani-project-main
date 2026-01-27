@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -29,10 +29,10 @@ import { AmaniModule } from '../modules/amani/amani.module';
       { name: Order.name, schema: OrderSchema },
       { name: Amani.name, schema: AmaniSchema },
     ]),
-    // Driver Module للوصول لـ DriverService
-    DriverModule,
+    // Driver Module للوصول لـ DriverService (مع forwardRef لتجنب circular dependency)
+    forwardRef(() => DriverModule),
     // Amani Module للوصول لـ AmaniService
-    AmaniModule,
+    forwardRef(() => AmaniModule),
   ],
   providers: [OrderGateway, DriverGateway, NotificationGateway, AmaniGateway],
   exports: [OrderGateway, DriverGateway, NotificationGateway, AmaniGateway],

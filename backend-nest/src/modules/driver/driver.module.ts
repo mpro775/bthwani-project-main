@@ -20,7 +20,7 @@ import { GatewaysModule } from '../../gateways/gateways.module';
     JwtModule.register({}),
     forwardRef(() => WalletModule),
     forwardRef(() => OrderModule), // ✅ ربط مع OrderModule
-    GatewaysModule, // ✅ إضافة GatewaysModule للإشعارات الفورية
+    forwardRef(() => GatewaysModule), // ✅ إضافة GatewaysModule للإشعارات الفورية
   ],
   controllers: [DriverController],
   providers: [DriverService],
