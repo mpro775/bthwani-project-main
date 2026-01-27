@@ -99,8 +99,6 @@ export default defineConfig(({ mode }) => {
             include: [/node_modules/],
             transformMixedEsModules: true,
           },
-          // إعدادات إضافية لضمان تهيئة React بشكل صحيح
-          chunkSizeWarningLimit: 1000,
           outDir: "dist",
           emptyOutDir: true,
           chunkSizeWarningLimit: 500,
