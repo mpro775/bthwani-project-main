@@ -110,31 +110,43 @@ export default defineConfig(({ mode }) => {
               manualChunks: (id) => {
                 // تقسيم أكثر تفصيلاً للتحكم في حجم الـ bundles
                 if (id.includes('node_modules')) {
-                  // وضع React و React-DOM مع MUI و Emotion في نفس الـ chunk
-                  // هذا يضمن أن React متاح عندما تحتاجه MUI (useInsertionEffect)
+                  // وضع React و React-DOM مع جميع المكتبات التي تحتاج React في نفس الـ chunk
+                  // هذا يضمن أن React متاح دائماً عندما تحتاجه أي مكتبة
                   if (
                     id.includes('react') || 
                     id.includes('react-dom') ||
                     id.includes('@mui') || 
                     id.includes('@emotion') ||
+                    id.includes('react-router') ||
+                    id.includes('react-hook-form') ||
+                    id.includes('@hookform') ||
+                    id.includes('react-helmet') ||
+                    id.includes('react-toastify') ||
+                    id.includes('react-to-print') ||
+                    id.includes('@react-google-maps') ||
+                    id.includes('@hello-pangea') ||
                     id.includes('@tanstack/react-query') || 
-                    id.includes('react-query')
+                    id.includes('react-query') ||
+                    id.includes('notistack') ||
+                    id.includes('antd') ||
+                    id.includes('framer-motion') ||
+                    id.includes('recharts') ||
+                    id.includes('react-leaflet')
                   ) {
                     return 'react-vendor';
                   }
+                  
                   // فصل Firebase و Axios
                   if (id.includes('firebase') || id.includes('axios')) {
                     return 'firebase-vendor';
                   }
-                  // فصل مكتبات الرسوم المتحركة
-                  if (id.includes('framer-motion') || id.includes('recharts')) {
-                    return 'animation-vendor';
-                  }
+                  
                   // فصل مكتبات الخرائط
                   if (id.includes('leaflet') || id.includes('socket.io')) {
                     return 'maps-vendor';
                   }
-                  // باقي المكتبات
+                  
+                  // باقي المكتبات (لا تحتاج React)
                   return 'other-vendor';
                 }
                 // تقسيم الكود الخاص بالتطبيق حسب الوحدات الرئيسية
