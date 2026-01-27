@@ -24,7 +24,11 @@ import {
 import { useAuth } from "@/auth/AuthContext";
 import { silenceAuthPrompts } from "@/guards/authGate";
 import { RootStackParamList } from "@/types/navigation";
-import axiosInstance from "@/utils/api/axiosInstance";
+
+// استيراد ملفات الـ onboarding المحلية
+const onboarding1 = require("../../assets/onboarding/1758215488103-onboarding1.json");
+const onboarding2 = require("../../assets/onboarding/1758216387634-onboarding2.json");
+const onboarding3 = require("../../assets/onboarding/1758216512968-onboarding3.json");
 
 const { width: W, height: H } = Dimensions.get("window");
 const isRTL = I18nManager.isRTL;
@@ -61,15 +65,25 @@ type BackendSlide = {
 const t = (val?: BEText, lang: Lang = "ar") =>
   typeof val === "string" ? val : val?.[lang] ?? val?.ar ?? val?.en ?? "";
 
-/** محمّل لوتي من URL */
+/** محمّل لوتي من URL أو ملف محلي */
 const RemoteLottie: React.FC<{
-  url: string;
+  url?: string;
+  localSource?: any;
   width: number;
   height: number;
-}> = ({ url, width, height }) => {
-  const [json, setJson] = useState<any>(null);
+}> = ({ url, localSource, width, height }) => {
+  const [json, setJson] = useState<any>(localSource || null);
 
   useEffect(() => {
+    // إذا كان هناك ملف محلي، استخدمه مباشرة
+    if (localSource) {
+      setJson(localSource);
+      return;
+    }
+
+    // إذا كان هناك URL، اجلبه من الشبكة
+    if (!url) return;
+
     let mounted = true;
     (async () => {
       try {
@@ -99,26 +113,37 @@ const RemoteLottie: React.FC<{
     return () => {
       mounted = false;
     };
-  }, [url]);
+  }, [url, localSource]);
 
   if (!json) return <ActivityIndicator />;
   return <LottieView source={json} autoPlay loop style={{ width, height }} />;
 };
 
 /** عرض ميديا الشريحة مع مقاسات متجاوبة */
-const SlideMedia: React.FC<{ media?: Media; w: number; h: number }> = ({
+const SlideMedia: React.FC<{ 
+  media?: Media; 
+  localSource?: any;
+  w: number; 
+  h: number 
+}> = ({
   media,
+  localSource,
   w,
   h,
 }) => {
-  if (!media?.url) return null;
+  if (!media?.url && !localSource) return null;
   return (
     <View style={styles.lottieWrap}>
-      {media.type === "lottie" ? (
-        <RemoteLottie url={media.url} width={w} height={h} />
+      {media?.type === "lottie" || localSource ? (
+        <RemoteLottie 
+          url={media?.url} 
+          localSource={localSource}
+          width={w} 
+          height={h} 
+        />
       ) : (
         <Image
-          source={{ uri: media.url }}
+          source={{ uri: media?.url }}
           style={{ width: w, height: h, borderRadius: 16 }}
           resizeMode="contain"
         />
@@ -171,28 +196,51 @@ const RTLSubtitle: React.FC<{
   </Text>
 );
 
-/** يجلب الشرائح من /cms/onboarding */
-function useOnboardingFromBackend(lang: Lang = "ar") {
+/** يجلب الشرائح من الملفات المحلية */
+function useOnboardingFromLocal(lang: Lang = "ar") {
   const [slides, setSlides] = useState<BackendSlide[] | null>(null);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const resp = await axiosInstance.get<{ onboarding?: BackendSlide[] }>(
-        "/cms/onboarding",
+      // إنشاء الشرائح من الملفات المحلية
+      const localSlides: BackendSlide[] = [
         {
-          params: { lang },
-          headers: { "x-silent-401": "1" },
-          validateStatus: (s) => (s >= 200 && s < 300) || s === 304,
-        }
-      );
-      if (resp.status !== 304) {
-        setSlides(resp.data?.onboarding ?? []);
-      } else {
-        setSlides([]);
-      }
-    } catch {
+          key: "onboarding-1",
+          title: "مرحباً بك في بثواني",
+          subtitle: "تطبيق التوصيل والتسوق في اليمن",
+          media: {
+            type: "lottie",
+            url: "", // سيتم استخدام الملف المحلي مباشرة
+          },
+          order: 1,
+        },
+        {
+          key: "onboarding-2",
+          title: "تسوق بسهولة",
+          subtitle: "تصفح آلاف المنتجات من متاجر مختلفة",
+          media: {
+            type: "lottie",
+            url: "",
+          },
+          order: 2,
+        },
+        {
+          key: "onboarding-3",
+          title: "توصيل سريع",
+          subtitle: "احصل على طلباتك في أسرع وقت ممكن",
+          media: {
+            type: "lottie",
+            url: "",
+          },
+          order: 3,
+        },
+      ];
+
+      setSlides(localSlides);
+    } catch (error) {
+      console.error("Error loading local onboarding:", error);
       setSlides([]);
     } finally {
       setLoading(false);
@@ -229,7 +277,7 @@ const OnboardingScreen = () => {
   const containerPadding = 20;
   const maxContentWidth = screenWidth - 32;
 
-  const { slides, loading } = useOnboardingFromBackend("ar");
+  const { slides, loading } = useOnboardingFromLocal("ar");
 
   // كتم تنبيهات المصادقة أثناء الاستعراض
   const extendSilence = useCallback(() => {
@@ -288,7 +336,12 @@ const OnboardingScreen = () => {
       }];
     }
 
-    return arr.map((s) => {
+
+    return arr.map((s, index) => {
+      // تحديد الملف المحلي حسب الفهرس
+      const localSources = [onboarding1, onboarding2, onboarding3];
+      const localSource = localSources[index] || null;
+
       const content = (
         <View
           style={[
@@ -298,7 +351,12 @@ const OnboardingScreen = () => {
           ]}
         >
           <View style={styles.mediaCol}>
-            <SlideMedia media={s.media} w={mediaW} h={mediaH} />
+            <SlideMedia 
+              media={s.media} 
+              localSource={localSource}
+              w={mediaW} 
+              h={mediaH} 
+            />
           </View>
 
           <View

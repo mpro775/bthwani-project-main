@@ -1,11 +1,11 @@
 // src/utils/api/axiosInstance.ts
-import { refreshIdToken } from "@/api/authService";
-import { shouldSilenceAuthPrompts } from "@/guards/authGate";
-import { getAuthBanner } from "@/guards/bannerGateway";
+import { refreshIdToken } from "../../api/authService";
+import { shouldSilenceAuthPrompts } from "../../guards/authGate";
+import { getAuthBanner } from "../../guards/bannerGateway";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_URL } from "./config";
-import type { ApiResponse } from "@/types/api";
+import type { ApiResponse } from "../../types/api";
 
 const axiosInstance = axios.create({
   baseURL: API_URL,

@@ -2,7 +2,7 @@ import Constants from "expo-constants";
 
 // روابط API
 const LOCAL_API = "http://192.168.0.116:3000/api/v1";
-const PRODUCTION_API = "https://bthwani-backend-9u4r.onrender.com/api/v1";
+const PRODUCTION_API = "https://api-bthwani.smartagency-ye.com/api/v1";
 
 // قراءة hostUri
 const hostUri =
