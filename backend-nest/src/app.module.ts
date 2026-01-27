@@ -47,7 +47,6 @@ import { KenzChatModule } from './modules/kenz-chat/kenz-chat.module';
 import { KawaderChatModule } from './modules/kawader-chat/kawader-chat.module';
 import { MaaroufModule } from './modules/maarouf/maarouf.module';
 import { MaaroufChatModule } from './modules/maarouf-chat/maarouf-chat.module';
-import { MaaroufChatModule } from './modules/maarouf-chat/maarouf-chat.module';
 import { SanadModule } from './modules/sanad/sanad.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { FavoritesModule } from './modules/favorites/favorites.module';
@@ -81,10 +80,15 @@ import { envValidationSchema } from './config/env.validation';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
-        const uri = configService.get<string>('MONGODB_URI') || configService.get<string>('MONGO_URI') || 'mongodb://localhost:27017/bthwani';
-        
+        const uri =
+          configService.get<string>('MONGODB_URI') ||
+          configService.get<string>('MONGO_URI') ||
+          'mongodb://localhost:27017/bthwani';
+
         if (!uri || uri === 'mongodb://localhost:27017/bthwani') {
-          console.warn('⚠️  Warning: Using default MongoDB URI. Make sure MONGODB_URI is set in .env file');
+          console.warn(
+            '⚠️  Warning: Using default MongoDB URI. Make sure MONGODB_URI is set in .env file',
+          );
         } else {
           console.log('✅ MongoDB URI loaded from environment');
           console.log('🔗 Connecting to:', uri.replace(/:[^:@]+@/, ':****@'));
@@ -96,11 +100,11 @@ import { envValidationSchema } from './config/env.validation';
           serverSelectionTimeoutMS: 60000, // 60 seconds - increased significantly
           connectTimeoutMS: 60000, // 60 seconds
           socketTimeoutMS: 0, // No timeout - let it wait
-          
+
           // Connection pool
           maxPoolSize: 10,
           minPoolSize: 1, // Reduced from 2 to 1
-          
+
           // Reliability
           retryWrites: true,
           retryReads: true,
