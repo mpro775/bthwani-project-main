@@ -151,7 +151,8 @@ async function bootstrap() {
   SwaggerModule.setup('api/docs', app, document);
 
   const port = process.env.PORT || 3000;
-  await app.listen(port);
+  // الاستماع على 0.0.0.0 للسماح بالوصول من خارج الـ container
+  await app.listen(port, '0.0.0.0');
 
   // استخدام Logger بدلاً من console.log
   logger.log(
