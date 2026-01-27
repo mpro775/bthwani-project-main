@@ -110,18 +110,17 @@ export default defineConfig(({ mode }) => {
               manualChunks: (id) => {
                 // تقسيم أكثر تفصيلاً للتحكم في حجم الـ bundles
                 if (id.includes('node_modules')) {
-                  // فصل React و React-DOM أولاً (يجب تحميلهما أولاً)
-                  if (id.includes('react') || id.includes('react-dom')) {
+                  // وضع React و React-DOM مع MUI و Emotion في نفس الـ chunk
+                  // هذا يضمن أن React متاح عندما تحتاجه MUI (useInsertionEffect)
+                  if (
+                    id.includes('react') || 
+                    id.includes('react-dom') ||
+                    id.includes('@mui') || 
+                    id.includes('@emotion') ||
+                    id.includes('@tanstack/react-query') || 
+                    id.includes('react-query')
+                  ) {
                     return 'react-vendor';
-                  }
-                  // فصل react-query مع React لتجنب مشاكل التهيئة
-                  if (id.includes('@tanstack/react-query') || id.includes('react-query')) {
-                    return 'react-vendor';
-                  }
-                  // وضع MUI و Emotion في نفس الـ chunk لتجنب التبعيات الدائرية
-                  // هذا يحل مشكلة "Cannot access 'qa' before initialization"
-                  if (id.includes('@mui') || id.includes('@emotion')) {
-                    return 'mui-vendor';
                   }
                   // فصل Firebase و Axios
                   if (id.includes('firebase') || id.includes('axios')) {
@@ -150,7 +149,6 @@ export default defineConfig(({ mode }) => {
                 }
               },
               entryFileNames: "js/[name]-[hash].js",
-              chunkFileNames: `js/[name]-[hash].js`,
               assetFileNames: (assetInfo) => {
                 const name = assetInfo.name || "";
                 const ext = name.split(".").pop() || "";
@@ -168,6 +166,7 @@ export default defineConfig(({ mode }) => {
               // إعدادات إضافية لضمان ترتيب التحميل الصحيح
               interop: 'compat',
               preserveModules: false,
+              chunkFileNames: `js/[name]-[hash].js`,
             },
             // معالجة التبعيات الدائرية والتحذيرات
             onwarn(warning, warn) {

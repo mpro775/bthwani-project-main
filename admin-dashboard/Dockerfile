@@ -14,7 +14,10 @@ RUN npm install --legacy-peer-deps && npm cache clean --force
 # Copy source code
 COPY . .
 
-# Build the application
+# Clean any existing build artifacts and cache
+RUN rm -rf dist node_modules/.vite
+
+# Build the application with production mode
 RUN npm run build:prod
 
 # ===================================
