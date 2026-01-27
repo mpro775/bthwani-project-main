@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { InjectQueue } from '@nestjs/bull';
-import { Queue } from 'bull';
+import type { Queue } from 'bull';
 import { AmaniDriverAssignedEvent } from '../amani-driver-assigned.event';
 import { AmaniStatusChangedEvent } from '../amani-status-changed.event';
 import { AmaniGateway } from '../../../../gateways/amani.gateway';

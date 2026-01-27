@@ -42,10 +42,11 @@ export class ArabonService {
     }
 
     const cursorId = parseCursor(opts?.cursor);
-    const query = this.model.find(filter).sort({ _id: -1 }).limit(LIST_LIMIT + 1);
+    const queryFilter: any = { ...filter };
     if (cursorId) {
-      query.where('_id').lt(cursorId);
+      queryFilter._id = { $lt: cursorId };
     }
+    const query = this.model.find(queryFilter).sort({ _id: -1 }).limit(LIST_LIMIT + 1);
     const items = await query.exec();
     const hasMore = items.length > LIST_LIMIT;
     const resultItems = hasMore ? items.slice(0, -1) : items;
@@ -65,10 +66,11 @@ export class ArabonService {
     }
 
     const cursorId = parseCursor(opts?.cursor);
-    const query = this.model.find(filter).sort({ _id: -1 }).limit(LIST_LIMIT + 1);
+    const queryFilter: any = { ...filter };
     if (cursorId) {
-      query.where('_id').lt(cursorId);
+      queryFilter._id = { $lt: cursorId };
     }
+    const query = this.model.find(queryFilter).sort({ _id: -1 }).limit(LIST_LIMIT + 1);
     const items = await query.exec();
     const hasMore = items.length > LIST_LIMIT;
     const resultItems = hasMore ? items.slice(0, -1) : items;
@@ -102,10 +104,11 @@ export class ArabonService {
     }
 
     const cursorId = parseCursor(opts?.cursor);
-    const query = this.model.find(searchFilter).sort({ _id: -1 }).limit(LIST_LIMIT + 1);
+    const queryFilter: any = { ...searchFilter };
     if (cursorId) {
-      query.where('_id').lt(cursorId);
+      queryFilter._id = { $lt: cursorId };
     }
+    const query = this.model.find(queryFilter).sort({ _id: -1 }).limit(LIST_LIMIT + 1);
     const items = await query.exec();
     const hasMore = items.length > LIST_LIMIT;
     const resultItems = hasMore ? items.slice(0, -1) : items;
@@ -117,10 +120,11 @@ export class ArabonService {
 
   async list(filters: Record<string, unknown> = {}, cursor?: string, limit: number = 25) {
     const cursorId = parseCursor(cursor);
-    const query = this.model.find(filters).sort({ _id: -1 }).limit(limit + 1);
+    const queryFilter: any = { ...filters };
     if (cursorId) {
-      query.where('_id').lt(cursorId);
+      queryFilter._id = { $lt: cursorId };
     }
+    const query = this.model.find(queryFilter).sort({ _id: -1 }).limit(limit + 1);
     const items = await query.exec();
     const hasMore = items.length > limit;
     const resultItems = hasMore ? items.slice(0, -1) : items;
@@ -177,18 +181,19 @@ export class ArabonService {
 
   async getActivity(arabonId: string, opts: { cursor?: string } = {}) {
     const cursorId = parseCursor(opts?.cursor);
+    const queryFilter: any = { arabonId: new Types.ObjectId(arabonId) };
+    if (cursorId) {
+      queryFilter._id = { $lt: cursorId };
+    }
     const query = this.statusLogModel
-      .find({ arabonId: new Types.ObjectId(arabonId) })
+      .find(queryFilter)
       .sort({ createdAt: -1 })
       .limit(LIST_LIMIT + 1);
-    if (cursorId) {
-      query.where('_id').lt(cursorId);
-    }
     const items = await query.lean().exec();
     const hasMore = items.length > LIST_LIMIT;
     const resultItems = hasMore ? items.slice(0, -1) : items;
     const nextCursor =
-      hasMore && resultItems.length ? String((resultItems[resultItems.length - 1] as { _id: Types.ObjectId })._id) : null;
+      hasMore && resultItems.length ? String((resultItems[resultItems.length - 1] as any)._id) : null;
     return { items: resultItems, nextCursor };
   }
 

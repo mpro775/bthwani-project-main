@@ -130,6 +130,85 @@ export class WalletService {
     });
   }
 
+  // إضافة رصيد (Credit)
+  private async credit(
+    userId: string,
+    amount: number,
+    method: string,
+    description?: string,
+    meta?: Record<string, unknown>,
+    session?: ClientSession,
+  ) {
+    const [transaction] = await this.walletTransactionModel.create(
+      [
+        {
+          userId: new Types.ObjectId(userId),
+          userModel: 'User',
+          amount,
+          type: 'credit',
+          method,
+          status: 'completed',
+          description,
+          meta,
+        },
+      ],
+      { session },
+    );
+
+    await this.updateUserWalletBalance(userId, amount, 'credit', session);
+
+    return transaction;
+  }
+
+  // خصم رصيد (Debit)
+  private async debit(
+    userId: string,
+    amount: number,
+    method: string,
+    description?: string,
+    meta?: Record<string, unknown>,
+    session?: ClientSession,
+  ) {
+    const user = session
+      ? await this.userModel.findById(userId).session(session)
+      : await this.userModel.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException({
+        code: 'USER_NOT_FOUND',
+        message: 'User not found',
+        userMessage: 'المستخدم غير موجود',
+      });
+    }
+
+    // التحقق من الرصيد
+    WalletHelper.validateBalance(
+      user.wallet.balance,
+      user.wallet.onHold,
+      amount,
+    );
+
+    const [transaction] = await this.walletTransactionModel.create(
+      [
+        {
+          userId: new Types.ObjectId(userId),
+          userModel: 'User',
+          amount,
+          type: 'debit',
+          method,
+          status: 'completed',
+          description,
+          meta,
+        },
+      ],
+      { session },
+    );
+
+    await this.updateUserWalletBalance(userId, amount, 'debit', session);
+
+    return transaction;
+  }
+
   // جلب سجل المعاملات مع Cursor Pagination
   async getTransactions(userId: string, pagination: CursorPaginationDto) {
     return PaginationHelper.paginate(
@@ -467,66 +546,6 @@ export class WalletService {
         { id: 'cash', name: 'نقداً', minAmount: 100, maxAmount: 2000 },
       ],
     };
-  }
-
-  // ==================== Coupons ====================
-
-  async applyCoupon(_userId: string, _code: string, _amount?: number) {
-    void _userId;
-    void _code;
-    void _amount; // TODO: Implement Coupon model and validation
-    await Promise.resolve();
-    return { success: true, discount: 0, message: 'الكوبون غير صالح' };
-  }
-
-  async validateCoupon(_userId: string, _code: string) {
-    void _userId;
-    void _code; // TODO: Implement
-    await Promise.resolve();
-    return { valid: false, discount: 0 };
-  }
-
-  async getMyCoupons(_userId: string) {
-    void _userId; // TODO: Implement
-    await Promise.resolve();
-    return { data: [] };
-  }
-
-  async getCouponHistory(_userId: string, _pagination: CursorPaginationDto) {
-    void _userId;
-    void _pagination; // TODO: Implement
-    await Promise.resolve();
-    return {
-      data: [],
-      pagination: { nextCursor: null, hasMore: false, limit: 20 },
-    };
-  }
-
-  // ==================== Subscriptions ====================
-
-  async subscribe(_userId: string, _planId: string, _autoRenew?: boolean) {
-    void _userId;
-    void _planId;
-    void _autoRenew; // TODO: Implement Subscription model
-    await Promise.resolve();
-    return {
-      success: true,
-      message: 'تم الاشتراك بنجاح',
-      subscriptionId: 'sub_' + Date.now(),
-    };
-  }
-
-  async getMySubscriptions(_userId: string) {
-    void _userId; // TODO: Implement
-    await Promise.resolve();
-    return { data: [] };
-  }
-
-  async cancelSubscription(_subscriptionId: string, _userId: string) {
-    void _subscriptionId;
-    void _userId; // TODO: Implement
-    await Promise.resolve();
-    return { success: true, message: 'تم إلغاء الاشتراك' };
   }
 
   // ==================== Pay Bills ====================
@@ -1133,8 +1152,8 @@ export class WalletService {
         email: user.email,
         phone: user.phone,
         profileImage: user.profileImage,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
+        createdAt: (user as any).createdAt,
+        updatedAt: (user as any).updatedAt,
       },
       wallet: {
         balance: user.wallet?.balance || 0,
@@ -1145,7 +1164,7 @@ export class WalletService {
         loyaltyPoints: user.wallet?.loyaltyPoints || 0,
         savings: user.wallet?.savings || 0,
         currency: user.wallet?.currency || 'YER',
-        lastUpdated: user.wallet?.lastUpdated || user.createdAt,
+        lastUpdated: user.wallet?.lastUpdated || ((user as any).createdAt || new Date()),
       },
       recentTransactions,
     };
@@ -1190,7 +1209,12 @@ export class WalletService {
     }
 
     // تطبيق الكوبون (زيادة العداد)
-    await this.couponService.apply(validation.couponId, userId);
+    await this.couponService.apply(
+      typeof validation.couponId === 'string' 
+        ? validation.couponId 
+        : String(validation.couponId),
+      userId,
+    );
 
     // إضافة المبلغ إلى المحفظة كإيداع
     if (validation.discountAmount && validation.discountAmount > 0) {
@@ -1278,7 +1302,7 @@ export class WalletService {
       data: transactions.map((t) => ({
         code: t.meta?.couponCode,
         discount: t.amount,
-        appliedAt: t.createdAt,
+        appliedAt: (t as any).createdAt,
         status: t.status,
       })),
       message: transactions.length > 0 ? 'تم جلب السجل بنجاح' : 'لا يوجد سجل قسائم',
@@ -1349,7 +1373,9 @@ export class WalletService {
       success: true,
       message: 'تم الاشتراك بنجاح',
       subscription: {
-        _id: subscription._id,
+        _id: typeof subscription._id === 'string' 
+          ? subscription._id 
+          : String(subscription._id),
         plan: subscription.plan,
         amount: subscription.amountPaid,
         status: subscription.status,
@@ -1388,7 +1414,7 @@ export class WalletService {
     // التحقق من أن الاشتراك يخص المستخدم
     const subscription = await this.contentService.getMySubscription(userId);
 
-    if (!subscription || subscription._id.toString() !== subscriptionId) {
+    if (!subscription || String(subscription._id) !== subscriptionId) {
       throw new NotFoundException({
         code: 'SUBSCRIPTION_NOT_FOUND',
         message: 'Subscription not found',

@@ -82,7 +82,7 @@ export class KawaderChatService {
       .sort({ lastMessageAt: -1, updatedAt: -1 });
 
     if (cursor) {
-      query.where('_id').lt(new Types.ObjectId(cursor));
+      query.where('_id').lt(new Types.ObjectId(cursor) as any);
     }
 
     query.limit(limit + 1);
@@ -186,7 +186,7 @@ export class KawaderChatService {
       .sort({ createdAt: -1 });
 
     if (cursor) {
-      query.where('_id').lt(new Types.ObjectId(cursor));
+      query.where('_id').lt(new Types.ObjectId(cursor) as any);
     }
 
     query.limit(limit + 1);

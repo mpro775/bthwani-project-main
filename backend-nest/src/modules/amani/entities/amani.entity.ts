@@ -152,7 +152,7 @@ export class Amani extends Document {
 
   @ApiProperty({
     description: 'تقييم الخدمة',
-    type: 'object',
+    type: Object,
     required: false
   })
   @Prop({ type: Object })
@@ -165,7 +165,7 @@ export class Amani extends Document {
 
   @ApiProperty({
     description: 'موقع السائق الحالي',
-    type: 'object',
+    type: Object,
     required: false
   })
   @Prop({ type: Object })

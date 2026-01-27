@@ -192,6 +192,14 @@ export class KenzChatGateway
         dto,
       );
 
+      if (!message) {
+        client.emit('error', {
+          code: 'MESSAGE_SEND_FAILED',
+          userMessage: 'فشل إرسال الرسالة',
+        });
+        return;
+      }
+
       // إرسال الرسالة للطرف الآخر
       const conversation = await this.kenzChatService.getConversationById(
         data.conversationId,

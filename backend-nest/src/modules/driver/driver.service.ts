@@ -348,13 +348,14 @@ export class DriverService {
 
     // 4. إذا كان للسائق موقع، احسب المسافة وفلتر حسب القرب
     if (driver.currentLocation) {
+      const currentLoc = driver.currentLocation;
       const ordersWithDistance = orders
         .map((order: any) => {
           if (order.address?.location) {
             const distance = this.calculateDistance(
               {
-                lat: driver.currentLocation.lat,
-                lng: driver.currentLocation.lng,
+                lat: currentLoc.lat,
+                lng: currentLoc.lng,
               },
               {
                 lat: order.address.location.lat,

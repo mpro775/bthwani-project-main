@@ -109,7 +109,7 @@ export class AmaniService {
     this.eventEmitter.emit(
       'amani.driver.assigned',
       new AmaniDriverAssignedEvent(
-        savedAmani._id.toString(),
+        String(savedAmani._id),
         dto.driverId,
         savedAmani.ownerId.toString(),
       ),
@@ -175,7 +175,7 @@ export class AmaniService {
     // تعيين أقرب سائق
     const nearestDriver = driversWithDistance[0].driver;
     return this.assignDriver(id, {
-      driverId: nearestDriver._id.toString(),
+      driverId: String(nearestDriver._id),
       note: 'تم التعيين تلقائياً - أقرب سائق متاح',
     });
   }
@@ -221,7 +221,7 @@ export class AmaniService {
     this.eventEmitter.emit(
       'amani.status.changed',
       new AmaniStatusChangedEvent(
-        savedAmani._id.toString(),
+        String(savedAmani._id),
         oldStatus,
         dto.status,
         updatedBy,
