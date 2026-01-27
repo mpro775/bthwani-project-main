@@ -136,10 +136,6 @@ export default defineConfig(({ mode }) => {
                 return `assets/[name]-[hash].[ext]`;
               },
             },
-            // إضافة external للمكتبات الكبيرة التي يمكن تحميلها من CDN
-            external: (id) => {
-              return ['react', 'react-dom'].includes(id);
-            },
           },
         }
       : undefined,
