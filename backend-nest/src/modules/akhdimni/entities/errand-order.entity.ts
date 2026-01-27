@@ -151,7 +151,7 @@ export class ErrandOrder extends Document {
 export const ErrandOrderSchema = SchemaFactory.createForClass(ErrandOrder);
 
 // Indexes
-ErrandOrderSchema.index({ orderNumber: 1 }, { unique: true });
+// Note: orderNumber index is automatically created by unique: true in @Prop decorator
 ErrandOrderSchema.index({ user: 1, createdAt: -1 });
 ErrandOrderSchema.index({ driver: 1, status: 1 });
 ErrandOrderSchema.index({ status: 1, createdAt: -1 });

@@ -100,5 +100,5 @@ export const UtilityPricingSchema =
   SchemaFactory.createForClass(UtilityPricing);
 
 // Indexes
-UtilityPricingSchema.index({ city: 1 }, { unique: true });
+// Note: city index is automatically created by unique: true in @Prop decorator
 UtilityPricingSchema.index({ isActive: 1 });

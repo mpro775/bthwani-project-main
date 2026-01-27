@@ -47,7 +47,7 @@ export const ChartOfAccountsSchema =
   SchemaFactory.createForClass(ChartOfAccounts);
 
 // Indexes
-ChartOfAccountsSchema.index({ accountCode: 1 }, { unique: true });
+// Note: accountCode index is automatically created by unique: true in @Prop decorator
 ChartOfAccountsSchema.index({ accountType: 1 });
 ChartOfAccountsSchema.index({ parent: 1 });
 ChartOfAccountsSchema.index({ isActive: 1 });

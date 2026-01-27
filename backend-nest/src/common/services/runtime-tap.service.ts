@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as os from 'os';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -19,17 +20,50 @@ interface RuntimeEndpointCall {
 export class RuntimeTapService {
   private readonly logger = new Logger(RuntimeTapService.name);
   private readonly tapData: Map<string, RuntimeEndpointCall[]> = new Map();
-  private readonly reportsDir = path.join(process.cwd(), 'reports');
-  private readonly tapFile = path.join(this.reportsDir, 'runtime-tap-24h.json');
+  private readonly reportsDir: string;
+  private readonly tapFile: string;
 
   constructor() {
-    // Ensure reports directory exists
-    if (!fs.existsSync(this.reportsDir)) {
-      fs.mkdirSync(this.reportsDir, { recursive: true });
+    // Try to use reports directory, fallback to /tmp if permission denied
+    const defaultReportsDir = path.join(process.cwd(), 'reports');
+    const fallbackReportsDir = path.join(os.tmpdir(), 'bthwani-reports');
+    
+    this.reportsDir = this.ensureDirectory(defaultReportsDir) 
+      ? defaultReportsDir 
+      : fallbackReportsDir;
+    
+    // Ensure fallback directory exists if we're using it
+    if (this.reportsDir === fallbackReportsDir) {
+      this.ensureDirectory(fallbackReportsDir);
     }
+    
+    this.tapFile = path.join(this.reportsDir, 'runtime-tap-24h.json');
 
     // Load existing tap data if available
     this.loadExistingData();
+  }
+
+  /**
+   * Ensure directory exists, return true if successful
+   */
+  private ensureDirectory(dirPath: string): boolean {
+    try {
+      if (!fs.existsSync(dirPath)) {
+        fs.mkdirSync(dirPath, { recursive: true });
+      }
+      return true;
+    } catch (error: any) {
+      if (error.code === 'EACCES' || error.code === 'EPERM') {
+        this.logger.warn(
+          `Permission denied creating directory: ${dirPath}. Will use fallback directory.`,
+        );
+      } else {
+        this.logger.warn(
+          `Failed to create directory: ${dirPath}. Error: ${error.message}`,
+        );
+      }
+      return false;
+    }
   }
 
   /**
@@ -128,36 +162,48 @@ export class RuntimeTapService {
    * Generate comparison report
    */
   async generateComparisonReport(): Promise<void> {
-    const comparison = await this.compareWithFEStaticAnalysis();
-    const report = {
-      generatedAt: new Date().toISOString(),
-      period: '24 hours',
-      backendEndpoints: {
-        total: this.getRecordedEndpoints().length,
-        matched: comparison.matched.length,
-        unmatched: comparison.unmatched.length,
-      },
-      frontendEndpoints: {
-        total: comparison.matched.length + comparison.feOnly.length,
-        matched: comparison.matched.length,
-        unmatched: comparison.feOnly.length,
-      },
-      details: {
-        matched: comparison.matched,
-        unmatched: comparison.unmatched,
-        feOnly: comparison.feOnly,
-      },
-      summary: {
-        coverage: comparison.matched.length / (comparison.matched.length + comparison.feOnly.length) * 100,
-        unused: comparison.unmatched.length,
-        missing: comparison.feOnly.length,
-      },
-    };
+    try {
+      // Ensure directory exists before writing
+      if (!fs.existsSync(this.reportsDir)) {
+        if (!this.ensureDirectory(this.reportsDir)) {
+          this.logger.warn('Cannot generate comparison report: directory creation failed');
+          return;
+        }
+      }
 
-    const reportPath = path.join(this.reportsDir, 'runtime-fe-comparison.json');
-    fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
+      const comparison = await this.compareWithFEStaticAnalysis();
+      const report = {
+        generatedAt: new Date().toISOString(),
+        period: '24 hours',
+        backendEndpoints: {
+          total: this.getRecordedEndpoints().length,
+          matched: comparison.matched.length,
+          unmatched: comparison.unmatched.length,
+        },
+        frontendEndpoints: {
+          total: comparison.matched.length + comparison.feOnly.length,
+          matched: comparison.matched.length,
+          unmatched: comparison.feOnly.length,
+        },
+        details: {
+          matched: comparison.matched,
+          unmatched: comparison.unmatched,
+          feOnly: comparison.feOnly,
+        },
+        summary: {
+          coverage: comparison.matched.length / (comparison.matched.length + comparison.feOnly.length) * 100,
+          unused: comparison.unmatched.length,
+          missing: comparison.feOnly.length,
+        },
+      };
 
-    this.logger.log(`Runtime-FE comparison report generated: ${reportPath}`);
+      const reportPath = path.join(this.reportsDir, 'runtime-fe-comparison.json');
+      fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
+
+      this.logger.log(`Runtime-FE comparison report generated: ${reportPath}`);
+    } catch (error) {
+      this.logger.error('Failed to generate comparison report:', error);
+    }
   }
 
   /**
@@ -166,6 +212,14 @@ export class RuntimeTapService {
   @Cron('0 */5 * * * *') // Every 5 minutes
   private saveTapData(): void {
     try {
+      // Ensure directory exists before writing
+      if (!fs.existsSync(this.reportsDir)) {
+        if (!this.ensureDirectory(this.reportsDir)) {
+          this.logger.warn('Cannot save tap data: directory creation failed');
+          return;
+        }
+      }
+
       const data = {
         lastUpdated: new Date().toISOString(),
         endpoints: Array.from(this.tapData.entries()).map(([key, calls]) => ({

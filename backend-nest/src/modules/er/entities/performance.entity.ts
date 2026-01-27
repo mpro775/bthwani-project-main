@@ -61,7 +61,7 @@ export const PerformanceReviewSchema =
   SchemaFactory.createForClass(PerformanceReview);
 
 // Indexes
-PerformanceReviewSchema.index({ reviewNumber: 1 }, { unique: true });
+// Note: reviewNumber index is automatically created by unique: true in @Prop decorator
 PerformanceReviewSchema.index({ employee: 1, reviewDate: -1 });
 PerformanceReviewSchema.index({ reviewer: 1 });
 PerformanceReviewSchema.index({ status: 1 });

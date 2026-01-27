@@ -48,6 +48,6 @@ export class Attribute extends Document {
 export const AttributeSchema = SchemaFactory.createForClass(Attribute);
 
 // Indexes
-AttributeSchema.index({ name: 1 }, { unique: true });
+// Note: name index is automatically created by unique: true in @Prop decorator
 AttributeSchema.index({ isActive: 1 });
 AttributeSchema.index({ order: 1 });

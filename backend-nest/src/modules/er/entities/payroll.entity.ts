@@ -85,7 +85,7 @@ export class Payroll extends Document {
 export const PayrollSchema = SchemaFactory.createForClass(Payroll);
 
 // Compound Indexes
-PayrollSchema.index({ payrollNumber: 1 }, { unique: true });
+// Note: payrollNumber index is automatically created by unique: true in @Prop decorator
 PayrollSchema.index({ employee: 1, year: -1, month: -1 });
 PayrollSchema.index({ status: 1, createdAt: -1 });
 PayrollSchema.index({ year: 1, month: 1 });

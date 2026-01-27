@@ -76,7 +76,7 @@ export class JournalEntry extends Document {
 export const JournalEntrySchema = SchemaFactory.createForClass(JournalEntry);
 
 // Indexes
-JournalEntrySchema.index({ entryNumber: 1 }, { unique: true });
+// Note: entryNumber index is automatically created by unique: true in @Prop decorator
 JournalEntrySchema.index({ date: -1 });
 JournalEntrySchema.index({ status: 1 });
 JournalEntrySchema.index({ type: 1 });

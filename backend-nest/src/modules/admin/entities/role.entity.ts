@@ -46,6 +46,6 @@ export class Role extends Document {
 export const RoleSchema = SchemaFactory.createForClass(Role);
 
 // Indexes
-RoleSchema.index({ name: 1 }, { unique: true });
+// Note: name index is automatically created by unique: true in @Prop decorator
 RoleSchema.index({ isActive: 1 });
 RoleSchema.index({ users: 1 });

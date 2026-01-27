@@ -228,9 +228,9 @@ export const UserSchema = SchemaFactory.createForClass(User);
 // ==================== Indexes - محسّنة للأداء ====================
 
 // Basic Indexes (من المشروع القديم)
-UserSchema.index({ email: 1 });
+// Note: email index is automatically created by unique: true in @Prop decorator
 UserSchema.index({ phone: 1 });
-UserSchema.index({ firebaseUID: 1 });
+// Note: firebaseUID index is automatically created by unique: true in @Prop decorator
 UserSchema.index({ createdAt: -1 });
 UserSchema.index({ role: 1, isActive: 1 });
 

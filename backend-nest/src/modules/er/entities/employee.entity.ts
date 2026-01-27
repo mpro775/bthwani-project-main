@@ -89,8 +89,8 @@ export class Employee extends Document {
 export const EmployeeSchema = SchemaFactory.createForClass(Employee);
 
 // Indexes
-EmployeeSchema.index({ employeeId: 1 }, { unique: true });
-EmployeeSchema.index({ email: 1 }, { unique: true });
+// Note: employeeId index is automatically created by unique: true in @Prop decorator
+// Note: email index is automatically created by unique: true in @Prop decorator
 EmployeeSchema.index({ department: 1, status: 1 });
 EmployeeSchema.index({ manager: 1 });
 EmployeeSchema.index({ status: 1 });

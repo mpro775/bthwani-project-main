@@ -85,7 +85,7 @@ export class Vendor extends Document {
 export const VendorSchema = SchemaFactory.createForClass(Vendor);
 
 // Indexes
-VendorSchema.index({ phone: 1 });
+// Note: phone index is automatically created by unique: true in @Prop decorator
 VendorSchema.index({ store: 1 });
 VendorSchema.index({ createdByMarketerUid: 1, createdAt: -1 });
 VendorSchema.index({ isActive: 1 });

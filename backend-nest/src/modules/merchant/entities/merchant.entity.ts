@@ -58,8 +58,8 @@ export class Merchant extends Document {
 export const MerchantSchema = SchemaFactory.createForClass(Merchant);
 
 // Indexes
-MerchantSchema.index({ email: 1 }, { unique: true });
-MerchantSchema.index({ phone: 1 }, { unique: true, sparse: true });
+// Note: email index is automatically created by unique: true in @Prop decorator
+// Note: phone index is automatically created by unique: true in @Prop decorator
 MerchantSchema.index({ isActive: 1 });
 MerchantSchema.index({ vendor: 1 });
 MerchantSchema.index({ store: 1 });

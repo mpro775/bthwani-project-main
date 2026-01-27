@@ -144,8 +144,8 @@ export class Driver extends Document {
 export const DriverSchema = SchemaFactory.createForClass(Driver);
 
 // Indexes
-DriverSchema.index({ email: 1 });
-DriverSchema.index({ phone: 1 });
+// Note: email index is automatically created by unique: true in @Prop decorator
+// Note: phone index is automatically created by unique: true in @Prop decorator
 DriverSchema.index({ isAvailable: 1 });
 DriverSchema.index({ vehicleClass: 1, vehiclePower: 1 });
 DriverSchema.index({ driverType: 1 });

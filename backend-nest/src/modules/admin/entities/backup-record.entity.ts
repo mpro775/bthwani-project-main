@@ -97,7 +97,7 @@ export class BackupRecord extends Document {
 export const BackupRecordSchema = SchemaFactory.createForClass(BackupRecord);
 
 // Indexes
-BackupRecordSchema.index({ backupId: 1 }, { unique: true });
+// Note: backupId index is automatically created by unique: true in @Prop decorator
 BackupRecordSchema.index({ status: 1, createdAt: -1 });
 BackupRecordSchema.index({ createdBy: 1 });
 BackupRecordSchema.index({ expiresAt: 1 });
