@@ -186,14 +186,18 @@ export class DatabaseIndexService implements OnModuleInit {
       try {
         const db = this.connection.db;
         if (!db) {
-          this.logger.error(`Database connection not available for index creation`);
+          this.logger.error(
+            `Database connection not available for index creation`,
+          );
           continue;
         }
 
         const collection = db.collection(index.collection);
 
         // Check if collection exists first
-        const collections = await db.listCollections({ name: index.collection }).toArray();
+        const collections = await db
+          .listCollections({ name: index.collection })
+          .toArray();
         if (collections.length === 0) {
           // Collection doesn't exist yet - skip silently (will be created on first document insert)
           skipped++;
@@ -202,8 +206,8 @@ export class DatabaseIndexService implements OnModuleInit {
 
         // Check if index already exists
         const existingIndexes = await collection.indexes();
-        const indexExists = existingIndexes.some(idx =>
-          this.compareIndexes(idx.key, index.fields)
+        const indexExists = existingIndexes.some((idx) =>
+          this.compareIndexes(idx.key, index.fields),
         );
 
         if (indexExists) {
@@ -219,24 +223,28 @@ export class DatabaseIndexService implements OnModuleInit {
 
         created++;
         this.logger.log(
-          `✅ Created index on ${index.collection}: ${JSON.stringify(index.fields)}`
+          `✅ Created index on ${index.collection}: ${JSON.stringify(index.fields)}`,
         );
-
       } catch (error) {
         // Skip "ns does not exist" errors silently
-        if (error.message.includes('ns does not exist') || error.codeName === 'NamespaceNotFound') {
+        if (
+          error.message.includes('ns does not exist') ||
+          error.codeName === 'NamespaceNotFound'
+        ) {
           skipped++;
           continue;
         }
-        
+
         this.logger.warn(
-          `⚠️  Could not create index on ${index.collection}: ${error.message}`
+          `⚠️  Could not create index on ${index.collection}: ${error.message}`,
         );
       }
     }
 
     if (created > 0 || existing > 0) {
-      this.logger.log(`✅ Index check complete: ${created} created, ${existing} already existed${skipped > 0 ? `, ${skipped} skipped (collections not created yet)` : ''}`);
+      this.logger.log(
+        `✅ Index check complete: ${created} created, ${existing} already existed${skipped > 0 ? `, ${skipped} skipped (collections not created yet)` : ''}`,
+      );
     }
   }
 
@@ -247,7 +255,9 @@ export class DatabaseIndexService implements OnModuleInit {
     try {
       const db = this.connection.db;
       if (!db) {
-        this.logger.warn('Database connection not available for slow query analysis');
+        this.logger.warn(
+          'Database connection not available for slow query analysis',
+        );
         return [];
       }
 
@@ -273,7 +283,6 @@ export class DatabaseIndexService implements OnModuleInit {
       }
 
       return recommendations;
-
     } catch (error) {
       this.logger.error('Failed to analyze slow queries:', error);
       return [];
@@ -290,8 +299,8 @@ export class DatabaseIndexService implements OnModuleInit {
       const sortDoc = query.orderby || {};
 
       // Extract fields from query
-      const queryFields = Object.keys(queryDoc).filter(key =>
-        !key.startsWith('$') && queryDoc[key] !== null
+      const queryFields = Object.keys(queryDoc).filter(
+        (key) => !key.startsWith('$') && queryDoc[key] !== null,
       );
 
       // Extract fields from sort
@@ -306,7 +315,7 @@ export class DatabaseIndexService implements OnModuleInit {
 
       // Create compound index fields
       const fields: Record<string, 1 | -1> = {};
-      indexFields.forEach(field => {
+      indexFields.forEach((field) => {
         fields[field] = sortDoc[field] === -1 ? -1 : 1;
       });
 
@@ -318,10 +327,10 @@ export class DatabaseIndexService implements OnModuleInit {
           name: `suggested_${indexFields.join('_')}_${Date.now()}`,
         },
         rationale: `Slow query analysis: ${query.millis}ms execution time`,
-        impact: query.millis > 1000 ? 'high' : query.millis > 500 ? 'medium' : 'low',
+        impact:
+          query.millis > 1000 ? 'high' : query.millis > 500 ? 'medium' : 'low',
         estimatedImprovement: `~${Math.min(90, Math.floor(query.millis / 10))}% faster`,
       };
-
     } catch (error) {
       return null;
     }
@@ -341,8 +350,13 @@ export class DatabaseIndexService implements OnModuleInit {
 
       // Get collection-specific index stats
       const collections = [
-        'users', 'orders', 'wallettransactions', 'notifications',
-        'stores', 'products', 'performance_metrics'
+        'users',
+        'orders',
+        'wallettransactions',
+        'notifications',
+        'stores',
+        'products',
+        'performance_metrics',
       ];
 
       const indexStats = {};
@@ -351,7 +365,9 @@ export class DatabaseIndexService implements OnModuleInit {
         try {
           const db = this.connection.db;
           if (!db) {
-            indexStats[collectionName] = { error: 'Database connection not available' };
+            indexStats[collectionName] = {
+              error: 'Database connection not available',
+            };
             continue;
           }
 
@@ -362,7 +378,7 @@ export class DatabaseIndexService implements OnModuleInit {
           indexStats[collectionName] = {
             documentCount: count,
             indexCount: indexes.length,
-            indexes: indexes.map(idx => ({
+            indexes: indexes.map((idx) => ({
               name: idx.name,
               key: idx.key,
               size: idx.size || 'unknown',
@@ -379,7 +395,6 @@ export class DatabaseIndexService implements OnModuleInit {
         totalSize: stats.dataSize,
         indexSize: stats.indexSize,
       };
-
     } catch (error) {
       this.logger.error('Failed to get index usage stats:', error);
       return { error: error.message };
@@ -393,10 +408,10 @@ export class DatabaseIndexService implements OnModuleInit {
     // This is a complex operation that requires analysis of index usage
     // For now, just log that this should be done manually
     this.logger.warn(
-      'Unused index cleanup should be performed manually after analyzing index usage with MongoDB profiler'
+      'Unused index cleanup should be performed manually after analyzing index usage with MongoDB profiler',
     );
     this.logger.warn(
-      'Use: db.collection.aggregate([{ $indexStats: {} }]) to analyze index usage'
+      'Use: db.collection.aggregate([{ $indexStats: {} }]) to analyze index usage',
     );
 
     return 0;
@@ -416,12 +431,14 @@ export class DatabaseIndexService implements OnModuleInit {
       // Analyze slow queries
       const recommendations = await this.analyzeSlowQueries();
       if (recommendations.length > 0) {
-        this.logger.log(`Found ${recommendations.length} potential index improvements`);
+        this.logger.log(
+          `Found ${recommendations.length} potential index improvements`,
+        );
 
         // Log recommendations (in production, this could send alerts)
-        recommendations.forEach(rec => {
+        recommendations.forEach((rec) => {
           this.logger.log(
-            `Index suggestion: ${rec.collection} - ${JSON.stringify(rec.fields)} - ${rec.rationale}`
+            `Index suggestion: ${rec.collection} - ${JSON.stringify(rec.fields)} - ${rec.rationale}`,
           );
         });
       }
@@ -430,10 +447,11 @@ export class DatabaseIndexService implements OnModuleInit {
       const stats = await this.getIndexUsageStats();
       this.logger.log('Index maintenance completed', {
         collections: Object.keys(stats.collections || {}).length,
-        totalDocuments: Object.values(stats.collections || {})
-          .reduce((sum: number, col: any) => sum + (col.documentCount || 0), 0),
+        totalDocuments: Object.values(stats.collections || {}).reduce(
+          (sum: number, col: any) => sum + (col.documentCount || 0),
+          0,
+        ),
       });
-
     } catch (error) {
       this.logger.error('Weekly index maintenance failed:', error);
     }
@@ -450,9 +468,7 @@ export class DatabaseIndexService implements OnModuleInit {
       return false;
     }
 
-    return existingKeys.every(key =>
-      existing[key] === candidate[key]
-    );
+    return existingKeys.every((key) => existing[key] === candidate[key]);
   }
 
   /**
