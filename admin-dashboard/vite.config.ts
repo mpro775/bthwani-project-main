@@ -99,6 +99,8 @@ export default defineConfig(({ mode }) => {
             include: [/node_modules/],
             transformMixedEsModules: true,
           },
+          // إعدادات إضافية لضمان تهيئة React بشكل صحيح
+          chunkSizeWarningLimit: 1000,
           outDir: "dist",
           emptyOutDir: true,
           chunkSizeWarningLimit: 500,
@@ -112,6 +114,7 @@ export default defineConfig(({ mode }) => {
                 if (id.includes('node_modules')) {
                   // وضع React و React-DOM مع جميع المكتبات التي تحتاج React في نفس الـ chunk
                   // هذا يضمن أن React متاح دائماً عندما تحتاجه أي مكتبة
+                  // الترتيب مهم: React أولاً، ثم باقي المكتبات
                   if (
                     id.includes('react') || 
                     id.includes('react-dom') ||
@@ -174,6 +177,7 @@ export default defineConfig(({ mode }) => {
               format: 'es',
               generatedCode: {
                 constBindings: false, // false لتجنب مشاكل التهيئة مع التبعيات الدائرية
+                objectShorthand: false, // false لضمان التوافق
               },
               // إعدادات إضافية لضمان ترتيب التحميل الصحيح
               interop: 'compat',
@@ -200,7 +204,13 @@ export default defineConfig(({ mode }) => {
             treeshake: {
               moduleSideEffects: (id) => {
                 // الحفاظ على side effects للمكتبات المهمة
-                if (id.includes('@emotion') || id.includes('@mui')) {
+                // React يجب أن يكون له side effects لضمان التهيئة الصحيحة
+                if (
+                  id.includes('react') || 
+                  id.includes('react-dom') ||
+                  id.includes('@emotion') || 
+                  id.includes('@mui')
+                ) {
                   return true;
                 }
                 return false;
