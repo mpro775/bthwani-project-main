@@ -7,8 +7,8 @@ WORKDIR /app
 
 COPY package*.json ./
 
-# تصحيح: نحذف --only=production هنا لنتمكن من استخدام nest cli للبناء
-RUN npm ci && npm cache clean --force
+# تثبيت كل الاعتماديات (بما فيها dev) للبناء — legacy-peer-deps لتجاوز تعارضات المكتبات
+RUN npm install --legacy-peer-deps && npm cache clean --force
 
 COPY . .
 
