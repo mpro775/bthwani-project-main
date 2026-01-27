@@ -26,9 +26,6 @@ import {
   MarketerService,
   BackupService,
 } from './services';
-import { AmaniService } from '../amani/amani.service';
-import { ArabonService } from '../arabon/arabon.service';
-import { Es3afniService } from '../es3afni/es3afni.service';
 import { User, UserSchema } from '../auth/entities/user.entity';
 import { Order, OrderSchema } from '../order/entities/order.entity';
 import { Driver, DriverSchema } from '../driver/entities/driver.entity';
@@ -87,6 +84,9 @@ import { KenzModule } from '../kenz/kenz.module';
 import { MaaroufModule } from '../maarouf/maarouf.module';
 import { SanadModule } from '../sanad/sanad.module';
 import { PaymentsModule } from '../payments/payments.module';
+import { ArabonModule } from '../arabon/arabon.module';
+import { AmaniModule } from '../amani/amani.module';
+import { Es3afniModule } from '../es3afni/es3afni.module';
 
 @Module({
   imports: [
@@ -121,6 +121,10 @@ import { PaymentsModule } from '../payments/payments.module';
     MaaroufModule,
     SanadModule,
     PaymentsModule,
+    // Import modules that export services used in AdminModule
+    AmaniModule,
+    ArabonModule,
+    Es3afniModule,
   ],
   controllers: [AdminController, AdminCMSController, AdminKawaderController, AdminKenzController, AdminMaaroufController, AdminSanadController, AdminPaymentsController, AdminAmaniController, AdminArabonController, AdminEs3afniController],
   providers: [
@@ -137,9 +141,7 @@ import { PaymentsModule } from '../payments/payments.module';
     LeaveService,
     MarketerService,
     BackupService,
-    AmaniService,
-    ArabonService,
-    Es3afniService,
+    // AmaniService, ArabonService, and Es3afniService are now imported from their respective modules
   ],
   exports: [
     AdminService,
@@ -155,9 +157,7 @@ import { PaymentsModule } from '../payments/payments.module';
     LeaveService,
     MarketerService,
     BackupService,
-    AmaniService,
-    ArabonService,
-    Es3afniService,
+    // AmaniService, ArabonService, and Es3afniService are exported from their respective modules
   ],
 })
 export class AdminModule {}
