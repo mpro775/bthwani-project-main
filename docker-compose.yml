@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # =========================================
   # 🌐 1. Nginx Proxy Manager (The Gateway)
@@ -43,13 +41,15 @@ services:
       retries: 5
 
   # =========================================
-  # ⚙️ 3. Backend API (api-bthwani)
+  # ⚙️ 3. Backend API (NestJS - backend-nest)
   # =========================================
   backend:
-    build: ./backend
+    build:
+      context: ./backend-nest
+      dockerfile: Dockerfile
     container_name: bthwani-backend
     restart: unless-stopped
-    env_file: ./backend/.env
+    env_file: ./backend-nest/.env
     environment:
       # إعدادات الاتصال الداخلية
       - REDIS_HOST=bthwani-redis
@@ -65,7 +65,9 @@ services:
   # 💻 4. Website (Dashboard & Landing)
   # =========================================
   admin-dashboard:
-    build: ./admin-dashboard
+    build:
+      context: ./admin-dashboard
+      dockerfile: Dockerfile
     container_name: bthwani-admin-dashboard
     restart: unless-stopped
     env_file: ./admin-dashboard/.env
@@ -76,7 +78,9 @@ services:
   # 📱 5. Web App (User Application)
   # =========================================
   bthwani-web:
-    build: ./bthwani-web
+    build:
+      context: ./bthwani-web
+      dockerfile: Dockerfile
     container_name: bthwani-webapp
     restart: unless-stopped
     env_file: ./bthwani-web/.env
