@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CacheModule } from '@nestjs/cache-manager';
 import { APP_INTERCEPTOR, APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CorrelationIdMiddleware } from './common/middleware/correlation-id.middleware';
@@ -142,6 +143,9 @@ import { envValidationSchema } from './config/env.validation';
         limit: 5, // 5 محاولات تسجيل دخول في الدقيقة
       },
     ]),
+
+    // Event Emitter Module (Global)
+    EventEmitterModule.forRoot(),
 
     // Feature Modules
     AuthModule,

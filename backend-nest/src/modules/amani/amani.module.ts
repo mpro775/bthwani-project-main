@@ -4,7 +4,6 @@ import { Amani, AmaniSchema } from './entities/amani.entity';
 import { AmaniController } from './amani.controller';
 import { AmaniService } from './amani.service';
 import { Driver, DriverSchema } from '../driver/entities/driver.entity';
-import { EventEmitterModule } from '@nestjs/event-emitter';
 import { BullModule } from '@nestjs/bull';
 import { AmaniNotificationHandler } from './events/handlers/amani-notification.handler';
 
@@ -14,7 +13,6 @@ import { AmaniNotificationHandler } from './events/handlers/amani-notification.h
       { name: Amani.name, schema: AmaniSchema },
       { name: Driver.name, schema: DriverSchema },
     ]),
-    EventEmitterModule,
     BullModule.registerQueue({
       name: 'notifications',
     }),
