@@ -129,7 +129,7 @@ function useDriversRealtime({ city }: { city?: string }) {
   const [connected, setConnected] = useState<boolean>(false);
   const [usingWS, setUsingWS] = useState<boolean>(false);
   const wsRef = useRef<WebSocket | null>(null);
-  const pollRef = useRef<NodeJS.Timeout | null>(null);
+  const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const safeUpdate = useMemo(
     () => throttle((list: DriverRT[]) => setDrivers(list), 1000),
