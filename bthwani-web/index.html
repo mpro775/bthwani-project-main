@@ -140,7 +140,25 @@
     <meta name="HandheldFriendly" content="true" />
   </head>
   <body>
+    <!-- Placeholder لمنع خطأ addDevModeBanner (onclick on null) عند عدم وجود العنصر -->
+    <div id="dev-mode-banner" aria-hidden="true" hidden style="display:none"></div>
     <div id="root"></div>
+    <script>
+      // تشغيل قبل التطبيق لتجنب أخطاء Docker/الإنتاج (React.Children عند نسخ متعددة)
+      (function() {
+        if (typeof window === 'undefined') return;
+        window.__REACT_DEV_GLOBAL_HOOK__ = window.__REACT_DEV_GLOBAL_HOOK__ || {};
+        if (!window.__REACT_DEV_GLOBAL_HOOK__.Children) {
+          window.__REACT_DEV_GLOBAL_HOOK__.Children = {
+            map: function(c, f) { return Array.isArray(c) ? c.map(f) : (c != null ? f(c) : []); },
+            forEach: function(c, f) { Array.isArray(c) ? c.forEach(f) : (c != null && f(c)); },
+            count: function(c) { return Array.isArray(c) ? c.length : (c != null ? 1 : 0); },
+            toArray: function(c) { return Array.isArray(c) ? c : (c != null ? [c] : []); },
+            only: function(c) { if (!Array.isArray(c) && c != null) return c; throw new Error('Children.only'); }
+          };
+        }
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
