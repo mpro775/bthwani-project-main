@@ -34,7 +34,7 @@ import { AuthType } from '../../common/guards/unified-auth.guard';
 
 @ApiTags('Wallet')
 @ApiBearerAuth()
-@Controller({ path: 'wallet', version: ['1', '2'] })
+@Controller({ path: 'wallet', version: '1' })
 @UseGuards(UnifiedAuthGuard, RolesGuard)
 export class WalletController {
   constructor(private readonly walletService: WalletService) {}

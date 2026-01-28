@@ -17,7 +17,7 @@ import { SanadStatus, SanadKind, SanadWithOwner } from './interfaces/admin.inter
 
 @ApiTags('Admin:Sanad')
 @ApiBearerAuth()
-@Controller({ path: 'admin/sanad', version: ['2'] })
+@Controller({ path: 'admin/sanad', version: '1' })
 @UseGuards(UnifiedAuthGuard, RolesGuard)
 @Auth(AuthType.JWT)
 @Roles('admin','superadmin')

@@ -26,7 +26,7 @@ describe('Wallet E2E Tests', () => {
 
     // Register and login a test user
     const registerResponse = await request(app.getHttpServer())
-      .post('/api/v2/auth/register')
+      .post('/api/v1/auth/register')
       .send({
         phone: '777' + Date.now(),
         fullName: 'Test User',
@@ -43,10 +43,10 @@ describe('Wallet E2E Tests', () => {
     await app.close();
   });
 
-  describe('GET /api/v2/wallet/balance', () => {
+  describe('GET /api/v1/wallet/balance', () => {
     it('should return wallet balance', () => {
       return request(app.getHttpServer())
-        .get('/api/v2/wallet/balance')
+        .get('/api/v1/wallet/balance')
         .set('Authorization', `Bearer ${authToken}`)
         .expect(200)
         .expect((res: { body: { data: Record<string, unknown> } }) => {
@@ -58,15 +58,15 @@ describe('Wallet E2E Tests', () => {
 
     it('should return 401 without auth token', () => {
       return request(app.getHttpServer())
-        .get('/api/v2/wallet/balance')
+        .get('/api/v1/wallet/balance')
         .expect(401);
     });
   });
 
-  describe('GET /api/v2/wallet/transactions', () => {
+  describe('GET /api/v1/wallet/transactions', () => {
     it('should return transaction history', () => {
       return request(app.getHttpServer())
-        .get('/api/v2/wallet/transactions')
+        .get('/api/v1/wallet/transactions')
         .set('Authorization', `Bearer ${authToken}`)
         .query({ limit: 20 })
         .expect(200)
@@ -80,12 +80,12 @@ describe('Wallet E2E Tests', () => {
     });
   });
 
-  describe('POST /api/v2/wallet/transaction (with Idempotency)', () => {
+  describe('POST /api/v1/wallet/transaction (with Idempotency)', () => {
     it('should create transaction with idempotency key', () => {
       const idempotencyKey = `test-${Date.now()}`;
 
       return request(app.getHttpServer())
-        .post('/api/v2/wallet/transaction')
+        .post('/api/v1/wallet/transaction')
         .set('Authorization', `Bearer ${authToken}`)
         .set('Idempotency-Key', idempotencyKey)
         .send({
@@ -101,7 +101,7 @@ describe('Wallet E2E Tests', () => {
       const idempotencyKey = `test-duplicate-${Date.now()}`;
 
       const firstResponse = await request(app.getHttpServer())
-        .post('/api/v2/wallet/transaction')
+        .post('/api/v1/wallet/transaction')
         .set('Authorization', `Bearer ${authToken}`)
         .set('Idempotency-Key', idempotencyKey)
         .send({
@@ -112,7 +112,7 @@ describe('Wallet E2E Tests', () => {
         });
 
       const secondResponse = await request(app.getHttpServer())
-        .post('/api/v2/wallet/transaction')
+        .post('/api/v1/wallet/transaction')
         .set('Authorization', `Bearer ${authToken}`)
         .set('Idempotency-Key', idempotencyKey)
         .send({
@@ -130,7 +130,7 @@ describe('Wallet E2E Tests', () => {
 
     it('should require idempotency key for sensitive operations', () => {
       return request(app.getHttpServer())
-        .post('/api/v2/wallet/transaction')
+        .post('/api/v1/wallet/transaction')
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           amount: 100,
@@ -145,10 +145,10 @@ describe('Wallet E2E Tests', () => {
     });
   });
 
-  describe('GET /api/v2/wallet/topup/methods', () => {
+  describe('GET /api/v1/wallet/topup/methods', () => {
     it('should return available topup methods', () => {
       return request(app.getHttpServer())
-        .get('/api/v2/wallet/topup/methods')
+        .get('/api/v1/wallet/topup/methods')
         .set('Authorization', `Bearer ${authToken}`)
         .expect(200)
         .expect((res: { body: { data: { methods: unknown[] } } }) => {
@@ -166,7 +166,7 @@ describe('Wallet E2E Tests', () => {
       for (let i = 0; i < 150; i++) {
         requests.push(
           request(app.getHttpServer())
-            .get('/api/v2/wallet/balance')
+            .get('/api/v1/wallet/balance')
             .set('Authorization', `Bearer ${authToken}`),
         );
       }

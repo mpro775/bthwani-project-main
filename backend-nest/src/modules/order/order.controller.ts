@@ -27,7 +27,7 @@ import { AuthType } from '../../common/guards/unified-auth.guard';
 import { OrderOwnerGuard, OrderDriverGuard } from './guards';
 
 @ApiTags('Order')
-@Controller({ path: 'delivery/order', version: ['1', '2'] })
+@Controller({ path: 'delivery/order', version: '1' })
 @UseGuards(UnifiedAuthGuard, RolesGuard)
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}

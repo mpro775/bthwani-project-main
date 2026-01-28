@@ -17,7 +17,7 @@ import { AuthType } from '../../common/guards/unified-auth.guard';
  * These endpoints provide backward compatibility with frontend admin apps
  */
 @ApiTags('Admin CMS')
-@Controller({ path: 'admin', version: ['1', '2'] })
+@Controller({ path: 'admin', version: '1' })
 @ApiBearerAuth()
 export class AdminCMSController {
   // ==================== Pages ====================

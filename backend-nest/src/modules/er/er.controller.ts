@@ -24,7 +24,7 @@ import { User } from '../auth/entities';
 const Roles = (...roles: string[]) => SetMetadata('roles', roles);
 
 @ApiTags('ER System')
-@Controller({ path: 'er', version: ['1', '2'] })
+@Controller({ path: 'er', version: '1' })
 @ApiBearerAuth()
 export class ERController {
   constructor(

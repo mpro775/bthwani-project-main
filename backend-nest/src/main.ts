@@ -106,11 +106,11 @@ async function bootstrap() {
     new PerformanceInterceptor(null), // Performance tracking
   );
 
-  // API Versioning Strategy
+  // API Versioning Strategy (prefix 'v' only → routes: api/v1/...)
   app.enableVersioning({
     type: VersioningType.URI,
-    defaultVersion: '2',
-    prefix: 'api/v',
+    defaultVersion: '1',
+    prefix: 'v',
   });
 
   // API Prefix (for non-versioned routes like /health, /docs)
@@ -120,9 +120,9 @@ async function bootstrap() {
 
   // Swagger Documentation
   const config = new DocumentBuilder()
-    .setTitle('Bthwani API v2')
+    .setTitle('Bthwani API v1')
     .setDescription('NestJS API Documentation - نظام إدارة الطلبات والتجارة')
-    .setVersion('2.0')
+    .setVersion('1.0')
     .addBearerAuth()
     .addTag('Auth', 'المصادقة وتسجيل الدخول')
     .addTag('User', 'إدارة المستخدمين')

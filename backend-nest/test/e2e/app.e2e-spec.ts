@@ -44,7 +44,7 @@ describe('BThwani API E2E Tests (BTW-AUD-001)', () => {
   describe('Authentication (OpenAPI Contract)', () => {
     it('should validate login request structure', () => {
       return request(app.getHttpServer())
-        .post('/api/v2/auth/login')
+        .post('/api/v1/auth/login')
         .send({
           email: 'test@example.com',
           password: 'password123'
@@ -54,7 +54,7 @@ describe('BThwani API E2E Tests (BTW-AUD-001)', () => {
 
     it('should validate registration request structure', () => {
       return request(app.getHttpServer())
-        .post('/api/v2/auth/register')
+        .post('/api/v1/auth/register')
         .send({
           email: 'test@example.com',
           password: 'password123',
@@ -75,7 +75,7 @@ describe('BThwani API E2E Tests (BTW-AUD-001)', () => {
 
       // Missing signature should fail
       return request(app.getHttpServer())
-        .post('/api/v2/webhooks/wh_test123')
+        .post('/api/v1/webhooks/wh_test123')
         .send(payload)
         .expect(400);
     });
@@ -84,7 +84,7 @@ describe('BThwani API E2E Tests (BTW-AUD-001)', () => {
       // This would require authentication setup
       // For now, test the endpoint structure
       return request(app.getHttpServer())
-        .get('/api/v2/notifications/suppression')
+        .get('/api/v1/notifications/suppression')
         .expect(401); // Unauthorized without auth
     });
   });
@@ -92,7 +92,7 @@ describe('BThwani API E2E Tests (BTW-AUD-001)', () => {
   describe('Wallet Operations (BTW-PAY-005)', () => {
     it('should validate wallet transaction structure', () => {
       return request(app.getHttpServer())
-        .post('/api/v2/wallet/transaction')
+        .post('/api/v1/wallet/transaction')
         .send({
           type: 'credit',
           amount: 100,
@@ -131,7 +131,7 @@ describe('BThwani API E2E Tests (BTW-AUD-001)', () => {
   describe('API Contract Compliance (BTW-AUD-001)', () => {
     it('should return proper error responses', () => {
       return request(app.getHttpServer())
-        .get('/api/v2/nonexistent-endpoint')
+        .get('/api/v1/nonexistent-endpoint')
         .expect(404)
         .expect((res) => {
           expect(res.body).toHaveProperty('statusCode', 404);
@@ -141,14 +141,14 @@ describe('BThwani API E2E Tests (BTW-AUD-001)', () => {
 
     it('should validate request payloads', () => {
       return request(app.getHttpServer())
-        .post('/api/v2/orders')
+        .post('/api/v1/orders')
         .send({ invalidField: 'test' })
         .expect(401); // Auth required, but also validation
     });
 
     it('should handle CORS properly', () => {
       return request(app.getHttpServer())
-        .options('/api/v2/orders')
+        .options('/api/v1/orders')
         .expect(204)
         .expect((res) => {
           expect(res.headers['access-control-allow-origin']).toBeDefined();
@@ -177,7 +177,7 @@ describe('BThwani API E2E Tests (BTW-AUD-001)', () => {
 
     it('should prevent NoSQL injection attempts', () => {
       return request(app.getHttpServer())
-        .post('/api/v2/auth/login')
+        .post('/api/v1/auth/login')
         .send({
           email: { $ne: null }, // MongoDB injection attempt
           password: 'password123'
@@ -224,7 +224,7 @@ describe('BThwani API E2E Tests (BTW-AUD-001)', () => {
     it('should handle graceful degradation', () => {
       // Test error handling doesn't crash the app
       return request(app.getHttpServer())
-        .get('/api/v2/invalid-endpoint')
+        .get('/api/v1/invalid-endpoint')
         .expect(404);
     });
 

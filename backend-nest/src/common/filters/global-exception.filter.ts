@@ -12,10 +12,20 @@ import { ApiResponse } from '../dto/response.dto';
 interface ExceptionWithDetails {
   code?: string;
   message?: string;
-  response?: { message?: string };
+  response?: { message?: string; code?: string; userMessage?: string; suggestedAction?: string };
   userMessage?: string;
   suggestedAction?: string;
   stack?: string;
+}
+
+/** استخراج تفاصيل الخطأ من HttpException (الناتج عن NotFoundException و BadRequestException وغيرها) */
+function getExceptionBody(exception: unknown): ExceptionWithDetails['response'] {
+  if (!(exception instanceof HttpException)) return undefined;
+  const body = exception.getResponse();
+  if (body && typeof body === 'object' && !Array.isArray(body)) {
+    return body as ExceptionWithDetails['response'];
+  }
+  return undefined;
 }
 
 @Catch()
@@ -28,20 +38,26 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     const exc = exception as ExceptionWithDetails;
+    const body = getExceptionBody(exception);
 
     const status =
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
+    const code = body?.code ?? exc?.code ?? this.getErrorCode(status);
+    const message = (body?.message as string) ?? exc?.message ?? 'Internal server error';
+    const userMessage = this.getUserMessage({ ...exc, ...body }, status);
+    const suggestedAction = this.getSuggestedAction({ ...exc, ...body }, status);
+
     const errorResponse: ApiResponse = {
       success: false,
       error: {
-        code: exc?.code || this.getErrorCode(status),
-        message: exc?.message || 'Internal server error',
-        details: exc?.response?.message || exc?.message,
-        userMessage: this.getUserMessage(exc, status),
-        suggestedAction: this.getSuggestedAction(exc, status),
+        code,
+        message,
+        details: body?.message ?? exc?.response?.message ?? exc?.message,
+        userMessage,
+        suggestedAction,
       },
       meta: {
         timestamp: new Date().toISOString(),

@@ -12,7 +12,7 @@ export class PerformanceService {
   private readonly DEFAULT_BUDGETS: Omit<PerformanceBudget, 'lastUpdated'>[] = [
     // API Endpoints - Backend Performance
     {
-      endpoint: '/api/v2/orders',
+      endpoint: '/api/v1/orders',
       method: 'GET',
       lcpThreshold: 2500, // 2.5s for list endpoints
       inpThreshold: 200, // 200ms for interactions
@@ -20,7 +20,7 @@ export class PerformanceService {
       errorRateThreshold: 1, // 1% error rate
     },
     {
-      endpoint: '/api/v2/orders',
+      endpoint: '/api/v1/orders',
       method: 'POST',
       lcpThreshold: 3000, // 3s for creation (includes validation)
       inpThreshold: 300,
@@ -28,7 +28,7 @@ export class PerformanceService {
       errorRateThreshold: 2,
     },
     {
-      endpoint: '/api/v2/payments',
+      endpoint: '/api/v1/payments',
       method: 'POST',
       lcpThreshold: 5000, // 5s for payment processing
       inpThreshold: 500,
@@ -36,7 +36,7 @@ export class PerformanceService {
       errorRateThreshold: 0.5, // Very low tolerance for payments
     },
     {
-      endpoint: '/api/v2/wallet',
+      endpoint: '/api/v1/wallet',
       method: 'GET',
       lcpThreshold: 2000,
       inpThreshold: 200,
@@ -54,7 +54,7 @@ export class PerformanceService {
     },
     // Search endpoints
     {
-      endpoint: '/api/v2/search',
+      endpoint: '/api/v1/search',
       method: 'GET',
       lcpThreshold: 4000, // Search can be slower
       inpThreshold: 300,

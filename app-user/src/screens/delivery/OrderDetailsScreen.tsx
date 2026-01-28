@@ -249,7 +249,7 @@ const OrderDetailsScreen = () => {
     if (!order.storeId) return;
     setLoadingStoreRating(true);
     try {
-      const url = `${API_URL}/api/v1/delivery-stores/${order.storeId}/rating-live`;
+      const url = `${API_URL}/delivery-stores/${order.storeId}/rating-live`;
       const { data } = await axiosInstance.get(url);
       const avg = Number(data?.rating ?? 0);
       const count = Number(data?.ratingsCount ?? 0);
@@ -341,7 +341,7 @@ const OrderDetailsScreen = () => {
         driver: rating,
         comments: comment,
       };
-      const url = `${API_URL}/api/v1/orders/${order.id}/rate`;
+      const url = `${API_URL}/orders/${order.id}/rate`;
       await axiosInstance.post(url, payload);
       setRated(true);
       setShowRatingModal(false);

@@ -21,7 +21,7 @@ export class PaymentsService {
       // Check idempotency
       const lockResult = await this.idempotency.acquireLock(
         idempotencyKey,
-        'POST /api/v2/payments/holds',
+        'POST /api/v1/payments/holds',
         'POST',
         dto.userId
       );
@@ -34,7 +34,7 @@ export class PaymentsService {
         const result = await this.wallet.holdFunds(holdDto.userId, holdDto.amount, holdDto.reference);
         await this.idempotency.completeOperation(
           idempotencyKey,
-          'POST /api/v2/payments/holds',
+          'POST /api/v1/payments/holds',
           'POST',
           dto.userId,
           result
@@ -43,7 +43,7 @@ export class PaymentsService {
       } catch (error) {
         await this.idempotency.failOperation(
           idempotencyKey,
-          'POST /api/v2/payments/holds',
+          'POST /api/v1/payments/holds',
           'POST',
           dto.userId,
           error

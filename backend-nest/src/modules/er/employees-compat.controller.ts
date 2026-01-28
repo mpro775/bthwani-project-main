@@ -12,7 +12,7 @@ const Roles = (...roles: string[]) => SetMetadata('roles', roles);
  */
 @ApiTags('Employees Compatibility')
 @ApiBearerAuth()
-@Controller({ path: 'employees', version: ['1', '2'] })
+@Controller({ path: 'employees', version: '1' })
 export class EmployeesCompatController {
   constructor(private readonly hrService: HRService) {}
 

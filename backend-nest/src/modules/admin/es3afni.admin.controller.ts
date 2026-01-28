@@ -9,7 +9,7 @@ import { Es3afniService } from '../es3afni/es3afni.service';
 
 @ApiTags('Admin:Es3afni')
 @ApiBearerAuth()
-@Controller({ path: 'admin/es3afni', version: ['2'] })
+@Controller({ path: 'admin/es3afni', version: '1' })
 @UseGuards(UnifiedAuthGuard, RolesGuard)
 @Auth(AuthType.JWT)
 @Roles('admin','superadmin')

@@ -12,7 +12,7 @@ import { CursorPaginationDto } from '../../common/dto/pagination.dto';
 import { Public } from '../../common/decorators/auth.decorator';
 
 @ApiTags('Delivery - Stores')
-@Controller({ path: 'delivery/stores', version: ['1', '2'] })
+@Controller({ path: 'delivery/stores', version: '1' })
 export class DeliveryStoreController {
   constructor(private readonly storeService: StoreService) {}
 

@@ -17,7 +17,7 @@ import { KenzStatus, KenzWithOwner } from './interfaces/admin.interfaces';
 
 @ApiTags('Admin:Kenz')
 @ApiBearerAuth()
-@Controller({ path: 'admin/kenz', version: ['2'] })
+@Controller({ path: 'admin/kenz', version: '1' })
 @UseGuards(UnifiedAuthGuard, RolesGuard)
 @Auth(AuthType.JWT)
 @Roles('admin','superadmin')

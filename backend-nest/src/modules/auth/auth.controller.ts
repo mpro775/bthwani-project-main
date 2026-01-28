@@ -41,7 +41,7 @@ import {
 import { AuthType } from '../../common/guards/unified-auth.guard';
 
 @ApiTags('Auth')
-@Controller({ path: 'auth', version: ['1', '2'] })
+@Controller({ path: 'auth', version: '1' })
 export class AuthController {
   constructor(
     private readonly authService: AuthService,

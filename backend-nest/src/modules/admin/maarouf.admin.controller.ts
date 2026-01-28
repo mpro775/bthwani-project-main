@@ -17,7 +17,7 @@ import { MaaroufStatus, MaaroufKind, MaaroufWithOwner } from './interfaces/admin
 
 @ApiTags('Admin:Maarouf')
 @ApiBearerAuth()
-@Controller({ path: 'admin/maarouf', version: ['2'] })
+@Controller({ path: 'admin/maarouf', version: '1' })
 @UseGuards(UnifiedAuthGuard, RolesGuard)
 @Auth(AuthType.JWT)
 @Roles('admin','superadmin')

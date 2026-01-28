@@ -68,7 +68,7 @@ describe('API Contract Tests (BTW-AUD-001)', () => {
       };
 
       await request(app.getHttpServer())
-        .post('/auth/register')
+        .post('/api/v1/auth/register')
         .send(invalidRequest)
         .expect((res) => {
           // Accept 400 (validation), 422 (unprocessable), or 404 (not implemented)
@@ -84,7 +84,7 @@ describe('API Contract Tests (BTW-AUD-001)', () => {
       };
 
       const response = await request(app.getHttpServer())
-        .post('/auth/login')
+        .post('/api/v1/auth/login')
         .send(loginRequest);
 
       if (response.status === 200) {
@@ -259,7 +259,7 @@ describe('API Contract Tests (BTW-AUD-001)', () => {
   describe('Content Negotiation', () => {
     it('Should accept application/json content type', async () => {
       await request(app.getHttpServer())
-        .post('/auth/login')
+        .post('/api/v1/auth/login')
         .set('Content-Type', 'application/json')
         .send({ phone: '+967777777777', password: 'test', role: 'user' })
         .expect((res) => {

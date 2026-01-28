@@ -25,7 +25,7 @@ import { Auth, CurrentUser } from '../../common/decorators/auth.decorator';
 import { AuthType } from '../../common/guards/unified-auth.guard';
 
 @ApiTags('Cart')
-@Controller({ path: 'delivery/cart', version: ['1', '2'] })
+@Controller({ path: 'delivery/cart', version: '1' })
 @ApiBearerAuth()
 export class CartController {
   constructor(

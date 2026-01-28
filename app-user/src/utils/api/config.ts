@@ -1,6 +1,7 @@
 import Constants from "expo-constants";
 
 // روابط API
+// غيّر العنوان إذا كان الـ backend على جهاز آخر (مثلاً نفس جهاز Expo: استخدم IP الـ hostUri مثل 192.168.1.108)
 const LOCAL_API = "http://192.168.0.116:3000/api/v1";
 const PRODUCTION_API = "https://api-bthwani.smartagency-ye.com/api/v1";
 
@@ -16,5 +17,9 @@ const isLocal =
     hostUri.includes("localhost") ||
     hostUri.includes("127.0.0.1"));
 
-// ✅ استخدم الاختيار الفعلي
-export const API_URL = PRODUCTION_API;
+/**
+ * في التطوير (Expo من الشبكة المحلية): استخدم الـ API المحلي.
+ * غيّر LOCAL_API إلى IP جهازك الذي يشغّل الـ backend إن لزم.
+ * في الإنتاج: استخدم الـ API البعيد.
+ */
+export const API_URL = isLocal ? LOCAL_API : PRODUCTION_API;

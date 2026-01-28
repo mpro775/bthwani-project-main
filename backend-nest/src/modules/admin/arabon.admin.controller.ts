@@ -9,7 +9,7 @@ import { ArabonService } from '../arabon/arabon.service';
 
 @ApiTags('Admin:Arabon')
 @ApiBearerAuth()
-@Controller({ path: 'admin/arabon', version: ['2'] })
+@Controller({ path: 'admin/arabon', version: '1' })
 @UseGuards(UnifiedAuthGuard, RolesGuard)
 @Auth(AuthType.JWT)
 @Roles('admin','superadmin')

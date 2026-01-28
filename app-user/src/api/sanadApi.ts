@@ -69,7 +69,7 @@ export const createSanad = async (
   payload: CreateSanadPayload
 ): Promise<SanadItem> => {
   const headers = await getAuthHeaders();
-  const response = await axiosInstance.post("/api/v2/sanad", payload, {
+  const response = await axiosInstance.post("/sanad", payload, {
     headers,
   });
   return response.data;
@@ -83,7 +83,7 @@ export const getSanadList = async (
 ): Promise<SanadListResponse> => {
   const headers = await getAuthHeaders();
   const params = cursor ? { cursor } : {};
-  const response = await axiosInstance.get("/api/v2/sanad", {
+  const response = await axiosInstance.get("/sanad", {
     headers,
     params,
   });
@@ -95,7 +95,7 @@ export const getSanadList = async (
  */
 export const getSanadDetails = async (id: string): Promise<SanadItem> => {
   const headers = await getAuthHeaders();
-  const response = await axiosInstance.get(`/api/v2/sanad/${id}`, {
+  const response = await axiosInstance.get(`/sanad/${id}`, {
     headers,
   });
   return response.data;
@@ -109,7 +109,7 @@ export const updateSanad = async (
   payload: UpdateSanadPayload
 ): Promise<SanadItem> => {
   const headers = await getAuthHeaders();
-  const response = await axiosInstance.patch(`/api/v2/sanad/${id}`, payload, {
+  const response = await axiosInstance.patch(`/sanad/${id}`, payload, {
     headers,
   });
   return response.data;
@@ -120,7 +120,7 @@ export const updateSanad = async (
  */
 export const deleteSanad = async (id: string): Promise<void> => {
   const headers = await getAuthHeaders();
-  await axiosInstance.delete(`/api/v2/sanad/${id}`, {
+  await axiosInstance.delete(`/sanad/${id}`, {
     headers,
   });
 };
@@ -133,7 +133,7 @@ export const getMySanad = async (
 ): Promise<SanadListResponse> => {
   const headers = await getAuthHeaders();
   const params = cursor ? { cursor } : {};
-  const response = await axiosInstance.get("/api/v2/sanad/my", {
+  const response = await axiosInstance.get("/sanad/my", {
     headers,
     params,
   });
@@ -153,7 +153,7 @@ export const searchSanad = async (
   if (kind) params.kind = kind;
   if (cursor) params.cursor = cursor;
 
-  const response = await axiosInstance.get("/api/v2/sanad/search", {
+  const response = await axiosInstance.get("/sanad/search", {
     headers,
     params,
   });

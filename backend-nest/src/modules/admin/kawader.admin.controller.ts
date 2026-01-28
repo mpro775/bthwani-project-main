@@ -17,7 +17,7 @@ import { KawaderStatus, KawaderWithOwner } from './interfaces/admin.interfaces';
 
 @ApiTags('Admin:Kawader')
 @ApiBearerAuth()
-@Controller({ path: 'admin/kawader', version: ['2'] })
+@Controller({ path: 'admin/kawader', version: '1' })
 @UseGuards(UnifiedAuthGuard, RolesGuard)
 @Auth(AuthType.JWT)
 @Roles('admin','superadmin')

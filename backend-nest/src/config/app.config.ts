@@ -11,7 +11,7 @@ export default registerAs('app', () => ({
   corsOrigin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000'],
 
   // API
-  apiPrefix: process.env.API_PREFIX || 'api/v2',
+  apiPrefix: process.env.API_PREFIX || 'api/v1',
 
   // Rate Limiting
   rateLimitTtl: parseInt(process.env.RATE_LIMIT_TTL || '60', 10), // seconds

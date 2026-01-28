@@ -26,7 +26,7 @@ import { AuthType } from '../../common/guards/unified-auth.guard';
 const Roles = (...roles: string[]) => SetMetadata('roles', roles);
 
 @ApiTags('Akhdimni')
-@Controller({ path: 'akhdimni', version: ['1', '2'] })
+@Controller({ path: 'akhdimni', version: '1' })
 @ApiBearerAuth()
 export class AkhdimniController {
   constructor(private readonly akhdimniService: AkhdimniService) {}

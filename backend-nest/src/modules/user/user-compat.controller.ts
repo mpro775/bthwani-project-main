@@ -12,7 +12,7 @@ import { AuthType } from '../../common/guards/unified-auth.guard';
  */
 @ApiTags('User Compatibility')
 @ApiBearerAuth()
-@Controller({ path: 'user', version: ['1', '2'] })
+@Controller({ path: 'user', version: '1' })
 @UseGuards(UnifiedAuthGuard, RolesGuard)
 export class UserCompatController {
   constructor(private readonly userService: UserService) {}

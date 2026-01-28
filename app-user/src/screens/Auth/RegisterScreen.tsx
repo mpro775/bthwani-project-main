@@ -278,21 +278,19 @@ const RegisterScreen = () => {
         );
       }
 
-      // 4) جلب userId ثم الانتقال لشاشة OTP
-      const userRes = await axiosInstance.get(`/users/me`, {
-        headers: { Authorization: `Bearer ${result.token}` },
-        timeout: 10000,
-      });
-      const user = userRes.data;
+      // 4) استخدام userId من استجابة التسجيل مباشرة (تجنّب الاعتماد على /users/me بعد التسجيل)
+      const userId = String(result.user?.id ?? result.user?._id ?? "");
+      if (!userId) {
+        throw new Error("لم يتم إرجاع معرّف المستخدم من الخادم");
+      }
 
-      // خزّن معرّف المستخدم لاستخدامه لاحقًا
       try {
-        await AsyncStorage.setItem("userId", String(user._id || user.id));
+        await AsyncStorage.setItem("userId", userId);
       } catch {}
 
       navigation.navigate("OTPVerification", {
         email,
-        userId: String(user._id || user.id),
+        userId,
       });
     } catch (err: any) {
       const errorCode = err?.response?.data?.error?.code || err?.code || "";

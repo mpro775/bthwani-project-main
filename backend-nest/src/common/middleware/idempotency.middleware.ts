@@ -22,9 +22,9 @@ export class IdempotencyMiddleware implements NestMiddleware {
 
     // Define critical endpoints that require idempotency
     const criticalEndpoints = [
-      '/api/v2/payments',
-      '/api/v2/wallet/transfer',
-      '/api/v2/orders',
+      '/api/v1/payments',
+      '/api/v1/wallet/transfer',
+      '/api/v1/orders',
       '/auth/register',
       '/auth/login', // For OTP-based login
     ];

@@ -45,7 +45,7 @@ export const createHold = async (
   payload: CreateHoldPayload
 ): Promise<HoldItem> => {
   const headers = await getAuthHeaders();
-  const response = await axiosInstance.post("/api/v2/payments/holds", payload, {
+  const response = await axiosInstance.post("/payments/holds", payload, {
     headers,
   });
   return response.data;
@@ -56,7 +56,7 @@ export const createHold = async (
  */
 export const releaseHold = async (holdId: string): Promise<HoldItem> => {
   const headers = await getAuthHeaders();
-  const response = await axiosInstance.post(`/api/v2/payments/holds/${holdId}/release`, {}, {
+  const response = await axiosInstance.post(`/payments/holds/${holdId}/release`, {}, {
     headers,
   });
   return response.data;
@@ -70,7 +70,7 @@ export const refundHold = async (
   payload?: RefundPayload
 ): Promise<HoldItem> => {
   const headers = await getAuthHeaders();
-  const response = await axiosInstance.post(`/api/v2/payments/holds/${holdId}/refund`, payload || {}, {
+  const response = await axiosInstance.post(`/payments/holds/${holdId}/refund`, payload || {}, {
     headers,
   });
   return response.data;
@@ -81,7 +81,7 @@ export const refundHold = async (
  */
 export const getHoldDetails = async (holdId: string): Promise<HoldItem> => {
   const headers = await getAuthHeaders();
-  const response = await axiosInstance.get(`/api/v2/payments/holds/${holdId}`, {
+  const response = await axiosInstance.get(`/payments/holds/${holdId}`, {
     headers,
   });
   return response.data;
@@ -92,7 +92,7 @@ export const getHoldDetails = async (holdId: string): Promise<HoldItem> => {
  */
 export const getMyHolds = async (): Promise<HoldItem[]> => {
   const headers = await getAuthHeaders();
-  const response = await axiosInstance.get("/api/v2/payments/holds/my", {
+  const response = await axiosInstance.get("/payments/holds/my", {
     headers,
   });
   return response.data;

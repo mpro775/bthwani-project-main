@@ -7,7 +7,7 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Public } from '../../common/decorators/auth.decorator';
 
 @ApiTags('Events')
-@Controller({ path: 'events', version: ['1', '2'] })
+@Controller({ path: 'events', version: '1' })
 export class EventsController {
   @Public()
   @Post()

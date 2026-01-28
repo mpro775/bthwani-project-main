@@ -7,7 +7,7 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Public } from '../../common/decorators/auth.decorator';
 
 @ApiTags('Delivery - Categories')
-@Controller({ path: 'delivery/categories', version: ['1', '2'] })
+@Controller({ path: 'delivery/categories', version: '1' })
 export class DeliveryCategoriesController {
   @Public()
   @Get()

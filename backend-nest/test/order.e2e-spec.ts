@@ -26,7 +26,7 @@ describe('Order E2E Tests', () => {
 
     // Register and login a test user
     const registerResponse = await request(app.getHttpServer())
-      .post('/api/v2/auth/register')
+      .post('/api/v1/auth/register')
       .send({
         phone: '777' + Date.now(),
         fullName: 'Test User Orders',
@@ -43,12 +43,12 @@ describe('Order E2E Tests', () => {
     await app.close();
   });
 
-  describe('POST /api/v2/order (with Idempotency)', () => {
+  describe('POST /api/v1/order (with Idempotency)', () => {
     it('should create order with idempotency key', () => {
       const idempotencyKey = `order-${Date.now()}`;
 
       return request(app.getHttpServer())
-        .post('/api/v2/order')
+        .post('/api/v1/order')
         .set('Authorization', `Bearer ${authToken}`)
         .set('Idempotency-Key', idempotencyKey)
         .send({
@@ -74,7 +74,7 @@ describe('Order E2E Tests', () => {
 
     it('should require idempotency key for order creation', () => {
       return request(app.getHttpServer())
-        .post('/api/v2/order')
+        .post('/api/v1/order')
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           items: [],
@@ -84,10 +84,10 @@ describe('Order E2E Tests', () => {
     });
   });
 
-  describe('GET /api/v2/order', () => {
+  describe('GET /api/v1/order', () => {
     it('should return user orders', () => {
       return request(app.getHttpServer())
-        .get('/api/v2/order')
+        .get('/api/v1/order')
         .set('Authorization', `Bearer ${authToken}`)
         .expect(200)
         .expect((res: { body: { data: unknown } }) => {
@@ -104,14 +104,14 @@ describe('Order E2E Tests', () => {
     });
 
     it('should return 401 without auth', () => {
-      return request(app.getHttpServer()).get('/api/v2/order').expect(401);
+      return request(app.getHttpServer()).get('/api/v1/order').expect(401);
     });
   });
 
-  describe('GET /api/v2/order/:id', () => {
+  describe('GET /api/v1/order/:id', () => {
     it('should return 401 without auth', () => {
       return request(app.getHttpServer())
-        .get('/api/v2/order/invalid-id')
+        .get('/api/v1/order/invalid-id')
         .expect(401);
     });
   });

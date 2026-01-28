@@ -17,7 +17,7 @@ import { PaymentStatus, PaymentType, PaymentMethod, PaymentsWithOwner } from './
 
 @ApiTags('Admin:Payments')
 @ApiBearerAuth()
-@Controller({ path: 'admin/payments', version: ['2'] })
+@Controller({ path: 'admin/payments', version: '1' })
 @UseGuards(UnifiedAuthGuard, RolesGuard)
 @Auth(AuthType.JWT)
 @Roles('admin','superadmin')

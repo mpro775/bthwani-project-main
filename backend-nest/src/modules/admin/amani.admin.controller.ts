@@ -22,7 +22,7 @@ import { AmaniService } from '../amani/amani.service';
 
 @ApiTags('Admin:Amani')
 @ApiBearerAuth()
-@Controller({ path: 'admin/amani', version: ['2'] })
+@Controller({ path: 'admin/amani', version: '1' })
 @UseGuards(UnifiedAuthGuard, RolesGuard)
 @Auth(AuthType.JWT)
 @Roles('admin', 'superadmin')
