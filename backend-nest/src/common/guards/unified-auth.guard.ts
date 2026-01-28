@@ -21,7 +21,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { Request } from 'express';
+import type { Request } from 'express';
 
 export enum AuthType {
   JWT = 'jwt',
@@ -48,8 +48,10 @@ export class UnifiedAuthGuard implements CanActivate {
 
     // Get auth type from decorator (يمكن أن يكون نوع واحد أو مصفوفة)
     const authTypeOrTypes =
-      this.reflector.get<AuthType | AuthType[]>('authType', context.getHandler()) ||
-      AuthType.JWT;
+      this.reflector.get<AuthType | AuthType[]>(
+        'authType',
+        context.getHandler(),
+      ) || AuthType.JWT;
 
     const authTypes = Array.isArray(authTypeOrTypes)
       ? authTypeOrTypes
@@ -99,16 +101,6 @@ export class UnifiedAuthGuard implements CanActivate {
       userMessage: 'رمز الدخول غير صالح أو منتهي الصلاحية',
       suggestedAction: 'يرجى تسجيل الدخول مرة أخرى',
     });
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      throw new UnauthorizedException({
-        code: 'INVALID_TOKEN',
-        message: errorMessage,
-        userMessage: 'رمز الدخول غير صالح أو منتهي الصلاحية',
-        suggestedAction: 'يرجى تسجيل الدخول مرة أخرى',
-      });
-    }
   }
 
   private extractToken(request: Request): string | null {
@@ -120,6 +112,9 @@ export class UnifiedAuthGuard implements CanActivate {
 
   private async validateJWT(token: string) {
     const secret = this.configService.get<string>('jwt.secret');
+    if (!secret) {
+      throw new UnauthorizedException('JWT secret is not configured');
+    }
     const payload = await this.jwtService.verifyAsync<JWTPayload>(token, {
       secret,
     });
@@ -133,6 +128,9 @@ export class UnifiedAuthGuard implements CanActivate {
 
   private async validateVendorJWT(token: string) {
     const secret = this.configService.get<string>('jwt.vendorSecret');
+    if (!secret) {
+      throw new UnauthorizedException('Vendor JWT secret is not configured');
+    }
     const payload = await this.jwtService.verifyAsync<VendorJWTPayload>(token, {
       secret,
     });
@@ -146,6 +144,9 @@ export class UnifiedAuthGuard implements CanActivate {
 
   private async validateMarketerJWT(token: string) {
     const secret = this.configService.get<string>('jwt.marketerSecret');
+    if (!secret) {
+      throw new UnauthorizedException('Marketer JWT secret is not configured');
+    }
     const payload = await this.jwtService.verifyAsync<MarketerJWTPayload>(
       token,
       { secret },
