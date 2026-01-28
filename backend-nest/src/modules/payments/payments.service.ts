@@ -145,7 +145,7 @@ export class PaymentsService {
       }
     ]);
 
-    const result = {
+    const result: Record<string, number> = {
       total: 0,
       totalAmount: 0,
       pending: 0,

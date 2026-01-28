@@ -293,7 +293,7 @@ export class PayoutService {
       },
     ]);
 
-    const result = {
+    const result: Record<string, { totalAmount: number; count: number }> = {
       pending: { totalAmount: 0, count: 0 },
       processing: { totalAmount: 0, count: 0 },
       completed: { totalAmount: 0, count: 0 },

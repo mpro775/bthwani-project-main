@@ -72,7 +72,7 @@ export class KawaderService {
       }
     ]);
 
-    const result = {
+    const result: Record<string, number> = {
       total: 0,
       draft: 0,
       pending: 0,

@@ -351,7 +351,7 @@ export class DatabaseIndexService implements OnModuleInit {
         'performance_metrics',
       ];
 
-      const indexStats = {};
+      const indexStats: Record<string, any> = {};
 
       for (const collectionName of collections) {
         try {

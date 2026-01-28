@@ -338,7 +338,7 @@ export class AkhdimniService {
     const distanceFee = Math.round(distanceKm * 150);
 
     // رسوم الحجم
-    const sizeMultipliers = {
+    const sizeMultipliers: Record<string, number> = {
       small: 1,
       medium: 1.3,
       large: 1.6,
@@ -353,9 +353,7 @@ export class AkhdimniService {
     }
 
     // 3. حساب الرسوم الكلية
-    const deliveryFee = Math.round(
-      baseFee + distanceFee + sizeFee + weightFee,
-    );
+    const deliveryFee = Math.round(baseFee + distanceFee + sizeFee + weightFee);
 
     const tip = dto.tip || 0;
     const totalWithTip = deliveryFee + tip;

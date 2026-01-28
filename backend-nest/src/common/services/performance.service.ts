@@ -302,16 +302,16 @@ export class PerformanceService {
 
         if (!budget) continue;
 
-        const alerts = [];
+        const alerts: string[] = [];
 
         // Check error rate
         if (endpoint.errorRate > budget.errorRateThreshold) {
-          alerts.push(`Error rate ${endpoint.errorRate}% > ${budget.errorRateThreshold}%` as never);
+          alerts.push(`Error rate ${endpoint.errorRate}% > ${budget.errorRateThreshold}%`);
         }
 
         // Check P95 response time
         if (endpoint.p95ResponseTime > budget.responseTimeThreshold) {
-          alerts.push(`P95 ${endpoint.p95ResponseTime}ms > ${budget.responseTimeThreshold}ms` as never);
+          alerts.push(`P95 ${endpoint.p95ResponseTime}ms > ${budget.responseTimeThreshold}ms`);
         }
 
         if (alerts.length > 0) {
