@@ -129,9 +129,10 @@ export function CompleteIdempotency(key: string, result: any) {
         const result = await originalMethod.apply(this, args);
 
         // Update idempotency record
-        if (this.idempotencyModel && (args[0] as any)?.idempotency) {
+        const self = this as any;
+        if (self.idempotencyModel && (args[0] as any)?.idempotency) {
           const idempotencyInfo = (args[0] as any).idempotency;
-          await this.idempotencyModel.updateOne(
+          await self.idempotencyModel.updateOne(
             { key: idempotencyInfo.key },
             {
               result,
@@ -143,12 +144,14 @@ export function CompleteIdempotency(key: string, result: any) {
         return result;
       } catch (error) {
         // Mark as failed
-        if (this.idempotencyModel && (args[0] as any)?.idempotency) {
+        const self = this as any;
+        if (self.idempotencyModel && (args[0] as any)?.idempotency) {
           const idempotencyInfo = (args[0] as any).idempotency;
-          await this.idempotencyModel.updateOne(
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          await self.idempotencyModel.updateOne(
             { key: idempotencyInfo.key },
             {
-              result: { error: error.message },
+              result: { error: errorMessage },
               processedAt: new Date()
             }
           );
