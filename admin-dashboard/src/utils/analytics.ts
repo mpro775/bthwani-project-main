@@ -18,10 +18,18 @@ export const GTM_ID = 'GTM-XXXXXXX'; // Google Tag Manager ID
 export const initGA = () => {
   if (typeof window === 'undefined') return;
 
+  // Skip GA in development or when network is restricted
+  const isDev = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  if (isDev) {
+    console.log('GA initialization skipped in development');
+    return;
+  }
+
   // Google Analytics 4
   const script1 = document.createElement('script');
   script1.async = true;
   script1.src = `https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`;
+  script1.onerror = () => console.warn('GA script failed to load - network issue or blocked');
   document.head.appendChild(script1);
 
   const script2 = document.createElement('script');
@@ -42,6 +50,13 @@ export const initGA = () => {
 export const initGTM = () => {
   if (typeof window === 'undefined') return;
 
+  // Skip GTM in development or when network is restricted
+  const isDev = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  if (isDev || !GTM_ID || GTM_ID === 'GTM-XXXXXXX') {
+    console.log('GTM initialization skipped in development or missing ID');
+    return;
+  }
+
   // GTM Script
   const script = document.createElement('script');
   script.innerHTML = `
@@ -51,6 +66,7 @@ export const initGTM = () => {
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','${GTM_ID}');
   `;
+  script.onerror = () => console.warn('GTM script failed to load - network issue or blocked');
   document.head.appendChild(script);
 
   // GTM NoScript
@@ -176,6 +192,13 @@ export const trackShare = (contentType: string, itemId: string) => {
 export const initFacebookPixel = (pixelId: string) => {
   if (typeof window === 'undefined') return;
 
+  // Skip Facebook Pixel in development
+  const isDev = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  if (isDev || !pixelId) {
+    console.log('Facebook Pixel initialization skipped in development or missing ID');
+    return;
+  }
+
   const script = document.createElement('script');
   script.innerHTML = `
     !function(f,b,e,v,n,t,s)
@@ -189,6 +212,7 @@ export const initFacebookPixel = (pixelId: string) => {
     fbq('init', '${pixelId}');
     fbq('track', 'PageView');
   `;
+  script.onerror = () => console.warn('Facebook Pixel script failed to load - network issue or blocked');
   document.head.appendChild(script);
 };
 

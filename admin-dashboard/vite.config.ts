@@ -176,8 +176,11 @@ export default defineConfig(({ mode }) => {
               generatedCode: {
                 constBindings: false, // false لتجنب مشاكل التهيئة مع التبعيات الدائرية
                 objectShorthand: false, // false لضمان التوافق
+                presets: ['env'], // Use standard ES5/ES6 presets
               },
               // إعدادات إضافية لضمان ترتيب التحميل الصحيح
+              inlineDynamicImports: false, // Don't inline dynamic imports
+              esModule: 'if-default-prop', // Proper ES module interop
               interop: 'compat',
               preserveModules: false,
               chunkFileNames: `js/[name]-[hash].js`,

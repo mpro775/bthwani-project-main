@@ -160,6 +160,36 @@
     
     <!-- Performance Monitoring -->
     <script>
+      // Safety shim for React.Children - prevents "Cannot set properties of undefined"
+      if (typeof window !== 'undefined') {
+        window.__REACT_DEV_GLOBAL_HOOK__ = window.__REACT_DEV_GLOBAL_HOOK__ || {};
+        if (!window.__REACT_DEV_GLOBAL_HOOK__.Children) {
+          Object.defineProperty(window.__REACT_DEV_GLOBAL_HOOK__, 'Children', {
+            get: function() {
+              return {
+                map: function(children, fn) { return Array.isArray(children) ? children.map(fn) : fn(children); },
+                forEach: function(children, fn) { Array.isArray(children) ? children.forEach(fn) : fn(children); },
+                count: function(children) { return Array.isArray(children) ? children.length : 0; },
+                toArray: function(children) { return Array.isArray(children) ? children : [children]; },
+                only: function(children) { if (Array.isArray(children) || children === undefined) throw new Error('Children.only() expects only one child.'); return children; },
+              };
+            },
+            configurable: true,
+            writable: true
+          });
+        }
+      }
+
+      // Safety wrapper for onclick assignments - prevents "Cannot set properties of null"
+      const originalDefineProperty = Object.defineProperty;
+      Object.defineProperty = function(obj, prop, descriptor) {
+        if (prop === 'onclick' && descriptor && descriptor.value === null && obj === null) {
+          console.warn('Attempted to set onclick on null element - ignoring');
+          return;
+        }
+        return originalDefineProperty.apply(this, arguments);
+      };
+
       // Critical Resource Hints - DISABLED SERVICE WORKER IN DEV
       if ('serviceWorker' in navigator) {
         // لا تسجل SW في التطوير

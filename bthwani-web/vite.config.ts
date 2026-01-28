@@ -8,7 +8,14 @@ export default defineConfig(({ mode }) => {
   const isProd = mode === "production";
 
   return {
+    // يمنع تحميل نسخ متعددة من React (مهم لمنع React.Children error)
     resolve: {
+      dedupe: [
+        "react", 
+        "react-dom",
+        "@emotion/react", 
+        "@emotion/styled"
+      ],
       alias: {
         '@': path.resolve(__dirname, './src'),
       },
