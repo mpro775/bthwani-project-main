@@ -107,16 +107,14 @@ export class ArabonController {
   @ApiResponse({ status: HttpStatus.OK, description: 'تم الاسترجاع بنجاح' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'غير مخول' })
   async getMy(
-    @Req() req: Request & { user?: { id?: string; uid?: string } },
+    @Req() req: Request & { user?: { id?: string } },
     @Query('cursor') cursor?: string,
     @Query('status') status?: string,
   ) {
-    const uid = req?.user?.uid ?? req?.user?.id;
+    const uid = req?.user?.id;
     if (!uid) {
       return toListResponse({ items: [], nextCursor: null });
     }
-    // Deprecated: Firebase UID lookup removed - use findByOwner with user ID instead
-    // For backward compatibility, try to find user by ID first
     const result = await this.service.findByOwner(uid, { cursor, status });
     return toListResponse(result);
   }
@@ -154,11 +152,11 @@ export class ArabonController {
   @ApiResponse({ status: HttpStatus.OK, description: 'تم الاسترجاع بنجاح' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'غير مخول' })
   async getStats(
-    @Req() req: Request & { user?: { id?: string; uid?: string } },
+    @Req() req: Request & { user?: { id?: string } },
     @Query('scope') scope?: string,
   ) {
     if (scope === 'my') {
-      const uid = req?.user?.uid ?? req?.user?.id;
+      const uid = req?.user?.id;
       if (!uid) {
         return {
           total: 0,
@@ -170,8 +168,6 @@ export class ArabonController {
           totalDepositAmount: 0,
         };
       }
-      // Deprecated: Firebase UID lookup removed - use getStatsForOwner with user ID instead
-      // For backward compatibility, try to find user by ID first
       return this.service.getStatsForOwner(uid);
     }
     return this.service.getStats();
@@ -224,11 +220,11 @@ export class ArabonController {
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'حالة غير صحيحة' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'غير مخول' })
   updateStatus(
-    @Req() req: Request & { user?: { id?: string; uid?: string } },
+    @Req() req: Request & { user?: { id?: string } },
     @Param('id') id: string,
     @Body() body: { status: string },
   ) {
-    const uid = req?.user?.uid ?? req?.user?.id;
+    const uid = req?.user?.id;
     return this.service.updateStatus(id, body.status, uid);
   }
 
@@ -258,11 +254,11 @@ export class ArabonController {
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'بيانات غير صحيحة' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'غير مخول' })
   update(
-    @Req() req: Request & { user?: { id?: string; uid?: string } },
+    @Req() req: Request & { user?: { id?: string } },
     @Param('id') id: string,
     @Body() dto: UpdateArabonDto,
   ) {
-    const uid = req?.user?.uid ?? req?.user?.id;
+    const uid = req?.user?.id;
     return this.service.update(id, dto, uid);
   }
 

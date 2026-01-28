@@ -16,6 +16,8 @@ import { RegisterLocalDto } from './dto/register-local.dto';
 import { Driver } from '../driver/entities/driver.entity';
 import * as bcrypt from 'bcrypt';
 import { EmailService } from '../../common/services/email.service';
+import { VerifyOtpResponse } from './types/auth.types';
+import { SanitizationHelper } from 'src/common/utils/sanitization.helper';
 
 // Types for return values
 export interface AuthResponse {
@@ -148,10 +150,7 @@ export class AuthService {
     console.log(`Password reset code for ${emailOrPhone}: ${resetCode}`);
   }
 
-  async verifyResetCode(
-    emailOrPhone: string,
-    code: string,
-  ): Promise<boolean> {
+  async verifyResetCode(emailOrPhone: string, code: string): Promise<boolean> {
     const user = await this.userModel.findOne({
       $or: [{ email: emailOrPhone }, { phone: emailOrPhone }],
     });
@@ -253,21 +252,29 @@ export class AuthService {
   }
 
   // مقارنة كلمة المرور المشفرة
-  private async comparePassword(plainPassword: string, hashedPassword: string): Promise<boolean> {
+  private async comparePassword(
+    plainPassword: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
     return bcrypt.compare(plainPassword, hashedPassword);
   }
 
   // تسجيل دخول السائق
   async driverLogin(email: string, password: string) {
     // البحث عن السائق في مجموعة الـ drivers
-    const driver = await this.driverModel.findOne({ email }).select('+password');
+    const driver = await this.driverModel
+      .findOne({ email })
+      .select('+password');
 
     if (!driver) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
     // التحقق من كلمة المرور
-    const isValidPassword = await this.comparePassword(password, driver.password);
+    const isValidPassword = await this.comparePassword(
+      password,
+      driver.password,
+    );
     if (!isValidPassword) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -278,7 +285,7 @@ export class AuthService {
     }
 
     // توليد token
-    const token = await this.generateDriverToken(driver);
+    const token = this.generateDriverToken(driver);
 
     return {
       user: this.sanitizeDriver(driver),
@@ -288,9 +295,9 @@ export class AuthService {
   }
 
   // توليد token للسائق
-  private async generateDriverToken(driver: any) {
+  private generateDriverToken(driver: Driver) {
     const payload = {
-      sub: driver._id,
+      sub: String(driver._id),
       email: driver.email,
       role: 'driver',
       type: 'driver',
@@ -301,7 +308,7 @@ export class AuthService {
 
   // تنظيف بيانات السائق
   private sanitizeDriver(driver: any) {
-    const { password, ...sanitized } = driver.toObject();
+    const sanitized = SanitizationHelper.sanitize<Driver>(driver);
     return sanitized;
   }
 
@@ -326,7 +333,10 @@ export class AuthService {
     }
 
     // تشفير كلمة المرور
-    const hashedPassword = await bcrypt.hash(registerDto.password, this.SALT_ROUNDS);
+    const hashedPassword = await bcrypt.hash(
+      registerDto.password,
+      this.SALT_ROUNDS,
+    );
 
     // إنشاء مستخدم جديد
     const user = await this.userModel.create({
@@ -367,7 +377,10 @@ export class AuthService {
     }
 
     // التحقق من كلمة المرور
-    const isValidPassword = await this.comparePassword(password, user.password || '');
+    const isValidPassword = await this.comparePassword(
+      password,
+      user.password || '',
+    );
     if (!isValidPassword) {
       throw new UnauthorizedException({
         code: 'INVALID_CREDENTIALS',
@@ -485,7 +498,7 @@ export class AuthService {
     // إرسال OTP عبر البريد الإلكتروني
     try {
       await this.emailService.sendOtpEmail(user.email, otpCode, user.fullName);
-    } catch (error) {
+    } catch {
       // في حالة فشل الإرسال، نمسح OTP
       user.emailOtpCode = undefined;
       user.emailOtpExpires = undefined;
@@ -508,7 +521,10 @@ export class AuthService {
   /**
    * التحقق من OTP وتفعيل الحساب
    */
-  async verifyEmailOtp(userId: string, code: string): Promise<VerifyOtpResponse> {
+  async verifyEmailOtp(
+    userId: string,
+    code: string,
+  ): Promise<VerifyOtpResponse> {
     const user = await this.userModel.findById(userId).select('+emailOtpCode');
 
     if (!user) {

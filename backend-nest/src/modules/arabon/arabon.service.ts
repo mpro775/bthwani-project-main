@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
 import { Types } from 'mongoose';
@@ -6,7 +10,6 @@ import { Arabon, ArabonStatus } from './entities/arabon.entity';
 import { ArabonStatusLog } from './entities/arabon-status-log.entity';
 import type CreateArabonDto from './dto/create-arabon.dto';
 import type UpdateArabonDto from './dto/update-arabon.dto';
-import { User } from '../auth/entities/user.entity';
 
 const LIST_LIMIT = 25;
 const VALID_STATUSES = Object.values(ArabonStatus);
@@ -21,8 +24,8 @@ function parseCursor(cursor: string | undefined): Types.ObjectId | null {
 export class ArabonService {
   constructor(
     @InjectModel(Arabon.name) private readonly model: Model<Arabon>,
-    @InjectModel(ArabonStatusLog.name) private readonly statusLogModel: Model<ArabonStatusLog>,
-    @InjectModel(User.name) private readonly userModel: Model<User>,
+    @InjectModel(ArabonStatusLog.name)
+    private readonly statusLogModel: Model<ArabonStatusLog>,
   ) {}
 
   async create(dto: CreateArabonDto) {
@@ -46,21 +49,30 @@ export class ArabonService {
     if (cursorId) {
       queryFilter._id = { $lt: cursorId };
     }
-    const query = this.model.find(queryFilter).sort({ _id: -1 }).limit(LIST_LIMIT + 1);
+    const query = this.model
+      .find(queryFilter)
+      .sort({ _id: -1 })
+      .limit(LIST_LIMIT + 1);
     const items = await query.exec();
     const hasMore = items.length > LIST_LIMIT;
     const resultItems = hasMore ? items.slice(0, -1) : items;
-    const nextCursor = hasMore && resultItems.length
-      ? String(resultItems[resultItems.length - 1]._id)
-      : null;
+    const nextCursor =
+      hasMore && resultItems.length
+        ? String(resultItems[resultItems.length - 1]._id)
+        : null;
     return { items: resultItems, nextCursor };
   }
 
-  async findByOwner(ownerId: string, opts: { cursor?: string; status?: string }) {
+  async findByOwner(
+    ownerId: string,
+    opts: { cursor?: string; status?: string },
+  ) {
     if (!Types.ObjectId.isValid(ownerId)) {
       return { items: [], nextCursor: null };
     }
-    const filter: Record<string, unknown> = { ownerId: new Types.ObjectId(ownerId) };
+    const filter: Record<string, unknown> = {
+      ownerId: new Types.ObjectId(ownerId),
+    };
     if (opts?.status && VALID_STATUSES.includes(opts.status as ArabonStatus)) {
       filter.status = opts.status;
     }
@@ -70,30 +82,21 @@ export class ArabonService {
     if (cursorId) {
       queryFilter._id = { $lt: cursorId };
     }
-    const query = this.model.find(queryFilter).sort({ _id: -1 }).limit(LIST_LIMIT + 1);
+    const query = this.model
+      .find(queryFilter)
+      .sort({ _id: -1 })
+      .limit(LIST_LIMIT + 1);
     const items = await query.exec();
     const hasMore = items.length > LIST_LIMIT;
     const resultItems = hasMore ? items.slice(0, -1) : items;
-    const nextCursor = hasMore && resultItems.length
-      ? String(resultItems[resultItems.length - 1]._id)
-      : null;
+    const nextCursor =
+      hasMore && resultItems.length
+        ? String(resultItems[resultItems.length - 1]._id)
+        : null;
     return { items: resultItems, nextCursor };
   }
 
-  // Deprecated: Firebase UID lookup removed - use findByOwner with user ID instead
-  // async findByOwnerFirebaseUid(
-  //   firebaseUid: string,
-  //   opts: { cursor?: string; status?: string },
-  // ) {
-  //   const user = await this.userModel.findOne({ firebaseUID: firebaseUid }).select('_id').lean().exec();
-  //   if (!user?._id) return { items: [], nextCursor: null };
-  //   return this.findByOwner(String(user._id), opts);
-  // }
-
-  async search(
-    q: string,
-    opts: { cursor?: string; status?: string } = {},
-  ) {
+  async search(q: string, opts: { cursor?: string; status?: string } = {}) {
     const searchFilter: Record<string, unknown> = {
       $or: [
         { title: { $regex: q, $options: 'i' } },
@@ -109,29 +112,41 @@ export class ArabonService {
     if (cursorId) {
       queryFilter._id = { $lt: cursorId };
     }
-    const query = this.model.find(queryFilter).sort({ _id: -1 }).limit(LIST_LIMIT + 1);
+    const query = this.model
+      .find(queryFilter)
+      .sort({ _id: -1 })
+      .limit(LIST_LIMIT + 1);
     const items = await query.exec();
     const hasMore = items.length > LIST_LIMIT;
     const resultItems = hasMore ? items.slice(0, -1) : items;
-    const nextCursor = hasMore && resultItems.length
-      ? String(resultItems[resultItems.length - 1]._id)
-      : null;
+    const nextCursor =
+      hasMore && resultItems.length
+        ? String(resultItems[resultItems.length - 1]._id)
+        : null;
     return { items: resultItems, nextCursor };
   }
 
-  async list(filters: Record<string, unknown> = {}, cursor?: string, limit: number = 25) {
+  async list(
+    filters: Record<string, unknown> = {},
+    cursor?: string,
+    limit: number = 25,
+  ) {
     const cursorId = parseCursor(cursor);
     const queryFilter: any = { ...filters };
     if (cursorId) {
       queryFilter._id = { $lt: cursorId };
     }
-    const query = this.model.find(queryFilter).sort({ _id: -1 }).limit(limit + 1);
+    const query = this.model
+      .find(queryFilter)
+      .sort({ _id: -1 })
+      .limit(limit + 1);
     const items = await query.exec();
     const hasMore = items.length > limit;
     const resultItems = hasMore ? items.slice(0, -1) : items;
-    const nextCursor = hasMore && resultItems.length
-      ? String(resultItems[resultItems.length - 1]._id)
-      : null;
+    const nextCursor =
+      hasMore && resultItems.length
+        ? String(resultItems[resultItems.length - 1]._id)
+        : null;
     return { items: resultItems, nextCursor };
   }
 
@@ -142,9 +157,14 @@ export class ArabonService {
   }
 
   async update(id: string, dto: UpdateArabonDto, userId?: string) {
-    const prev = await this.model.findById(id).lean<{ status?: string }>().exec();
+    const prev = await this.model
+      .findById(id)
+      .lean<{ status?: string }>()
+      .exec();
     if (!prev) throw new NotFoundException('Not found');
-    const doc = await this.model.findByIdAndUpdate(id, dto, { new: true }).exec();
+    const doc = await this.model
+      .findByIdAndUpdate(id, dto, { new: true })
+      .exec();
     if (!doc) throw new NotFoundException('Not found');
     if (dto.status != null && String(prev.status) !== String(dto.status)) {
       await this.logStatusChange(id, prev.status, dto.status, userId);
@@ -156,9 +176,14 @@ export class ArabonService {
     if (!VALID_STATUSES.includes(status as ArabonStatus)) {
       throw new BadRequestException('Invalid status');
     }
-    const prev = await this.model.findById(id).lean<{ status?: string }>().exec();
+    const prev = await this.model
+      .findById(id)
+      .lean<{ status?: string }>()
+      .exec();
     if (!prev) throw new NotFoundException('Not found');
-    const doc = await this.model.findByIdAndUpdate(id, { status }, { new: true }).exec();
+    const doc = await this.model
+      .findByIdAndUpdate(id, { status }, { new: true })
+      .exec();
     if (!doc) throw new NotFoundException('Not found');
     if (String(prev.status) !== status) {
       await this.logStatusChange(id, prev.status, status, userId);
@@ -194,7 +219,9 @@ export class ArabonService {
     const hasMore = items.length > LIST_LIMIT;
     const resultItems = hasMore ? items.slice(0, -1) : items;
     const nextCursor =
-      hasMore && resultItems.length ? String((resultItems[resultItems.length - 1] as any)._id) : null;
+      hasMore && resultItems.length
+        ? String((resultItems[resultItems.length - 1] as any)._id)
+        : null;
     return { items: resultItems, nextCursor };
   }
 
@@ -213,19 +240,34 @@ export class ArabonService {
     cancelled: number;
     totalDepositAmount: number;
   }> {
-    const match: Record<string, unknown> = {};
+    const filter: Record<string, unknown> = {};
     if (ownerId && Types.ObjectId.isValid(ownerId)) {
-      match.ownerId = new Types.ObjectId(ownerId);
+      filter.ownerId = new Types.ObjectId(ownerId);
     }
-    const statusPipe = this.model.aggregate();
-    const sumPipe = this.model.aggregate();
-    if (Object.keys(match).length) {
-      statusPipe.match(match);
-      sumPipe.match(match);
-    }
+
     const [statusGroups, sumResult] = await Promise.all([
-      statusPipe.group({ _id: '$status', count: { $sum: 1 } }).exec(),
-      sumPipe.group({ _id: null, total: { $sum: { $ifNull: ['$depositAmount', 0] } } }).exec(),
+      this.model
+        .aggregate([
+          { $match: filter },
+          {
+            $group: {
+              _id: '$status',
+              count: { $sum: 1 },
+            },
+          },
+        ])
+        .exec(),
+      this.model
+        .aggregate([
+          { $match: filter },
+          {
+            $group: {
+              _id: null,
+              total: { $sum: { $ifNull: ['$depositAmount', 0] } },
+            },
+          },
+        ])
+        .exec(),
     ]);
 
     const result = {
@@ -246,23 +288,7 @@ export class ArabonService {
     return result;
   }
 
-  // Deprecated: Firebase UID lookup removed - use getStatsForOwner with user ID instead
-  async getStatsForFirebaseUid(firebaseUid: string) {
-    // This method is deprecated - Firebase UID lookup is no longer supported
-    // Use getStatsForOwner with user ID instead
-    throw new Error('Firebase UID lookup is no longer supported. Use getStatsForOwner with user ID instead.');
-    // const user = await this.userModel.findOne({ firebaseUID: firebaseUid }).select('_id').lean().exec();
-    if (!user?._id) {
-      return {
-        total: 0,
-        draft: 0,
-        pending: 0,
-        confirmed: 0,
-        completed: 0,
-        cancelled: 0,
-        totalDepositAmount: 0,
-      };
-    }
-    return this.getStats(String(user._id));
+  async getStatsForOwner(ownerId: string) {
+    return this.getStats(ownerId);
   }
 }
