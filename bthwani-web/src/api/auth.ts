@@ -1,7 +1,7 @@
 import axios from "axios";
 import axiosInstance from "./axios-instance";
 import { storage } from "../utils/storage";
-import type { AuthResponse } from "../types";
+import type { AuthResponse, AuthApiResponse } from "../types";
 
 const API_URL = import.meta.env.VITE_API_URL || "https://api.bthwani.com/api/v2";
 
@@ -22,7 +22,7 @@ export const registerWithEmail = async (
   fullName?: string,
   phone?: string
 ): Promise<AuthResponse> => {
-  const response = await axios.post<{ success: boolean; data: AuthResponse }>(
+  const response = await axios.post<{ success: boolean; data: AuthApiResponse }>(
     `${API_URL}/auth/register`,
     { email, password, fullName, phone }
   );
@@ -50,7 +50,7 @@ export const loginWithEmail = async (
   email: string,
   password: string
 ): Promise<AuthResponse> => {
-  const response = await axios.post<{ success: boolean; data: AuthResponse }>(
+  const response = await axios.post<{ success: boolean; data: AuthApiResponse }>(
     `${API_URL}/auth/login`,
     { email, password }
   );

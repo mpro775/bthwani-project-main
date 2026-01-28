@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 // Firebase messaging removed - using backend push notifications instead
 // import { requestFcmToken, listenForegroundMessages } from '../utils/firebase';
-import { registerPushToken } from '../api/notifications';
+// import { registerPushToken } from '../api/notifications';
 
 export function useFcmToken(userId?: string | null) {
-  const [token, setToken] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [token] = useState<string | null>(null);
+  const [error] = useState<string | null>(null);
 
   // Firebase messaging removed - this hook is now a placeholder
   // Push notifications are handled by the backend
