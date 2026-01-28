@@ -39,7 +39,7 @@ import { AuthType } from '../../common/guards/unified-auth.guard';
 export class WalletController {
   constructor(private readonly walletService: WalletService) {}
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @SkipThrottle() // ✅ لا rate limiting على القراءة
   @Get('balance')
   @ApiResponse({ status: 200, description: 'Success' })
@@ -54,7 +54,7 @@ export class WalletController {
     return this.walletService.getWalletBalance(userId);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('transactions')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -193,7 +193,7 @@ export class WalletController {
 
   // ==================== Topup (Kuraimi) ====================
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Post('topup/kuraimi')
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
@@ -233,7 +233,7 @@ export class WalletController {
     );
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Post('topup/verify')
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
@@ -261,7 +261,7 @@ export class WalletController {
     return this.walletService.verifyTopup(userId, body.transactionId);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('topup/history')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -280,7 +280,7 @@ export class WalletController {
     return this.walletService.getTopupHistory(userId, pagination);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('topup/methods')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -296,7 +296,7 @@ export class WalletController {
 
   // ==================== Withdrawals ====================
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Throttle({ strict: { ttl: 60000, limit: 10 } }) // ✅ 10 طلبات سحب في الدقيقة
   @Post('withdraw/request')
   @ApiResponse({ status: 201, description: 'Created' })
@@ -344,7 +344,7 @@ export class WalletController {
     );
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('withdraw/my')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -363,7 +363,7 @@ export class WalletController {
     return this.walletService.getMyWithdrawals(userId, pagination);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Patch('withdraw/:id/cancel')
   @ApiParam({ name: 'id', type: String })
   @ApiResponse({ status: 200, description: 'Updated' })
@@ -385,7 +385,7 @@ export class WalletController {
     return this.walletService.cancelWithdrawal(withdrawalId, userId);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('withdraw/methods')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -395,7 +395,7 @@ export class WalletController {
 
   // ==================== Admin Withdrawal Management ====================
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Roles('admin', 'superadmin')
   @Get('admin/withdrawals')
   @ApiOperation({ summary: 'جلب طلبات السحب (Admin)' })
@@ -417,7 +417,7 @@ export class WalletController {
     });
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Roles('admin', 'superadmin')
   @Get('admin/withdrawals/pending')
   @ApiOperation({ summary: 'طلبات السحب المعلقة (Admin)' })
@@ -425,7 +425,7 @@ export class WalletController {
     return this.walletService.getPendingWithdrawals();
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Roles('admin', 'superadmin')
   @Patch('admin/withdrawals/:id/approve')
   @ApiOperation({ summary: 'الموافقة على طلب سحب (Admin)' })
@@ -443,7 +443,7 @@ export class WalletController {
     });
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Roles('admin', 'superadmin')
   @Patch('admin/withdrawals/:id/reject')
   @ApiOperation({ summary: 'رفض طلب سحب (Admin)' })
@@ -468,7 +468,7 @@ export class WalletController {
 
   // ==================== Pay Bills ====================
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Post('pay-bill')
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
@@ -513,7 +513,7 @@ export class WalletController {
     );
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('bills')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -534,7 +534,7 @@ export class WalletController {
 
   // ==================== Transfers ====================
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Throttle({ strict: { ttl: 60000, limit: 5 } }) // ✅ 5 تحويلات كحد أقصى في الدقيقة
   @Post('transfer')
   @ApiResponse({ status: 201, description: 'Created' })
@@ -558,7 +558,7 @@ export class WalletController {
     );
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('transfers')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -572,7 +572,7 @@ export class WalletController {
 
   // ==================== Additional ====================
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('transaction/:id')
   @ApiParam({ name: 'id', type: String })
   @ApiResponse({ status: 200, description: 'Success' })
@@ -586,7 +586,7 @@ export class WalletController {
     return this.walletService.getTransactionDetails(transactionId, userId);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Post('refund/request')
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })

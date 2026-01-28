@@ -48,7 +48,7 @@ export class OrderCqrsController {
 
   // ==================== Commands (Write Operations) ====================
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Post()
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
@@ -135,7 +135,7 @@ export class OrderCqrsController {
     };
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Post(':id/cancel')
   @ApiParam({ name: 'id', type: String })
   @ApiResponse({ status: 201, description: 'Created' })
@@ -165,7 +165,7 @@ export class OrderCqrsController {
 
   // ==================== Queries (Read Operations) ====================
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get(':id')
   @ApiParam({ name: 'id', type: String })
   @ApiResponse({ status: 200, description: 'Success' })
@@ -184,7 +184,7 @@ export class OrderCqrsController {
     };
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get()
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })

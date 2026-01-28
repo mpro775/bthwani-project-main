@@ -1,6 +1,6 @@
 import  { useEffect, useState, useCallback } from "react";
 import axios from "../../utils/axios";
-import { auth } from "../../config/firebaseConfig";
+// Firebase removed - using JWT from localStorage
 
 
 
@@ -61,8 +61,7 @@ export default function AdminCampaignsPanel() {
   const [items, setItems] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const user = auth.currentUser;
-  const token = user?.getIdToken(true);
+  const token = localStorage.getItem("adminToken");
 
   const [creating, setCreating] = useState<boolean>(false);
   const [form, setForm] = useState<Campaign>({

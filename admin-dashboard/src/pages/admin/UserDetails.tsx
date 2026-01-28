@@ -22,8 +22,8 @@ import {
   Refresh as RefreshIcon,
   Info as InfoIcon,
 } from "@mui/icons-material";
-import { auth } from "../../config/firebaseConfig";
-import { onAuthStateChanged } from "firebase/auth";
+// Firebase removed - using JWT from localStorage
+// Firebase removed - using JWT from localStorage
 
 interface Stats {
   total: number;
@@ -52,9 +52,8 @@ export default function UserStats() {
     setLoading(true);
     setError("");
     try {
-      const user = auth.currentUser;
-      if (!user) throw new Error("المستخدم غير مسجل دخول");
-      const token = await user.getIdToken(true);
+      const token = localStorage.getItem("adminToken");
+      if (!token) throw new Error("المستخدم غير مسجل دخول");
       const res = await axios.get<Partial<Stats>>("/admin/stats", {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -75,11 +74,12 @@ export default function UserStats() {
   };
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (user) => {
-      if (user) fetchStats();
-      else console.warn("❌ لا يوجد مستخدم مسجل دخول");
-    });
-    return () => unsub();
+    const token = localStorage.getItem("adminToken");
+    if (token) {
+      fetchStats();
+    } else {
+      console.warn("❌ لا يوجد مستخدم مسجل دخول");
+    }
   }, []);
 
   const statCards = [

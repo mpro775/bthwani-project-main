@@ -36,7 +36,7 @@ import {
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import axios from "../../utils/axios";
-import { auth } from "../../config/firebaseConfig";
+// Firebase removed - using JWT from localStorage
 import type {
   Banner,
   BannerForm,
@@ -93,7 +93,7 @@ export default function DeliveryBannersPage() {
   const fetchBanners = async () => {
     try {
       setLoading(true);
-      const token = await auth.currentUser?.getIdToken(true);
+      const token = localStorage.getItem("adminToken");
       if (!token) return;
 
       const res = await axios.get("/delivery/banners/admin", {
@@ -110,7 +110,7 @@ export default function DeliveryBannersPage() {
 
   const fetchStores = async () => {
     try {
-      const token = await auth.currentUser?.getIdToken(true);
+      const token = localStorage.getItem("adminToken");
       if (!token) return;
       const res = await axios.get("/delivery/stores", {
         headers: { Authorization: `Bearer ${token}` },

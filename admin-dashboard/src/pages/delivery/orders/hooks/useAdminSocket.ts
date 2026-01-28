@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import axios from "../../../../utils/axios";
-import { auth } from "../../../../config/firebaseConfig";
+// Firebase removed - using JWT from localStorage
 import { useQueryClient } from "react-query";
 
 export function useAdminSocket() {
@@ -12,7 +12,7 @@ export function useAdminSocket() {
 
   const ensure = useCallback(async (): Promise<Socket> => {
     if (ref.current?.connected) return ref.current;
-    const token = await auth.currentUser?.getIdToken(true);
+    const token = localStorage.getItem("adminToken");
     const baseURL = (axios.defaults as { baseURL: string }).baseURL || "";
     const s = io(baseURL, { transports: ["websocket"], auth: { token } });
     ref.current = s;

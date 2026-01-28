@@ -34,7 +34,6 @@ const MaaroufDetailsScreen = () => {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [startingChat, setStartingChat] = useState(false);
-  const [startingChat, setStartingChat] = useState(false);
 
   const loadItem = useCallback(async () => {
     try {

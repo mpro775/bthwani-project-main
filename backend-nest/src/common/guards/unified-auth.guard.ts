@@ -22,10 +22,8 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
-import * as admin from 'firebase-admin';
 
 export enum AuthType {
-  FIREBASE = 'firebase',
   JWT = 'jwt',
   VENDOR_JWT = 'vendor_jwt',
   MARKETER_JWT = 'marketer_jwt',
@@ -48,10 +46,14 @@ export class UnifiedAuthGuard implements CanActivate {
     );
     if (isPublic) return true;
 
-    // Get auth type from decorator
-    const authType =
-      this.reflector.get<AuthType>('authType', context.getHandler()) ||
+    // Get auth type from decorator (يمكن أن يكون نوع واحد أو مصفوفة)
+    const authTypeOrTypes =
+      this.reflector.get<AuthType | AuthType[]>('authType', context.getHandler()) ||
       AuthType.JWT;
+
+    const authTypes = Array.isArray(authTypeOrTypes)
+      ? authTypeOrTypes
+      : [authTypeOrTypes];
 
     const request = context.switchToHttp().getRequest<Request>();
     const token = this.extractToken(request);
@@ -65,24 +67,38 @@ export class UnifiedAuthGuard implements CanActivate {
       });
     }
 
-    try {
-      switch (authType) {
-        case AuthType.FIREBASE:
-          request.user = await this.validateFirebaseToken(token);
-          break;
-        case AuthType.JWT:
-          request.user = await this.validateJWT(token);
-          break;
-        case AuthType.VENDOR_JWT:
-          request.user = await this.validateVendorJWT(token);
-          break;
-        case AuthType.MARKETER_JWT:
-          request.user = await this.validateMarketerJWT(token);
-          break;
-        default:
-          throw new UnauthorizedException('Invalid auth type');
+    // محاولة التحقق باستخدام أي نوع من الأنواع المدعومة
+    let lastError: Error | null = null;
+    for (const authType of authTypes) {
+      try {
+        switch (authType) {
+          case AuthType.JWT:
+            request.user = await this.validateJWT(token);
+            return true;
+          case AuthType.VENDOR_JWT:
+            request.user = await this.validateVendorJWT(token);
+            return true;
+          case AuthType.MARKETER_JWT:
+            request.user = await this.validateMarketerJWT(token);
+            return true;
+          default:
+            lastError = new Error('Invalid auth type');
+            continue;
+        }
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error));
+        // استمر في المحاولة مع الأنواع الأخرى
+        continue;
       }
-      return true;
+    }
+
+    // إذا فشلت جميع المحاولات
+    throw new UnauthorizedException({
+      code: 'INVALID_TOKEN',
+      message: lastError?.message || 'Invalid token',
+      userMessage: 'رمز الدخول غير صالح أو منتهي الصلاحية',
+      suggestedAction: 'يرجى تسجيل الدخول مرة أخرى',
+    });
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
@@ -100,16 +116,6 @@ export class UnifiedAuthGuard implements CanActivate {
     if (!authHeader) return null;
     const token = authHeader.replace(/^Bearer\s+/i, '').trim();
     return token.replace(/^["'](.*)["']$/, '$1');
-  }
-
-  private async validateFirebaseToken(token: string) {
-    const decodedToken = await admin.auth().verifyIdToken(token, true);
-    return {
-      id: decodedToken.uid,
-      uid: decodedToken.uid,
-      email: decodedToken.email,
-      authType: 'firebase',
-    };
   }
 
   private async validateJWT(token: string) {

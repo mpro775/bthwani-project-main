@@ -70,7 +70,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     phone: string
   ) => {
     try {
-      await registerWithEmail(email, password);
+      await registerWithEmail(email, password, fullName, phone);
 
       // Auto login after registration
       const loginResult = await login(email, password);

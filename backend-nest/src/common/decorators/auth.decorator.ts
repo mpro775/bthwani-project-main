@@ -6,9 +6,13 @@ import {
 import { AuthType } from '../guards/unified-auth.guard';
 import { User } from '../../modules/auth/entities/user.entity';
 
-// Auth Type Decorator
-export const Auth = (type: AuthType = AuthType.JWT) =>
-  SetMetadata('authType', type);
+// Auth Type Decorator - يدعم نوع واحد أو عدة أنواع
+export const Auth = (...types: AuthType[]) => {
+  if (types.length === 0) {
+    types = [AuthType.JWT];
+  }
+  return SetMetadata('authType', types.length === 1 ? types[0] : types);
+};
 
 // Public Route Decorator
 export const Public = () => SetMetadata('isPublic', true);

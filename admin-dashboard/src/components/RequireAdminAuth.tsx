@@ -2,8 +2,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { Box, CircularProgress, Typography, Alert, Button } from "@mui/material";
-import { auth } from "../config/firebaseConfig";
-import { onAuthStateChanged } from "firebase/auth";
 
 interface RequireAdminAuthProps {
   children: React.ReactNode;
@@ -17,29 +15,15 @@ export default function RequireAdminAuth({ children }: RequireAdminAuthProps) {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const checkAuth = () => {
       try {
-        if (user) {
-          // فحص التوكن
-          const token = await user.getIdToken(true);
-          const adminToken = localStorage.getItem("adminToken");
-          
-          if (token && adminToken === token) {
-            setIsAuthenticated(true);
-            setError("");
-          } else {
-            // تحديث التوكن
-            localStorage.setItem("adminToken", token);
-            localStorage.setItem("adminUser", JSON.stringify({
-              uid: user.uid,
-              email: user.email,
-              displayName: user.displayName
-            }));
-            setIsAuthenticated(true);
-            setError("");
-          }
+        const adminToken = localStorage.getItem("adminToken");
+        const adminUser = localStorage.getItem("adminUser");
+        
+        if (adminToken && adminUser) {
+          setIsAuthenticated(true);
+          setError("");
         } else {
-          // لا يوجد مستخدم مسجل دخول
           setIsAuthenticated(false);
           setError("يجب تسجيل الدخول للوصول إلى هذه الصفحة");
           navigate("/admin/login", { 
@@ -58,9 +42,9 @@ export default function RequireAdminAuth({ children }: RequireAdminAuthProps) {
       } finally {
         setIsLoading(false);
       }
-    });
+    };
 
-    return () => unsubscribe();
+    checkAuth();
   }, [navigate, location]);
 
   if (isLoading) {

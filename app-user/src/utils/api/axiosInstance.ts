@@ -1,5 +1,5 @@
 // src/utils/api/axiosInstance.ts
-import { refreshIdToken } from "../../api/authService";
+import { getStoredJwtToken } from "../../api/authService";
 import { shouldSilenceAuthPrompts } from "../../guards/authGate";
 import { getAuthBanner } from "../../guards/bannerGateway";
 import axios from "axios";
@@ -43,7 +43,7 @@ axiosInstance.interceptors.request.use(
       !mustAuth && publicEndpoints.some((p) => url.startsWith(p));
 
     if (!isPublic) {
-      const token = await refreshIdToken(); // قد ترجع null
+      const token = await getStoredJwtToken(); // قد ترجع null
       if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -126,8 +126,8 @@ axiosInstance.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const { refreshIdToken } = await import("@/api/authService");
-        const newToken = await refreshIdToken();
+        const { getStoredJwtToken } = await import("@/api/authService");
+        const newToken = await getStoredJwtToken();
 
         if (newToken) {
           // تحديث الهيدر العام

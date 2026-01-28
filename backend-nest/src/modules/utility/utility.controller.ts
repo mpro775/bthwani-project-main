@@ -235,7 +235,7 @@ export class UtilityController {
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'إنشاء طلب غاز أو ماء' })
   async createOrder(
@@ -248,7 +248,7 @@ export class UtilityController {
   @Get('orders')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'جلب طلبات المستخدم' })
   async getUserOrders(@CurrentUser('id') userId: string) {
@@ -260,7 +260,7 @@ export class UtilityController {
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'جلب تفاصيل طلب' })
   async getOrder(@Param('id') orderId: string) {
@@ -291,7 +291,7 @@ export class UtilityController {
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'إلغاء الطلب' })
   async cancelOrder(
@@ -306,7 +306,7 @@ export class UtilityController {
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'تقييم الطلب' })
   async rateOrder(

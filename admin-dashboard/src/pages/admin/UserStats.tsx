@@ -1,7 +1,7 @@
 // src/pages/admin/UserStatsSimple.tsx
 import  { useEffect, useState } from "react";
 import axios from "../../utils/axios"; // استخدم الـaxios instance الموحد
-import { auth } from "../../config/firebaseConfig";
+// Firebase removed - using JWT from localStorage
 
 interface Stats {
   total: number;
@@ -27,11 +27,10 @@ export default function UserStatsSimple() {
       setLoading(true);
       setError("");
       try {
-        const user = auth.currentUser;
-        if (!user) {
+        const token = localStorage.getItem("adminToken");
+        if (!token) {
           throw new Error("المستخدم غير مسجل دخول");
         }
-        const token = await user.getIdToken(true);
         const res = await axios.get<Stats>("/admin/stats", {
           headers: { Authorization: `Bearer ${token}` },
         });

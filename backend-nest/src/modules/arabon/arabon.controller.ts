@@ -115,7 +115,9 @@ export class ArabonController {
     if (!uid) {
       return toListResponse({ items: [], nextCursor: null });
     }
-    const result = await this.service.findByOwnerFirebaseUid(uid, { cursor, status });
+    // Deprecated: Firebase UID lookup removed - use findByOwner with user ID instead
+    // For backward compatibility, try to find user by ID first
+    const result = await this.service.findByOwner(uid, { cursor, status });
     return toListResponse(result);
   }
 
@@ -168,7 +170,9 @@ export class ArabonController {
           totalDepositAmount: 0,
         };
       }
-      return this.service.getStatsForFirebaseUid(uid);
+      // Deprecated: Firebase UID lookup removed - use getStatsForOwner with user ID instead
+      // For backward compatibility, try to find user by ID first
+      return this.service.getStatsForOwner(uid);
     }
     return this.service.getStats();
   }

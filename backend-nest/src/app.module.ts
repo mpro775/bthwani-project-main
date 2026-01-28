@@ -57,7 +57,6 @@ import { IdempotencyMiddleware } from './common/middleware/idempotency.middlewar
 // Import configurations
 import databaseConfig from './config/database.config';
 import cacheConfig from './config/cache.config';
-import firebaseConfig from './config/firebase.config';
 import jwtConfig from './config/jwt.config';
 import appConfig from './config/app.config';
 import { envValidationSchema } from './config/env.validation';
@@ -67,7 +66,7 @@ import { envValidationSchema } from './config/env.validation';
     // Configuration Module with Validation
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig, cacheConfig, firebaseConfig, jwtConfig, appConfig],
+      load: [databaseConfig, cacheConfig, jwtConfig, appConfig],
       envFilePath: ['.env.local', '.env'],
       validationSchema: envValidationSchema,
       validationOptions: {

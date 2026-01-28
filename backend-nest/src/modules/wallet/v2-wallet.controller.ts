@@ -38,7 +38,7 @@ export class V2WalletController {
 
   // ==================== Balance ====================
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('balance')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -52,7 +52,7 @@ export class V2WalletController {
 
   // ==================== Transactions ====================
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('transactions')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -69,7 +69,7 @@ export class V2WalletController {
     return this.walletService.getTransactions(userId, pagination);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('transaction/:id')
   @ApiParam({ name: 'id', type: String })
   @ApiResponse({ status: 200, description: 'Success' })
@@ -85,7 +85,7 @@ export class V2WalletController {
 
   // ==================== Topup ====================
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('topup/methods')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -97,7 +97,7 @@ export class V2WalletController {
     return this.walletService.getTopupMethods();
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Post('topup/kuraimi')
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
@@ -134,7 +134,7 @@ export class V2WalletController {
     );
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Post('topup/verify')
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
@@ -159,7 +159,7 @@ export class V2WalletController {
     return this.walletService.verifyTopup(userId, body.transactionId);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('topup/history')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -178,7 +178,7 @@ export class V2WalletController {
 
   // ==================== Withdrawals ====================
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('withdraw/methods')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -190,7 +190,7 @@ export class V2WalletController {
     return this.walletService.getWithdrawMethods();
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Throttle({ strict: { ttl: 60000, limit: 10 } })
   @Post('withdraw/request')
   @ApiResponse({ status: 201, description: 'Created' })
@@ -232,7 +232,7 @@ export class V2WalletController {
     );
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('withdraw/my')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -249,7 +249,7 @@ export class V2WalletController {
     return this.walletService.getMyWithdrawals(userId, pagination);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Patch('withdraw/:id/cancel')
   @ApiParam({ name: 'id', type: String })
   @ApiResponse({ status: 200, description: 'Updated' })
@@ -269,7 +269,7 @@ export class V2WalletController {
 
   // ==================== Coupons ====================
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Post('coupons/apply')
   @ApiResponse({ status: 200, description: 'Coupon applied successfully' })
   @ApiResponse({ status: 400, description: 'Invalid coupon' })
@@ -292,7 +292,7 @@ export class V2WalletController {
     return this.walletService.applyCoupon(userId, body.code, body.amount);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Post('coupons/validate')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 400, description: 'Invalid coupon' })
@@ -315,7 +315,7 @@ export class V2WalletController {
     return this.walletService.validateCoupon(userId, body.code, body.amount);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('coupons/my')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -324,7 +324,7 @@ export class V2WalletController {
     return this.walletService.getMyCoupons(userId);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('coupons/history')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -335,7 +335,7 @@ export class V2WalletController {
 
   // ==================== Subscriptions ====================
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Post('subscriptions/subscribe')
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
@@ -358,7 +358,7 @@ export class V2WalletController {
     return this.walletService.subscribe(userId, body.planId, body.autoRenew);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('subscriptions/my')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -367,7 +367,7 @@ export class V2WalletController {
     return this.walletService.getMySubscriptions(userId);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Patch('subscriptions/:id/cancel')
   @ApiParam({ name: 'id', type: String })
   @ApiResponse({ status: 200, description: 'Updated' })
@@ -393,7 +393,7 @@ export class V2WalletController {
 
   // ==================== Bills ====================
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Post('pay-bill')
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
@@ -433,7 +433,7 @@ export class V2WalletController {
     );
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('bills')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -452,7 +452,7 @@ export class V2WalletController {
 
   // ==================== Transfers ====================
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Throttle({ strict: { ttl: 60000, limit: 5 } })
   @Post('transfer')
   @ApiResponse({ status: 201, description: 'Created' })
@@ -487,7 +487,7 @@ export class V2WalletController {
     );
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('transfers')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -503,7 +503,7 @@ export class V2WalletController {
 
   // ==================== Refunds ====================
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Post('refund/request')
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })

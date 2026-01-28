@@ -32,7 +32,7 @@ import { OrderOwnerGuard, OrderDriverGuard } from './guards';
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiBearerAuth()
   @Get()
   @ApiResponse({ status: 200, description: 'Success' })
@@ -48,7 +48,7 @@ export class OrderController {
     return this.orderService.findUserOrders(userId, pagination);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiBearerAuth()
   @Post()
   @ApiResponse({ status: 201, description: 'Created' })
@@ -69,7 +69,7 @@ export class OrderController {
     return this.orderService.create({ ...createOrderDto, user: userId });
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiBearerAuth()
   @Get('user/:userId')
   @ApiParam({ name: 'userId', type: String })
@@ -91,7 +91,7 @@ export class OrderController {
     return this.orderService.findUserOrders(userId, pagination);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiBearerAuth()
   @Get('my-orders')
   @ApiResponse({ status: 200, description: 'Success' })
@@ -119,7 +119,7 @@ export class OrderController {
     return this.orderService.findUserOrders(userId, pagination);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiBearerAuth()
   @Get(':id')
   @ApiOperation({ summary: 'تفاصيل الطلب' })
@@ -196,7 +196,7 @@ export class OrderController {
     });
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiBearerAuth()
   @Get(':id/notes')
   @ApiParam({ name: 'id', type: String })
@@ -310,7 +310,7 @@ export class OrderController {
     return this.orderService.setProofOfDelivery(orderId, body, driverId);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiBearerAuth()
   @Get(':id/pod')
   @ApiParam({ name: 'id', type: String })
@@ -324,7 +324,7 @@ export class OrderController {
 
   // ==================== Cancel & Return ====================
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiBearerAuth()
   @UseGuards(OrderOwnerGuard) // ✅ Guard للتحقق من ملكية الطلب
   @Post(':id/cancel')
@@ -357,7 +357,7 @@ export class OrderController {
     return this.orderService.cancelOrder(orderId, body.reason, userId);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiBearerAuth()
   @UseGuards(OrderOwnerGuard) // ✅ Guard للتحقق من ملكية الطلب
   @Post(':id/return')
@@ -392,7 +392,7 @@ export class OrderController {
 
   // ==================== Rating ====================
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiBearerAuth()
   @UseGuards(OrderOwnerGuard) // ✅ Guard للتحقق من ملكية الطلب
   @Post(':id/rate')
@@ -435,7 +435,7 @@ export class OrderController {
 
   // ==================== Repeat Order ====================
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiBearerAuth()
   @UseGuards(OrderOwnerGuard) // ✅ Guard للتحقق من ملكية الطلب
   @Post(':id/repeat')
@@ -518,7 +518,7 @@ export class OrderController {
 
   // ==================== Tracking ====================
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiBearerAuth()
   @Get(':id/tracking')
   @ApiParam({ name: 'id', type: String })
@@ -584,7 +584,7 @@ export class OrderController {
 
   // ==================== Real-time Tracking Extensions ====================
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiBearerAuth()
   @Get(':id/live-tracking')
   @ApiParam({ name: 'id', type: String })
@@ -596,7 +596,7 @@ export class OrderController {
     return this.orderService.getLiveTracking(orderId);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiBearerAuth()
   @Get(':id/driver-eta')
   @ApiParam({ name: 'id', type: String })
@@ -642,7 +642,7 @@ export class OrderController {
     return this.orderService.updateDriverLocation(orderId, body.lat, body.lng);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiBearerAuth()
   @Get(':id/route-history')
   @ApiParam({ name: 'id', type: String })
@@ -654,7 +654,7 @@ export class OrderController {
     return this.orderService.getRouteHistory(orderId);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiBearerAuth()
   @Get(':id/delivery-timeline')
   @ApiParam({ name: 'id', type: String })

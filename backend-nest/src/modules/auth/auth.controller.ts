@@ -4,7 +4,6 @@ import {
   Body,
   UseGuards,
   Get,
-  Patch,
   Delete,
   Param,
   Query,
@@ -17,14 +16,12 @@ import {
   ApiParam,
   ApiQuery,
   ApiResponse,
-  ApiSecurity,
 } from '@nestjs/swagger';
-import { Throttle, SkipThrottle } from '@nestjs/throttler';
+import { Throttle } from '@nestjs/throttler';
 import type { Request } from 'express';
 import { AuthService } from './auth.service';
 import { ConsentService } from './services/consent.service';
-import { RegisterDto } from './dto/register.dto';
-import { FirebaseAuthDto } from './dto/firebase-auth.dto';
+import { AuthResponse, VerifyOtpResponse } from './types/auth.types';
 import { ConsentDto, BulkConsentDto, ConsentType } from './dto/consent.dto';
 import {
   ForgotPasswordDto,
@@ -32,6 +29,9 @@ import {
   ResetPasswordDto,
   VerifyOtpDto,
 } from './dto/password-reset.dto';
+import { RegisterLocalDto } from './dto/register-local.dto';
+import { LoginLocalDto } from './dto/login-local.dto';
+import { VerifyEmailOtpDto } from './dto/verify-email-otp.dto';
 import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';
 import {
   Auth,
@@ -49,17 +49,6 @@ export class AuthController {
   ) {}
 
   @Public()
-  @Throttle({ auth: { ttl: 60000, limit: 5 } }) // ✅ 5 محاولات تسجيل دخول في الدقيقة
-  @Post('firebase/login')
-  @ApiResponse({ status: 201, description: 'Created' })
-  @ApiResponse({ status: 400, description: 'Bad request' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiOperation({ summary: 'تسجيل الدخول عبر Firebase' })
-  async loginWithFirebase(@Body() firebaseAuthDto: FirebaseAuthDto) {
-    return this.authService.loginWithFirebase(firebaseAuthDto.idToken);
-  }
-
-  @Public()
   @Throttle({ auth: { ttl: 60000, limit: 5 } })
   @Post('driver/login')
   @ApiResponse({ status: 201, description: 'Created' })
@@ -70,11 +59,86 @@ export class AuthController {
     return this.authService.driverLogin(loginDto.email, loginDto.password);
   }
 
+  // ==================== Local Authentication ====================
+
+  @Public()
+  @Throttle({ auth: { ttl: 60000, limit: 5 } })
+  @Post('register')
+  @ApiResponse({ status: 201, description: 'User registered successfully' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 409, description: 'Email already exists' })
+  @ApiOperation({ summary: 'تسجيل حساب جديد' })
+  async register(@Body() registerDto: RegisterLocalDto): Promise<{
+    success: boolean;
+    message: string;
+    data: AuthResponse;
+  }> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+    const result = await this.authService.registerLocal(registerDto);
+    return {
+      success: true,
+      message: 'تم إنشاء الحساب بنجاح',
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      data: result,
+    };
+  }
+
+  @Public()
+  @Throttle({ auth: { ttl: 60000, limit: 5 } })
+  @Post('login')
+  @ApiResponse({ status: 200, description: 'Login successful' })
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
+  @ApiOperation({ summary: 'تسجيل الدخول' })
+  async login(@Body() loginDto: LoginLocalDto): Promise<{
+    success: boolean;
+    message: string;
+    data: AuthResponse;
+  }> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+    const result = await this.authService.loginLocal(
+      loginDto.email,
+      loginDto.password,
+    );
+    return {
+      success: true,
+      message: 'تم تسجيل الدخول بنجاح',
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      data: result,
+    };
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(UnifiedAuthGuard)
+  @Auth(AuthType.JWT)
+  @Throttle({ strict: { ttl: 60000, limit: 5 } })
+  @Post('verify-email-otp')
+  @ApiResponse({ status: 200, description: 'OTP verified successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid or expired OTP' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiOperation({ summary: 'التحقق من رمز OTP عبر البريد الإلكتروني' })
+  async verifyEmailOtp(
+    @CurrentUser('id') userId: string,
+    @Body() dto: VerifyEmailOtpDto,
+  ): Promise<{
+    success: boolean;
+    message: string;
+    data: VerifyOtpResponse;
+  }> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+    const result = await this.authService.verifyEmailOtp(userId, dto.code);
+    return {
+      success: true,
+      message: 'تم التحقق من البريد الإلكتروني بنجاح',
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      data: result,
+    };
+  }
+
   // ==================== Consent Management ====================
 
   @ApiBearerAuth()
   @UseGuards(UnifiedAuthGuard)
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Throttle({ strict: { ttl: 60000, limit: 10 } }) // ✅ 10 موافقات في الدقيقة
   @Post('consent')
   @ApiResponse({ status: 201, description: 'Created' })
@@ -105,7 +169,7 @@ export class AuthController {
 
   @ApiBearerAuth()
   @UseGuards(UnifiedAuthGuard)
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Post('consent/bulk')
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
@@ -135,7 +199,7 @@ export class AuthController {
 
   @ApiBearerAuth()
   @UseGuards(UnifiedAuthGuard)
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Delete('consent/:type')
   @ApiParam({ name: 'type', type: String })
   @ApiResponse({ status: 200, description: 'Deleted' })
@@ -163,7 +227,7 @@ export class AuthController {
 
   @ApiBearerAuth()
   @UseGuards(UnifiedAuthGuard)
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('consent/history')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -184,7 +248,7 @@ export class AuthController {
 
   @ApiBearerAuth()
   @UseGuards(UnifiedAuthGuard)
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('consent/summary')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -200,7 +264,7 @@ export class AuthController {
 
   @ApiBearerAuth()
   @UseGuards(UnifiedAuthGuard)
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('consent/check/:type')
   @ApiParam({ name: 'type', type: String })
   @ApiResponse({ status: 200, description: 'Success' })
@@ -296,4 +360,3 @@ export class AuthController {
     };
   }
 }
-

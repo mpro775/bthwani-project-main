@@ -1,8 +1,8 @@
 // src/screens/Auth/RegisterScreen.tsx
 import {
-  loginWithEmail,
-  registerWithEmail,
-  storeFirebaseTokens,
+  registerLocal,
+  loginLocal,
+  sendOtp,
 } from "@/api/authService";
 import { useAuth } from "@/auth/AuthContext";
 import { registerPushToken } from "@/notify";
@@ -241,40 +241,36 @@ const RegisterScreen = () => {
     setLoading(true);
     setErrorMessage("");
     try {
-      // 1) تسجيل Firebase
-      const result = await registerWithEmail(email.trim(), password);
-
-      // 2) تخزين التوكنات
-      await storeFirebaseTokens(
-        result.idToken,
-        result.refreshToken,
-        parseInt(result.expiresIn, 10)
+      // 1) تسجيل حساب جديد
+      const result = await registerLocal(
+        email.trim(),
+        password,
+        name.trim(),
+        phone.trim()
       );
 
-      // 3) إنشاء/تهيئة ملف المستخدم على API (idempotent)
+      if (!result.success || !result.token) {
+        throw new Error("فشل إنشاء الحساب");
+      }
+
+      // 2) تهيئة بيانات المستخدم (idempotent)
       try {
         await axiosInstance.post(
           `${API_URL}/users/init`,
           { fullName: name.trim(), email: email.trim(), phone: phone.trim() },
           {
-            headers: { Authorization: `Bearer ${result.idToken}` },
+            headers: { Authorization: `Bearer ${result.token}` },
             timeout: 10000,
           }
         );
       } catch (e: any) {
-        throw e; // لو init فشل نخرج من الرحلة
+        // لا نرمي خطأ هنا، init idempotent
+        console.warn("init user warning:", e?.response?.data);
       }
 
-      // 4) إرسال OTP
+      // 3) إرسال OTP
       try {
-        await axiosInstance.post(
-          `${API_URL}/users/otp/send`,
-          {},
-          {
-            headers: { Authorization: `Bearer ${result.idToken}` },
-            timeout: 10000,
-          }
-        );
+        await sendOtp();
       } catch (e: any) {
         Alert.alert(
           "تنبيه",
@@ -282,36 +278,38 @@ const RegisterScreen = () => {
         );
       }
 
-      // 5) جلب userId ثم الانتقال لشاشة OTP
+      // 4) جلب userId ثم الانتقال لشاشة OTP
       const userRes = await axiosInstance.get(`/users/me`, {
-        headers: { Authorization: `Bearer ${result.idToken}` },
+        headers: { Authorization: `Bearer ${result.token}` },
         timeout: 10000,
       });
       const user = userRes.data;
 
       // خزّن معرّف المستخدم لاستخدامه لاحقًا
       try {
-        await AsyncStorage.setItem("userId", String(user._id));
-        await AsyncStorage.setItem("firebaseUID", String(result.localId || ""));
+        await AsyncStorage.setItem("userId", String(user._id || user.id));
       } catch {}
 
       navigation.navigate("OTPVerification", {
         email,
-        userId: String(user._id),
+        userId: String(user._id || user.id),
       });
     } catch (err: any) {
-      // خرائط أخطاء Firebase الشائعة
-      const fbCode = err?.response?.data?.error?.message || err?.code || "";
+      const errorCode = err?.response?.data?.error?.code || err?.code || "";
       const status = err?.response?.status;
 
-      if (fbCode === "EMAIL_EXISTS") {
-        // حساب موجود بالفعل -> حاوِل تسجيل الدخول
+      // إذا كان البريد مسجل مسبقاً، حاول تسجيل الدخول
+      if (errorCode === "EMAIL_ALREADY_EXISTS" || status === 409) {
         try {
-          const loginData = await loginWithEmail(email.trim(), password);
+          const loginData = await loginLocal(email.trim(), password);
+
+          if (!loginData.success || !loginData.token) {
+            throw new Error("فشل تسجيل الدخول");
+          }
 
           // جلب المستخدم
           const userRes = await axiosInstance.get(`/users/me`, {
-            headers: { Authorization: `Bearer ${loginData.idToken}` },
+            headers: { Authorization: `Bearer ${loginData.token}` },
             timeout: 10000,
           });
           const user = userRes.data;
@@ -319,69 +317,27 @@ const RegisterScreen = () => {
           if (!user.emailVerified) {
             // إرسال OTP للمستخدم الحالي
             try {
-              await axiosInstance.post(
-                `${API_URL}/users/otp/send`,
-                {},
-                {
-                  headers: { Authorization: `Bearer ${loginData.idToken}` },
-                  timeout: 10000,
-                }
-              );
+              await sendOtp();
             } catch (e: any) {
-              console.error(
-                "❌ /users/otp/send (existing) failed",
-                e?.response?.status,
-                e?.response?.data
-              );
+              console.error("❌ /users/otp/send (existing) failed", e);
             }
 
             // خزّن userId للمرحلة القادمة
             try {
-              await AsyncStorage.setItem("userId", String(user._id));
-              await AsyncStorage.setItem(
-                "firebaseUID",
-                String(loginData.localId || "")
-              );
+              await AsyncStorage.setItem("userId", String(user._id || user.id));
             } catch {}
 
             Alert.alert("تأكيد البريد", "أرسلنا لك رمز التحقق.");
             navigation.navigate("OTPVerification", {
               email,
-              userId: String(user._id),
+              userId: String(user._id || user.id),
             });
             return;
           }
 
-          // المستخدم مفعّل ✅ -> خزّن التوكنات وثبّت userId ثم ادخل التطبيق
-          await storeFirebaseTokens(
-            loginData.idToken,
-            loginData.refreshToken,
-            parseInt(loginData.expiresIn, 10)
-          );
-
+          // المستخدم مفعّل ✅ -> ادخل التطبيق
           try {
-            await axiosInstance.post(
-              `${API_URL}/users/init`,
-              {
-                fullName: name.trim(),
-                email: email.trim(),
-                phone: phone.trim(),
-              },
-              {
-                headers: { Authorization: `Bearer ${loginData.idToken}` },
-                timeout: 10000,
-              }
-            );
-          } catch (e) {
-            // لا تمنع الدخول لو init فشلت هنا
-          }
-
-          try {
-            await AsyncStorage.setItem("userId", String(user._id));
-            await AsyncStorage.setItem(
-              "firebaseUID",
-              String(loginData.localId || "")
-            );
+            await AsyncStorage.setItem("userId", String(user._id || user.id));
           } catch {}
 
           try {
@@ -396,29 +352,26 @@ const RegisterScreen = () => {
             `تم تسجيل دخولك يا ${name || user.fullName || "مستخدم"}`
           );
           navigation.replace("MainApp");
-        } catch (e) {
-          Alert.alert("خطأ", "كلمة المرور غير صحيحة أو فشل تسجيل الدخول.");
+        } catch (e: any) {
+          const loginError =
+            e?.response?.data?.error?.userMessage ||
+            e?.message ||
+            "كلمة المرور غير صحيحة أو فشل تسجيل الدخول.";
+          Alert.alert("خطأ", loginError);
         }
         return;
       }
 
-      // أخطاء معروفة أخرى
-      const map: Record<string, string> = {
-        INVALID_EMAIL: "البريد الإلكتروني غير صالح.",
-        WEAK_PASSWORD: "كلمة المرور ضعيفة (6 أحرف على الأقل).",
-        OPERATION_NOT_ALLOWED: "تم تعطيل إنشاء الحساب في إعدادات المشروع.",
-        TOO_MANY_ATTEMPTS_TRY_LATER: "محاولات كثيرة، حاول لاحقًا.",
-      };
-
+      // أخطاء أخرى
       const msg =
-        map[fbCode] ||
+        err?.response?.data?.error?.userMessage ||
         err?.response?.data?.message ||
         err?.message ||
         "حدث خطأ غير متوقع أثناء إنشاء الحساب.";
 
       setErrorMessage(msg);
       Alert.alert("خطأ", msg);
-      console.error("register error =>", { fbCode, status, msg, err });
+      console.error("register error =>", { errorCode, status, msg, err });
     } finally {
       setLoading(false);
     }

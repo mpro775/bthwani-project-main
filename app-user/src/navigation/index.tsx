@@ -104,13 +104,6 @@ import KenzDetailsScreen from "@/screens/kenz/KenzDetailsScreen";
 import KenzEditScreen from "@/screens/kenz/KenzEditScreen";
 import { KenzChatListScreen, KenzChatScreen } from "@/screens/kenz-chat";
 
-// معروف (Lost & Found)
-import MaaroufListScreen from "@/screens/maarouf/MaaroufListScreen";
-import MaaroufCreateScreen from "@/screens/maarouf/MaaroufCreateScreen";
-import MaaroufDetailsScreen from "@/screens/maarouf/MaaroufDetailsScreen";
-import MaaroufEditScreen from "@/screens/maarouf/MaaroufEditScreen";
-import { MaaroufChatListScreen, MaaroufChatScreen } from "@/screens/maarouf-chat";
-
 // اسعفني (Emergency Blood Donation)
 import Es3afniListScreen from "@/screens/es3afni/Es3afniListScreen";
 import Es3afniCreateScreen from "@/screens/es3afni/Es3afniCreateScreen";

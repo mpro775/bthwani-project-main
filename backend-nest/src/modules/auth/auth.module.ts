@@ -11,7 +11,6 @@ import { User, UserSchema } from './entities/user.entity';
 import { UserConsent, UserConsentSchema } from './entities/user-consent.entity';
 import { Driver, DriverSchema } from '../driver/entities/driver.entity';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { FirebaseStrategy } from './strategies/firebase.strategy';
 import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import {
@@ -19,6 +18,7 @@ import {
   PrivacyPolicyConsentGuard,
   TermsOfServiceConsentGuard,
 } from '../../common/guards/consent.guard';
+import { EmailService } from '../../common/services/email.service';
 
 @Module({
   imports: [
@@ -51,8 +51,8 @@ import {
   providers: [
     AuthService,
     ConsentService,
+    EmailService,
     JwtStrategy,
-    FirebaseStrategy,
     UnifiedAuthGuard,
     RolesGuard,
     ConsentGuard,
@@ -62,8 +62,8 @@ import {
   exports: [
     AuthService,
     ConsentService,
+    EmailService,
     JwtStrategy,
-    FirebaseStrategy,
     UnifiedAuthGuard,
     ConsentGuard,
     PrivacyPolicyConsentGuard,

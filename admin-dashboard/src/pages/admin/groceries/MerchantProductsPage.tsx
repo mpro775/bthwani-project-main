@@ -25,7 +25,7 @@ import {
 import { useEffect, useState } from "react";
 import { Edit, Delete } from "@mui/icons-material";
 import axios from "../../../utils/axios";
-import { auth } from "../../../config/firebaseConfig";
+// Firebase removed - using JWT from localStorage
 import * as merchantApi from "../../../api/merchant";
 
 type Category = { _id: string; name: string };
@@ -102,9 +102,8 @@ export default function GroceriesMerchantProductsPage() {
 
   // جلب البيانات الأساسية
   const fetchAll = async () => {
-    const user = auth.currentUser;
-    if (!user) return;
-    const token = await user.getIdToken(true);
+    const token = localStorage.getItem("adminToken");
+    if (!token) return;
 
     const [mpRes, catsRes, prodsRes, merchRes, storesRes] = await Promise.all([
       merchantApi.getMerchantProducts(),

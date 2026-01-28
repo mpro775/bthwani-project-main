@@ -31,7 +31,7 @@ import { AuthType } from '../../common/guards/unified-auth.guard';
 export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get()
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -55,7 +55,7 @@ export class FavoritesController {
     return this.favoritesService.getAllFavorites(userId, flatMode);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Post()
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
@@ -77,7 +77,7 @@ export class FavoritesController {
     return this.favoritesService.addFavorite(userId, addFavoriteDto);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Delete(':type/:id')
   @ApiParam({ name: 'type', enum: FavoriteType, description: 'نوع العنصر' })
   @ApiParam({ name: 'id', type: String, description: 'معرف العنصر' })
@@ -99,7 +99,7 @@ export class FavoritesController {
     return this.favoritesService.removeFavorite(userId, itemType, itemId);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('exists/:type/:id')
   @ApiParam({ name: 'type', enum: FavoriteType, description: 'نوع العنصر' })
   @ApiParam({ name: 'id', type: String, description: 'معرف العنصر' })
@@ -119,7 +119,7 @@ export class FavoritesController {
     return this.favoritesService.isFavorite(userId, itemType, itemId);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('counts')
   @ApiQuery({ name: 'type', enum: FavoriteType, description: 'نوع العنصر' })
   @ApiQuery({

@@ -80,14 +80,15 @@ export class ArabonService {
     return { items: resultItems, nextCursor };
   }
 
-  async findByOwnerFirebaseUid(
-    firebaseUid: string,
-    opts: { cursor?: string; status?: string },
-  ) {
-    const user = await this.userModel.findOne({ firebaseUID: firebaseUid }).select('_id').lean().exec();
-    if (!user?._id) return { items: [], nextCursor: null };
-    return this.findByOwner(String(user._id), opts);
-  }
+  // Deprecated: Firebase UID lookup removed - use findByOwner with user ID instead
+  // async findByOwnerFirebaseUid(
+  //   firebaseUid: string,
+  //   opts: { cursor?: string; status?: string },
+  // ) {
+  //   const user = await this.userModel.findOne({ firebaseUID: firebaseUid }).select('_id').lean().exec();
+  //   if (!user?._id) return { items: [], nextCursor: null };
+  //   return this.findByOwner(String(user._id), opts);
+  // }
 
   async search(
     q: string,
@@ -245,8 +246,12 @@ export class ArabonService {
     return result;
   }
 
+  // Deprecated: Firebase UID lookup removed - use getStatsForOwner with user ID instead
   async getStatsForFirebaseUid(firebaseUid: string) {
-    const user = await this.userModel.findOne({ firebaseUID: firebaseUid }).select('_id').lean().exec();
+    // This method is deprecated - Firebase UID lookup is no longer supported
+    // Use getStatsForOwner with user ID instead
+    throw new Error('Firebase UID lookup is no longer supported. Use getStatsForOwner with user ID instead.');
+    // const user = await this.userModel.findOne({ firebaseUID: firebaseUid }).select('_id').lean().exec();
     if (!user?._id) {
       return {
         total: 0,

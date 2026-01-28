@@ -38,7 +38,7 @@ export class CartController {
   @Get()
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'الحصول على سلتي' })
   async getMyCart(@CurrentUser('id') userId: string) {
     return this.cartService.getOrCreateCart(userId);
@@ -49,7 +49,7 @@ export class CartController {
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'الحصول على سلة مستخدم' })
   async getUserCart(@Param('userId') userId: string) {
     return this.cartService.getOrCreateCart(userId);
@@ -60,7 +60,7 @@ export class CartController {
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'الحصول على سلة بالمعرف' })
   async getCartById(@Param('cartId') cartId: string, @CurrentUser('id') userId: string) {
     return this.cartService.getOrCreateCart(userId);
@@ -71,7 +71,7 @@ export class CartController {
   @ApiResponse({ status: 200, description: 'Deleted' })
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'حذف سلة أو منتج من السلة' })
   async deleteCartItem(@CurrentUser('id') userId: string, @Param('id') itemId: string) {
     return this.cartService.removeItem(userId, itemId);
@@ -81,7 +81,7 @@ export class CartController {
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'إضافة منتج للسلة' })
   async addToCart(
     @CurrentUser('id') userId: string,
@@ -95,7 +95,7 @@ export class CartController {
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'إضافة منتج للسلة (توافق)' })
   async addToCartCompat(
     @CurrentUser('id') userId: string,
@@ -120,7 +120,7 @@ export class CartController {
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'تحديث كمية منتج' })
   async updateCartItem(
     @CurrentUser('id') userId: string,
@@ -136,7 +136,7 @@ export class CartController {
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'تحديث كمية منتج (توافق)' })
   async updateCartItemCompat(
     @CurrentUser('id') userId: string,
@@ -151,7 +151,7 @@ export class CartController {
   @ApiResponse({ status: 200, description: 'Deleted' })
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'حذف منتج من السلة' })
   async removeFromCart(
     @CurrentUser('id') userId: string,
@@ -165,7 +165,7 @@ export class CartController {
   @ApiResponse({ status: 200, description: 'Deleted' })
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'حذف منتج من السلة (توافق)' })
   async removeFromCartCompat(
     @CurrentUser('id') userId: string,
@@ -178,7 +178,7 @@ export class CartController {
   @ApiResponse({ status: 200, description: 'Deleted' })
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'تفريغ السلة' })
   async clearCart(@CurrentUser('id') userId: string) {
     return this.cartService.clearCart(userId);
@@ -189,7 +189,7 @@ export class CartController {
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'إضافة ملاحظة' })
   async addNote(@CurrentUser('id') userId: string, @Body() dto: AddNoteDto) {
     return this.cartService.addNote(userId, dto.note);
@@ -200,7 +200,7 @@ export class CartController {
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'إضافة عنوان التوصيل' })
   async addDeliveryAddress(
     @CurrentUser('id') userId: string,
@@ -212,7 +212,7 @@ export class CartController {
   @Get('count')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'عدد العناصر في السلة' })
   async getCartCount(@CurrentUser('id') userId: string) {
     const count = await this.cartService.getItemsCount(userId);
@@ -222,7 +222,7 @@ export class CartController {
   @Get('fee')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'حساب رسوم التوصيل' })
   async getCartFee(@CurrentUser('id') userId: string) {
     const cart = await this.cartService.getOrCreateCart(userId);
@@ -240,7 +240,7 @@ export class CartController {
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'دمج سلة الضيف مع سلة المستخدم' })
   async mergeCart(@CurrentUser('id') userId: string, @Body() body: any) {
     // للتوافق مع الـ frontend - يتم تجاهل سلة الضيف حالياً
@@ -252,7 +252,7 @@ export class CartController {
   @Get('shein')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'الحصول على سلة Shein' })
   async getMySheinCart(@CurrentUser('id') userId: string) {
     return this.sheinCartService.getOrCreateCart(userId);
@@ -262,7 +262,7 @@ export class CartController {
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'إضافة منتج Shein للسلة' })
   async addToSheinCart(
     @CurrentUser('id') userId: string,
@@ -277,7 +277,7 @@ export class CartController {
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'تحديث كمية منتج Shein' })
   async updateSheinCartItem(
     @CurrentUser('id') userId: string,
@@ -296,7 +296,7 @@ export class CartController {
   @ApiResponse({ status: 200, description: 'Deleted' })
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'حذف منتج Shein من السلة' })
   async removeFromSheinCart(
     @CurrentUser('id') userId: string,
@@ -309,7 +309,7 @@ export class CartController {
   @ApiResponse({ status: 200, description: 'Deleted' })
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'تفريغ سلة Shein' })
   async clearSheinCart(@CurrentUser('id') userId: string) {
     return this.sheinCartService.clearCart(userId);
@@ -320,7 +320,7 @@ export class CartController {
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'تحديث تكاليف الشحن' })
   async updateSheinShipping(
     @CurrentUser('id') userId: string,
@@ -334,7 +334,7 @@ export class CartController {
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'إضافة ملاحظة لسلة Shein' })
   async addSheinNote(
     @CurrentUser('id') userId: string,
@@ -348,7 +348,7 @@ export class CartController {
   @Get('combined')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'الحصول على السلة الموحدة' })
   async getCombinedCart(@CurrentUser('id') userId: string) {
     const [regularCart, sheinCart] = await Promise.all([
@@ -384,7 +384,7 @@ export class CartController {
   @ApiResponse({ status: 200, description: 'Deleted' })
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'تفريغ كل السلات' })
   async clearAllCarts(@CurrentUser('id') userId: string) {
     await Promise.all([
@@ -399,7 +399,7 @@ export class CartController {
   @Get('abandoned')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'الحصول على السلات المهجورة (Admin)' })
   async getAbandonedCarts() {
     // سلات لم يتم تحديثها منذ 24 ساعة
@@ -417,7 +417,7 @@ export class CartController {
   @ApiResponse({ status: 200, description: 'Deleted' })
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'حذف منتج من سلة محددة (Admin)' })
   async deleteSpecificCartItem(
     @Param('cartId') cartId: string,
@@ -439,7 +439,7 @@ export class CartController {
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'إرسال إشعار استعادة السلة (Admin)' })
   async sendRetargetNotification(
     @Param('cartId') cartId: string,

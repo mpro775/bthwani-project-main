@@ -33,7 +33,7 @@ import {
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import axios from "../../utils/axios";
-import { auth } from "../../config/firebaseConfig";
+// Firebase removed - using JWT from localStorage
 import type {
   IPromotionPopulated,
   PromotionForm,
@@ -123,7 +123,7 @@ export default function DeliveryPromotionsPage() {
   const fetchAll = async () => {
     setLoading(true);
     try {
-      const token = await auth.currentUser?.getIdToken();
+      const token = localStorage.getItem("adminToken");
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
       // ⚠️ ملاحظة: GET /delivery/promotions في السيرفر لديك لا يطبّق verifyFirebase
       // لذا لن يُعتبر المستخدم Admin وقد ترى العروض النشطة فقط.
@@ -188,7 +188,7 @@ export default function DeliveryPromotionsPage() {
         isActive: form.isActive,
       };
 
-      const token = await auth.currentUser?.getIdToken();
+      const token = localStorage.getItem("adminToken");
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
       if (editing) {
@@ -215,7 +215,7 @@ export default function DeliveryPromotionsPage() {
     if (!confirm("هل أنت متأكد؟")) return;
     setLoading(true);
     try {
-      const token = await auth.currentUser?.getIdToken();
+      const token = localStorage.getItem("adminToken");
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
       await axios.delete(`/promotions/${id}`, { headers });
       setSuccess("تم حذف العرض");

@@ -1,5 +1,5 @@
 // src/screens/Auth/LoginScreen.tsx
-import { loginWithEmail } from "@/api/authService";
+import { loginLocal, sendOtp } from "@/api/authService";
 import { useAuth } from "@/auth/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { registerPushToken } from "@/notify";
@@ -184,14 +184,15 @@ const LoginScreen = () => {
     setLoading(true);
 
     try {
-      const result = await loginWithEmail(email.trim().toLowerCase(), password);
-      const token = result.idToken as string | undefined;
-      const firebaseUid = result.localId as string | undefined;
+      const result = await loginLocal(email.trim().toLowerCase(), password);
 
-      if (!token || !firebaseUid) {
+      if (!result.success || !result.token) {
         Alert.alert("خطأ", "لم يتم استلام البيانات بشكل صحيح");
         return;
       }
+
+      const token = result.token;
+      const user = result.user;
 
       // ✅ مزامنة ملف المستخدم على السيرفر (idempotent)
       const headers = { Authorization: `Bearer ${token}` };
@@ -210,63 +211,56 @@ const LoginScreen = () => {
       }
 
       // اجلب الملف لمعرفة حالة التفعيل واحصل على Mongo _id
-      let me: any | undefined;
-      try {
-        const meRes = await axiosInstance.get(`/users/me`, {
-          headers,
-          timeout: 10000,
-        });
-        me = meRes.data;
-      } catch (e: any) {
-        console.warn(
-          "users/me failed:",
-          e?.response?.status,
-          e?.response?.data
-        );
-      }
-
-      // خزّن userId بشكل موحّد (الأولوية لـ Mongo _id)
-      const mongoId = me?._id ? String(me._id) : null;
-      await AsyncStorage.multiSet([
-        ["userId", mongoId ?? firebaseUid],
-        ["firebaseUID", firebaseUid],
-      ]);
-
-      // لو غير مفعّل ابعت OTP ووجّه إلى شاشة التحقق
-      if (me && me.email && me.emailVerified === false) {
+      let me: any | undefined = user;
+      if (!me) {
         try {
-          await axiosInstance.post(
-            `/users/otp/send`,
-            {},
-            { headers, timeout: 10000 }
-          );
+          const meRes = await axiosInstance.get(`/users/me`, {
+            headers,
+            timeout: 10000,
+          });
+          me = meRes.data;
         } catch (e: any) {
           console.warn(
-            "otp/send failed:",
+            "users/me failed:",
             e?.response?.status,
             e?.response?.data
           );
         }
+      }
+
+      // خزّن userId
+      const userId = me?._id || me?.id;
+      if (userId) {
+        await AsyncStorage.setItem("userId", String(userId));
+      }
+
+      // لو غير مفعّل ابعت OTP ووجّه إلى شاشة التحقق
+      if (me && me.email && me.emailVerified === false) {
+        try {
+          await sendOtp();
+        } catch (e: any) {
+          console.warn("otp/send failed:", e?.response?.status, e?.response?.data);
+        }
         Alert.alert("تأكيد البريد", "أرسلنا لك رمز التحقق.");
         navigation.replace("OTPVerification", {
           email: me.email || email,
-          userId: String(mongoId ?? firebaseUid),
+          userId: String(userId),
         });
         return;
       }
 
       // 👇 عمليات ثانوية لا تُكسر الدخول لو فشلت
       try {
-        await mergeGuestCart(mongoId ?? firebaseUid);
+        await mergeGuestCart(userId);
       } catch (e) {
         console.warn("mergeGuestCart failed", e);
       }
       try {
         await saveUserProfile({
-          uid: firebaseUid,
-          fullName: (result as any).displayName || "مستخدم",
-          email: result.email || email,
-          phone: (result as any).phone || "",
+          uid: userId,
+          fullName: me?.fullName || "مستخدم",
+          email: me?.email || email,
+          phone: me?.phone || "",
         });
       } catch (e) {
         console.warn("saveUserProfile failed", e);
@@ -285,21 +279,25 @@ const LoginScreen = () => {
         status: error?.response?.status,
         data: error?.response?.data,
         code:
+          error?.response?.data?.error?.code ||
           error?.response?.data?.error?.message ||
           error?.code ||
           error?.message,
       });
 
-      const code = error?.response?.data?.error?.message || error?.code;
+      const code = error?.response?.data?.error?.code || error?.code;
       const map: Record<string, string> = {
-        EMAIL_NOT_FOUND: "البريد الإلكتروني غير مسجل",
-        INVALID_PASSWORD: "كلمة المرور غير صحيحة",
-        INVALID_LOGIN_CREDENTIALS: "بيانات الدخول غير صحيحة",
-        USER_DISABLED: "تم إيقاف هذا الحساب. تواصل مع الدعم.",
-        TOO_MANY_ATTEMPTS_TRY_LATER: "محاولات كثيرة، حاول لاحقًا.",
+        INVALID_CREDENTIALS: "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+        USER_NOT_FOUND: "البريد الإلكتروني غير مسجل",
+        ACCOUNT_INACTIVE: "الحساب غير نشط",
+        ACCOUNT_BANNED: "الحساب محظور",
       };
 
-      const msg = map[code] || "حدث خطأ أثناء تسجيل الدخول. حاول مرة أخرى.";
+      const msg =
+        map[code] ||
+        error?.response?.data?.error?.userMessage ||
+        error?.message ||
+        "حدث خطأ أثناء تسجيل الدخول. حاول مرة أخرى.";
       setErrorMessage(msg);
       Alert.alert("خطأ في تسجيل الدخول", msg);
     } finally {

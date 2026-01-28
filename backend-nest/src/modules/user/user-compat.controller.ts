@@ -17,7 +17,7 @@ import { AuthType } from '../../common/guards/unified-auth.guard';
 export class UserCompatController {
   constructor(private readonly userService: UserService) {}
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('profile')
   @ApiOperation({ summary: 'جلب الملف الشخصي (compatibility route)' })
   async getUserProfile(@CurrentUser('id') userId: string) {

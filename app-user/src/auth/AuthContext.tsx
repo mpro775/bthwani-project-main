@@ -1,5 +1,5 @@
 // auth/AuthContext.tsx
-import { refreshIdToken } from "@/api/authService";
+import { getStoredJwtToken, clearAllTokens } from "@/api/authService";
 import { IntentManager } from "@/context/intent";
 import { silenceAuthPrompts } from "@/guards/authGate";
 import axiosInstance from "@/utils/api/axiosInstance";
@@ -58,21 +58,23 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
   const [lastAuthChangeTs, setLastAuthChangeTs] = useState(0);
   const [user, setUser] = useState<AuthenticatedUser | null>(null);
 
-  const loadUserProfile = async (idToken: string) => {
+  const loadUserProfile = async (token: string) => {
     try {
-      const meRes = await axiosInstance.get("/users/me");
+      const meRes = await axiosInstance.get("/users/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const userData = meRes?.data;
 
       if (userData) {
         const authenticatedUser: AuthenticatedUser = {
-          uid: userData.firebaseUID || userData.uid,
+          uid: userData._id || userData.id,
           email: userData.email,
           role: userData.role,
           permissions: userData.permissions,
           profile: {
-            name: userData.name || userData.displayName,
+            name: userData.fullName || userData.name,
             phone: userData.phone,
-            avatar: userData.avatar,
+            avatar: userData.profileImage || userData.avatar,
           }
         };
 
@@ -80,8 +82,8 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
 
         // تخزين userId إذا لم يكن موجود
         const curUserId = await AsyncStorage.getItem("userId");
-        if (!curUserId && userData._id) {
-          await AsyncStorage.setItem("userId", String(userData._id));
+        if (!curUserId && (userData._id || userData.id)) {
+          await AsyncStorage.setItem("userId", String(userData._id || userData.id));
         }
       }
     } catch (error) {
@@ -91,23 +93,23 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
 
   useEffect(() => {
     (async () => {
-      const [idToken, seen] = await Promise.all([
-        refreshIdToken(), // ✅ يسترجع أو يجدّد توكن Firebase
+      const [jwtToken, seen] = await Promise.all([
+        getStoredJwtToken(), // ✅ يسترجع JWT token
         AsyncStorage.getItem("hasSeenOnboarding"),
       ]);
 
-      const loggedIn = !!idToken;
+      const loggedIn = !!jwtToken;
       setIsLoggedIn(loggedIn);
       setIsGuest(!loggedIn && seen === "true");
       setAuthReady(true);
       setLastAuthChangeTs(Date.now());
 
       // ✅ تحديث Authorization header
-      if (loggedIn && idToken) {
-        axiosInstance.defaults.headers.common.Authorization = `Bearer ${idToken}`;
+      if (loggedIn && jwtToken) {
+        axiosInstance.defaults.headers.common.Authorization = `Bearer ${jwtToken}`;
 
         // ✅ جلب وحفظ بيانات المستخدم الكاملة
-        await loadUserProfile(idToken);
+        await loadUserProfile(jwtToken);
       } else {
         delete axiosInstance.defaults.headers.common.Authorization;
         setUser(null);
@@ -124,12 +126,12 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
     await IntentManager.runIfAny();
 
     // ✅ تحديث Authorization header
-    const idToken = await refreshIdToken();
-    if (idToken) {
-      axiosInstance.defaults.headers.common.Authorization = `Bearer ${idToken}`;
+    const jwtToken = await getStoredJwtToken();
+    if (jwtToken) {
+      axiosInstance.defaults.headers.common.Authorization = `Bearer ${jwtToken}`;
 
       // ✅ جلب وحفظ بيانات المستخدم الكاملة
-      await loadUserProfile(idToken);
+      await loadUserProfile(jwtToken);
     }
 
     setLastAuthChangeTs(Date.now());
@@ -137,17 +139,15 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
 
   const logout = async () => {
     silenceAuthPrompts(3000);
+    
+    // ✅ مسح جميع التوكنات
+    await clearAllTokens();
+    
     await AsyncStorage.multiRemove([
-      "authToken",
-      "user",
-      "refreshToken",
-      "firebase-idToken",
-      "firebase-refreshToken",
-      "firebase-expiryTime",
-      "userId", // ✅ امسح معرّف المستخدم
-      "firebaseUID", // ✅ إن كنت تخزّنه
-      "guestCart", // ✅ نظّف سلة الضيف
+      "userId",
+      "guestCart",
       "guestStoreId",
+      "user-data",
     ]);
 
     setIsLoggedIn(false);

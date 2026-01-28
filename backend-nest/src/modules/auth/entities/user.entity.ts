@@ -147,6 +147,15 @@ export class User extends Document {
   @Prop({ type: Date, select: false })
   passwordResetExpires?: Date;
 
+  @Prop({ select: false })
+  password?: string;
+
+  @Prop({ select: false })
+  emailOtpCode?: string;
+
+  @Prop({ type: Date, select: false })
+  emailOtpExpires?: Date;
+
   @Prop({
     type: String,
     enum: ['regular', 'bronze', 'silver', 'gold', 'vip'],
@@ -178,13 +187,10 @@ export class User extends Document {
 
   @Prop({
     type: String,
-    enum: ['firebase', 'local'],
-    default: 'firebase',
+    enum: ['local'],
+    default: 'local',
   })
   authProvider: string;
-
-  @Prop({ unique: true, sparse: true })
-  firebaseUID?: string;
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Product' }], default: [] })
   favorites: Types.ObjectId[];
@@ -230,7 +236,6 @@ export const UserSchema = SchemaFactory.createForClass(User);
 // Basic Indexes (من المشروع القديم)
 // Note: email index is automatically created by unique: true in @Prop decorator
 UserSchema.index({ phone: 1 });
-// Note: firebaseUID index is automatically created by unique: true in @Prop decorator
 UserSchema.index({ createdAt: -1 });
 UserSchema.index({ role: 1, isActive: 1 });
 

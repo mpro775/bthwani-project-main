@@ -53,7 +53,7 @@ export class NotificationController {
     return this.notificationService.create(createNotificationDto);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('my')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -65,7 +65,7 @@ export class NotificationController {
     return this.notificationService.getUserNotifications(userId, pagination);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Post(':id/read')
   @ApiParam({ name: 'id', type: String })
   @ApiResponse({ status: 201, description: 'Created' })
@@ -76,7 +76,7 @@ export class NotificationController {
     return this.notificationService.markAsRead(id);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('unread/count')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -85,7 +85,7 @@ export class NotificationController {
     return this.notificationService.getUnreadCount(userId);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Post('read-all')
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
@@ -95,7 +95,7 @@ export class NotificationController {
     return this.notificationService.markAllAsRead(userId);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Delete(':id')
   @ApiParam({ name: 'id', type: String })
   @ApiResponse({ status: 200, description: 'Deleted' })
@@ -108,7 +108,7 @@ export class NotificationController {
 
   // ==================== Suppression Management ====================
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Post('suppression')
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
@@ -131,7 +131,7 @@ export class NotificationController {
     };
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('suppression')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -147,7 +147,7 @@ export class NotificationController {
     };
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('suppression/channels')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -167,7 +167,7 @@ export class NotificationController {
     };
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Delete('suppression/:id')
   @ApiParam({ name: 'id', type: String })
   @ApiResponse({ status: 200, description: 'Deleted' })
@@ -188,7 +188,7 @@ export class NotificationController {
     };
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Delete('suppression/channel/:channel')
   @ApiParam({ name: 'channel', type: String })
   @ApiResponse({ status: 200, description: 'Deleted' })

@@ -40,14 +40,6 @@ export class DatabaseIndexService implements OnModuleInit {
       impact: 'high',
       estimatedImprovement: '85% faster phone auth',
     },
-    {
-      collection: 'users',
-      fields: { firebaseUid: 1 },
-      options: { unique: true, name: 'firebase_uid_unique' },
-      rationale: 'Firebase authentication',
-      impact: 'high',
-      estimatedImprovement: '95% faster Firebase auth',
-    },
 
     // Order-related indexes
     {

@@ -10,9 +10,6 @@ import "@fontsource/cairo/700.css";
 import { CacheProvider } from "@emotion/react";
 import { ThemeProvider, CssBaseline, GlobalStyles } from "@mui/material";
 
-// Firebase
-import "./config/firebaseConfig";
-
 
 // Bootstrap function to ensure auth state is ready before rendering
 const bootstrap = async () => {

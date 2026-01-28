@@ -30,8 +30,8 @@ import {
   Tooltip,
 } from "@mui/material";
 import { Add as AddIcon, Edit as EditIcon } from "@mui/icons-material";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../../config/firebaseConfig";
+// Firebase removed - using JWT from localStorage
+// Firebase removed - using JWT from localStorage
 
 interface Vendor {
   _id: string;
@@ -116,13 +116,11 @@ function AdminVendorsPage() {
     setLoading(true);
     setError(null);
     try {
-      const user = auth.currentUser;
-      if (!user) {
-        navigate("/login");
+      const token = localStorage.getItem("adminToken");
+      if (!token) {
+        navigate("/admin/login");
         return;
       }
-
-      const token = await user.getIdToken(true);
       const [vRes, sRes] = await Promise.all([
         axios.get("/admin/vendors", {
           headers: { Authorization: `Bearer ${token}` },
@@ -158,11 +156,12 @@ function AdminVendorsPage() {
   }, [navigate]);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (user) => {
-      if (user) fetchData();
-      else navigate("/login");
-    });
-    return unsub;
+    const token = localStorage.getItem("adminToken");
+    if (token) {
+      fetchData();
+    } else {
+      navigate("/admin/login");
+    }
   }, [navigate, fetchData]);
 
   const openDialog = () => {

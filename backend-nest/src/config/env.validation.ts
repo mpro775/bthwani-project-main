@@ -41,18 +41,6 @@ export const envValidationSchema = Joi.object({
   }),
   REFRESH_TOKEN_EXPIRES_IN: Joi.string().default('30d'),
 
-  // Firebase - مطلوبة
-  FIREBASE_PROJECT_ID: Joi.string().required().messages({
-    'any.required': 'FIREBASE_PROJECT_ID is required in .env file',
-  }),
-  FIREBASE_CLIENT_EMAIL: Joi.string().email().required().messages({
-    'any.required': 'FIREBASE_CLIENT_EMAIL is required in .env file',
-    'string.email': 'FIREBASE_CLIENT_EMAIL must be a valid email',
-  }),
-  FIREBASE_PRIVATE_KEY: Joi.string().required().messages({
-    'any.required': 'FIREBASE_PRIVATE_KEY is required in .env file',
-  }),
-
   // Redis (Required for Production)
   REDIS_HOST: Joi.string().when('NODE_ENV', {
     is: 'production',

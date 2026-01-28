@@ -1,4 +1,4 @@
-import { refreshIdToken } from "@/api/authService";
+import { getStoredJwtToken, sendOtp, verifyEmailOtp } from "@/api/authService";
 import { IntentManager } from "@/context/intent";
 import { useVerificationState } from "@/context/verify";
 import axiosInstance from "@/utils/api/axiosInstance";
@@ -23,8 +23,6 @@ import {
 
 const { width, height } = Dimensions.get("window");
 
-const OTP_PURPOSE = "verifyEmail";
-
 export default function OTPVerificationScreen() {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const { refresh, setVerified } = useVerificationState(); // استخدمه في الشاشة
@@ -32,9 +30,6 @@ export default function OTPVerificationScreen() {
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(120); // 2 minutes
   const [canResend, setCanResend] = useState(false);
-
-  // قناة إرسال OTP المختارة
-  const [channel, setChannel] = useState<"email" | "whatsapp" | "sms">("email");
 
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
@@ -45,28 +40,17 @@ export default function OTPVerificationScreen() {
   const shakeAnim = useRef(new Animated.Value(0)).current;
 
   const { email, userId } = route.params || {};
-  const sendOtp = async (selectedChannel?: "email" | "whatsapp" | "sms") => {
+  const handleSendOtp = async () => {
     try {
-      const idToken = await refreshIdToken();
-      const sendChannel = selectedChannel || channel;
-
-      await axiosInstance.post(
-        `/users/otp/send`,
-        { purpose: OTP_PURPOSE, channel: sendChannel },
-        { headers: { Authorization: `Bearer ${idToken}` }, timeout: 10000 }
-      );
-
-      const channelText = sendChannel === "email" ? "بريدك الإلكتروني" :
-                         sendChannel === "whatsapp" ? "رقم الواتساب" : "رقم الهاتف";
-      Alert.alert("تم الإرسال", `تم إرسال رمز تحقق جديد إلى ${channelText}.`);
+      await sendOtp();
+      Alert.alert("تم الإرسال", "تم إرسال رمز تحقق جديد إلى بريدك الإلكتروني.");
       setCode(["", "", "", "", "", ""]);
       setTimer(120);
       setCanResend(false);
       setTimeout(() => inputRefs.current[5]?.focus(), 100);
-      // لا نحتاج إلى إنشاء عدّاد هنا - سيتم إعادة تشغيله تلقائياً عبر useEffect
     } catch (e: any) {
       console.error("❌ sendOtp error:", e);
-      const errorMsg = e?.response?.data?.message || "تعذر إرسال الرمز. حاول لاحقًا.";
+      const errorMsg = e?.message || "تعذر إرسال الرمز. حاول لاحقًا.";
       Alert.alert("خطأ", errorMsg);
     }
   };
@@ -78,7 +62,7 @@ export default function OTPVerificationScreen() {
   useEffect(() => {
     if (sentRef.current) return;
     sentRef.current = true;
-    sendOtp(); // لن تُستدعى إلا مرة واحدة حتى لو رُكّبت الشاشة مرتين
+    handleSendOtp(); // لن تُستدعى إلا مرة واحدة حتى لو رُكّبت الشاشة مرتين
   }, []);
   useEffect(() => {
     // Animation on mount
@@ -205,15 +189,9 @@ export default function OTPVerificationScreen() {
 
     setLoading(true);
     try {
-      const idToken = await refreshIdToken(); // يأخذ المخزن ويجدده لو لزم
+      const result = await verifyEmailOtp(otpCode);
 
-      const { data } = await axiosInstance.post(
-        `/users/otp/verify`,
-        { code: otpCode, purpose: OTP_PURPOSE },
-        { headers: { Authorization: `Bearer ${idToken}` }, timeout: 10000 }
-      );
-
-      if (data?.ok) {
+      if (result.success && result.verified) {
         Alert.alert("🎉 تم التحقق", "تم تأكيد بريدك الإلكتروني بنجاح.");
         setVerified(true); // يوقف المودال فورًا
         await IntentManager.runIfAny();
@@ -228,13 +206,13 @@ export default function OTPVerificationScreen() {
       const status = e?.response?.status;
       const msg =
         status === 400
-          ? "رمز التحقق غير صحيح أو منتهي."
+          ? e?.message || "رمز التحقق غير صحيح أو منتهي."
           : status === 401
           ? "جلسة منتهية. سجّل دخولك ثم أعد المحاولة."
           : status === 404
           ? "المستخدم غير موجود."
-          : "حدث خطأ أثناء محاولة التحقق.";
-      console.error("❌ Axios Error:", e);
+          : e?.message || "حدث خطأ أثناء محاولة التحقق.";
+      console.error("❌ Verify OTP Error:", e);
       shakeAnimation();
       Alert.alert("فشل التحقق", msg);
     } finally {
@@ -246,7 +224,7 @@ export default function OTPVerificationScreen() {
     if (!canResend) return;
 
     try {
-      await sendOtp(); // استخدم sendOtp المحدثة التي لا تحتوي على عدّاد
+      await handleSendOtp();
     } catch (e) {
       console.error("❌ Resend OTP error:", e);
       Alert.alert("خطأ", "تعذر إرسال الرمز. حاول لاحقًا.");
@@ -291,53 +269,9 @@ export default function OTPVerificationScreen() {
 
           <Text style={styles.title}>تحقق من بريدك الإلكتروني</Text>
           <Text style={styles.subtitle}>
-            أدخل الرمز المكون من 6 أرقام المرسل إلى
+            أدخل الرمز المكون من 6 أرقام المرسل إلى بريدك الإلكتروني
           </Text>
           <Text style={styles.emailText}>{email}</Text>
-        </Animated.View>
-
-        {/* Channel Selection */}
-        <Animated.View
-          style={[
-            styles.channelContainer,
-            {
-              opacity: fadeAnim,
-              transform: [{ translateY: slideAnim }],
-            },
-          ]}
-        >
-          <Text style={styles.channelTitle}>اختر طريقة التحقق المفضلة:</Text>
-          <View style={styles.channelOptions}>
-            <TouchableOpacity
-              style={[styles.channelOption, channel === "email" && styles.channelOptionActive]}
-              onPress={() => setChannel("email")}
-            >
-              <Ionicons name="mail-outline" size={20} color={channel === "email" ? "#fff" : "#666"} />
-              <Text style={[styles.channelOptionText, channel === "email" && styles.channelOptionTextActive]}>
-                البريد الإلكتروني
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.channelOption, channel === "whatsapp" && styles.channelOptionActive]}
-              onPress={() => setChannel("whatsapp")}
-            >
-              <Ionicons name="logo-whatsapp" size={20} color={channel === "whatsapp" ? "#fff" : "#666"} />
-              <Text style={[styles.channelOptionText, channel === "whatsapp" && styles.channelOptionTextActive]}>
-                الواتساب
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.channelOption, channel === "sms" && styles.channelOptionActive]}
-              onPress={() => setChannel("sms")}
-            >
-              <Ionicons name="phone-portrait-outline" size={20} color={channel === "sms" ? "#fff" : "#666"} />
-              <Text style={[styles.channelOptionText, channel === "sms" && styles.channelOptionTextActive]}>
-                الرسائل النصية
-              </Text>
-            </TouchableOpacity>
-          </View>
         </Animated.View>
 
         {/* OTP Input Section */}
@@ -445,7 +379,7 @@ export default function OTPVerificationScreen() {
             onPress={() =>
               Alert.alert(
                 "مساعدة",
-                "تأكد من صندوق البريد الوارد والرسائل غير المرغوب فيها"
+                "تأكد من صندوق البريد الوارد والرسائل غير المرغوب فيها. إذا لم تستلم الرمز، تحقق من صحة عنوان بريدك الإلكتروني."
               )
             }
           >
@@ -657,47 +591,5 @@ const styles = StyleSheet.create({
     fontFamily: "Cairo-Regular",
     fontWeight: "600",
     textDecorationLine: "underline",
-  },
-  // Channel Selection Styles
-  channelContainer: {
-    marginBottom: 24,
-    paddingHorizontal: 20,
-  },
-  channelTitle: {
-    fontSize: 16,
-    fontFamily: "Cairo-Bold",
-    color: "#fff",
-    marginBottom: 12,
-    textAlign: "center",
-  },
-  channelOptions: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    gap: 8,
-  },
-  channelOption: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    borderRadius: 12,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.2)",
-  },
-  channelOptionActive: {
-    backgroundColor: "#D84315",
-    borderColor: "#D84315",
-  },
-  channelOptionText: {
-    fontSize: 12,
-    fontFamily: "Cairo-Bold",
-    color: "#666",
-    marginLeft: 4,
-  },
-  channelOptionTextActive: {
-    color: "#fff",
   },
 });

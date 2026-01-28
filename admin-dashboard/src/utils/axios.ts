@@ -1,5 +1,4 @@
 import axios from "axios";
-import { auth } from "../config/firebaseConfig";
 import { ERROR_MAP } from "./errorMap";
 import type { ApiResponse } from "../types/api";
 
@@ -22,13 +21,13 @@ const instance = axios.create({
 
 // ✅ Interceptor آمن وحديث
 instance.interceptors.request.use(
-  async (config) => {
-    const user = auth.currentUser;
-    if (user) {
-      const token = await user.getIdToken(true);
+  (config) => {
+    // Get JWT token from localStorage
+    const token = localStorage.getItem("adminToken");
+    if (token) {
+      config.headers = config.headers || {};
       config.headers.Authorization = `Bearer ${token}`;
     }
-    console.log("currentUser:", auth.currentUser);
 
     return config;
   },

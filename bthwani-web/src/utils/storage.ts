@@ -3,9 +3,9 @@
 import type { CartItem, User } from "../types";
 
 const STORAGE_KEYS = {
-  ID_TOKEN: 'firebase-idToken',
-  REFRESH_TOKEN: 'firebase-refreshToken',
-  EXPIRY_TIME: 'firebase-expiryTime',
+  ID_TOKEN: 'jwt-token',
+  REFRESH_TOKEN: 'jwt-refresh-token',
+  EXPIRY_TIME: 'jwt-expiry-time',
   USER_DATA: 'user-data',
   CART: 'cart-data',
   LANGUAGE: 'app-language'

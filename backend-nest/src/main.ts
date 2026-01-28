@@ -8,7 +8,6 @@ import { TimeoutInterceptor } from './common/interceptors/timeout.interceptor';
 import { PerformanceInterceptor } from './common/interceptors/performance.interceptor';
 import { IdempotencyHeaderMiddleware } from './common/middleware/idempotency-header.middleware';
 import { logger } from './config/logger.config';
-import * as admin from 'firebase-admin';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 
@@ -86,18 +85,6 @@ async function bootstrap() {
     origin: process.env.CORS_ORIGIN?.split(',') || '*',
     credentials: true,
   });
-
-  // Firebase Admin Initialization
-  if (!admin.apps.length) {
-    admin.initializeApp({
-      credential: admin.credential.cert({
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-      }),
-      databaseURL: process.env.FIREBASE_DATABASE_URL,
-    });
-  }
 
   // Global Validation Pipe
   app.useGlobalPipes(

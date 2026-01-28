@@ -64,7 +64,7 @@ export class FinanceController {
   @Get('commissions/my')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'الحصول على عمولاتي' })
   async getMyCommissions(
     @CurrentUser('id') userId: string,
@@ -76,7 +76,7 @@ export class FinanceController {
   @Get('commissions/stats/my')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'إحصائيات عمولاتي' })
   async getMyCommissionStats(@CurrentUser('id') userId: string) {
     return this.commissionService.getStatistics(userId);
@@ -278,7 +278,7 @@ export class FinanceController {
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'التحقق من كوبون' })
   async validateCoupon(
     @Body() dto: ValidateCouponDto,

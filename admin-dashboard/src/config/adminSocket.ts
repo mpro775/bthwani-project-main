@@ -1,9 +1,8 @@
 // adminSocket.ts
 import { io as socketIO, Socket } from "socket.io-client";
-import { auth } from "../config/firebaseConfig";
 
 export async function getAdminSocket(): Promise<Socket> {
-  const token = await auth.currentUser?.getIdToken(true);
+  const token = localStorage.getItem("adminToken");
   const socket = socketIO(import.meta.env.VITE_API_BASE, {
     transports: ["websocket"],
     auth: { token },

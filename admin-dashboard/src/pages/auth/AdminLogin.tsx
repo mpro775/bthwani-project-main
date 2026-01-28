@@ -1,7 +1,7 @@
 // src/pages/auth/AdminLogin.tsx
 import React, { useState, useEffect } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   Container,
   Box,
@@ -23,8 +23,9 @@ import {
   VisibilityOff,
   AdminPanelSettings,
 } from "@mui/icons-material";
-import { auth } from "../../config/firebaseConfig";
 import { motion } from "framer-motion";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api/v2";
 
 export default function AdminLogin() {
   const [mounted, setMounted] = useState(false);
@@ -44,21 +45,34 @@ export default function AdminLogin() {
     try {
       console.log("📧 محاولة تسجيل الدخول:", email);
 
-      const userCred = await signInWithEmailAndPassword(
-        auth,
-        email.trim(),
-        password
+      const response = await axios.post(
+        `${API_URL}/auth/login`,
+        {
+          email: email.trim(),
+          password: password,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
-      const token = await userCred.user.getIdToken();
+
+      const { token, user } = response.data.data;
+
+      if (!token || !token.accessToken) {
+        throw new Error("لم يتم استلام التوكن من السيرفر");
+      }
 
       // حفظ التوكن
-      localStorage.setItem("adminToken", token);
+      localStorage.setItem("adminToken", token.accessToken);
       localStorage.setItem(
         "adminUser",
         JSON.stringify({
-          uid: userCred.user.uid,
-          email: userCred.user.email,
-          displayName: userCred.user.displayName,
+          id: user.id,
+          email: user.email,
+          fullName: user.fullName,
+          role: user.role,
         })
       );
 
@@ -67,25 +81,21 @@ export default function AdminLogin() {
     } catch (err: unknown) {
       let errorMessage = "حدث خطأ غير متوقع";
 
-      if (err instanceof Error) {
-        // رسائل Firebase
-        switch (err.message) {
-          case "Firebase: Error (auth/user-not-found).":
-            errorMessage = "البريد الإلكتروني غير موجود";
-            break;
-          case "Firebase: Error (auth/wrong-password).":
-            errorMessage = "كلمة المرور غير صحيحة";
-            break;
-          case "Firebase: Error (auth/invalid-email).":
-            errorMessage = "البريد الإلكتروني غير صحيح";
-            break;
-          case "Firebase: Error (auth/too-many-requests).":
-            errorMessage =
-              "تم تجاوز عدد المحاولات المسموح. يرجى المحاولة لاحقاً";
-            break;
-          default:
-            errorMessage = err.message;
+      if (axios.isAxiosError(err)) {
+        const errorData = err.response?.data;
+        if (errorData?.error?.userMessage) {
+          errorMessage = errorData.error.userMessage;
+        } else if (errorData?.message) {
+          errorMessage = errorData.message;
+        } else if (err.response?.status === 401) {
+          errorMessage = "البريد الإلكتروني أو كلمة المرور غير صحيحة";
+        } else if (err.response?.status === 429) {
+          errorMessage = "تم تجاوز عدد المحاولات المسموح. يرجى المحاولة لاحقاً";
+        } else {
+          errorMessage = err.message || "فشل تسجيل الدخول";
         }
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
       }
 
       console.error("❌ خطأ في تسجيل الدخول:", errorMessage);

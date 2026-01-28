@@ -3,95 +3,59 @@ import {
   UnauthorizedException,
   NotFoundException,
   BadRequestException,
+  ConflictException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { SignOptions } from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import * as admin from 'firebase-admin';
 import { User } from './entities/user.entity';
 import { RegisterDto } from './dto/register.dto';
+import { RegisterLocalDto } from './dto/register-local.dto';
 import { Driver } from '../driver/entities/driver.entity';
 import * as bcrypt from 'bcrypt';
+import { EmailService } from '../../common/services/email.service';
+
+// Types for return values
+export interface AuthResponse {
+  user: {
+    id?: string;
+    fullName?: string;
+    aliasName?: string;
+    email?: string;
+    phone?: string;
+    profileImage?: string;
+    emailVerified?: boolean;
+    classification?: string;
+    role?: string;
+    addresses?: unknown[];
+    defaultAddressId?: unknown;
+    language?: string;
+    theme?: string;
+    wallet?: unknown;
+    isActive?: boolean;
+    createdAt?: Date;
+    updatedAt?: Date;
+  };
+  token: {
+    accessToken: string;
+    tokenType: string;
+    expiresIn: string;
+  };
+}
 
 @Injectable()
 export class AuthService {
+  private readonly SALT_ROUNDS = 12;
+
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Driver.name) private driverModel: Model<Driver>,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private emailService: EmailService,
   ) {}
-
-  // المصادقة عبر Firebase (الطريقة الرئيسية)
-  async loginWithFirebase(idToken: string) {
-    try {
-      // التحقق من Firebase token
-      const decodedToken = await admin.auth().verifyIdToken(idToken, true);
-
-      // البحث عن المستخدم أو إنشاءه
-      let user = await this.userModel.findOne({
-        firebaseUID: decodedToken.uid,
-      });
-
-      if (!user) {
-        // إنشاء مستخدم جديد من Firebase
-        user = await this.userModel.create({
-          firebaseUID: decodedToken.uid,
-          email: decodedToken.email,
-          fullName: String(decodedToken.name) || 'مستخدم جديد',
-          phone: decodedToken.phone_number || '',
-          emailVerified: decodedToken.email_verified,
-          authProvider: 'firebase',
-          profileImage: decodedToken.picture || '',
-        });
-      } else {
-        // تحديث بيانات المستخدم من Firebase
-        await this.userModel.findByIdAndUpdate(user._id, {
-          lastLoginAt: new Date(),
-          emailVerified: decodedToken.email_verified,
-        });
-      }
-
-      // التحقق من حالة المستخدم
-      if (!user.isActive) {
-        throw new UnauthorizedException({
-          code: 'ACCOUNT_INACTIVE',
-          message: 'Account is not active',
-          userMessage: 'الحساب غير نشط',
-          suggestedAction: 'يرجى التواصل مع الدعم الفني',
-        });
-      }
-
-      if (user.isBlacklisted || user.isBanned) {
-        throw new UnauthorizedException({
-          code: 'ACCOUNT_BANNED',
-          message: 'Account is banned',
-          userMessage: 'الحساب محظور',
-          suggestedAction: 'يرجى التواصل مع الدعم الفني',
-        });
-      }
-
-      // إنشاء JWT Token
-      const token = await this.generateToken(user);
-
-      return {
-        user: this.sanitizeUser(user),
-        token,
-      };
-    } catch (error) {
-      if (error instanceof UnauthorizedException) {
-        throw error;
-      }
-      throw new UnauthorizedException({
-        code: 'INVALID_FIREBASE_TOKEN',
-        message: error instanceof Error ? error.message : 'Unknown error',
-        userMessage: 'رمز Firebase غير صالح أو منتهي الصلاحية',
-        suggestedAction: 'يرجى تسجيل الدخول مرة أخرى',
-      });
-    }
-  }
 
   // إنشاء JWT Token
   private async generateToken(user: {
@@ -99,13 +63,11 @@ export class AuthService {
     id?: string;
     email?: string;
     role?: string;
-    firebaseUID?: string;
   }) {
     const payload = {
       sub: user._id ? String(user._id) : user.id,
       email: user.email,
       role: user.role,
-      firebaseUID: user.firebaseUID,
     };
 
     const secret =
@@ -241,16 +203,9 @@ export class AuthService {
       });
     }
 
-    // Update password in Firebase (if Firebase user exists)
-    if (user.firebaseUID) {
-      try {
-        await admin.auth().updateUser(user.firebaseUID, {
-          password: newPassword,
-        });
-      } catch (error) {
-        console.error('Failed to update Firebase password:', error);
-      }
-    }
+    // Hash and update password
+    const hashedPassword = await bcrypt.hash(newPassword, this.SALT_ROUNDS);
+    user.password = hashedPassword;
 
     // Clear reset code
     user.passwordResetCode = undefined;
@@ -348,5 +303,270 @@ export class AuthService {
   private sanitizeDriver(driver: any) {
     const { password, ...sanitized } = driver.toObject();
     return sanitized;
+  }
+
+  // ==================== Local Authentication Methods ====================
+
+  /**
+   * تسجيل حساب جديد محلي
+   */
+  async registerLocal(registerDto: RegisterLocalDto): Promise<AuthResponse> {
+    // التحقق من وجود المستخدم بنفس البريد الإلكتروني
+    const existingUser = await this.userModel.findOne({
+      email: registerDto.email.toLowerCase(),
+    });
+
+    if (existingUser) {
+      throw new ConflictException({
+        code: 'EMAIL_ALREADY_EXISTS',
+        message: 'Email already registered',
+        userMessage: 'البريد الإلكتروني مسجل مسبقاً',
+        suggestedAction: 'يرجى تسجيل الدخول أو استخدام بريد إلكتروني آخر',
+      });
+    }
+
+    // تشفير كلمة المرور
+    const hashedPassword = await bcrypt.hash(registerDto.password, this.SALT_ROUNDS);
+
+    // إنشاء مستخدم جديد
+    const user = await this.userModel.create({
+      fullName: registerDto.fullName,
+      email: registerDto.email.toLowerCase(),
+      phone: registerDto.phone,
+      password: hashedPassword,
+      authProvider: 'local',
+      emailVerified: false,
+      isActive: true,
+    });
+
+    // إنشاء JWT Token
+    const token = await this.generateToken(user);
+
+    return {
+      user: this.sanitizeUser(user),
+      token,
+    };
+  }
+
+  /**
+   * تسجيل الدخول المحلي
+   */
+  async loginLocal(email: string, password: string): Promise<AuthResponse> {
+    // البحث عن المستخدم مع كلمة المرور
+    const user = await this.userModel
+      .findOne({ email: email.toLowerCase() })
+      .select('+password');
+
+    if (!user) {
+      throw new UnauthorizedException({
+        code: 'INVALID_CREDENTIALS',
+        message: 'Invalid email or password',
+        userMessage: 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
+        suggestedAction: 'يرجى التحقق من بيانات الدخول',
+      });
+    }
+
+    // التحقق من كلمة المرور
+    const isValidPassword = await this.comparePassword(password, user.password || '');
+    if (!isValidPassword) {
+      throw new UnauthorizedException({
+        code: 'INVALID_CREDENTIALS',
+        message: 'Invalid email or password',
+        userMessage: 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
+        suggestedAction: 'يرجى التحقق من بيانات الدخول',
+      });
+    }
+
+    // التحقق من حالة المستخدم
+    if (!user.isActive) {
+      throw new UnauthorizedException({
+        code: 'ACCOUNT_INACTIVE',
+        message: 'Account is not active',
+        userMessage: 'الحساب غير نشط',
+        suggestedAction: 'يرجى التواصل مع الدعم الفني',
+      });
+    }
+
+    if (user.isBlacklisted || user.isBanned) {
+      throw new UnauthorizedException({
+        code: 'ACCOUNT_BANNED',
+        message: 'Account is banned',
+        userMessage: 'الحساب محظور',
+        suggestedAction: 'يرجى التواصل مع الدعم الفني',
+      });
+    }
+
+    // تحديث آخر تسجيل دخول
+    user.lastLoginAt = new Date();
+    await user.save();
+
+    // إنشاء JWT Token
+    const token = await this.generateToken(user);
+
+    return {
+      user: this.sanitizeUser(user),
+      token,
+    };
+  }
+
+  /**
+   * تهيئة/تحديث بيانات المستخدم (idempotent)
+   */
+  async initUser(userId: string, data: RegisterDto) {
+    const user = await this.userModel.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException({
+        code: 'USER_NOT_FOUND',
+        message: 'User not found',
+        userMessage: 'المستخدم غير موجود',
+      });
+    }
+
+    // تحديث البيانات (idempotent - لا يحدث خطأ إذا كانت موجودة)
+    const updateData: Partial<User> = {};
+
+    if (data.fullName && !user.fullName) {
+      updateData.fullName = data.fullName;
+    }
+    if (data.email && !user.email) {
+      updateData.email = data.email.toLowerCase();
+    }
+    if (data.phone && !user.phone) {
+      updateData.phone = data.phone;
+    }
+    if (data.aliasName) {
+      updateData.aliasName = data.aliasName;
+    }
+    if (data.profileImage) {
+      updateData.profileImage = data.profileImage;
+    }
+
+    if (Object.keys(updateData).length > 0) {
+      await this.userModel.findByIdAndUpdate(userId, updateData);
+    }
+
+    // إرجاع المستخدم المحدث
+    const updatedUser = await this.userModel.findById(userId);
+    return this.sanitizeUser(updatedUser!);
+  }
+
+  /**
+   * إرسال OTP عبر البريد الإلكتروني
+   */
+  async sendEmailOtp(userId: string) {
+    const user = await this.userModel.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException({
+        code: 'USER_NOT_FOUND',
+        message: 'User not found',
+        userMessage: 'المستخدم غير موجود',
+      });
+    }
+
+    if (!user.email) {
+      throw new BadRequestException({
+        code: 'EMAIL_NOT_SET',
+        message: 'User email is not set',
+        userMessage: 'البريد الإلكتروني غير موجود',
+        suggestedAction: 'يرجى إضافة بريد إلكتروني أولاً',
+      });
+    }
+
+    // إنشاء رمز OTP (6 أرقام)
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // حفظ OTP مع تاريخ انتهاء (15 دقيقة)
+    user.emailOtpCode = otpCode;
+    user.emailOtpExpires = new Date(Date.now() + 15 * 60 * 1000);
+    await user.save();
+
+    // إرسال OTP عبر البريد الإلكتروني
+    try {
+      await this.emailService.sendOtpEmail(user.email, otpCode, user.fullName);
+    } catch (error) {
+      // في حالة فشل الإرسال، نمسح OTP
+      user.emailOtpCode = undefined;
+      user.emailOtpExpires = undefined;
+      await user.save();
+
+      throw new BadRequestException({
+        code: 'EMAIL_SEND_FAILED',
+        message: 'Failed to send OTP email',
+        userMessage: 'فشل إرسال البريد الإلكتروني',
+        suggestedAction: 'يرجى المحاولة مرة أخرى',
+      });
+    }
+
+    return {
+      success: true,
+      message: 'تم إرسال رمز التحقق إلى بريدك الإلكتروني',
+    };
+  }
+
+  /**
+   * التحقق من OTP وتفعيل الحساب
+   */
+  async verifyEmailOtp(userId: string, code: string): Promise<VerifyOtpResponse> {
+    const user = await this.userModel.findById(userId).select('+emailOtpCode');
+
+    if (!user) {
+      throw new NotFoundException({
+        code: 'USER_NOT_FOUND',
+        message: 'User not found',
+        userMessage: 'المستخدم غير موجود',
+      });
+    }
+
+    // التحقق من وجود OTP
+    if (!user.emailOtpCode || !user.emailOtpExpires) {
+      throw new BadRequestException({
+        code: 'OTP_NOT_SENT',
+        message: 'OTP not sent or expired',
+        userMessage: 'لم يتم إرسال رمز التحقق أو انتهت صلاحيته',
+        suggestedAction: 'يرجى طلب رمز جديد',
+      });
+    }
+
+    // التحقق من انتهاء الصلاحية
+    if (user.emailOtpExpires < new Date()) {
+      // مسح OTP المنتهي
+      user.emailOtpCode = undefined;
+      user.emailOtpExpires = undefined;
+      await user.save();
+
+      throw new BadRequestException({
+        code: 'OTP_EXPIRED',
+        message: 'OTP code has expired',
+        userMessage: 'رمز التحقق منتهي الصلاحية',
+        suggestedAction: 'يرجى طلب رمز جديد',
+      });
+    }
+
+    // التحقق من صحة الرمز
+    if (user.emailOtpCode !== code) {
+      throw new BadRequestException({
+        code: 'INVALID_OTP',
+        message: 'Invalid OTP code',
+        userMessage: 'رمز التحقق غير صحيح',
+        suggestedAction: 'يرجى التحقق من الرمز وإعادة المحاولة',
+      });
+    }
+
+    // تفعيل الحساب ومسح OTP
+    user.emailVerified = true;
+    user.emailOtpCode = undefined;
+    user.emailOtpExpires = undefined;
+    await user.save();
+
+    // إنشاء JWT Token جديد
+    const token = await this.generateToken(user);
+
+    return {
+      verified: true,
+      user: this.sanitizeUser(user),
+      token,
+    };
   }
 }

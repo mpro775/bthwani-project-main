@@ -3,9 +3,7 @@ import axiosInstance from "./axios-instance";
 import { storage } from "../utils/storage";
 import type { AuthResponse } from "../types";
 
-const API_KEY = "AIzaSyDcj9GF6Jsi7aIWHoOmH9OKwdOs2pRswS0";
-const BASE_URL = "https://identitytoolkit.googleapis.com/v1";
-const SECURE_TOKEN_URL = "https://securetoken.googleapis.com/v1/token";
+const API_URL = import.meta.env.VITE_API_URL || "https://api.bthwani.com/api/v2";
 
 const PREEMPT_REFRESH_MS = 5000;
 
@@ -20,12 +18,31 @@ const cleanToken = (token: string | null | undefined): string | null => {
 // Register with email
 export const registerWithEmail = async (
   email: string,
-  password: string
+  password: string,
+  fullName?: string,
+  phone?: string
 ): Promise<AuthResponse> => {
-  const endpoint = `${BASE_URL}/accounts:signUp?key=${API_KEY}`;
-  const payload = { email, password, returnSecureToken: true };
-  const response = await axios.post<AuthResponse>(endpoint, payload);
-  return response.data;
+  const response = await axios.post<{ success: boolean; data: AuthResponse }>(
+    `${API_URL}/auth/register`,
+    { email, password, fullName, phone }
+  );
+
+  const { token, user } = response.data.data;
+  if (token?.accessToken) {
+    storage.setIdToken(token.accessToken);
+    // Calculate expiry time (default 7 days)
+    const expiresInMs = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+    const expiryTime = Date.now() + expiresInMs;
+    storage.setExpiryTime(String(expiryTime));
+  }
+
+  return {
+    idToken: token?.accessToken || '',
+    refreshToken: '', // JWT doesn't use refresh tokens the same way
+    expiresIn: token?.expiresIn || '7d',
+    localId: user?.id || '',
+    email: user?.email || email,
+  };
 };
 
 // Login with email
@@ -33,29 +50,37 @@ export const loginWithEmail = async (
   email: string,
   password: string
 ): Promise<AuthResponse> => {
-  const { data } = await axios.post<AuthResponse>(
-    `${BASE_URL}/accounts:signInWithPassword?key=${API_KEY}`,
-    { email, password, returnSecureToken: true }
+  const response = await axios.post<{ success: boolean; data: AuthResponse }>(
+    `${API_URL}/auth/login`,
+    { email, password }
   );
 
-  const expiresInMs = parseInt(data.expiresIn, 10) * 1000;
-  const expiryTime = Date.now() + expiresInMs;
+  const { token, user } = response.data.data;
+  
+  if (token?.accessToken) {
+    storage.setIdToken(token.accessToken);
+    // Calculate expiry time (default 7 days)
+    const expiresInMs = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+    const expiryTime = Date.now() + expiresInMs;
+    storage.setExpiryTime(String(expiryTime));
+  }
 
-  storage.setIdToken(data.idToken);
-  storage.setRefreshToken(data.refreshToken);
-  storage.setExpiryTime(String(expiryTime));
-
-  return data;
+  return {
+    idToken: token?.accessToken || '',
+    refreshToken: '', // JWT doesn't use refresh tokens the same way
+    expiresIn: token?.expiresIn || '7d',
+    localId: user?.id || '',
+    email: user?.email || email,
+  };
 };
 
-// Refresh ID token
+// Refresh ID token (JWT tokens don't need refresh in the same way, but we check expiry)
 export const refreshIdToken = async (): Promise<string | null> => {
   try {
-    const refreshToken = cleanToken(storage.getRefreshToken());
     const expiryTimeStr = storage.getExpiryTime() || "";
     const storedIdToken = cleanToken(storage.getIdToken()) || null;
 
-    if (!refreshToken) {
+    if (!storedIdToken) {
       return null;
     }
 
@@ -71,27 +96,11 @@ export const refreshIdToken = async (): Promise<string | null> => {
       return storedIdToken;
     }
 
-    // Otherwise, refresh
-    const params = new URLSearchParams({
-      grant_type: "refresh_token",
-      refresh_token: refreshToken,
-    });
-
-    const { data } = await axios.post(
-      `${SECURE_TOKEN_URL}?key=${API_KEY}`,
-      params.toString(),
-      { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
-    );
-
-    const newIdToken: string = data.id_token;
-    const newRefreshToken: string = data.refresh_token;
-    const newExpiry = Date.now() + parseInt(data.expires_in, 10) * 1000;
-
-    storage.setIdToken(newIdToken);
-    storage.setRefreshToken(newRefreshToken);
-    storage.setExpiryTime(String(newExpiry));
-
-    return newIdToken;
+    // Token expired - user needs to login again
+    // JWT tokens from backend don't have refresh tokens in the same way as Firebase
+    console.warn("JWT token expired - user needs to login again");
+    storage.clearTokens();
+    return null;
   } catch (err) {
     console.warn("refreshIdToken error:", err);
     return null;
@@ -104,7 +113,7 @@ export const getAuthHeader = async (): Promise<Record<string, string>> => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
-// Store Firebase tokens
+// Store JWT tokens (renamed from storeFirebaseTokens)
 export const storeFirebaseTokens = async (
   idToken: string,
   refreshToken: string,
@@ -116,7 +125,7 @@ export const storeFirebaseTokens = async (
   storage.setExpiryTime(String(expiryTime));
 };
 
-// Clear tokens
+// Clear tokens (renamed from clearFirebaseTokens for backward compatibility)
 export const clearFirebaseTokens = (): void => {
   storage.clearTokens();
 };

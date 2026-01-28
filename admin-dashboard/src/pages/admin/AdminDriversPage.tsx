@@ -36,8 +36,8 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../../config/firebaseConfig";
+// Firebase removed - using JWT from localStorage
+// Firebase removed - using JWT from localStorage
 import { createDriverSchema, updateDriverSchema, type CreateDriverData, type UpdateDriverData } from "../drivers/schema";
 import { TextFieldWithCounter } from "../../components/TextFieldWithCounter";
 import StateBoundary from "../../components/ui/StateBoundary";
@@ -120,13 +120,11 @@ export default function AdminDriversPage() {
     setError(null);
     setDrivers([]); // Reset drivers to empty array while loading
     try {
-      const user = auth.currentUser;
-      if (!user) {
-        navigate("/login");
+      const token = localStorage.getItem("adminToken");
+      if (!token) {
+        navigate("/admin/login");
         return;
       }
-
-      const token = await user.getIdToken(true);
       const response = await axios.get("/admin/drivers", {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -149,11 +147,12 @@ export default function AdminDriversPage() {
   }, [navigate]);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) fetchDrivers();
-      else navigate("/login");
-    });
-    return unsubscribe;
+    const token = localStorage.getItem("adminToken");
+    if (token) {
+      fetchDrivers();
+    } else {
+      navigate("/admin/login");
+    }
   }, [navigate, fetchDrivers]);
 
   // Toggle ban

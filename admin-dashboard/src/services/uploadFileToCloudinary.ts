@@ -1,11 +1,10 @@
 // src/services/uploadFileToBunny.ts
-import { auth } from "../config/firebaseConfig";
+// Firebase removed - using JWT from localStorage
 
 export async function uploadFileToBunny(file: File): Promise<string> {
   // 1) تأكد من أن المستخدم مسجل دخول
-  const user = auth.currentUser;
-  if (!user) throw new Error("🚫 لا يوجد توكن مصادقة");
-  await user.getIdToken(true); // (اختياري، حسب الباك-إند)
+  const adminToken = localStorage.getItem("adminToken");
+  if (!adminToken) throw new Error("🚫 لا يوجد توكن مصادقة");
 
   // 2) حدد اسم الملف (يفضل unique)
   const fileName = `${Date.now()}-${file.name}`;

@@ -37,7 +37,7 @@ export class AkhdimniController {
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'حساب رسوم المهمة قبل إنشائها' })
   async calculateFee(@Body() dto: CalculateFeeDto) {
     return this.akhdimniService.calculateFee(dto);
@@ -47,7 +47,7 @@ export class AkhdimniController {
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'إنشاء طلب مهمة (أخدمني)' })
   async createErrand(
     @CurrentUser('id') userId: string,
@@ -59,7 +59,7 @@ export class AkhdimniController {
   @Get('my-errands')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'طلباتي من أخدمني' })
   async getMyErrands(
     @CurrentUser('id') userId: string,
@@ -73,7 +73,7 @@ export class AkhdimniController {
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'الحصول على طلب محدد' })
   async getErrand(@Param('id') id: string) {
     return this.akhdimniService.findById(id);
@@ -85,7 +85,7 @@ export class AkhdimniController {
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'إلغاء طلب' })
   async cancelErrand(@Param('id') id: string, @Body() dto: { reason: string }) {
     return this.akhdimniService.cancel(id, dto.reason);
@@ -96,7 +96,7 @@ export class AkhdimniController {
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'تقييم المهمة' })
   async rateErrand(@Param('id') id: string, @Body() dto: RateErrandDto) {
     return this.akhdimniService.rate(id, dto);
@@ -107,7 +107,7 @@ export class AkhdimniController {
   @Get('driver/my-errands')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Roles('driver')
   @ApiOperation({ summary: 'مهماتي كسائق' })
   async getMyDriverErrands(
@@ -123,7 +123,7 @@ export class AkhdimniController {
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Roles('driver')
   @ApiOperation({ summary: 'تحديث حالة المهمة (سائق)' })
   async updateErrandStatus(

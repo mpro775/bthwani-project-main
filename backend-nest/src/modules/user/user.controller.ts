@@ -19,9 +19,12 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { UserService } from './user.service';
+import { AuthService } from '../auth/auth.service';
 import { AddAddressDto } from './dto/add-address.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { SetPinDto, VerifyPinDto } from './dto/set-pin.dto';
+import { RegisterDto } from '../auth/dto/register.dto';
+import { SendOtpDto } from '../auth/dto/send-otp.dto';
 import { CursorPaginationDto } from '../../common/dto/pagination.dto';
 import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -37,9 +40,12 @@ import { AuthType } from '../../common/guards/unified-auth.guard';
 @Controller({ path: 'users', version: ['1', '2'] })
 @UseGuards(UnifiedAuthGuard, RolesGuard)
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly authService: AuthService,
+  ) {}
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('me')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -54,7 +60,48 @@ export class UserController {
     return this.userService.getCurrentUser(userId);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
+  @Post('init')
+  @ApiResponse({ status: 200, description: 'User initialized' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiOperation({
+    summary: 'تهيئة بيانات المستخدم',
+    description: 'تهيئة أو تحديث بيانات المستخدم (idempotent)',
+  })
+  @ApiBody({ type: RegisterDto, description: 'بيانات المستخدم' })
+  @ApiResponse({ status: 200, description: 'تم تهيئة البيانات بنجاح' })
+  @ApiResponse({ status: 401, description: 'غير مصرّح' })
+  async initUser(
+    @CurrentUser('id') userId: string,
+    @Body() registerDto: RegisterDto,
+  ) {
+    const user = await this.authService.initUser(userId, registerDto);
+    return {
+      success: true,
+      message: 'تم تهيئة البيانات بنجاح',
+      data: user,
+    };
+  }
+
+  @Auth(AuthType.JWT)
+  @Post('otp/send')
+  @ApiResponse({ status: 200, description: 'OTP sent successfully' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiOperation({
+    summary: 'إرسال رمز OTP عبر البريد الإلكتروني',
+    description: 'إنشاء وإرسال رمز OTP إلى بريد المستخدم الإلكتروني',
+  })
+  @ApiBody({ type: SendOtpDto })
+  @ApiResponse({ status: 200, description: 'تم إرسال رمز التحقق بنجاح' })
+  @ApiResponse({ status: 401, description: 'غير مصرّح' })
+  async sendOtp(@CurrentUser('id') userId: string) {
+    const result = await this.authService.sendEmailOtp(userId);
+    return result;
+  }
+
+  @Auth(AuthType.JWT)
   @Delete('me')
   @ApiResponse({ status: 200, description: 'Deleted' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -71,7 +118,7 @@ export class UserController {
 
   // Note: /user/profile route is handled by a separate controller if needed
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Patch('me')
   @ApiResponse({ status: 200, description: 'Updated' })
   @ApiResponse({ status: 404, description: 'Not found' })
@@ -93,7 +140,7 @@ export class UserController {
   }
 
   // Compatibility route: /users/profile
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Patch('profile')
   @ApiOperation({ summary: 'تحديث الملف الشخصي (alias)' })
   async updateUserProfile(
@@ -104,7 +151,7 @@ export class UserController {
   }
 
   // Avatar endpoint for frontend compatibility
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Patch('avatar')
   @ApiResponse({ status: 200, description: 'Updated' })
   @ApiResponse({ status: 404, description: 'Not found' })
@@ -133,7 +180,7 @@ export class UserController {
     return this.userService.updateProfile(userId, { profileImage: body.image });
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('addresses')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -148,14 +195,14 @@ export class UserController {
   }
 
   // Compatibility route: /users/address (singular)
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('address')
   @ApiOperation({ summary: 'جلب عناوين المستخدم (alias)' })
   async getUserAddress(@CurrentUser('id') userId: string) {
     return this.userService.getAddresses(userId);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Post('addresses')
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
@@ -176,7 +223,7 @@ export class UserController {
   }
 
   // Compatibility route: /users/address (singular)
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Post('address')
   @ApiOperation({ summary: 'إضافة عنوان توصيل (alias)' })
   async addUserAddress(
@@ -186,7 +233,7 @@ export class UserController {
     return this.userService.addAddress(userId, addAddressDto);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Patch('addresses/:addressId')
   @ApiParam({ name: 'addressId', type: String })
   @ApiResponse({ status: 200, description: 'Updated' })
@@ -210,7 +257,7 @@ export class UserController {
     return this.userService.updateAddress(userId, addressId, updateData);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Delete('addresses/:addressId')
   @ApiParam({ name: 'addressId', type: String })
   @ApiResponse({ status: 200, description: 'Deleted' })
@@ -231,7 +278,7 @@ export class UserController {
     return this.userService.deleteAddress(userId, addressId);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Post('addresses/:addressId/set-default')
   @ApiParam({ name: 'addressId', type: String })
   @ApiResponse({ status: 201, description: 'Created' })
@@ -254,7 +301,7 @@ export class UserController {
 
   // ==================== Address Aliases (for frontend compatibility) ====================
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Patch('address/:id')
   @ApiParam({ name: 'id', type: String })
   @ApiOperation({ summary: 'تحديث عنوان موجود (alias)' })
@@ -266,7 +313,7 @@ export class UserController {
     return this.userService.updateAddress(userId, addressId, updateData);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Delete('address/:id')
   @ApiParam({ name: 'id', type: String })
   @ApiOperation({ summary: 'حذف عنوان (alias)' })
@@ -277,7 +324,7 @@ export class UserController {
     return this.userService.deleteAddress(userId, addressId);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Patch('default-address')
   @ApiBody({ schema: { type: 'object', properties: { addressId: { type: 'string' } } } })
   @ApiOperation({ summary: 'تعيين العنوان الافتراضي (alias)' })
@@ -288,7 +335,7 @@ export class UserController {
     return this.userService.setDefaultAddress(userId, addressId);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Delete('deactivate')
   @ApiResponse({ status: 200, description: 'Deleted' })
   @ApiResponse({ status: 404, description: 'Not found' })
@@ -331,7 +378,7 @@ export class UserController {
 
   // ==================== PIN Code Management ====================
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Post('pin/set')
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
@@ -356,7 +403,7 @@ export class UserController {
     return this.userService.setPin(userId, setPinDto);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Post('pin/verify')
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
@@ -381,7 +428,7 @@ export class UserController {
     return this.userService.verifyPin(userId, verifyPinDto);
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Post('pin/change')
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
@@ -414,7 +461,7 @@ export class UserController {
     });
   }
 
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @Get('pin/status')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })

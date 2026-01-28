@@ -107,7 +107,7 @@ export class ContentController {
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'الاشتراك في خطة' })
   async subscribe(
@@ -120,7 +120,7 @@ export class ContentController {
   @Get('my-subscription')
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'الحصول على اشتراكي' })
   async getMySubscription(@CurrentUser('id') userId: string) {
@@ -133,7 +133,7 @@ export class ContentController {
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.FIREBASE)
+  @Auth(AuthType.JWT)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'إلغاء الاشتراك' })
   async cancelSubscription(

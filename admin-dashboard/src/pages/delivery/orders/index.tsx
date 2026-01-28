@@ -7,7 +7,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Download } from "@mui/icons-material";
-import { auth } from "../../../config/firebaseConfig";
+// Firebase removed - using JWT from localStorage
 import FiltersBar from "./components/FiltersBar";
 import KpiCards from "./components/KpiCards";
 import BulkActionsBar from "./components/BulkActionsBar";
@@ -45,20 +45,25 @@ export default function AdminDeliveryOrdersPage() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const unsub = auth.onAuthStateChanged(async (u) => {
-      if (!u) return;
-      await u.getIdToken(true);
+    // Check if user is authenticated
+    const token = localStorage.getItem("adminToken");
+    if (!token) {
+      navigate("/admin/login");
+      return;
+    }
 
-      setReady(true); // 🔔 فعلنا الجاهزية
-      apply(); // أول تحميل للبيانات
+    setReady(true); // 🔔 فعلنا الجاهزية
+    apply(); // أول تحميل للبيانات
 
-      const s = await ensure();
+    // Setup socket listeners
+    ensure().then((s) => {
       const softRefresh = () => apply();
       s.on("order.created", softRefresh);
       s.on("order.status", softRefresh);
       s.on("order.sub.status", softRefresh);
       s.on("order.note.added", softRefresh);
     });
+
     return () => {
       ensure().then((s) => {
         s.off("order.created");
@@ -66,9 +71,8 @@ export default function AdminDeliveryOrdersPage() {
         s.off("order.sub.status");
         s.off("order.note.added");
       });
-      unsub();
     };
-  }, [ensure, apply]);
+  }, [ensure, apply, navigate]);
   useEffect(() => {
     if (!ready) return; // انتظر الجاهزية
     const t = setTimeout(() => {

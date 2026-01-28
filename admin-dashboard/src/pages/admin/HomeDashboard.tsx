@@ -25,8 +25,8 @@ import {
   AccessTime as TimeIcon,
 } from "@mui/icons-material";
 import axios from "../../utils/axios";
-import { auth } from "../../config/firebaseConfig";
-import { onAuthStateChanged } from "firebase/auth";
+// Firebase removed - using JWT from localStorage
+// Firebase removed - using JWT from localStorage
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Stats {
@@ -188,13 +188,12 @@ export default function UserStats() {
     setRefreshing(true);
     setError("");
     try {
-      const user = auth.currentUser;
-      if (!user) {
+      const token = localStorage.getItem("adminToken");
+      if (!token) {
         console.warn("❌ المستخدم غير مسجل دخول");
         setRefreshing(false);
         return;
       }
-      const token = await user.getIdToken(true);
       const res = await axios.get<Partial<Stats>>("/admin/stats", {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -216,14 +215,12 @@ export default function UserStats() {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        await fetchStats();
-      } else {
-        console.warn("❌ لا يوجد مستخدم مسجل دخول");
-      }
-    });
-    return () => unsubscribe();
+    const token = localStorage.getItem("adminToken");
+    if (token) {
+      fetchStats();
+    } else {
+      console.warn("❌ لا يوجد مستخدم مسجل دخول");
+    }
   }, []);
 
   const statCards = [
