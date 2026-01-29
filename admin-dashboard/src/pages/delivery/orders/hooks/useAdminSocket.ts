@@ -28,37 +28,37 @@ export function useAdminSocket() {
 
     // الاستماع لأحداث الطلبات وتحديث الـ cache
     s.on("order.created", () => {
-      queryClient.invalidateQueries(['orders']);
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
     });
 
     s.on("order.updated", (data) => {
-      queryClient.invalidateQueries(['orders']);
-      queryClient.invalidateQueries(['order', data.orderId]);
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['order', data.orderId] });
     });
 
     s.on("order.status", (data) => {
-      queryClient.invalidateQueries(['orders']);
-      queryClient.invalidateQueries(['order', data.orderId]);
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['order', data.orderId] });
     });
 
     s.on("order.sub.status", (data) => {
-      queryClient.invalidateQueries(['orders']);
-      queryClient.invalidateQueries(['order', data.orderId]);
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['order', data.orderId] });
     });
 
     s.on("order.driver.assigned", (data) => {
-      queryClient.invalidateQueries(['orders']);
-      queryClient.invalidateQueries(['order', data.orderId]);
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['order', data.orderId] });
     });
 
     s.on("order.pod.set", (data) => {
-      queryClient.invalidateQueries(['orders']);
-      queryClient.invalidateQueries(['order', data.orderId]);
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['order', data.orderId] });
     });
 
     s.on("order.note.added", (data) => {
-      queryClient.invalidateQueries(['orders']);
-      queryClient.invalidateQueries(['order', data.orderId]);
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['order', data.orderId] });
     });
 
     return s;
