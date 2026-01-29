@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     fontSize: 12,
-    fontWeight: '500',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.primary,
     marginLeft: 4,
   },
@@ -165,18 +165,19 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.background,
   },
   title: {
     fontSize: 18,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     marginBottom: 8,
     lineHeight: 24,
   },
   description: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.lightText,
     marginBottom: 12,
     lineHeight: 20,
@@ -188,7 +189,7 @@ const styles = StyleSheet.create({
   },
   priceText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: "Cairo-Bold",
     color: COLORS.success,
     marginLeft: 6,
   },
@@ -197,6 +198,7 @@ const styles = StyleSheet.create({
   },
   metadataText: {
     fontSize: 12,
+    fontFamily: "Cairo-Regular",
     color: COLORS.lightText,
     backgroundColor: COLORS.lightGray,
     paddingHorizontal: 8,
@@ -210,6 +212,7 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: 12,
+    fontFamily: "Cairo-Regular",
     color: COLORS.lightText,
   },
 });

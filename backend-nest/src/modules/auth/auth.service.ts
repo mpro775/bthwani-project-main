@@ -525,7 +525,9 @@ export class AuthService {
     userId: string,
     code: string,
   ): Promise<VerifyOtpResponse> {
-    const user = await this.userModel.findById(userId).select('+emailOtpCode');
+    const user = await this.userModel
+      .findById(userId)
+      .select('+emailOtpCode +emailOtpExpires');
 
     if (!user) {
       throw new NotFoundException({

@@ -445,10 +445,12 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 16,
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
   },
   errorText: {
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.danger,
   },
   header: {
@@ -466,7 +468,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     fontSize: 18,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     textAlign: 'center',
   },
@@ -499,7 +501,7 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     fontSize: 14,
-    fontWeight: '500',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.primary,
     marginLeft: 6,
   },
@@ -510,12 +512,12 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.white,
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: "Cairo-Bold",
     color: COLORS.text,
     marginBottom: 16,
     lineHeight: 32,
@@ -525,13 +527,13 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     marginBottom: 12,
   },
   priceText: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontFamily: "Cairo-Bold",
     color: COLORS.success,
     textAlign: 'center',
     backgroundColor: COLORS.lightGreen,
@@ -541,6 +543,7 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.text,
     lineHeight: 24,
     marginBottom: 24,
@@ -557,7 +560,7 @@ const styles = StyleSheet.create({
   },
   categoryValue: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.primary,
     marginLeft: 8,
   },
@@ -573,12 +576,13 @@ const styles = StyleSheet.create({
   },
   metadataLabel: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     width: 80,
   },
   metadataValue: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
     flex: 1,
   },
@@ -606,16 +610,18 @@ const styles = StyleSheet.create({
   },
   contactButtonText: {
     fontSize: 15,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.white,
   },
   phoneDisplay: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
     marginTop: 8,
   },
   noContactHint: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
     marginTop: 8,
   },
@@ -631,12 +637,13 @@ const styles = StyleSheet.create({
   },
   dateLabel: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     width: 100,
   },
   dateValue: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
     flex: 1,
   },

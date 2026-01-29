@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     fontSize: 18,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     textAlign: 'center',
   },
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     marginBottom: 8,
   },
@@ -333,6 +333,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.text,
     backgroundColor: COLORS.white,
   },
@@ -349,6 +350,7 @@ const styles = StyleSheet.create({
   },
   picker: {
     height: 50,
+    fontFamily: "Cairo-Regular",
     color: COLORS.text,
   },
   additionalFields: {
@@ -371,9 +373,9 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.gray,
   },
   submitButtonText: {
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.white,
     fontSize: 18,
-    fontWeight: '600',
     marginLeft: 8,
   },
 });

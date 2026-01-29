@@ -41,11 +41,12 @@ const KenzListScreen = () => {
       }
 
       const response: KenzListResponse = await getKenzList(cursor, selectedCategory);
+      const list = response?.items ?? [];
 
       if (isLoadMore) {
-        setItems(prev => [...prev, ...response.items]);
+        setItems(prev => [...prev, ...list]);
       } else {
-        setItems(response.items);
+        setItems(list);
       }
 
       setNextCursor(response.nextCursor);
@@ -151,7 +152,7 @@ const KenzListScreen = () => {
     );
   };
 
-  if (loading && items.length === 0) {
+  if (loading && (items ?? []).length === 0) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={COLORS.primary} />
@@ -178,7 +179,7 @@ const KenzListScreen = () => {
       {renderCategoryFilter()}
 
       <FlatList
-        data={items}
+        data={items ?? []}
         keyExtractor={(item) => item._id}
         renderItem={renderItem}
         onEndReached={loadMore}
@@ -192,7 +193,7 @@ const KenzListScreen = () => {
         }
         ListFooterComponent={renderFooter}
         ListEmptyComponent={renderEmpty}
-        contentContainerStyle={items.length === 0 ? styles.emptyList : styles.list}
+        contentContainerStyle={(items ?? []).length === 0 ? styles.emptyList : styles.list}
         showsVerticalScrollIndicator={false}
       />
     </View>
@@ -219,12 +220,13 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontFamily: "Cairo-Bold",
     color: COLORS.primary,
     marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.gray,
   },
   createIconButton: {
@@ -253,11 +255,12 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     fontSize: 12,
+    fontFamily: "Cairo-Regular",
     color: COLORS.gray,
   },
   categoryTextActive: {
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.white,
-    fontWeight: '600',
   },
   list: {
     padding: 16,
@@ -274,13 +277,14 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontFamily: "Cairo-Bold",
     color: COLORS.dark,
     marginTop: 16,
     marginBottom: 8,
   },
   emptySubtitle: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.gray,
     textAlign: "center",
     marginBottom: 24,
@@ -292,9 +296,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   createButtonText: {
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.white,
     fontSize: 16,
-    fontWeight: "600",
   },
   loadingContainer: {
     flex: 1,
@@ -305,6 +309,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 16,
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.gray,
   },
   footer: {
@@ -316,6 +321,7 @@ const styles = StyleSheet.create({
   footerText: {
     marginLeft: 8,
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.gray,
   },
 });
