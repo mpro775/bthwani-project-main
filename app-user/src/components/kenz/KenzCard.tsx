@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 import { KenzItem } from "@/types/types";
@@ -33,10 +33,13 @@ const KenzCard: React.FC<KenzCardProps> = ({ item, onPress }) => {
     }
   };
 
-  const formatCurrency = (price?: number) => {
-    if (!price) return 'غير محدد';
-    return `${price.toLocaleString('ar-SA')} ريال`;
+  const formatCurrency = (price?: number, currency?: string) => {
+    if (!price) return "غير محدد";
+    const cur = currency ?? "ريال يمني";
+    return `${price.toLocaleString("ar-SA")} ${cur}`;
   };
+
+  const coverImage = (item.images ?? [])[0];
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'غير محدد';
@@ -72,6 +75,14 @@ const KenzCard: React.FC<KenzCardProps> = ({ item, onPress }) => {
 
   return (
     <TouchableOpacity style={styles.card} onPress={onPress}>
+      {coverImage ? (
+        <Image source={{ uri: coverImage }} style={styles.coverImage} resizeMode="cover" />
+      ) : (
+        <View style={styles.coverPlaceholder}>
+          <Ionicons name="image-outline" size={40} color={COLORS.gray} />
+        </View>
+      )}
+
       <View style={styles.header}>
         <View style={styles.categoryContainer}>
           <Ionicons
@@ -80,7 +91,7 @@ const KenzCard: React.FC<KenzCardProps> = ({ item, onPress }) => {
             color={COLORS.primary}
           />
           <Text style={styles.categoryText}>
-            {item.category || 'غير مصنف'}
+            {item.category || "غير مصنف"}
           </Text>
         </View>
         <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
@@ -98,10 +109,27 @@ const KenzCard: React.FC<KenzCardProps> = ({ item, onPress }) => {
         </Text>
       )}
 
-      {item.price && (
+      {(item.city || (item.viewCount ?? 0) > 0) && (
+        <View style={styles.metaRow}>
+          {item.city && (
+            <View style={styles.metaChip}>
+              <Ionicons name="location-outline" size={12} color={COLORS.primary} />
+              <Text style={styles.metaChipText}>{item.city}</Text>
+            </View>
+          )}
+          {(item.viewCount ?? 0) > 0 && (
+            <View style={styles.metaChip}>
+              <Ionicons name="eye-outline" size={12} color={COLORS.gray} />
+              <Text style={styles.metaChipText}>{item.viewCount}</Text>
+            </View>
+          )}
+        </View>
+      )}
+
+      {item.price != null && (
         <View style={styles.priceContainer}>
           <Ionicons name="cash-outline" size={16} color={COLORS.success} />
-          <Text style={styles.priceText}>{formatCurrency(item.price)}</Text>
+          <Text style={styles.priceText}>{formatCurrency(item.price, item.currency)}</Text>
         </View>
       )}
 
@@ -128,17 +156,31 @@ const KenzCard: React.FC<KenzCardProps> = ({ item, onPress }) => {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.white,
     borderRadius: 12,
-    padding: 16,
     marginBottom: 12,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    overflow: "hidden",
+  },
+  coverImage: {
+    width: "100%",
+    height: 140,
+    backgroundColor: COLORS.lightGray,
+  },
+  coverPlaceholder: {
+    width: "100%",
+    height: 140,
+    backgroundColor: COLORS.lightGray,
+    alignItems: "center",
+    justifyContent: "center",
   },
   header: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -174,6 +216,7 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     marginBottom: 8,
     lineHeight: 24,
+    paddingHorizontal: 16,
   },
   description: {
     fontSize: 14,
@@ -181,11 +224,35 @@ const styles = StyleSheet.create({
     color: COLORS.lightText,
     marginBottom: 12,
     lineHeight: 20,
+    paddingHorizontal: 16,
+  },
+  metaRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    paddingHorizontal: 16,
+    marginBottom: 8,
+  },
+  metaChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.lightGray,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    marginRight: 8,
+    marginBottom: 4,
+  },
+  metaChipText: {
+    fontSize: 11,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.text,
+    marginLeft: 4,
   },
   priceContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 8,
+    paddingHorizontal: 16,
   },
   priceText: {
     fontSize: 16,
@@ -195,6 +262,7 @@ const styles = StyleSheet.create({
   },
   metadataContainer: {
     marginBottom: 12,
+    paddingHorizontal: 16,
   },
   metadataText: {
     fontSize: 12,
@@ -206,9 +274,12 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    paddingTop: 4,
   },
   dateText: {
     fontSize: 12,

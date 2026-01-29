@@ -457,6 +457,12 @@ export interface KenzItem {
   category?: string;
   metadata?: Record<string, any>;
   status: KenzStatus;
+  images?: string[];
+  city?: string;
+  viewCount?: number;
+  keywords?: string[];
+  currency?: string;
+  quantity?: number;
   createdAt: Date | string;
   updatedAt: Date | string;
 }
@@ -469,6 +475,11 @@ export interface CreateKenzPayload {
   category?: string;
   metadata?: Record<string, any>;
   status?: KenzStatus;
+  images?: string[];
+  city?: string;
+  keywords?: string[];
+  currency?: string;
+  quantity?: number;
 }
 
 export interface UpdateKenzPayload {
@@ -478,6 +489,11 @@ export interface UpdateKenzPayload {
   category?: string;
   metadata?: Record<string, any>;
   status?: KenzStatus;
+  images?: string[];
+  city?: string;
+  keywords?: string[];
+  currency?: string;
+  quantity?: number;
 }
 
 export interface KenzListResponse {
@@ -501,6 +517,42 @@ export const KENZ_CATEGORIES = [
 ] as const;
 
 export type KenzCategory = typeof KENZ_CATEGORIES[number];
+
+/** المدن الـ 22 (المحافظات اليمنية) لكنز */
+export const KENZ_YEMEN_CITIES = [
+  "صنعاء",
+  "عدن",
+  "تعز",
+  "الحديدة",
+  "إب",
+  "المكلا",
+  "ذمار",
+  "البيضاء",
+  "عمران",
+  "صعدة",
+  "مارب",
+  "حجة",
+  "لحج",
+  "الضالع",
+  "المحويت",
+  "ريمة",
+  "شبوة",
+  "الجوف",
+  "حضرموت",
+  "سقطرى",
+  "أمانة العاصمة",
+] as const;
+
+export type KenzYemenCity = (typeof KENZ_YEMEN_CITIES)[number];
+
+/** العملات المدعومة في كنز */
+export const KENZ_CURRENCIES = [
+  "ريال يمني",
+  "ريال سعودي",
+  "دولار أمريكي",
+] as const;
+
+export type KenzCurrency = (typeof KENZ_CURRENCIES)[number];
 
 // ==================== سند (Services + Emergency + Charity) Types ====================
 

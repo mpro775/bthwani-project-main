@@ -36,7 +36,12 @@ export class KenzController {
         price: { type: 'number', example: 3500 },
         category: { type: 'string', example: 'إلكترونيات' },
         metadata: { type: 'object', example: { color: 'فضي', storage: '256GB' } },
-        status: { type: 'string', enum: ['draft', 'pending', 'confirmed', 'completed', 'cancelled'], default: 'draft' }
+        status: { type: 'string', enum: ['draft', 'pending', 'confirmed', 'completed', 'cancelled'], default: 'draft' },
+        images: { type: 'array', items: { type: 'string' }, example: ['https://cdn.bthwani.com/kenz/1-img.jpg'] },
+        city: { type: 'string', example: 'صنعاء' },
+        keywords: { type: 'array', items: { type: 'string' }, example: ['جوال', 'أيفون'] },
+        currency: { type: 'string', example: 'ريال يمني', default: 'ريال يمني' },
+        quantity: { type: 'number', example: 1, default: 1 }
       }
     }
   })
@@ -48,12 +53,24 @@ export class KenzController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'قائمة الإعلانات', description: 'استرجاع الإعلانات مع دعم cursor' })
-  @ApiQuery({ name: 'cursor', required: false, description: 'مؤشر الصفحة التالية', example: '507f1f77bcf86cd799439012' })
+  @ApiOperation({ summary: 'قائمة الإعلانات', description: 'استرجاع الإعلانات مع دعم الفلترة و cursor' })
+  @ApiQuery({ name: 'cursor', required: false, description: 'مؤشر الصفحة التالية' })
+  @ApiQuery({ name: 'category', required: false, description: 'الفئة', example: 'إلكترونيات' })
+  @ApiQuery({ name: 'status', required: false, description: 'حالة الإعلان', enum: ['draft', 'pending', 'confirmed', 'completed', 'cancelled'] })
+  @ApiQuery({ name: 'city', required: false, description: 'المدينة (من الـ 22 محافظة يمنية)', example: 'صنعاء' })
   @ApiResponse({ status: HttpStatus.OK, description: 'تم الاسترجاع بنجاح' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'غير مخول' })
-  findAll(@Query('cursor') cursor?: string) {
-    return this.service.findAll({ cursor });
+  list(
+    @Query('cursor') cursor?: string,
+    @Query('category') category?: string,
+    @Query('status') status?: string,
+    @Query('city') city?: string,
+  ) {
+    const filters: any = {};
+    if (category) filters.category = category;
+    if (status) filters.status = status;
+    if (city) filters.city = city;
+    return this.service.list(filters, cursor);
   }
 
   @Get(':id')
@@ -79,7 +96,12 @@ export class KenzController {
         price: { type: 'number', example: 3400 },
         category: { type: 'string', example: 'إلكترونيات' },
         metadata: { type: 'object', example: { color: 'أسود' } },
-        status: { type: 'string', enum: ['draft', 'pending', 'confirmed', 'completed', 'cancelled'], example: 'confirmed' }
+        status: { type: 'string', enum: ['draft', 'pending', 'confirmed', 'completed', 'cancelled'], example: 'confirmed' },
+        images: { type: 'array', items: { type: 'string' } },
+        city: { type: 'string', example: 'صنعاء' },
+        keywords: { type: 'array', items: { type: 'string' } },
+        currency: { type: 'string', example: 'ريال يمني' },
+        quantity: { type: 'number', example: 1 }
       }
     }
   })

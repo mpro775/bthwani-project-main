@@ -29,7 +29,7 @@ export class KenzService {
 
   async findOne(id: string) {
     const doc = await this.model
-      .findById(id)
+      .findByIdAndUpdate(id, { $inc: { viewCount: 1 } }, { new: true })
       .populate('ownerId', 'name email phone')
       .exec();
     if (!doc) throw new NotFoundException('Not found');
@@ -46,6 +46,7 @@ export class KenzService {
     if (filters.status) query.where('status').equals(filters.status);
     if (filters.ownerId) query.where('ownerId').equals(filters.ownerId);
     if (filters.category) query.where('category').equals(filters.category);
+    if (filters.city) query.where('city').equals(filters.city);
     if (filters.priceMin) query.where('price').gte(filters.priceMin);
     if (filters.priceMax) query.where('price').lte(filters.priceMax);
     if (filters.createdAfter)

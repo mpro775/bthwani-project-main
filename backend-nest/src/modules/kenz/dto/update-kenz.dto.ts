@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsNumber, IsObject, IsEnum } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsObject, IsEnum, IsArray, Min } from 'class-validator';
 import { KenzStatus } from './create-kenz.dto';
 
 export default class UpdateKenzDto {
@@ -32,4 +32,32 @@ export default class UpdateKenzDto {
   @IsOptional()
   @IsEnum(KenzStatus)
   status?: KenzStatus;
+
+  @ApiProperty({ description: 'روابط صور CDN (Bunny)', required: false, example: ['https://cdn.bthwani.com/kenz/1-img.jpg'] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  images?: string[];
+
+  @ApiProperty({ description: 'المدينة (من الـ 22 محافظة يمنية)', required: false, example: 'صنعاء' })
+  @IsOptional()
+  @IsString()
+  city?: string;
+
+  @ApiProperty({ description: 'كلمات مفتاحية', required: false, example: ['جوال', 'أيفون'] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  keywords?: string[];
+
+  @ApiProperty({ description: 'العملة', required: false, example: 'ريال يمني' })
+  @IsOptional()
+  @IsString()
+  currency?: string;
+
+  @ApiProperty({ description: 'الكمية', required: false, example: 1 })
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  quantity?: number;
 }

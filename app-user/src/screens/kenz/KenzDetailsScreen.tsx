@@ -9,6 +9,9 @@ import {
   ActivityIndicator,
   Share,
   Linking,
+  Image,
+  FlatList,
+  Dimensions,
 } from "react-native";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -20,6 +23,9 @@ import { getKenzDetails, deleteKenz } from "@/api/kenzApi";
 import { createConversation } from "@/api/kenzChatApi";
 import { useAuth } from "@/auth/AuthContext";
 import COLORS from "@/constants/colors";
+
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const GALLERY_HEIGHT = 220;
 
 type RouteProps = RouteProp<RootStackParamList, "KenzDetails">;
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "KenzDetails">;
@@ -75,9 +81,10 @@ const KenzDetailsScreen = () => {
     }
   };
 
-  const formatCurrency = (price?: number) => {
-    if (!price) return 'غير محدد';
-    return `${price.toLocaleString('ar-SA')} ريال`;
+  const formatCurrency = (price?: number, currency?: string) => {
+    if (!price) return "غير محدد";
+    const cur = currency ?? "ريال يمني";
+    return `${price.toLocaleString("ar-SA")} ${cur}`;
   };
 
   const formatDate = (dateInput?: string | Date) => {
@@ -157,7 +164,7 @@ const KenzDetailsScreen = () => {
     if (!item) return;
 
     try {
-      const message = `إعلان في كنز: ${item.title}\n\n${item.description || ''}\n\nالسعر: ${formatCurrency(item.price)}\nالفئة: ${item.category || 'غير محدد'}\n${item.metadata ? `\nالتفاصيل: ${Object.entries(item.metadata).map(([key, value]) => `${key}: ${value}`).join(', ')}` : ''}\n\nالحالة: ${getStatusText(item.status)}\n\nتاريخ النشر: ${formatDate(item.createdAt)}`;
+      const message = `إعلان في كنز: ${item.title}\n\n${item.description || ""}\n\nالسعر: ${formatCurrency(item.price, item.currency)}\nالفئة: ${item.category || "غير محدد"}\n${item.city ? `المدينة: ${item.city}\n` : ""}${item.metadata ? `\nالتفاصيل: ${Object.entries(item.metadata).map(([k, v]) => `${k}: ${v}`).join(", ")}` : ""}\n\nالحالة: ${getStatusText(item.status)}\n\nتاريخ النشر: ${formatDate(item.createdAt)}`;
 
       await Share.share({
         message,
@@ -308,6 +315,30 @@ const KenzDetailsScreen = () => {
 
       <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
+          {/* Image gallery */}
+          {(item.images ?? []).length > 0 ? (
+            <FlatList
+              data={item.images!}
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              keyExtractor={(_, i) => `img-${i}`}
+              renderItem={({ item: img }) => (
+                <Image
+                  source={{ uri: img }}
+                  style={styles.galleryImage}
+                  resizeMode="cover"
+                />
+              )}
+              style={styles.gallery}
+            />
+          ) : (
+            <View style={[styles.gallery, styles.galleryPlaceholder]}>
+              <Ionicons name="image-outline" size={64} color={COLORS.gray} />
+              <Text style={styles.galleryPlaceholderText}>لا توجد صور</Text>
+            </View>
+          )}
+
           {/* Header Info */}
           <View style={styles.infoHeader}>
             <View style={styles.categoryContainer}>
@@ -316,7 +347,7 @@ const KenzDetailsScreen = () => {
                 size={20}
                 color={COLORS.primary}
               />
-              <Text style={styles.categoryText}>{item.category || 'غير مصنف'}</Text>
+              <Text style={styles.categoryText}>{item.category || "غير مصنف"}</Text>
             </View>
             <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
               <Text style={styles.statusText}>{getStatusText(item.status)}</Text>
@@ -326,11 +357,48 @@ const KenzDetailsScreen = () => {
           {/* Title */}
           <Text style={styles.title}>{item.title}</Text>
 
+          {/* City, views, quantity, currency */}
+          <View style={styles.metaRow}>
+            {item.city && (
+              <View style={styles.metaChip}>
+                <Ionicons name="location-outline" size={14} color={COLORS.primary} />
+                <Text style={styles.metaChipText}>{item.city}</Text>
+              </View>
+            )}
+            {(item.viewCount ?? 0) > 0 && (
+              <View style={styles.metaChip}>
+                <Ionicons name="eye-outline" size={14} color={COLORS.gray} />
+                <Text style={styles.metaChipText}>{item.viewCount} مشاهدة</Text>
+              </View>
+            )}
+            {(item.quantity ?? 1) > 1 && (
+              <View style={styles.metaChip}>
+                <Text style={styles.metaChipText}>الكمية: {item.quantity}</Text>
+              </View>
+            )}
+          </View>
+
           {/* Price */}
-          {item.price && (
+          {item.price != null && (
             <View style={styles.priceSection}>
               <Text style={styles.sectionTitle}>السعر</Text>
-              <Text style={styles.priceText}>{formatCurrency(item.price)}</Text>
+              <Text style={styles.priceText}>
+                {formatCurrency(item.price, item.currency)}
+              </Text>
+            </View>
+          )}
+
+          {/* Keywords */}
+          {(item.keywords ?? []).length > 0 && (
+            <View style={styles.keywordsSection}>
+              <Text style={styles.sectionTitle}>كلمات مفتاحية</Text>
+              <View style={styles.keywordsRow}>
+                {(item.keywords ?? []).map((kw, i) => (
+                  <View key={i} style={styles.keywordChip}>
+                    <Text style={styles.keywordChipText}>{kw}</Text>
+                  </View>
+                ))}
+              </View>
             </View>
           )}
 
@@ -484,6 +552,68 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
+  },
+  gallery: {
+    width: SCREEN_WIDTH,
+    height: GALLERY_HEIGHT,
+    marginHorizontal: -16,
+    marginBottom: 16,
+  },
+  galleryImage: {
+    width: SCREEN_WIDTH,
+    height: GALLERY_HEIGHT,
+  },
+  galleryPlaceholder: {
+    backgroundColor: COLORS.lightGray,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  galleryPlaceholderText: {
+    fontFamily: "Cairo-Regular",
+    fontSize: 14,
+    color: COLORS.gray,
+    marginTop: 8,
+  },
+  metaRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginBottom: 16,
+  },
+  metaChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.lightGray,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  metaChipText: {
+    fontFamily: "Cairo-Regular",
+    fontSize: 12,
+    color: COLORS.text,
+    marginLeft: 4,
+  },
+  keywordsSection: {
+    marginBottom: 24,
+  },
+  keywordsRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  keywordChip: {
+    backgroundColor: COLORS.lightBlue,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  keywordChipText: {
+    fontFamily: "Cairo-Regular",
+    fontSize: 12,
+    color: COLORS.primary,
   },
   infoHeader: {
     flexDirection: 'row',

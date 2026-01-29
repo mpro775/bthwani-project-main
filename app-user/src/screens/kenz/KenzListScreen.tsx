@@ -13,7 +13,14 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 
 import { RootStackParamList } from "@/types/navigation";
-import { KenzItem, KenzListResponse, KenzCategory, KENZ_CATEGORIES } from "@/types/types";
+import {
+  KenzItem,
+  KenzListResponse,
+  KenzCategory,
+  KENZ_CATEGORIES,
+  KENZ_YEMEN_CITIES,
+  KenzYemenCity,
+} from "@/types/types";
 import { getKenzList } from "@/api/kenzApi";
 import { useAuth } from "@/auth/AuthContext";
 import COLORS from "@/constants/colors";
@@ -31,6 +38,7 @@ const KenzListScreen = () => {
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<KenzCategory | undefined>();
+  const [selectedCity, setSelectedCity] = useState<KenzYemenCity | undefined>();
 
   const loadItems = useCallback(async (cursor?: string, isLoadMore = false) => {
     try {
@@ -40,18 +48,22 @@ const KenzListScreen = () => {
         setLoading(true);
       }
 
-      const response: KenzListResponse = await getKenzList(cursor, selectedCategory);
+      const response: KenzListResponse = await getKenzList(
+        cursor,
+        selectedCategory,
+        undefined,
+        selectedCity
+      );
       const list = response?.items ?? [];
 
       if (isLoadMore) {
-        setItems(prev => [...prev, ...list]);
+        setItems((prev) => [...prev, ...list]);
       } else {
         setItems(list);
       }
 
       setNextCursor(response.nextCursor);
       setHasMore(!!response.nextCursor);
-
     } catch (error) {
       console.error("خطأ في تحميل الإعلانات:", error);
     } finally {
@@ -59,7 +71,7 @@ const KenzListScreen = () => {
       setLoadingMore(false);
       setRefreshing(false);
     }
-  }, [selectedCategory]);
+  }, [selectedCategory, selectedCity]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -88,6 +100,14 @@ const KenzListScreen = () => {
     loadItems(undefined, false);
   }, [loadItems]);
 
+  const handleCityChange = useCallback((city: KenzYemenCity | undefined) => {
+    setSelectedCity(city);
+    setItems([]);
+    setNextCursor(undefined);
+    setHasMore(true);
+    loadItems(undefined, false);
+  }, [loadItems]);
+
   useEffect(() => {
     loadItems();
   }, [loadItems]);
@@ -110,6 +130,30 @@ const KenzListScreen = () => {
         >
           <Text style={[styles.categoryText, selectedCategory === category && styles.categoryTextActive]}>
             {category}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+
+  const renderCityFilter = () => (
+    <View style={styles.cityFilter}>
+      <TouchableOpacity
+        style={[styles.cityButton, !selectedCity && styles.cityButtonActive]}
+        onPress={() => handleCityChange(undefined)}
+      >
+        <Text style={[styles.cityButtonText, !selectedCity && styles.cityButtonTextActive]}>
+          كل المدن
+        </Text>
+      </TouchableOpacity>
+      {KENZ_YEMEN_CITIES.slice(0, 5).map((city) => (
+        <TouchableOpacity
+          key={city}
+          style={[styles.cityButton, selectedCity === city && styles.cityButtonActive]}
+          onPress={() => handleCityChange(city)}
+        >
+          <Text style={[styles.cityButtonText, selectedCity === city && styles.cityButtonTextActive]}>
+            {city}
           </Text>
         </TouchableOpacity>
       ))}
@@ -177,6 +221,7 @@ const KenzListScreen = () => {
       </View>
 
       {renderCategoryFilter()}
+      {renderCityFilter()}
 
       <FlatList
         data={items ?? []}
@@ -259,6 +304,38 @@ const styles = StyleSheet.create({
     color: COLORS.gray,
   },
   categoryTextActive: {
+    fontFamily: "Cairo-SemiBold",
+    color: COLORS.white,
+  },
+  cityFilter: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: COLORS.white,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.lightGray,
+  },
+  cityButton: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    marginHorizontal: 4,
+    marginVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.lightGray,
+    backgroundColor: COLORS.white,
+  },
+  cityButtonActive: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  cityButtonText: {
+    fontSize: 12,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.gray,
+  },
+  cityButtonTextActive: {
     fontFamily: "Cairo-SemiBold",
     color: COLORS.white,
   },

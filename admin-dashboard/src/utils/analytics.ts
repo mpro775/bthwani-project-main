@@ -25,15 +25,16 @@ export const initGA = () => {
     return;
   }
 
-  // Google Analytics 4
-  const script1 = document.createElement('script');
-  script1.async = true;
-  script1.src = `https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`;
-  script1.onerror = () => console.warn('GA script failed to load - network issue or blocked');
-  document.head.appendChild(script1);
+  try {
+    // Google Analytics 4
+    const script1 = document.createElement('script');
+    script1.async = true;
+    script1.src = `https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`;
+    script1.onerror = () => console.warn('GA script failed to load - network issue or blocked');
+    document.head.appendChild(script1);
 
-  const script2 = document.createElement('script');
-  script2.innerHTML = `
+    const script2 = document.createElement('script');
+    script2.innerHTML = `
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
@@ -43,7 +44,10 @@ export const initGA = () => {
       custom_map: {'custom_parameter': 'bithawani_event'}
     });
   `;
-  document.head.appendChild(script2);
+    document.head.appendChild(script2);
+  } catch (e) {
+    console.warn('GA init failed', e);
+  }
 };
 
 // تهيئة Google Tag Manager
@@ -57,25 +61,29 @@ export const initGTM = () => {
     return;
   }
 
-  // GTM Script
-  const script = document.createElement('script');
-  script.innerHTML = `
+  try {
+    // GTM Script
+    const script = document.createElement('script');
+    script.innerHTML = `
     (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
     j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','${GTM_ID}');
   `;
-  script.onerror = () => console.warn('GTM script failed to load - network issue or blocked');
-  document.head.appendChild(script);
+    script.onerror = () => console.warn('GTM script failed to load - network issue or blocked');
+    document.head.appendChild(script);
 
-  // GTM NoScript
-  const noscript = document.createElement('noscript');
-  noscript.innerHTML = `
+    // GTM NoScript
+    const noscript = document.createElement('noscript');
+    noscript.innerHTML = `
     <iframe src="https://www.googletagmanager.com/ns.html?id=${GTM_ID}"
     height="0" width="0" style="display:none;visibility:hidden"></iframe>
   `;
-  document.body.insertBefore(noscript, document.body.firstChild);
+    document.body.insertBefore(noscript, document.body.firstChild);
+  } catch (e) {
+    console.warn('GTM init failed', e);
+  }
 };
 
 // تتبع الأحداث

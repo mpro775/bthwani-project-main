@@ -26,6 +26,11 @@ export interface CreateKenzPayload {
   category?: string;
   metadata?: Record<string, any>;
   status?: KenzStatus;
+  images?: string[];
+  city?: string;
+  keywords?: string[];
+  currency?: string;
+  quantity?: number;
 }
 
 export interface UpdateKenzPayload {
@@ -35,6 +40,11 @@ export interface UpdateKenzPayload {
   category?: string;
   metadata?: Record<string, any>;
   status?: KenzStatus;
+  images?: string[];
+  city?: string;
+  keywords?: string[];
+  currency?: string;
+  quantity?: number;
 }
 
 export interface KenzItem {
@@ -46,6 +56,12 @@ export interface KenzItem {
   category?: string;
   metadata?: Record<string, any>;
   status: KenzStatus;
+  images?: string[];
+  city?: string;
+  viewCount?: number;
+  keywords?: string[];
+  currency?: string;
+  quantity?: number;
   createdAt: Date | string;
   updatedAt: Date | string;
 }
@@ -93,13 +109,15 @@ export const createKenz = async (
 export const getKenzList = async (
   cursor?: string,
   category?: KenzCategory,
-  status?: KenzStatus
+  status?: KenzStatus,
+  city?: string
 ): Promise<KenzListResponse> => {
   const headers = await getAuthHeaders();
   const params: any = {};
   if (cursor) params.cursor = cursor;
   if (category) params.category = category;
   if (status) params.status = status;
+  if (city) params.city = city;
 
   const response = await axiosInstance.get("/kenz", {
     headers,

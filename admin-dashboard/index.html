@@ -155,6 +155,8 @@
               height="0" width="0" style="display:none;visibility:hidden"></iframe>
     </noscript>
 
+    <!-- Placeholder لمنع خطأ addDevModeBanner (onclick on null) -->
+    <div id="dev-mode-banner" aria-hidden="true" hidden style="display:none"></div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     
@@ -174,8 +176,7 @@
                 only: function(children) { if (Array.isArray(children) || children === undefined) throw new Error('Children.only() expects only one child.'); return children; },
               };
             },
-            configurable: true,
-            writable: true
+            configurable: true
           });
         }
       }

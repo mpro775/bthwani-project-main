@@ -8,17 +8,28 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
-import { Picker } from '@react-native-picker/picker';
+import { Picker } from "@react-native-picker/picker";
+import * as ImagePicker from "expo-image-picker";
 
 import { RootStackParamList } from "@/types/navigation";
-import { CreateKenzPayload, KENZ_CATEGORIES, KenzCategory } from "@/types/types";
+import {
+  CreateKenzPayload,
+  KENZ_CATEGORIES,
+  KENZ_YEMEN_CITIES,
+  KENZ_CURRENCIES,
+  KenzCategory,
+} from "@/types/types";
 import { createKenz } from "@/api/kenzApi";
 import { useAuth } from "@/auth/AuthContext";
+import { uploadKenzImageToBunny } from "@/utils/uploadToBunny";
 import COLORS from "@/constants/colors";
+
+const MAX_IMAGES = 8;
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "KenzCreate">;
 
@@ -28,48 +39,103 @@ const KenzCreateScreen = () => {
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState<CreateKenzPayload>({
-    ownerId: user?.uid || '',
-    title: '',
-    description: '',
+    ownerId: user?.uid || "",
+    title: "",
+    description: "",
     price: undefined,
     category: undefined,
     metadata: {
-      contact: '',
-      location: '',
-      condition: 'جديد',
+      contact: "",
+      location: "",
+      condition: "جديد",
     },
-    status: 'draft',
+    status: "draft",
+    city: undefined,
+    keywords: undefined,
+    currency: "ريال يمني",
+    quantity: 1,
   });
+  const [imageUris, setImageUris] = useState<string[]>([]);
+  const [keywordsText, setKeywordsText] = useState("");
+  const [uploadingImages, setUploadingImages] = useState(false);
+
+  const pickImages = async () => {
+    if (imageUris.length >= MAX_IMAGES) {
+      Alert.alert("حد أقصى", `يمكنك إضافة حتى ${MAX_IMAGES} صور فقط`);
+      return;
+    }
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsMultipleSelection: true,
+        quality: 0.8,
+      });
+      if (result.canceled) return;
+      const added = result.assets.map((a) => a.uri);
+      const combined = [...imageUris, ...added].slice(0, MAX_IMAGES);
+      setImageUris(combined);
+    } catch (e) {
+      Alert.alert("خطأ", "فشل اختيار الصور");
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setImageUris((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async () => {
     if (!formData.title.trim()) {
-      Alert.alert('خطأ', 'يرجى إدخال عنوان الإعلان');
+      Alert.alert("خطأ", "يرجى إدخال عنوان الإعلان");
       return;
     }
 
     if (!formData.ownerId) {
-      Alert.alert('خطأ', 'يجب تسجيل الدخول أولاً');
+      Alert.alert("خطأ", "يجب تسجيل الدخول أولاً");
+      return;
+    }
+
+    const qty = formData.quantity ?? 1;
+    if (qty < 1) {
+      Alert.alert("خطأ", "الكمية يجب أن تكون 1 على الأقل");
       return;
     }
 
     setLoading(true);
     try {
-      await createKenz(formData);
-      Alert.alert(
-        'نجح',
-        'تم إنشاء الإعلان بنجاح',
-        [
-          {
-            text: 'موافق',
-            onPress: () => navigation.goBack(),
-          },
-        ]
-      );
+      let imageUrls: string[] = [];
+      if (imageUris.length > 0) {
+        setUploadingImages(true);
+        for (const uri of imageUris) {
+          const url = await uploadKenzImageToBunny(uri);
+          imageUrls.push(url);
+        }
+        setUploadingImages(false);
+      }
+
+      const keywords = keywordsText
+        .split(/[،,]/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+      const payload: CreateKenzPayload = {
+        ...formData,
+        images: imageUrls.length ? imageUrls : undefined,
+        keywords: keywords.length ? keywords : undefined,
+        quantity: qty,
+      };
+      await createKenz(payload);
+      Alert.alert("نجح", "تم إنشاء الإعلان بنجاح", [
+        { text: "موافق", onPress: () => navigation.goBack() },
+      ]);
     } catch (error) {
-      console.error('خطأ في إنشاء الإعلان:', error);
-      Alert.alert('خطأ', 'حدث خطأ أثناء إنشاء الإعلان. يرجى المحاولة مرة أخرى.');
+      console.error("خطأ في إنشاء الإعلان:", error);
+      Alert.alert(
+        "خطأ",
+        "حدث خطأ أثناء إنشاء الإعلان. يرجى المحاولة مرة أخرى."
+      );
     } finally {
       setLoading(false);
+      setUploadingImages(false);
     }
   };
 
@@ -156,18 +222,34 @@ const KenzCreateScreen = () => {
 
           {/* السعر */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>السعر (ريال)</Text>
+            <Text style={styles.sectionTitle}>السعر</Text>
             <TextInput
               style={styles.textInput}
-              value={formData.price?.toString() || ''}
+              value={formData.price?.toString() || ""}
               onChangeText={(value) => {
                 const numValue = value ? parseFloat(value) : undefined;
-                updateFormData('price', numValue);
+                updateFormData("price", numValue);
               }}
               placeholder="مثال: 3500"
               placeholderTextColor={COLORS.textLight}
               keyboardType="decimal-pad"
             />
+          </View>
+
+          {/* العملة */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>العملة</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={formData.currency ?? "ريال يمني"}
+                onValueChange={(v) => updateFormData("currency", v)}
+                style={styles.picker}
+              >
+                {KENZ_CURRENCIES.map((c) => (
+                  <Picker.Item key={c} label={c} value={c} />
+                ))}
+              </Picker>
+            </View>
           </View>
 
           {/* رقم التواصل */}
@@ -189,12 +271,29 @@ const KenzCreateScreen = () => {
             <Text style={styles.sectionTitle}>الموقع</Text>
             <TextInput
               style={styles.textInput}
-              value={formData.metadata?.location || ''}
-              onChangeText={(value) => updateMetadata('location', value)}
+              value={formData.metadata?.location || ""}
+              onChangeText={(value) => updateMetadata("location", value)}
               placeholder="مثال: الرياض، حي العليا"
               placeholderTextColor={COLORS.textLight}
               maxLength={100}
             />
+          </View>
+
+          {/* المدينة */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>المدينة</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={formData.city}
+                onValueChange={(v) => updateFormData("city", v)}
+                style={styles.picker}
+              >
+                <Picker.Item label="اختر المدينة" value={undefined} />
+                {KENZ_YEMEN_CITIES.map((c) => (
+                  <Picker.Item key={c} label={c} value={c} />
+                ))}
+              </Picker>
+            </View>
           </View>
 
           {/* الحالة */}
@@ -202,8 +301,8 @@ const KenzCreateScreen = () => {
             <Text style={styles.sectionTitle}>حالة المنتج</Text>
             <View style={styles.pickerContainer}>
               <Picker
-                selectedValue={formData.metadata?.condition || 'جديد'}
-                onValueChange={(value) => updateMetadata('condition', value)}
+                selectedValue={formData.metadata?.condition || "جديد"}
+                onValueChange={(value) => updateMetadata("condition", value)}
                 style={styles.picker}
               >
                 <Picker.Item label="جديد" value="جديد" />
@@ -212,6 +311,69 @@ const KenzCreateScreen = () => {
                 <Picker.Item label="مستعمل - مقبول" value="مستعمل - مقبول" />
               </Picker>
             </View>
+          </View>
+
+          {/* الكمية */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>الكمية</Text>
+            <TextInput
+              style={styles.textInput}
+              value={String(formData.quantity ?? 1)}
+              onChangeText={(v) => {
+                const n = v ? parseInt(v, 10) : NaN;
+                updateFormData("quantity", Number.isFinite(n) && n >= 1 ? n : 1);
+              }}
+              placeholder="1"
+              placeholderTextColor={COLORS.textLight}
+              keyboardType="number-pad"
+            />
+          </View>
+
+          {/* الكلمات المفتاحية */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>كلمات مفتاحية</Text>
+            <TextInput
+              style={[styles.textInput, styles.textArea]}
+              value={keywordsText}
+              onChangeText={setKeywordsText}
+              placeholder="مفصولة بفواصل، مثال: جوال، أيفون، مستعمل"
+              placeholderTextColor={COLORS.textLight}
+              multiline
+            />
+          </View>
+
+          {/* صور الإعلان */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>صور الإعلان (حد أقصى {MAX_IMAGES})</Text>
+            <View style={styles.imagesRow}>
+              {imageUris.map((uri, i) => (
+                <View key={i} style={styles.imageWrap}>
+                  <Image source={{ uri }} style={styles.thumb} />
+                  <TouchableOpacity
+                    style={styles.removeImageBtn}
+                    onPress={() => removeImage(i)}
+                  >
+                    <Ionicons name="close-circle" size={24} color={COLORS.danger} />
+                  </TouchableOpacity>
+                </View>
+              ))}
+              {imageUris.length < MAX_IMAGES && (
+                <TouchableOpacity
+                  style={styles.addImageBtn}
+                  onPress={pickImages}
+                  disabled={loading || uploadingImages}
+                >
+                  <Ionicons name="add" size={32} color={COLORS.primary} />
+                  <Text style={styles.addImageText}>إضافة</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+            {uploadingImages && (
+              <View style={styles.uploadingRow}>
+                <ActivityIndicator size="small" color={COLORS.primary} />
+                <Text style={styles.uploadingText}>جاري رفع الصور...</Text>
+              </View>
+            )}
           </View>
 
           {/* حقول إضافية حسب الفئة */}
@@ -266,9 +428,12 @@ const KenzCreateScreen = () => {
 
           {/* زر الإرسال */}
           <TouchableOpacity
-            style={[styles.submitButton, loading && styles.submitButtonDisabled]}
+            style={[
+              styles.submitButton,
+              (loading || uploadingImages) && styles.submitButtonDisabled,
+            ]}
             onPress={handleSubmit}
-            disabled={loading}
+            disabled={loading || uploadingImages}
           >
             {loading ? (
               <ActivityIndicator size="small" color={COLORS.white} />
@@ -376,6 +541,56 @@ const styles = StyleSheet.create({
     fontFamily: "Cairo-SemiBold",
     color: COLORS.white,
     fontSize: 18,
+    marginLeft: 8,
+  },
+  imagesRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  imageWrap: {
+    position: "relative",
+    width: 80,
+    height: 80,
+    marginRight: 12,
+    marginBottom: 12,
+  },
+  thumb: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    backgroundColor: COLORS.lightGray,
+  },
+  removeImageBtn: {
+    position: "absolute",
+    top: -8,
+    right: -8,
+  },
+  addImageBtn: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderStyle: "dashed",
+    borderColor: COLORS.primary,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
+  },
+  addImageText: {
+    fontFamily: "Cairo-Regular",
+    fontSize: 12,
+    color: COLORS.primary,
+    marginTop: 4,
+  },
+  uploadingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 8,
+  },
+  uploadingText: {
+    fontFamily: "Cairo-Regular",
+    fontSize: 14,
+    color: COLORS.gray,
     marginLeft: 8,
   },
 });

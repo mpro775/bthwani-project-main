@@ -39,6 +39,30 @@ export class Kenz extends Document {
   @ApiProperty({ description: 'حالة الإعلان', enum: KenzStatus, default: KenzStatus.DRAFT })
   @Prop({ default: 'draft' })
   status: KenzStatus;
+
+  @ApiProperty({ description: 'روابط صور CDN (Bunny)', required: false, example: ['https://cdn.bthwani.com/kenz/1-img.jpg'] })
+  @Prop({ type: [String], default: [] })
+  images: string[];
+
+  @ApiProperty({ description: 'المدينة (من الـ 22 محافظة يمنية)', required: false, example: 'صنعاء' })
+  @Prop()
+  city?: string;
+
+  @ApiProperty({ description: 'عدد المشاهدات', default: 0 })
+  @Prop({ default: 0 })
+  viewCount: number;
+
+  @ApiProperty({ description: 'كلمات مفتاحية', required: false, example: ['جوال', 'أيفون'] })
+  @Prop({ type: [String], default: [] })
+  keywords: string[];
+
+  @ApiProperty({ description: 'العملة', required: false, example: 'ريال يمني', default: 'ريال يمني' })
+  @Prop({ default: 'ريال يمني' })
+  currency?: string;
+
+  @ApiProperty({ description: 'الكمية', required: false, example: 1, default: 1 })
+  @Prop({ default: 1 })
+  quantity?: number;
 }
 
 export const KenzSchema = SchemaFactory.createForClass(Kenz);
