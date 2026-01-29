@@ -141,6 +141,7 @@ export const preloadFonts = () => {
 export const memoizeComponent = <T extends object>(
   Component: React.ComponentType<T>
 ): React.ComponentType<T> => {
+  // @ts-ignore - React.memo returns MemoExoticComponent, not ComponentType
   return React.memo(Component, (prevProps, nextProps) => {
     return JSON.stringify(prevProps) === JSON.stringify(nextProps);
   });
