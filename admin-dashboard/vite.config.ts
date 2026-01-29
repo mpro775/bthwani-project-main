@@ -30,7 +30,8 @@ export default defineConfig(({ mode }) => {
         "react-dom", 
         "@emotion/react", 
         "@emotion/styled",
-        "@tanstack/react-query"
+        "@tanstack/react-query",
+        "react-helmet-async"
       ],
     },
 
@@ -121,13 +122,12 @@ export default defineConfig(({ mode }) => {
                     id.includes('react-router') ||
                     id.includes('react-hook-form') ||
                     id.includes('@hookform') ||
-                    id.includes('react-helmet') ||
+                    id.includes('react-helmet-async') ||
                     id.includes('react-toastify') ||
                     id.includes('react-to-print') ||
                     id.includes('@react-google-maps') ||
                     id.includes('@hello-pangea') ||
                     id.includes('@tanstack/react-query') || 
-                    id.includes('react-query') ||
                     id.includes('notistack') ||
                     id.includes('antd') ||
                     id.includes('framer-motion') ||
