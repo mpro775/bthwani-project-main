@@ -70,9 +70,9 @@ const Es3afniCard: React.FC<Es3afniCardProps> = ({ item, onPress }) => {
           <Ionicons
             name={getBloodTypeIcon(item.bloodType)}
             size={20}
-            color={getBloodTypeColor(item.bloodType)}
+            color={COLORS.white}
           />
-          <Text style={[styles.bloodTypeText, { color: getBloodTypeColor(item.bloodType) }]}>
+          <Text style={styles.bloodTypeText}>
             {item.bloodType || 'غير محدد'}
           </Text>
         </View>
@@ -156,8 +156,9 @@ const styles = StyleSheet.create({
   },
   bloodTypeText: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontFamily: "Cairo-Bold",
     marginLeft: 6,
+    color: COLORS.white,
   },
   statusBadge: {
     paddingHorizontal: 8,
@@ -166,18 +167,19 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.background,
   },
   title: {
     fontSize: 18,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     marginBottom: 8,
     lineHeight: 24,
   },
   description: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.lightText,
     marginBottom: 12,
     lineHeight: 20,
@@ -189,6 +191,7 @@ const styles = StyleSheet.create({
   },
   locationText: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.lightText,
     marginLeft: 6,
     flex: 1,
@@ -200,6 +203,7 @@ const styles = StyleSheet.create({
   },
   unitsText: {
     fontSize: 12,
+    fontFamily: "Cairo-Regular",
     color: COLORS.lightText,
     marginLeft: 4,
   },
@@ -210,6 +214,7 @@ const styles = StyleSheet.create({
   },
   contactText: {
     fontSize: 12,
+    fontFamily: "Cairo-Regular",
     color: COLORS.lightText,
     marginLeft: 4,
   },
@@ -220,6 +225,7 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: 12,
+    fontFamily: "Cairo-Regular",
     color: COLORS.lightText,
   },
 });

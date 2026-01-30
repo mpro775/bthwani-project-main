@@ -43,6 +43,7 @@ export class UserService {
       `user:profile:${userId}`,
       this.USER_PROFILE_CACHE_TTL,
       async () => {
+        await this.ensureAddressIds(userId);
         const user = await EntityHelper.findByIdOrFail(
           this.userModel,
           userId,
@@ -71,6 +72,28 @@ export class UserService {
         } as unknown;
       },
     );
+  }
+
+  /**
+   * ترحيل: إضافة _id للعناوين القديمة التي لا تملكه (كان Schema فيها _id: false)
+   */
+  private async ensureAddressIds(userId: string): Promise<void> {
+    const user = await this.userModel.findById(userId);
+    if (!user?.addresses?.length) return;
+
+    let modified = false;
+    for (const addr of user.addresses) {
+      const a = addr as { _id?: Types.ObjectId };
+      if (!a._id) {
+        (addr as { _id: Types.ObjectId })._id = new Types.ObjectId();
+        modified = true;
+      }
+    }
+    if (modified) {
+      user.markModified('addresses');
+      await user.save();
+      await this.invalidateUserCache(userId);
+    }
   }
 
   /**
@@ -123,12 +146,37 @@ export class UserService {
     };
   }
 
+  /**
+   * حل addressId إلى العنوان: إما بـ _id أو الفهرس
+   */
+  private resolveAddress(
+    user: { addresses: unknown[] },
+    addressId: string,
+  ): { address: unknown; index: number } | null {
+    const byId = user.addresses.findIndex(
+      (addr) =>
+        (addr as { _id?: Types.ObjectId })._id?.toString() === addressId,
+    );
+    if (byId >= 0) return { address: user.addresses[byId], index: byId };
+
+    const index = parseInt(addressId, 10);
+    if (
+      !isNaN(index) &&
+      index >= 0 &&
+      index < user.addresses.length
+    ) {
+      return { address: user.addresses[index], index };
+    }
+    return null;
+  }
+
   // تحديث عنوان
   async updateAddress(
     userId: string,
     addressId: string,
     updateData: Partial<AddAddressDto>,
   ) {
+    await this.ensureAddressIds(userId);
     const user = await this.userModel.findById(userId);
 
     if (!user) {
@@ -139,11 +187,8 @@ export class UserService {
       });
     }
 
-    const address = user.addresses.find(
-      (addr) => (addr as { _id: Types.ObjectId })._id.toString() === addressId,
-    );
-
-    if (!address) {
+    const resolved = this.resolveAddress(user, addressId);
+    if (!resolved) {
       throw new NotFoundException({
         code: 'ADDRESS_NOT_FOUND',
         message: 'Address not found',
@@ -151,15 +196,23 @@ export class UserService {
       });
     }
 
-    // تحديث البيانات
-    Object.assign(address, updateData);
+    const { address, index } = resolved;
+    const addr = address as { _id?: Types.ObjectId };
+    if (!addr._id) {
+      (user.addresses[index] as { _id: Types.ObjectId })._id =
+        new Types.ObjectId();
+      user.markModified('addresses');
+    }
+
+    Object.assign(user.addresses[index], updateData);
     await user.save();
 
-    return address as unknown;
+    return user.addresses[index] as unknown;
   }
 
   // حذف عنوان
   async deleteAddress(userId: string, addressId: string) {
+    await this.ensureAddressIds(userId);
     const user = await this.userModel.findById(userId);
 
     if (!user) {
@@ -170,12 +223,22 @@ export class UserService {
       });
     }
 
-    user.addresses = user.addresses.filter(
-      (addr) => (addr as { _id: Types.ObjectId })._id.toString() !== addressId,
-    ) as never;
+    const resolved = this.resolveAddress(user, addressId);
+    if (!resolved) {
+      throw new NotFoundException({
+        code: 'ADDRESS_NOT_FOUND',
+        message: 'Address not found',
+        userMessage: 'العنوان غير موجود',
+      });
+    }
 
-    // إزالة العنوان الافتراضي إذا كان محذوفاً
-    if (user.defaultAddressId?.toString() === addressId) {
+    const { address, index } = resolved;
+    const deletedId = (address as { _id?: Types.ObjectId })._id?.toString();
+
+    user.addresses.splice(index, 1);
+    user.markModified('addresses');
+
+    if (deletedId && user.defaultAddressId?.toString() === deletedId) {
       user.defaultAddressId =
         (user.addresses[0] as { _id?: Types.ObjectId })?._id || undefined;
     }
@@ -190,6 +253,7 @@ export class UserService {
 
   // تعيين العنوان الافتراضي
   async setDefaultAddress(userId: string, addressId: string) {
+    await this.ensureAddressIds(userId);
     const user = await this.userModel.findById(userId);
 
     if (!user) {
@@ -200,11 +264,34 @@ export class UserService {
       });
     }
 
-    const addressExists = user.addresses.some(
-      (addr) => (addr as { _id: Types.ObjectId })._id.toString() === addressId,
-    );
+    let resolvedId: string | null = null;
 
-    if (!addressExists) {
+    const byId = user.addresses.find(
+      (addr) => (addr as { _id?: Types.ObjectId })._id?.toString() === addressId,
+    );
+    if (byId) {
+      resolvedId = (byId as { _id?: Types.ObjectId })._id?.toString() ?? null;
+    }
+
+    if (!resolvedId) {
+      const index = parseInt(addressId, 10);
+      if (
+        !isNaN(index) &&
+        index >= 0 &&
+        index < user.addresses.length
+      ) {
+        const addr = user.addresses[index] as { _id?: Types.ObjectId };
+        if (!addr._id) {
+          (user.addresses[index] as { _id: Types.ObjectId })._id =
+            new Types.ObjectId();
+          user.markModified('addresses');
+          await user.save();
+        }
+        resolvedId = (user.addresses[index] as { _id?: Types.ObjectId })._id?.toString() ?? null;
+      }
+    }
+
+    if (!resolvedId) {
       throw new NotFoundException({
         code: 'ADDRESS_NOT_FOUND',
         message: 'Address not found',
@@ -212,7 +299,7 @@ export class UserService {
       });
     }
 
-    user.defaultAddressId = new Types.ObjectId(addressId);
+    user.defaultAddressId = new Types.ObjectId(resolvedId);
     await user.save();
 
     return {
@@ -223,6 +310,7 @@ export class UserService {
 
   // جلب العناوين
   async getAddresses(userId: string) {
+    await this.ensureAddressIds(userId);
     const user = await this.userModel
       .findById(userId)
       .select('addresses defaultAddressId');

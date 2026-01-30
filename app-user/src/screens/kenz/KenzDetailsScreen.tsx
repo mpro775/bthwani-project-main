@@ -13,6 +13,7 @@ import {
   FlatList,
   Dimensions,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
@@ -21,6 +22,7 @@ import { RootStackParamList } from "@/types/navigation";
 import { KenzItem } from "@/types/types";
 import { getKenzDetails, deleteKenz } from "@/api/kenzApi";
 import { createConversation } from "@/api/kenzChatApi";
+import { fetchUserProfile } from "@/api/userApi";
 import { useAuth } from "@/auth/AuthContext";
 import COLORS from "@/constants/colors";
 
@@ -34,12 +36,32 @@ const KenzDetailsScreen = () => {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<RouteProps>();
   const { itemId } = route.params;
-  const { user } = useAuth();
+  const { user, isLoggedIn } = useAuth();
 
   const [item, setItem] = useState<KenzItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [startingChat, setStartingChat] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  // استنتاج هوية المستخدم الحالي (لإخفاء زر التواصل عن صاحب الإعلان)
+  useEffect(() => {
+    (async () => {
+      let uid = user?.uid ?? null;
+      if (!uid && isLoggedIn) {
+        uid = await AsyncStorage.getItem("userId");
+        if (!uid) {
+          try {
+            const profile = await fetchUserProfile();
+            uid = profile?.uid || profile?.id || profile?._id ? String(profile.uid || profile.id || profile._id) : null;
+          } catch {
+            // تجاهل
+          }
+        }
+      }
+      setCurrentUserId(uid);
+    })();
+  }, [user?.uid, isLoggedIn]);
 
   const loadItem = useCallback(async () => {
     try {
@@ -225,8 +247,28 @@ const KenzDetailsScreen = () => {
   };
 
   const handleChatWithOwner = async () => {
-    if (!item || !user) return;
-    if (user.uid === (typeof item.ownerId === "object" ? (item.ownerId as any)?._id : item.ownerId)) {
+    if (!item) return;
+    const ownerIdStr =
+      typeof item.ownerId === "object" && (item.ownerId as any)?._id
+        ? String((item.ownerId as any)._id)
+        : String(item.ownerId || "");
+    let uid = currentUserId ?? user?.uid ?? null;
+    if (!uid && isLoggedIn) {
+      uid = await AsyncStorage.getItem("userId");
+      if (!uid) {
+        try {
+          const profile = await fetchUserProfile();
+          uid = profile?.uid || profile?.id || profile?._id ? String(profile.uid || profile.id || profile._id) : null;
+        } catch {
+          // تجاهل
+        }
+      }
+    }
+    if (!uid) {
+      Alert.alert("تنبيه", "يجب تسجيل الدخول أولاً للمحادثة.");
+      return;
+    }
+    if (uid === ownerIdStr) {
       Alert.alert("تنبيه", "لا يمكنك التواصل مع نفسك.");
       return;
     }
@@ -252,7 +294,7 @@ const KenzDetailsScreen = () => {
     (typeof item.ownerId === "object" && (item.ownerId as any)?._id
       ? String((item.ownerId as any)._id)
       : String(item.ownerId || ""));
-  const isOwner = !!(user && item && ownerIdStr === user.uid);
+  const isOwner = !!(currentUserId && item && ownerIdStr === currentUserId);
   const hasContact = !!(item?.metadata?.contact);
 
   if (loading) {
@@ -422,45 +464,85 @@ const KenzDetailsScreen = () => {
             </View>
           )}
 
-          {/* التواصل: محادثة + اتصال */}
-          <View style={styles.contactSection}>
-            <Text style={styles.sectionTitle}>التواصل</Text>
-            <View style={styles.contactActions}>
-              {!isOwner && user && (
+          {/* لصاحب الإعلان: إدارة الإعلان (تعديل، محادثاتي، حذف) */}
+          {isOwner && (
+            <View style={styles.ownerSection}>
+              <Text style={styles.sectionTitle}>إدارة إعلانك</Text>
+              <Text style={styles.ownerHint}>يمكنك تعديل بيانات الإعلان أو حذفه أو متابعة المحادثات مع المهتمين.</Text>
+              <View style={styles.ownerActions}>
                 <TouchableOpacity
-                  style={[styles.contactButton, styles.chatButton]}
-                  onPress={handleChatWithOwner}
-                  disabled={startingChat}
+                  style={[styles.ownerButton, styles.ownerButtonEdit]}
+                  onPress={handleEdit}
                 >
-                  {startingChat ? (
+                  <Ionicons name="pencil" size={22} color={COLORS.white} />
+                  <Text style={styles.ownerButtonText}>تعديل البيانات</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.ownerButton, styles.ownerButtonChat]}
+                  onPress={handleOpenChatList}
+                >
+                  <Ionicons name="chatbubbles-outline" size={22} color={COLORS.white} />
+                  <Text style={styles.ownerButtonText}>محادثاتي</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.ownerButton, styles.ownerButtonDelete]}
+                  onPress={handleDelete}
+                  disabled={deleting}
+                >
+                  {deleting ? (
                     <ActivityIndicator size="small" color={COLORS.white} />
                   ) : (
                     <>
-                      <Ionicons name="chatbubble-ellipses-outline" size={18} color={COLORS.white} />
-                      <Text style={styles.contactButtonText}>تواصل مع المعلن</Text>
+                      <Ionicons name="trash-outline" size={22} color={COLORS.white} />
+                      <Text style={styles.ownerButtonText}>حذف الإعلان</Text>
                     </>
                   )}
                 </TouchableOpacity>
-              )}
+              </View>
+            </View>
+          )}
+
+          {/* للزائر: التواصل (محادثة + اتصال) */}
+          {!isOwner && (
+            <View style={styles.contactSection}>
+              <Text style={styles.sectionTitle}>التواصل</Text>
+              <View style={styles.contactActions}>
+                {(currentUserId || user) && (
+                  <TouchableOpacity
+                    style={[styles.contactButton, styles.chatButton]}
+                    onPress={handleChatWithOwner}
+                    disabled={startingChat}
+                  >
+                    {startingChat ? (
+                      <ActivityIndicator size="small" color={COLORS.white} />
+                    ) : (
+                      <>
+                        <Ionicons name="chatbubble-ellipses-outline" size={18} color={COLORS.white} />
+                        <Text style={styles.contactButtonText}>تواصل مع المعلن</Text>
+                      </>
+                    )}
+                  </TouchableOpacity>
+                )}
+                {hasContact && (
+                  <TouchableOpacity
+                    style={[styles.contactButton, styles.callButton]}
+                    onPress={handleCall}
+                  >
+                    <Ionicons name="call-outline" size={18} color={COLORS.white} />
+                    <Text style={styles.contactButtonText}>اتصال مباشر</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
               {hasContact && (
-                <TouchableOpacity
-                  style={[styles.contactButton, styles.callButton]}
-                  onPress={handleCall}
-                >
-                  <Ionicons name="call-outline" size={18} color={COLORS.white} />
-                  <Text style={styles.contactButtonText}>اتصال مباشر</Text>
-                </TouchableOpacity>
+                <Text style={styles.phoneDisplay}>
+                  رقم التواصل: {normalizePhoneNumber(item.metadata.contact) ?? item.metadata.contact}
+                </Text>
+              )}
+              {!hasContact && (currentUserId || user) && (
+                <Text style={styles.noContactHint}>لم يُذكر رقم تواصل في هذا الإعلان. يمكنك المحادثة مع المعلن أعلاه.</Text>
               )}
             </View>
-            {hasContact && (
-              <Text style={styles.phoneDisplay}>
-                رقم التواصل: {normalizePhoneNumber(item.metadata.contact) ?? item.metadata.contact}
-              </Text>
-            )}
-            {!hasContact && !isOwner && user && (
-              <Text style={styles.noContactHint}>لم يُذكر رقم تواصل في هذا الإعلان. يمكنك المحادثة مع المعلن أعلاه.</Text>
-            )}
-          </View>
+          )}
 
           {/* Metadata */}
           {item.metadata && Object.keys(item.metadata).length > 0 && (
@@ -715,6 +797,46 @@ const styles = StyleSheet.create({
     fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
     flex: 1,
+  },
+  ownerSection: {
+    marginBottom: 24,
+    padding: 16,
+    backgroundColor: COLORS.lightBlue,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+  },
+  ownerHint: {
+    fontSize: 14,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.text,
+    marginBottom: 16,
+  },
+  ownerActions: {
+    gap: 12,
+  },
+  ownerButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 14,
+    borderRadius: 10,
+    gap: 8,
+    marginBottom: 10,
+  },
+  ownerButtonEdit: {
+    backgroundColor: COLORS.primary,
+  },
+  ownerButtonChat: {
+    backgroundColor: COLORS.success ?? "#22c55e",
+  },
+  ownerButtonDelete: {
+    backgroundColor: COLORS.danger,
+  },
+  ownerButtonText: {
+    fontSize: 16,
+    fontFamily: "Cairo-SemiBold",
+    color: COLORS.white,
   },
   contactSection: {
     marginBottom: 24,

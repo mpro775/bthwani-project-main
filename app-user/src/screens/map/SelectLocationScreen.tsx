@@ -60,7 +60,7 @@ const newSessionToken = () =>
 
 const PLACES_KEY =
   process.env.EXPO_PUBLIC_GOOGLE_PLACES_KEY ||
-  "AIzaSyCoIo_MvZY0h5r1ipzg6fvn6S_iTF3VslA";
+  "AIzaSyAbWSDQBZUWjXU-CjXWHSV1ZC1t9rhceXs";
 
 export default function SelectLocationScreen() {
   const navigation = useNavigation<any>();

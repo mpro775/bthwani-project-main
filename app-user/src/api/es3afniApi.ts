@@ -87,7 +87,8 @@ export const createEs3afni = async (
   const response = await axiosInstance.post("/es3afni", payload, {
     headers,
   });
-  return response.data;
+  // Backend يرجع { success, data: <payload>, meta }
+  return (response.data as any)?.data ?? response.data;
 };
 
 /**
@@ -102,7 +103,12 @@ export const getEs3afniList = async (
     headers,
     params,
   });
-  return response.data;
+  // Backend يرجع { success, data: { items, nextCursor }, meta }
+  const payload = (response.data as any)?.data ?? response.data;
+  return {
+    items: payload?.items ?? [],
+    nextCursor: payload?.nextCursor,
+  };
 };
 
 /**
@@ -113,7 +119,7 @@ export const getEs3afniDetails = async (id: string): Promise<Es3afniItem> => {
   const response = await axiosInstance.get(`/es3afni/${id}`, {
     headers,
   });
-  return response.data;
+  return (response.data as any)?.data ?? response.data;
 };
 
 /**
@@ -127,7 +133,7 @@ export const updateEs3afni = async (
   const response = await axiosInstance.patch(`/es3afni/${id}`, payload, {
     headers,
   });
-  return response.data;
+  return (response.data as any)?.data ?? response.data;
 };
 
 /**
@@ -152,7 +158,8 @@ export const getMyEs3afni = async (
     headers,
     params,
   });
-  return response.data;
+  const payload = (response.data as any)?.data ?? response.data;
+  return { items: payload?.items ?? [], nextCursor: payload?.nextCursor };
 };
 
 /**
@@ -174,7 +181,8 @@ export const searchEs3afni = async (
     headers,
     params,
   });
-  return response.data;
+  const payload = (response.data as any)?.data ?? response.data;
+  return { items: payload?.items ?? [], nextCursor: payload?.nextCursor };
 };
 
 /**
@@ -195,5 +203,5 @@ export const getEs3afniStats = async () => {
   const response = await axiosInstance.get("/es3afni/stats", {
     headers,
   });
-  return response.data;
+  return (response.data as any)?.data ?? response.data;
 };

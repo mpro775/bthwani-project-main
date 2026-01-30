@@ -254,6 +254,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 16,
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
   },
   header: {
@@ -269,7 +270,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     fontSize: 18,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     textAlign: "center",
   },
@@ -292,6 +293,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     paddingVertical: 12,
     paddingHorizontal: 10,
     color: COLORS.text,
@@ -320,11 +322,12 @@ const styles = StyleSheet.create({
   },
   filterChipText: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.text,
   },
   filterChipTextActive: {
     color: COLORS.primary,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
   },
   listContainer: { padding: 16 },
   emptyContainer: {
@@ -335,19 +338,20 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 20,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     marginTop: 16,
   },
   emptySubtitle: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
     textAlign: "center",
     marginTop: 8,
     paddingHorizontal: 32,
   },
   footerLoader: { paddingVertical: 16, alignItems: "center" },
-  footerText: { fontSize: 14, color: COLORS.textLight, marginTop: 8 },
+  footerText: { fontSize: 14, fontFamily: "Cairo-Regular", color: COLORS.textLight, marginTop: 8 },
 });
 
 export default ArabonSearchScreen;

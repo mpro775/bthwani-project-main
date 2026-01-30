@@ -81,6 +81,7 @@ export const createKawader = async (
 
 /**
  * جلب قائمة الكوادر
+ * الـ backend يُرجع { items, nextCursor } — نُوحّد إلى { data, nextCursor, hasMore }
  */
 export const getKawaderList = async (
   cursor?: string
@@ -91,7 +92,11 @@ export const getKawaderList = async (
     headers,
     params,
   });
-  return response.data;
+  const body = response.data ?? {};
+  const data = Array.isArray(body.data) ? body.data : Array.isArray(body.items) ? body.items : [];
+  const nextCursor = body.nextCursor ?? undefined;
+  const hasMore = typeof body.hasMore === "boolean" ? body.hasMore : !!nextCursor;
+  return { data, nextCursor, hasMore };
 };
 
 /**

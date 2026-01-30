@@ -39,7 +39,7 @@ const Es3afniDetailsScreen = () => {
       const itemData = await getEs3afniDetails(itemId);
       setItem(itemData);
     } catch (error) {
-      console.error("خطأ في تحميل تفاصيل البلاغ:", error);
+      console.error("خطأ في تحميل تفاصيل طلب التبرع:", error);
       Alert.alert("خطأ", "حدث خطأ في تحميل البيانات");
       navigation.goBack();
     } finally {
@@ -98,7 +98,7 @@ const Es3afniDetailsScreen = () => {
   const handleDelete = () => {
     Alert.alert(
       "تأكيد الحذف",
-      "هل أنت متأكد من حذف هذا البلاغ؟ لا يمكن التراجع عن هذا الإجراء.",
+      "هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.",
       [
         { text: "إلغاء", style: "cancel" },
         {
@@ -110,15 +110,15 @@ const Es3afniDetailsScreen = () => {
             setDeleting(true);
             try {
               await deleteEs3afni(item._id);
-              Alert.alert("نجح", "تم حذف البلاغ بنجاح", [
+              Alert.alert("نجح", "تم حذف طلب التبرع بنجاح", [
                 {
                   text: "موافق",
                   onPress: () => navigation.goBack(),
                 },
               ]);
             } catch (error) {
-              console.error("خطأ في حذف البلاغ:", error);
-              Alert.alert("خطأ", "حدث خطأ أثناء حذف البلاغ");
+              console.error("خطأ في حذف طلب التبرع:", error);
+              Alert.alert("خطأ", "حدث خطأ أثناء حذف طلب التبرع");
             } finally {
               setDeleting(false);
             }
@@ -132,7 +132,7 @@ const Es3afniDetailsScreen = () => {
     if (!item) return;
 
     try {
-      const message = `بلاغ تبرع بالدم: ${item.title}\n\n${item.description || ''}\n\nفصيلة الدم: ${item.bloodType || 'غير محدد'}\n${item.location ? `الموقع: ${item.location.address}\n` : ''}${item.metadata?.unitsNeeded ? `الوحدات المطلوبة: ${item.metadata.unitsNeeded}\n` : ''}${item.metadata?.contact ? `التواصل: ${item.metadata.contact}\n` : ''}\nالحالة: ${getStatusText(item.status)}\n\nتاريخ النشر: ${formatDate(item.createdAt)}`;
+      const message = `طلب تبرع بالدم: ${item.title}\n\n${item.description || ''}\n\nفصيلة الدم: ${item.bloodType || 'غير محدد'}\n${item.location ? `الموقع: ${item.location.address}\n` : ''}${item.metadata?.unitsNeeded ? `الوحدات المطلوبة: ${item.metadata.unitsNeeded}\n` : ''}${item.metadata?.contact ? `التواصل: ${item.metadata.contact}\n` : ''}\nالحالة: ${getStatusText(item.status)}\n\nتاريخ النشر: ${formatDate(item.createdAt)}`;
 
       await Share.share({
         message,
@@ -177,7 +177,20 @@ const Es3afniDetailsScreen = () => {
       .catch((err) => console.error("خطأ في فتح الخرائط:", err));
   };
 
-  const isOwner = user && item && item.ownerId === user.uid;
+  // دعم ownerId كنص أو كائن (population أو تنسيق MongoDB)
+  const ownerIdStr =
+    item && item.ownerId != null
+      ? typeof item.ownerId === "string"
+        ? item.ownerId
+        : typeof item.ownerId === "object" && item.ownerId !== null
+          ? "_id" in item.ownerId
+            ? String((item.ownerId as { _id: string })._id)
+            : "$oid" in item.ownerId
+              ? String((item.ownerId as { $oid: string }).$oid)
+              : String(item.ownerId)
+          : String(item.ownerId)
+      : "";
+  const isOwner = Boolean(user?.uid && ownerIdStr && user.uid === ownerIdStr);
 
   if (loading) {
     return (
@@ -191,7 +204,7 @@ const Es3afniDetailsScreen = () => {
   if (!item) {
     return (
       <View style={styles.centerContainer}>
-        <Text style={styles.errorText}>لم يتم العثور على البلاغ</Text>
+        <Text style={styles.errorText}>لم يتم العثور على طلب التبرع</Text>
       </View>
     );
   }
@@ -205,7 +218,7 @@ const Es3afniDetailsScreen = () => {
         >
           <Ionicons name="arrow-back" size={24} color={COLORS.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>تفاصيل البلاغ</Text>
+        <Text style={styles.headerTitle}>تفاصيل طلب التبرع</Text>
         <View style={styles.headerActions}>
           <TouchableOpacity style={styles.actionButton} onPress={handleShare}>
             <Ionicons name="share-outline" size={20} color={COLORS.text} />
@@ -323,6 +336,36 @@ const Es3afniDetailsScreen = () => {
               </Text>
             </View>
           </View>
+
+          {/* أزرار المالك: تعديل وحذف */}
+          {isOwner && (
+            <View style={styles.ownerActionsSection}>
+              <Text style={styles.sectionTitle}>إدارة طلبك</Text>
+              <View style={styles.ownerActionsRow}>
+                <TouchableOpacity
+                  style={styles.editActionButton}
+                  onPress={handleEdit}
+                >
+                  <Ionicons name="pencil" size={20} color={COLORS.white} />
+                  <Text style={styles.editActionButtonText}>تعديل البيانات</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.deleteActionButton}
+                  onPress={handleDelete}
+                  disabled={deleting}
+                >
+                  {deleting ? (
+                    <ActivityIndicator size="small" color={COLORS.white} />
+                  ) : (
+                    <>
+                      <Ionicons name="trash-outline" size={20} color={COLORS.white} />
+                      <Text style={styles.deleteActionButtonText}>حذف الطلب</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
         </View>
       </ScrollView>
     </View>
@@ -343,10 +386,12 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 16,
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
   },
   errorText: {
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.danger,
   },
   header: {
@@ -364,7 +409,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     fontSize: 18,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     textAlign: 'center',
   },
@@ -397,7 +442,7 @@ const styles = StyleSheet.create({
   },
   bloodTypeText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily: "Cairo-Bold",
     color: COLORS.danger,
     marginLeft: 8,
   },
@@ -408,18 +453,19 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.white,
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: "Cairo-Bold",
     color: COLORS.text,
     marginBottom: 16,
     lineHeight: 32,
   },
   description: {
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.text,
     lineHeight: 24,
     marginBottom: 24,
@@ -429,7 +475,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     marginBottom: 12,
   },
@@ -442,13 +488,14 @@ const styles = StyleSheet.create({
   },
   bloodTypeValue: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.danger,
     marginLeft: 8,
     flex: 1,
   },
   criticalBadge: {
     fontSize: 12,
+    fontFamily: "Cairo-Regular",
     color: COLORS.white,
     backgroundColor: COLORS.danger,
     paddingHorizontal: 8,
@@ -467,6 +514,7 @@ const styles = StyleSheet.create({
   },
   locationText: {
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.primary,
     marginLeft: 8,
     flex: 1,
@@ -484,15 +532,15 @@ const styles = StyleSheet.create({
   },
   metadataLabel: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     marginLeft: 8,
     flex: 1,
   },
   metadataValue: {
     fontSize: 14,
+    fontFamily: "Cairo-Medium",
     color: COLORS.primary,
-    fontWeight: '500',
   },
   datesSection: {
     marginBottom: 24,
@@ -506,14 +554,55 @@ const styles = StyleSheet.create({
   },
   dateLabel: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     width: 100,
   },
   dateValue: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
     flex: 1,
+  },
+  ownerActionsSection: {
+    marginTop: 24,
+    marginBottom: 24,
+  },
+  ownerActionsRow: {
+    flexDirection: "row",
+    marginTop: 8,
+  },
+  editActionButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: COLORS.primary,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginRight: 6,
+  },
+  editActionButtonText: {
+    fontFamily: "Cairo-SemiBold",
+    fontSize: 16,
+    color: COLORS.white,
+  },
+  deleteActionButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: COLORS.danger,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginLeft: 6,
+  },
+  deleteActionButtonText: {
+    fontFamily: "Cairo-SemiBold",
+    fontSize: 16,
+    color: COLORS.white,
   },
 });
 

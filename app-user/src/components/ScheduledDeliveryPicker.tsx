@@ -2,7 +2,7 @@ import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import React, { useState } from "react";
-import { Switch, Text, TouchableOpacity, View } from "react-native";
+import { Platform, Switch, Text, TouchableOpacity, View } from "react-native";
 
 import COLORS from "@/constants/colors";
 
@@ -33,35 +33,35 @@ const ScheduledDeliveryPicker: React.FC<Props> = ({ onChange }) => {
     }
   };
 
-  // عند اختيار التاريخ
+  // عند اختيار التاريخ (تأجيل الإغلاق لتجنب خطأ dismiss في أندرويد)
   const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
-    if (event.type === "dismissed") {
-      setPickerMode(null);
+    if (event?.type === "dismissed") {
+      setTimeout(() => setPickerMode(null), 100);
       return;
     }
     if (selectedDate) {
-      // اذا اخترت تاريخ، انتقل لاختيار الوقت
       const tempDate = new Date(selectedDate);
-      setDate(tempDate); // مؤقتًا
+      setDate(tempDate);
       setPickerMode("time");
     }
   };
 
   // عند اختيار الوقت
   const onTimeChange = (event: DateTimePickerEvent, selectedTime?: Date) => {
-    if (event.type === "dismissed") {
-      setPickerMode(null);
+    if (event?.type === "dismissed") {
+      setTimeout(() => setPickerMode(null), 100);
       return;
     }
     if (selectedTime && date) {
-      // دمج الوقت مع اليوم المحدد
       const finalDate = new Date(date);
       finalDate.setHours(selectedTime.getHours());
       finalDate.setMinutes(selectedTime.getMinutes());
       finalDate.setSeconds(0);
       setDate(finalDate);
-      onChange(finalDate);
-      setPickerMode(null);
+      if (Platform.OS !== "android") {
+        onChange(finalDate);
+        setPickerMode(null);
+      }
     }
   };
 
@@ -120,26 +120,70 @@ const ScheduledDeliveryPicker: React.FC<Props> = ({ onChange }) => {
           </TouchableOpacity>
 
           {pickerMode === "date" && (
-            <DateTimePicker
-              value={date || minDate}
-              mode="date"
-              minimumDate={minDate}
-              maximumDate={maxDate}
-              display="default"
-              onChange={onDateChange}
-              locale="ar"
-            />
+            <View style={{ marginTop: 8 }}>
+              <DateTimePicker
+                value={date || minDate}
+                mode="date"
+                minimumDate={minDate}
+                maximumDate={maxDate}
+                display={Platform.OS === "android" ? "spinner" : "default"}
+                onChange={onDateChange}
+                locale="ar"
+              />
+              {Platform.OS === "android" && (
+                <TouchableOpacity
+                  style={{
+                    marginTop: 8,
+                    paddingVertical: 10,
+                    backgroundColor: COLORS.blue,
+                    borderRadius: 8,
+                    alignItems: "center",
+                  }}
+                  onPress={() => {
+                    setDate(date || minDate);
+                    setPickerMode("time");
+                  }}
+                >
+                  <Text style={{ color: "#fff", fontFamily: "Cairo-SemiBold", fontSize: 16 }}>
+                    التالي
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
           )}
 
           {pickerMode === "time" && (
-            <DateTimePicker
-              value={date || minDate}
-              mode="time"
-              is24Hour={true}
-              display="default"
-              onChange={onTimeChange}
-              locale="ar"
-            />
+            <View style={{ marginTop: 8 }}>
+              <DateTimePicker
+                value={date || minDate}
+                mode="time"
+                is24Hour={true}
+                display={Platform.OS === "android" ? "spinner" : "default"}
+                onChange={onTimeChange}
+                locale="ar"
+              />
+              {Platform.OS === "android" && (
+                <TouchableOpacity
+                  style={{
+                    marginTop: 8,
+                    paddingVertical: 10,
+                    backgroundColor: COLORS.blue,
+                    borderRadius: 8,
+                    alignItems: "center",
+                  }}
+                  onPress={() => {
+                    if (date) {
+                      onChange(date);
+                      setPickerMode(null);
+                    }
+                  }}
+                >
+                  <Text style={{ color: "#fff", fontFamily: "Cairo-SemiBold", fontSize: 16 }}>
+                    تم
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
           )}
         </View>
       )}

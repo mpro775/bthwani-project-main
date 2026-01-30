@@ -95,6 +95,7 @@ export interface ArabonListResponse {
 
 /**
  * إنشاء عربون جديد
+ * الباكند يغلّف الاستجابة بـ { success, data, meta }
  */
 export const createArabon = async (
   payload: CreateArabonPayload
@@ -103,7 +104,8 @@ export const createArabon = async (
   const response = await axiosInstance.post("/arabon", payload, {
     headers,
   });
-  return response.data;
+  const raw = response.data;
+  return (raw?.data ?? raw) as ArabonItem;
 };
 
 /**
@@ -131,17 +133,20 @@ export const getArabonList = async (
 
 /**
  * جلب تفاصيل عربون محدد
+ * الباكند يغلّف الاستجابة بـ { success, data, meta }
  */
 export const getArabonDetails = async (id: string): Promise<ArabonItem> => {
   const headers = await getAuthHeaders();
   const response = await axiosInstance.get(`/arabon/${id}`, {
     headers,
   });
-  return response.data;
+  const raw = response.data;
+  return (raw?.data ?? raw) as ArabonItem;
 };
 
 /**
  * تحديث عربون
+ * الباكند يغلّف الاستجابة بـ { success, data, meta }
  */
 export const updateArabon = async (
   id: string,
@@ -151,7 +156,8 @@ export const updateArabon = async (
   const response = await axiosInstance.patch(`/arabon/${id}`, payload, {
     headers,
   });
-  return response.data;
+  const raw = response.data;
+  return (raw?.data ?? raw) as ArabonItem;
 };
 
 /**
@@ -233,11 +239,22 @@ export const getArabonStats = async (
     headers,
     params,
   });
-  return response.data;
+  // الباكند يرجع { success, data: <stats>, meta }
+  const raw = (response.data as any)?.data ?? response.data;
+  return {
+    total: raw?.total ?? 0,
+    draft: raw?.draft ?? 0,
+    pending: raw?.pending ?? 0,
+    confirmed: raw?.confirmed ?? 0,
+    completed: raw?.completed ?? 0,
+    cancelled: raw?.cancelled ?? 0,
+    totalDepositAmount: raw?.totalDepositAmount ?? 0,
+  };
 };
 
 /**
  * تحديث حالة عربون فقط
+ * الباكند يغلّف الاستجابة بـ { success, data, meta }
  */
 export const updateArabonStatus = async (
   id: string,
@@ -247,7 +264,8 @@ export const updateArabonStatus = async (
   const response = await axiosInstance.patch(`/arabon/${id}/status`, { status }, {
     headers,
   });
-  return response.data;
+  const raw = response.data;
+  return (raw?.data ?? raw) as ArabonItem;
 };
 
 /**

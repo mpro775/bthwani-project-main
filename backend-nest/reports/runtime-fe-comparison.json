@@ -1,0 +1,31 @@
+{
+  "generatedAt": "2026-01-30T21:00:00.032Z",
+  "period": "24 hours",
+  "backendEndpoints": {
+    "total": 1,
+    "matched": 0,
+    "unmatched": 1
+  },
+  "frontendEndpoints": {
+    "total": 0,
+    "matched": 0,
+    "unmatched": 0
+  },
+  "details": {
+    "matched": [],
+    "unmatched": [
+      {
+        "method": "GET",
+        "path": "/api/v1/users/me",
+        "callCount": 4,
+        "lastCall": "2026-01-30T20:58:45.246Z"
+      }
+    ],
+    "feOnly": []
+  },
+  "summary": {
+    "coverage": null,
+    "unused": 1,
+    "missing": 0
+  }
+}

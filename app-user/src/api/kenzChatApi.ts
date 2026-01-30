@@ -76,6 +76,9 @@ export interface KenzMessageListResponse {
 /**
  * إنشاء محادثة جديدة
  */
+const unwrap = <T>(res: { data?: T } & Record<string, unknown>): T =>
+  (res?.data !== undefined ? res.data : res) as T;
+
 export const createConversation = async (
   kenzId: string
 ): Promise<KenzConversation> => {
@@ -85,7 +88,7 @@ export const createConversation = async (
     { kenzId },
     { headers }
   );
-  return response.data;
+  return unwrap(response.data);
 };
 
 /**

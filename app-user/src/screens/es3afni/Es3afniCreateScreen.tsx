@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,16 +8,17 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
-  Platform,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { Picker } from '@react-native-picker/picker';
 
 import { RootStackParamList } from "@/types/navigation";
-import { CreateEs3afniPayload, BLOOD_TYPES, BloodType } from "@/types/types";
+import { CreateEs3afniPayload, BLOOD_TYPES, Es3afniStatus } from "@/types/types";
 import { createEs3afni } from "@/api/es3afniApi";
+import { fetchUserProfile } from "@/api/userApi";
 import { useAuth } from "@/auth/AuthContext";
 import COLORS from "@/constants/colors";
 
@@ -25,7 +26,7 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Es3afniCrea
 
 const Es3afniCreateScreen = () => {
   const navigation = useNavigation<NavigationProp>();
-  const { user } = useAuth();
+  const { user, isLoggedIn } = useAuth();
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState<CreateEs3afniPayload>({
@@ -42,23 +43,67 @@ const Es3afniCreateScreen = () => {
     status: 'draft',
   });
 
+  useEffect(() => {
+    if (user?.uid) {
+      setFormData((prev) => ({ ...prev, ownerId: user.uid }));
+    }
+  }, [user?.uid]);
+
+  // عند العودة من شاشة الخريطة نقرأ الموقع المحفوظ
+  useFocusEffect(
+    React.useCallback(() => {
+      let mounted = true;
+      (async () => {
+        try {
+          const raw = await AsyncStorage.getItem("es3afni_location");
+          if (!mounted || !raw) return;
+          const payload = JSON.parse(raw) as { lat: number; lng: number; address?: string };
+          setFormData((prev) => ({
+            ...prev,
+            location: {
+              lat: payload.lat,
+              lng: payload.lng,
+              address: payload.address || `إحداثيات: ${payload.lat.toFixed(5)}, ${payload.lng.toFixed(5)}`,
+            },
+          }));
+          await AsyncStorage.removeItem("es3afni_location");
+        } catch {
+          // تجاهل
+        }
+      })();
+      return () => { mounted = false; };
+    }, [])
+  );
+
   const handleSubmit = async () => {
     if (!formData.title.trim()) {
-      Alert.alert('خطأ', 'يرجى إدخال عنوان البلاغ');
+      Alert.alert('خطأ', 'يرجى إدخال عنوان طلب التبرع');
       return;
     }
 
-    if (!formData.ownerId) {
+    let currentUserId = user?.uid;
+    if (!currentUserId && isLoggedIn) {
+      currentUserId = await AsyncStorage.getItem("userId") || undefined;
+    }
+    if (!currentUserId && isLoggedIn) {
+      try {
+        const profile = await fetchUserProfile();
+        currentUserId = profile?.uid || profile?.id || profile?._id ? String(profile.uid || profile.id || profile._id) : undefined;
+      } catch {
+        // تجاهل
+      }
+    }
+    if (!currentUserId) {
       Alert.alert('خطأ', 'يجب تسجيل الدخول أولاً');
       return;
     }
 
     setLoading(true);
     try {
-      await createEs3afni(formData);
+      await createEs3afni({ ...formData, ownerId: currentUserId });
       Alert.alert(
         'نجح',
-        'تم إنشاء البلاغ بنجاح',
+        'تم إنشاء طلب التبرع بنجاح',
         [
           {
             text: 'موافق',
@@ -67,8 +112,8 @@ const Es3afniCreateScreen = () => {
         ]
       );
     } catch (error) {
-      console.error('خطأ في إنشاء البلاغ:', error);
-      Alert.alert('خطأ', 'حدث خطأ أثناء إنشاء البلاغ. يرجى المحاولة مرة أخرى.');
+      console.error('خطأ في إنشاء طلب التبرع:', error);
+      Alert.alert('خطأ', 'حدث خطأ أثناء إنشاء طلب التبرع. يرجى المحاولة مرة أخرى.');
     } finally {
       setLoading(false);
     }
@@ -113,7 +158,7 @@ const Es3afniCreateScreen = () => {
         >
           <Ionicons name="arrow-back" size={24} color={COLORS.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>إضافة بلاغ جديد</Text>
+        <Text style={styles.headerTitle}>إنشاء طلب تبرع</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -121,7 +166,7 @@ const Es3afniCreateScreen = () => {
         <View style={styles.formContainer}>
           {/* العنوان */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>عنوان البلاغ *</Text>
+            <Text style={styles.sectionTitle}>عنوان طلب التبرع *</Text>
             <TextInput
               style={styles.textInput}
               value={formData.title}
@@ -134,7 +179,7 @@ const Es3afniCreateScreen = () => {
 
           {/* الوصف */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>تفاصيل البلاغ</Text>
+            <Text style={styles.sectionTitle}>تفاصيل طلب التبرع</Text>
             <TextInput
               style={[styles.textInput, styles.textArea]}
               value={formData.description}
@@ -168,41 +213,33 @@ const Es3afniCreateScreen = () => {
             </View>
           </View>
 
-          {/* الموقع */}
+          {/* الموقع — اختيار من الخريطة */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>الموقع</Text>
-            <TextInput
-              style={styles.textInput}
-              value={formData.location?.address || ''}
-              onChangeText={(value) => updateLocation('address', value)}
-              placeholder="مثال: مستشفى الملك فيصل التخصصي، الرياض"
-              placeholderTextColor={COLORS.textLight}
-              maxLength={200}
-            />
-            <View style={styles.coordinatesContainer}>
-              <TextInput
-                style={[styles.textInput, styles.coordinateInput]}
-                value={formData.location?.lat?.toString() || ''}
-                onChangeText={(value) => {
-                  const numValue = value ? parseFloat(value) : undefined;
-                  updateLocation('lat', numValue);
-                }}
-                placeholder="خط العرض"
-                placeholderTextColor={COLORS.textLight}
-                keyboardType="decimal-pad"
-              />
-              <TextInput
-                style={[styles.textInput, styles.coordinateInput]}
-                value={formData.location?.lng?.toString() || ''}
-                onChangeText={(value) => {
-                  const numValue = value ? parseFloat(value) : undefined;
-                  updateLocation('lng', numValue);
-                }}
-                placeholder="خط الطول"
-                placeholderTextColor={COLORS.textLight}
-                keyboardType="decimal-pad"
-              />
-            </View>
+            {formData.location?.address ? (
+              <View style={styles.locationDisplay}>
+                <Ionicons name="location" size={20} color={COLORS.primary} />
+                <Text style={styles.locationDisplayText} numberOfLines={2}>
+                  {formData.location.address}
+                </Text>
+              </View>
+            ) : (
+              <Text style={styles.locationPlaceholder}>لم يتم اختيار موقع بعد</Text>
+            )}
+            <TouchableOpacity
+              style={styles.mapButton}
+              onPress={() =>
+                navigation.navigate("SelectLocation", {
+                  storageKey: "es3afni_location",
+                  title: "اختر موقع طلب التبرع",
+                })
+              }
+            >
+              <Ionicons name="map" size={22} color={COLORS.white} />
+              <Text style={styles.mapButtonText}>
+                {formData.location?.address ? "تغيير الموقع من الخريطة" : "اختر من الخريطة"}
+              </Text>
+            </TouchableOpacity>
           </View>
 
           {/* رقم التواصل */}
@@ -251,6 +288,24 @@ const Es3afniCreateScreen = () => {
             </View>
           </View>
 
+          {/* حالة الطلب */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>حالة الطلب</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={formData.status ?? 'draft'}
+                onValueChange={(value: Es3afniStatus) => updateFormData('status', value)}
+                style={styles.picker}
+              >
+                <Picker.Item label="مسودة" value="draft" />
+                <Picker.Item label="في الانتظار" value="pending" />
+                <Picker.Item label="مؤكد" value="confirmed" />
+                <Picker.Item label="مكتمل" value="completed" />
+                <Picker.Item label="ملغي" value="cancelled" />
+              </Picker>
+            </View>
+          </View>
+
           {/* زر الإرسال */}
           <TouchableOpacity
             style={[styles.submitButton, loading && styles.submitButtonDisabled]}
@@ -262,7 +317,7 @@ const Es3afniCreateScreen = () => {
             ) : (
               <>
                 <Ionicons name="add-circle" size={20} color={COLORS.white} />
-                <Text style={styles.submitButtonText}>إنشاء البلاغ</Text>
+                <Text style={styles.submitButtonText}>إنشاء طلب التبرع</Text>
               </>
             )}
           </TouchableOpacity>
@@ -292,7 +347,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     fontSize: 18,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     textAlign: 'center',
   },
@@ -310,7 +365,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     marginBottom: 8,
   },
@@ -320,6 +375,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.text,
     backgroundColor: COLORS.white,
   },
@@ -336,16 +392,46 @@ const styles = StyleSheet.create({
   },
   picker: {
     height: 50,
+    fontFamily: "Cairo-Regular",
     color: COLORS.text,
   },
-  coordinatesContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 8,
+  locationDisplay: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.white,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 10,
   },
-  coordinateInput: {
+  locationDisplayText: {
     flex: 1,
-    marginHorizontal: 4,
+    fontSize: 15,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.text,
+    marginLeft: 8,
+  },
+  locationPlaceholder: {
+    fontSize: 14,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.textLight,
+    marginBottom: 10,
+  },
+  mapButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: COLORS.primary,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+  },
+  mapButtonText: {
+    fontFamily: "Cairo-SemiBold",
+    fontSize: 16,
+    color: COLORS.white,
+    marginLeft: 8,
   },
   submitButton: {
     backgroundColor: COLORS.primary,
@@ -361,9 +447,9 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.gray,
   },
   submitButtonText: {
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.white,
     fontSize: 18,
-    fontWeight: '600',
     marginLeft: 8,
   },
 });

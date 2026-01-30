@@ -14,6 +14,10 @@ const getAuthHeaders = async () => {
   }
 };
 
+/** استخراج data من استجابة الباكند الموحدة { success, data, meta } */
+const unwrap = <T>(res: { data?: T } & Record<string, unknown>): T =>
+  (res?.data !== undefined ? res.data : res) as T;
+
 // ==================== Types ====================
 
 export type KenzStatus = 'draft' | 'pending' | 'confirmed' | 'completed' | 'cancelled';
@@ -100,7 +104,7 @@ export const createKenz = async (
   const response = await axiosInstance.post("/kenz", payload, {
     headers,
   });
-  return response.data;
+  return unwrap(response.data);
 };
 
 /**
@@ -123,7 +127,7 @@ export const getKenzList = async (
     headers,
     params,
   });
-  return response.data;
+  return unwrap(response.data);
 };
 
 /**
@@ -134,7 +138,7 @@ export const getKenzDetails = async (id: string): Promise<KenzItem> => {
   const response = await axiosInstance.get(`/kenz/${id}`, {
     headers,
   });
-  return response.data;
+  return unwrap(response.data);
 };
 
 /**
@@ -148,7 +152,7 @@ export const updateKenz = async (
   const response = await axiosInstance.patch(`/kenz/${id}`, payload, {
     headers,
   });
-  return response.data;
+  return unwrap(response.data);
 };
 
 /**
@@ -173,7 +177,7 @@ export const getMyKenz = async (
     headers,
     params,
   });
-  return response.data;
+  return unwrap(response.data);
 };
 
 /**
@@ -199,7 +203,7 @@ export const searchKenz = async (
     headers,
     params,
   });
-  return response.data;
+  return unwrap(response.data);
 };
 
 /**
@@ -220,7 +224,7 @@ export const getKenzStats = async () => {
   const response = await axiosInstance.get("/kenz/stats", {
     headers,
   });
-  return response.data;
+  return unwrap(response.data);
 };
 
 /**
@@ -236,5 +240,5 @@ export const getKenzByCategory = async (
     headers,
     params,
   });
-  return response.data;
+  return unwrap(response.data);
 };

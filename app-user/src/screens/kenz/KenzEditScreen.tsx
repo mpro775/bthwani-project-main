@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   Image,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
@@ -26,6 +27,7 @@ import {
   KenzStatus,
 } from "@/types/types";
 import { getKenzDetails, updateKenz } from "@/api/kenzApi";
+import { fetchUserProfile } from "@/api/userApi";
 import { useAuth } from "@/auth/AuthContext";
 import { uploadKenzImageToBunny } from "@/utils/uploadToBunny";
 import COLORS from "@/constants/colors";
@@ -39,11 +41,31 @@ const KenzEditScreen = () => {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<RouteProps>();
   const { itemId } = route.params;
-  const { user } = useAuth();
+  const { user, isLoggedIn } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [originalItem, setOriginalItem] = useState<KenzItem | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  // استنتاج هوية المستخدم الحالي (للتحقق من صلاحية التعديل)
+  useEffect(() => {
+    (async () => {
+      let uid = user?.uid ?? null;
+      if (!uid && isLoggedIn) {
+        uid = await AsyncStorage.getItem("userId");
+        if (!uid) {
+          try {
+            const profile = await fetchUserProfile();
+            uid = profile?.uid || profile?.id || profile?._id ? String(profile.uid || profile.id || profile._id) : null;
+          } catch {
+            // تجاهل
+          }
+        }
+      }
+      setCurrentUserId(uid);
+    })();
+  }, [user?.uid, isLoggedIn]);
 
   const [formData, setFormData] = useState<UpdateKenzPayload>({
     title: "",
@@ -197,7 +219,13 @@ const KenzEditScreen = () => {
     }));
   };
 
-  const isOwner = user && originalItem && originalItem.ownerId === user.uid;
+  const ownerIdStr =
+    originalItem &&
+    (typeof originalItem.ownerId === "object" && (originalItem.ownerId as any)?._id
+      ? String((originalItem.ownerId as any)._id)
+      : String(originalItem.ownerId || ""));
+  const isOwner = !!(currentUserId && originalItem && ownerIdStr === currentUserId);
+  const stillResolvingUser = isLoggedIn && currentUserId === null && !!originalItem;
 
   if (loading) {
     return (
@@ -208,7 +236,24 @@ const KenzEditScreen = () => {
     );
   }
 
-  if (!originalItem || !isOwner) {
+  if (!originalItem) {
+    return (
+      <View style={styles.centerContainer}>
+        <Text style={styles.errorText}>لم يتم العثور على الإعلان</Text>
+      </View>
+    );
+  }
+
+  if (stillResolvingUser) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Text style={styles.loadingText}>جاري التحقق من الصلاحية...</Text>
+      </View>
+    );
+  }
+
+  if (!isOwner) {
     return (
       <View style={styles.centerContainer}>
         <Text style={styles.errorText}>لا تملك صلاحية تعديل هذا الإعلان</Text>

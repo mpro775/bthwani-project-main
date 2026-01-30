@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory, raw } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 
-// Sub-schemas
-@Schema({ _id: false })
+// Sub-schemas - _id مطلوب للتعريف على العناوين (تحديث، حذف، تعيين افتراضي)
+@Schema()
 class Address {
   @Prop()
   label?: string;

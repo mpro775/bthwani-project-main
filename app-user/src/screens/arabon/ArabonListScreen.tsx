@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   RefreshControl,
   ActivityIndicator,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -72,9 +72,11 @@ const ArabonListScreen = () => {
     [statusFilter]
   );
 
-  useEffect(() => {
-    loadItems();
-  }, [loadItems]);
+  useFocusEffect(
+    useCallback(() => {
+      loadItems();
+    }, [loadItems])
+  );
 
   const handleRefresh = useCallback(() => {
     setRefreshing(true);
@@ -201,7 +203,7 @@ const ArabonListScreen = () => {
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{stats.totalAmount.toFixed(0)}</Text>
+            <Text style={styles.statValue}>{(stats.totalAmount ?? 0).toFixed(0)}</Text>
             <Text style={styles.statLabel}>إجمالي ريال</Text>
           </View>
         </View>
@@ -243,6 +245,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     fontSize: 16,
     color: COLORS.textLight,
+    fontFamily: "Cairo-Regular",
   },
   header: {
     padding: 20,
@@ -252,14 +255,15 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: "Cairo-Bold",
     color: COLORS.text,
-    textAlign: 'center',
+    textAlign: "center",
   },
   headerSubtitle: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 4,
   },
   statsContainer: {
@@ -278,11 +282,12 @@ const styles = StyleSheet.create({
   },
   statValue: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily: "Cairo-Bold",
     color: COLORS.primary,
   },
   statLabel: {
     fontSize: 12,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
     marginTop: 2,
   },
@@ -310,7 +315,7 @@ const styles = StyleSheet.create({
   secondaryButtonText: {
     color: COLORS.primary,
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     marginLeft: 6,
   },
   addButton: {
@@ -325,7 +330,7 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: COLORS.white,
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     marginLeft: 8,
   },
   filterRow: {
@@ -348,11 +353,12 @@ const styles = StyleSheet.create({
   },
   filterChipText: {
     fontSize: 13,
+    fontFamily: "Cairo-Regular",
     color: COLORS.text,
   },
   filterChipTextActive: {
     color: COLORS.primary,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
   },
   listContainer: {
     padding: 16,
@@ -365,14 +371,15 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 20,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     marginTop: 16,
   },
   emptySubtitle: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 8,
     paddingHorizontal: 32,
   },
@@ -382,6 +389,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
     marginTop: 8,
   },

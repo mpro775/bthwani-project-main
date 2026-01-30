@@ -112,8 +112,10 @@ const SanadListScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>سند</Text>
-        <Text style={styles.headerSubtitle}>خدمات متخصصة + فزعة + خيري</Text>
+        <View style={styles.headerContent}>
+          <Text style={styles.headerTitle}>سند</Text>
+          <Text style={styles.headerSubtitle}>خدمات متخصصة + فزعة + خيري</Text>
+        </View>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => navigation.navigate('SanadCreate')}
@@ -158,25 +160,32 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 16,
     fontSize: 16,
+    fontFamily: 'Cairo-Regular',
     color: COLORS.textLight,
   },
   header: {
-    padding: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     backgroundColor: COLORS.white,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
   },
+  headerContent: {
+    flex: 1,
+  },
   headerTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: 'Cairo-Bold',
     color: COLORS.text,
-    textAlign: 'center',
+    marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 14,
+    fontFamily: 'Cairo-Regular',
     color: COLORS.textLight,
-    textAlign: 'center',
-    marginTop: 4,
   },
   addButton: {
     flexDirection: 'row',
@@ -186,12 +195,11 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 8,
-    marginTop: 16,
   },
   addButtonText: {
     color: COLORS.white,
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Cairo-SemiBold',
     marginLeft: 8,
   },
   listContainer: {
@@ -205,12 +213,13 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 20,
-    fontWeight: '600',
+    fontFamily: 'Cairo-SemiBold',
     color: COLORS.text,
     marginTop: 16,
   },
   emptySubtitle: {
     fontSize: 14,
+    fontFamily: 'Cairo-Regular',
     color: COLORS.textLight,
     textAlign: 'center',
     marginTop: 8,
@@ -222,6 +231,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 14,
+    fontFamily: 'Cairo-Regular',
     color: COLORS.textLight,
     marginTop: 8,
   },

@@ -63,27 +63,27 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
       const meRes = await axiosInstance.get("/users/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const userData = meRes?.data;
-
+      // الباكند يرجع { success, data: <user>, meta } — المستخدم الفعلي في data
+      const userData = (meRes?.data as any)?.data ?? meRes?.data;
       if (userData) {
+        const uid = userData._id ?? userData.id ?? userData.uid ?? "";
         const authenticatedUser: AuthenticatedUser = {
-          uid: userData._id || userData.id,
+          uid: String(uid),
           email: userData.email,
           role: userData.role,
           permissions: userData.permissions,
           profile: {
-            name: userData.fullName || userData.name,
+            name: userData.fullName ?? userData.name,
             phone: userData.phone,
-            avatar: userData.profileImage || userData.avatar,
+            avatar: userData.profileImage ?? userData.avatar,
           }
         };
 
         setUser(authenticatedUser);
 
-        // تخزين userId إذا لم يكن موجود
         const curUserId = await AsyncStorage.getItem("userId");
-        if (!curUserId && (userData._id || userData.id)) {
-          await AsyncStorage.setItem("userId", String(userData._id || userData.id));
+        if (!curUserId && uid) {
+          await AsyncStorage.setItem("userId", String(uid));
         }
       }
     } catch (error) {

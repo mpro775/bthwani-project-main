@@ -8,6 +8,7 @@ export class ApiResponse<T = any> {
     details?: any;
     userMessage?: string; // رسالة بالعربي للمستخدم
     suggestedAction?: string; // اقتراح للحل
+    validationErrors?: Array<{ property: string; message: string; constraints?: Record<string, string> }>; // تفاصيل أخطاء التحقق
   };
   meta?: {
     timestamp: string;

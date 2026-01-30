@@ -40,18 +40,19 @@ const Es3afniListScreen = () => {
       }
 
       const response: Es3afniListResponse = await getEs3afniList(cursor);
+      const list = response?.items ?? [];
 
       if (isLoadMore) {
-        setItems(prev => [...prev, ...response.items]);
+        setItems(prev => [...prev, ...list]);
       } else {
-        setItems(response.items);
+        setItems(list);
       }
 
       setNextCursor(response.nextCursor);
       setHasMore(!!response.nextCursor);
 
     } catch (error) {
-      console.error("خطأ في تحميل البلاغات:", error);
+      console.error("خطأ في تحميل طلبات التبرع:", error);
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -104,25 +105,25 @@ const Es3afniListScreen = () => {
     return (
       <View style={styles.emptyContainer}>
         <Ionicons name="water" size={64} color={COLORS.gray} />
-        <Text style={styles.emptyTitle}>لا توجد بلاغات</Text>
+        <Text style={styles.emptyTitle}>لا توجد طلبات تبرع</Text>
         <Text style={styles.emptySubtitle}>
-          لا توجد بلاغات تبرع بالدم في الوقت الحالي
+          لا توجد طلبات تبرع بالدم في الوقت الحالي
         </Text>
         <TouchableOpacity
           style={styles.createButton}
           onPress={handleCreatePress}
         >
-          <Text style={styles.createButtonText}>إنشاء بلاغ جديد</Text>
+          <Text style={styles.createButtonText}>إنشاء طلب تبرع</Text>
         </TouchableOpacity>
       </View>
     );
   };
 
-  if (loading && items.length === 0) {
+  if (loading && (items?.length ?? 0) === 0) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={COLORS.primary} />
-        <Text style={styles.loadingText}>جاري تحميل البلاغات...</Text>
+        <Text style={styles.loadingText}>جاري تحميل طلبات التبرع...</Text>
       </View>
     );
   }
@@ -143,7 +144,7 @@ const Es3afniListScreen = () => {
       </View>
 
       <FlatList
-        data={items}
+        data={items ?? []}
         keyExtractor={(item) => item._id}
         renderItem={renderItem}
         onEndReached={loadMore}
@@ -157,7 +158,7 @@ const Es3afniListScreen = () => {
         }
         ListFooterComponent={renderFooter}
         ListEmptyComponent={renderEmpty}
-        contentContainerStyle={items.length === 0 ? styles.emptyList : styles.list}
+        contentContainerStyle={(items?.length ?? 0) === 0 ? styles.emptyList : styles.list}
         showsVerticalScrollIndicator={false}
       />
     </View>
@@ -184,12 +185,13 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontFamily: "Cairo-Bold",
     color: COLORS.primary,
     marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.gray,
   },
   createIconButton: {
@@ -210,13 +212,14 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontFamily: "Cairo-Bold",
     color: COLORS.dark,
     marginTop: 16,
     marginBottom: 8,
   },
   emptySubtitle: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.gray,
     textAlign: "center",
     marginBottom: 24,
@@ -228,9 +231,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   createButtonText: {
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.white,
     fontSize: 16,
-    fontWeight: "600",
   },
   loadingContainer: {
     flex: 1,
@@ -241,6 +244,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 16,
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.gray,
   },
   footer: {
@@ -252,6 +256,7 @@ const styles = StyleSheet.create({
   footerText: {
     marginLeft: 8,
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.gray,
   },
 });

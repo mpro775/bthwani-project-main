@@ -156,9 +156,9 @@ export default function DeliveryAddressesScreen() {
   };
 
   // ✅ فتح نموذج التعديل
-  const openEdit = (addr: Address) => {
+  const openEdit = (addr: Address, index: number) => {
     setMode("edit");
-    setEditingId(addr._id);
+    setEditingId(addr._id ?? String(index));
     setLabel(addr.label);
     setCity(addr.city);
     setStreet(addr.street);
@@ -169,25 +169,43 @@ export default function DeliveryAddressesScreen() {
   // ✅ حفظ (إضافة/تعديل)
   const handleSaveAddress = async () => {
     animatePress();
-    if (!label || !city || !street) {
-      Alert.alert("تنبيه", "الرجاء تعبئة جميع الحقول المطلوبة");
+    const trimmedLabel = label?.trim() ?? "";
+    const trimmedCity = city?.trim() ?? "";
+    const trimmedStreet = street?.trim() ?? "";
+    if (!trimmedLabel || !trimmedCity || !trimmedStreet) {
+      Alert.alert("تنبيه", "الرجاء تعبئة جميع الحقول المطلوبة (اسم العنوان، المحافظة، الشارع)");
       return;
     }
     try {
-      const payload = {
-        label: label.trim(),
-        city: city.trim(),
-        street: street.trim(),
-        location: location
-          ? { lat: location.lat, lng: location.lng }
-          : undefined,
+      // الباكند يتوقع: label, city, street (مطلوبة)، location (اختيارية { lat, lng } كأرقام)
+      const payload: {
+        label: string;
+        city: string;
+        street: string;
+        location?: { lat: number; lng: number };
+      } = {
+        label: trimmedLabel,
+        city: trimmedCity,
+        street: trimmedStreet,
       };
+      if (location && typeof location.lat === "number" && typeof location.lng === "number") {
+        payload.location = { lat: location.lat, lng: location.lng };
+      } else if (location && (location.lat != null || location.lng != null)) {
+        payload.location = {
+          lat: Number(location.lat),
+          lng: Number(location.lng),
+        };
+      }
 
       if (mode === "add") {
         await addUserAddress(payload);
         Alert.alert("تم", "تمت إضافة العنوان بنجاح");
       } else {
-        await updateUserAddress({ _id: editingId!, ...payload });
+        if (!editingId) {
+          Alert.alert("خطأ", "لم يتم تحديد العنوان للتعديل");
+          return;
+        }
+        await updateUserAddress({ _id: editingId, ...payload });
         Alert.alert("تم", "تم حفظ التعديلات");
       }
 
@@ -208,20 +226,33 @@ export default function DeliveryAddressesScreen() {
         100
       );
       Keyboard.dismiss();
-    } catch (err) {
-      Alert.alert(
-        "خطأ",
-        mode === "add" ? "فشل حفظ العنوان" : "فشل تعديل العنوان"
-      );
+    } catch (err: any) {
+      const apiError = err?.response?.data;
+      const validationErrors = apiError?.error?.validationErrors as
+        | Array<{ property: string; message: string }>
+        | undefined;
+      let errMsg =
+        mode === "add" ? "فشل حفظ العنوان" : "فشل تعديل العنوان";
+      if (validationErrors?.length) {
+        const details = validationErrors
+          .map((e) => `• ${e.property}: ${e.message}`)
+          .join("\n");
+        errMsg = `البيانات غير صحيحة:\n${details}`;
+        console.warn("❌ Validation errors:", validationErrors);
+      } else if (apiError?.error?.userMessage) {
+        errMsg = apiError.error.userMessage;
+      }
+      Alert.alert("خطأ", errMsg);
       console.error("❌", err);
     }
   };
 
   const setAsDefault = async (id: string) => {
-    const addr = addresses.find((a) => a._id === id);
+    const addr =
+      addresses.find((a) => a._id === id) ?? addresses[parseInt(id, 10)];
     if (!addr) return;
     try {
-      await setDefaultUserAddress({ _id: addr._id });
+      await setDefaultUserAddress(id);
       setSelectedAddressId(id);
       Alert.alert("تم", "تم تعيين العنوان كافتراضي");
     } catch (err) {
@@ -231,7 +262,7 @@ export default function DeliveryAddressesScreen() {
   };
 
   const handleDelete = (index: number) => {
-    const id = addresses[index]._id;
+    const id = addresses[index]._id ?? String(index);
     Alert.alert("تأكيد الحذف", "هل أنت متأكد؟", [
       { text: "إلغاء", style: "cancel" },
       {
@@ -267,7 +298,7 @@ export default function DeliveryAddressesScreen() {
           <FlatList
             ref={flatListRef}
             data={addresses}
-            keyExtractor={(item) => item._id}
+            keyExtractor={(item, idx) => item._id ?? `addr-${idx}`}
             contentContainerStyle={[
               styles.listContent,
               { paddingBottom: addresses.length > 0 ? 250 : 20 },
@@ -298,19 +329,29 @@ export default function DeliveryAddressesScreen() {
                       marginTop: 8,
                       alignSelf: "flex-start",
                       backgroundColor:
-                        selectedAddressId === item._id ? "#4CAF50" : "#E0E0E0",
+                        selectedAddressId === item._id ||
+                        selectedAddressId === String(index)
+                          ? "#4CAF50"
+                          : "#E0E0E0",
                       paddingHorizontal: 8,
                       paddingVertical: 4,
                       borderRadius: 6,
                     }}
-                    onPress={() => setAsDefault(item._id)}
+                    onPress={() =>
+                      setAsDefault(item._id ?? String(index))
+                    }
                   >
                     <Text
                       style={{
-                        color: selectedAddressId === item._id ? "#FFF" : "#000",
+                        color:
+                          selectedAddressId === item._id ||
+                          selectedAddressId === String(index)
+                            ? "#FFF"
+                            : "#000",
                       }}
                     >
-                      {selectedAddressId === item._id
+                      {selectedAddressId === item._id ||
+                      selectedAddressId === String(index)
                         ? "العنوان الافتراضي"
                         : "تعيين كافتراضي"}
                     </Text>
@@ -321,7 +362,7 @@ export default function DeliveryAddressesScreen() {
                 <View style={{ flexDirection: "row", gap: 8 }}>
                   <TouchableOpacity
                     style={styles.editButton}
-                    onPress={() => openEdit(item)}
+                    onPress={() => openEdit(item, index)}
                   >
                     <Ionicons name="create-outline" size={20} color="#FFF" />
                   </TouchableOpacity>

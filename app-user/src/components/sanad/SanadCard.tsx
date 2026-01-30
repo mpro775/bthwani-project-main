@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
   },
   kindText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: 'Cairo-SemiBold',
     marginLeft: 4,
   },
   statusBadge: {
@@ -145,18 +145,19 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: 'Cairo-SemiBold',
     color: COLORS.background,
   },
   title: {
     fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Cairo-SemiBold',
     color: COLORS.text,
     marginBottom: 8,
     lineHeight: 24,
   },
   description: {
     fontSize: 14,
+    fontFamily: 'Cairo-Regular',
     color: COLORS.lightText,
     marginBottom: 12,
     lineHeight: 20,
@@ -168,6 +169,7 @@ const styles = StyleSheet.create({
   },
   locationText: {
     fontSize: 12,
+    fontFamily: 'Cairo-Regular',
     color: COLORS.lightText,
     marginLeft: 4,
     flex: 1,
@@ -179,6 +181,7 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: 12,
+    fontFamily: 'Cairo-Regular',
     color: COLORS.lightText,
   },
 });

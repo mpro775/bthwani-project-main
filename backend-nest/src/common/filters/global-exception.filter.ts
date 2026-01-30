@@ -12,9 +12,16 @@ import { ApiResponse } from '../dto/response.dto';
 interface ExceptionWithDetails {
   code?: string;
   message?: string;
-  response?: { message?: string; code?: string; userMessage?: string; suggestedAction?: string };
+  response?: {
+    message?: string;
+    code?: string;
+    userMessage?: string;
+    suggestedAction?: string;
+    validationErrors?: Array<{ property: string; message: string; constraints?: Record<string, string> }>;
+  };
   userMessage?: string;
   suggestedAction?: string;
+  validationErrors?: Array<{ property: string; message: string; constraints?: Record<string, string> }>;
   stack?: string;
 }
 
@@ -58,6 +65,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         details: body?.message ?? exc?.response?.message ?? exc?.message,
         userMessage,
         suggestedAction,
+        ...(body?.validationErrors && { validationErrors: body.validationErrors }),
       },
       meta: {
         timestamp: new Date().toISOString(),
@@ -74,6 +82,16 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         path: request.url,
         method: request.method,
         user: request.user?.id || undefined,
+      });
+    }
+
+    // Log validation errors for debugging (400 with validationErrors)
+    if (status === 400 && body?.validationErrors?.length) {
+      this.logger.warn('Validation failed', {
+        path: request.url,
+        method: request.method,
+        body: request.body,
+        validationErrors: body.validationErrors,
       });
     }
 

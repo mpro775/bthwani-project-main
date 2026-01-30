@@ -47,6 +47,7 @@ const ArabonEditScreen = () => {
   const [uploadingImages, setUploadingImages] = useState(false);
   const [originalItem, setOriginalItem] = useState<ArabonItem | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [tempScheduleDate, setTempScheduleDate] = useState<Date | null>(null);
   const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]);
   const [newImageUris, setNewImageUris] = useState<string[]>([]);
 
@@ -183,9 +184,41 @@ const ArabonEditScreen = () => {
     }));
   };
 
-  const handleDateChange = (event: any, selectedDate?: Date) => {
-    setShowDatePicker(Platform.OS === "ios");
-    if (selectedDate) updateFormData("scheduleAt", selectedDate.toISOString());
+  const handleDateChange = (event: { type?: string } | undefined, selectedDate?: Date) => {
+    if (event?.type === "dismissed") {
+      setTimeout(() => setShowDatePicker(false), 100);
+      return;
+    }
+    if (selectedDate) {
+      if (Platform.OS === "android") {
+        setTempScheduleDate((prev) => {
+          const base = prev ? new Date(prev) : new Date();
+          base.setFullYear(
+            selectedDate.getFullYear(),
+            selectedDate.getMonth(),
+            selectedDate.getDate()
+          );
+          return new Date(base);
+        });
+      } else {
+        updateFormData("scheduleAt", selectedDate.toISOString());
+        setShowDatePicker(false);
+      }
+    }
+  };
+
+  const handleTimeChange = (event: { type?: string } | undefined, selectedTime?: Date) => {
+    if (event?.type === "dismissed") {
+      setTimeout(() => setShowDatePicker(false), 100);
+      return;
+    }
+    if (selectedTime) {
+      setTempScheduleDate((prev) => {
+        const base = prev ? new Date(prev) : new Date();
+        base.setHours(selectedTime.getHours(), selectedTime.getMinutes(), 0, 0);
+        return new Date(base);
+      });
+    }
   };
 
   const formatDate = (dateString?: string) => {
@@ -462,7 +495,12 @@ const ArabonEditScreen = () => {
             <Text style={styles.sectionTitle}>موعد التنفيذ</Text>
             <TouchableOpacity
               style={styles.dateInput}
-              onPress={() => setShowDatePicker(true)}
+              onPress={() => {
+                setTempScheduleDate(
+                  formData.scheduleAt ? new Date(formData.scheduleAt) : new Date()
+                );
+                setShowDatePicker(true);
+              }}
             >
               <Text
                 style={[
@@ -475,13 +513,55 @@ const ArabonEditScreen = () => {
               <Ionicons name="calendar-outline" size={20} color={COLORS.primary} />
             </TouchableOpacity>
             {showDatePicker && (
-              <DateTimePicker
-                value={formData.scheduleAt ? new Date(formData.scheduleAt) : new Date()}
-                mode="datetime"
-                display="default"
-                onChange={handleDateChange}
-                minimumDate={new Date()}
-              />
+              <View>
+                {Platform.OS === "android" ? (
+                  <>
+                    <View style={styles.dateTimePickersRow}>
+                      <DateTimePicker
+                        value={
+                          tempScheduleDate ||
+                          (formData.scheduleAt ? new Date(formData.scheduleAt) : new Date())
+                        }
+                        mode="date"
+                        display="spinner"
+                        onChange={handleDateChange}
+                        minimumDate={new Date()}
+                      />
+                      <DateTimePicker
+                        value={
+                          tempScheduleDate ||
+                          (formData.scheduleAt ? new Date(formData.scheduleAt) : new Date())
+                        }
+                        mode="time"
+                        display="spinner"
+                        onChange={handleTimeChange}
+                        is24Hour
+                      />
+                    </View>
+                    <TouchableOpacity
+                      style={styles.dateConfirmBtn}
+                      onPress={() => {
+                        const base =
+                          tempScheduleDate ||
+                          (formData.scheduleAt ? new Date(formData.scheduleAt) : new Date());
+                        updateFormData("scheduleAt", base.toISOString());
+                        setTempScheduleDate(null);
+                        setShowDatePicker(false);
+                      }}
+                    >
+                      <Text style={styles.dateConfirmBtnText}>تم</Text>
+                    </TouchableOpacity>
+                  </>
+                ) : (
+                  <DateTimePicker
+                    value={formData.scheduleAt ? new Date(formData.scheduleAt) : new Date()}
+                    mode="datetime"
+                    display="default"
+                    onChange={handleDateChange}
+                    minimumDate={new Date()}
+                  />
+                )}
+              </View>
             )}
           </View>
 
@@ -578,8 +658,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: COLORS.background,
   },
-  loadingText: { marginTop: 16, fontSize: 16, color: COLORS.textLight },
-  errorText: { fontSize: 16, color: COLORS.danger, textAlign: "center", marginTop: 16 },
+  loadingText: { marginTop: 16, fontSize: 16, fontFamily: "Cairo-Regular", color: COLORS.textLight },
+  errorText: { fontSize: 16, fontFamily: "Cairo-Regular", color: COLORS.danger, textAlign: "center", marginTop: 16 },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -593,7 +673,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     fontSize: 18,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     textAlign: "center",
   },
@@ -603,7 +683,7 @@ const styles = StyleSheet.create({
   section: { marginBottom: 24 },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     marginBottom: 12,
   },
@@ -614,6 +694,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.text,
     backgroundColor: COLORS.white,
     marginBottom: 8,
@@ -642,7 +723,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  addImageText: { fontSize: 12, color: COLORS.primary, marginTop: 4 },
+  addImageText: { fontSize: 12, fontFamily: "Cairo-Regular", color: COLORS.primary, marginTop: 4 },
   uploadingRow: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 8 },
   uploadingText: { fontSize: 14, color: COLORS.textLight },
   dateInput: {
@@ -656,8 +737,20 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     backgroundColor: COLORS.white,
   },
-  dateText: { fontSize: 16, color: COLORS.text },
-  placeholderText: { color: COLORS.textLight },
+  dateText: { fontSize: 16, fontFamily: "Cairo-Regular", color: COLORS.text },
+  placeholderText: { fontFamily: "Cairo-Regular", color: COLORS.textLight },
+  dateTimePickersRow: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+  },
+  dateConfirmBtn: {
+    marginTop: 8,
+    paddingVertical: 10,
+    backgroundColor: COLORS.primary,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  dateConfirmBtnText: { color: COLORS.white, fontFamily: "Cairo-SemiBold", fontSize: 16 },
   statusSelector: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   statusOption: {
     paddingHorizontal: 16,
@@ -668,8 +761,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
   },
   statusOptionSelected: { borderWidth: 2 },
-  statusOptionText: { fontSize: 14, fontWeight: "500", color: COLORS.text },
-  statusOptionTextSelected: { fontWeight: "600" },
+  statusOptionText: { fontSize: 14, fontFamily: "Cairo-SemiBold", color: COLORS.text },
+  statusOptionTextSelected: { fontFamily: "Cairo-SemiBold" },
   footer: {
     padding: 16,
     backgroundColor: COLORS.white,
@@ -688,7 +781,7 @@ const styles = StyleSheet.create({
   submitButtonText: {
     color: COLORS.white,
     fontSize: 18,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     marginLeft: 8,
   },
 });

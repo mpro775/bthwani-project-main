@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.primary,
   },
   header: {
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
   },
   priceText: {
     fontSize: 14,
-    fontWeight: "bold",
+    fontFamily: "Cairo-Bold",
     color: COLORS.white,
   },
   statusBadge: {
@@ -240,18 +240,19 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.white,
   },
   title: {
     fontSize: 18,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     marginBottom: 8,
     lineHeight: 24,
   },
   description: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.lightText,
     marginBottom: 8,
     lineHeight: 20,
@@ -263,9 +264,9 @@ const styles = StyleSheet.create({
   },
   contactText: {
     fontSize: 13,
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.primary,
     marginLeft: 6,
-    fontWeight: "500",
   },
   scheduleContainer: {
     flexDirection: "row",
@@ -274,7 +275,7 @@ const styles = StyleSheet.create({
   },
   scheduleText: {
     fontSize: 14,
-    fontWeight: "500",
+    fontFamily: "Cairo-SemiBold",
     marginLeft: 6,
   },
   guestsContainer: {
@@ -284,6 +285,7 @@ const styles = StyleSheet.create({
   },
   guestsText: {
     fontSize: 12,
+    fontFamily: "Cairo-Regular",
     color: COLORS.lightText,
     marginLeft: 4,
   },
@@ -294,6 +296,7 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: 12,
+    fontFamily: "Cairo-Regular",
     color: COLORS.lightText,
   },
 });

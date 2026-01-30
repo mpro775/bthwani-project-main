@@ -86,13 +86,16 @@ axiosInstance.interceptors.response.use(
     const code = apiError?.error?.code || error?.response?.data?.code;
     const cfg = error?.config ?? {};
 
-    // طباعة تفاصيل الخطأ للتطوير
-    if (__DEV__ && apiError?.error) {
+    // طباعة تفاصيل الخطأ للتطوير (استثناء TOO_MANY_REQUESTS لتجنب تكرار الرسالة)
+    if (__DEV__ && apiError?.error && code !== "TOO_MANY_REQUESTS") {
       console.error(`[API Error ${apiError.error.code}]`, {
         message: apiError.error.message,
         userMessage: apiError.error.userMessage,
         suggestedAction: apiError.error.suggestedAction,
         details: apiError.error.details,
+        ...(apiError.error.validationErrors && {
+          validationErrors: apiError.error.validationErrors,
+        }),
       });
     }
 

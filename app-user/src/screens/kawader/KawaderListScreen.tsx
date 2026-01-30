@@ -41,10 +41,11 @@ const KawaderListScreen = () => {
 
       const response: KawaderListResponse = await getKawaderList(cursor);
 
+      const list = Array.isArray(response?.data) ? response.data : [];
       if (isLoadMore) {
-        setItems(prev => [...prev, ...response.data]);
+        setItems(prev => [...(Array.isArray(prev) ? prev : []), ...list]);
       } else {
-        setItems(response.data);
+        setItems(list);
       }
 
       setNextCursor(response.nextCursor);
@@ -101,10 +102,11 @@ const KawaderListScreen = () => {
   };
 
   const getStats = () => {
-    const total = items.length;
-    const completed = items.filter(item => item.status === 'completed').length;
-    const pending = items.filter(item => item.status === 'pending').length;
-    const totalBudget = items.reduce((sum, item) => sum + (item.budget || 0), 0);
+    const list = Array.isArray(items) ? items : [];
+    const total = list.length;
+    const completed = list.filter(item => item.status === 'completed').length;
+    const pending = list.filter(item => item.status === 'pending').length;
+    const totalBudget = list.reduce((sum, item) => sum + (item.budget || 0), 0);
 
     return { total, completed, pending, totalBudget };
   };
@@ -154,7 +156,7 @@ const KawaderListScreen = () => {
       </View>
 
       <FlatList
-        data={items}
+        data={Array.isArray(items) ? items : []}
         renderItem={renderItem}
         keyExtractor={(item) => item._id}
         contentContainerStyle={styles.listContainer}

@@ -13,15 +13,18 @@ const getAuthHeaders = async () => {
 };
 
 // ✅ 1. الحصول على بيانات المستخدم
+// الـ Backend يرجع { success, data: <user>, meta } — البيانات الفعلية في response.data.data
 export const fetchUserProfile = async () => {
   const headers = await getAuthHeaders();
   const response = await axiosInstance.get(`/users/me`, { headers });
 
-  const user = response.data;
+  const raw = response.data?.data ?? response.data;
+  const id = raw?.id ?? raw?._id;
 
   return {
-    ...user,
-    id: user.id || user._id,
+    ...raw,
+    id,
+    uid: raw?.uid ?? id ?? "",
   };
 };
 
@@ -56,11 +59,8 @@ export const updateUserAddress = async (payload: {
   location?: { lat: number; lng: number };
 }) => {
   const headers = await getAuthHeaders();
-
-  // غيّر المسار حسب باك إندك (PUT/PATCH)
-  return axiosInstance.patch(`/users/address/${payload._id}`, payload, {
-    headers,
-  });
+  const { _id, ...body } = payload;
+  return axiosInstance.patch(`/users/address/${_id}`, body, { headers });
 };
 // ✅ 4. حذف عنوان
 export const deleteUserAddress = async (addressId: string) => {
@@ -72,11 +72,14 @@ export const deleteUserAddress = async (addressId: string) => {
 };
 
 // ✅ 5. تحديد عنوان افتراضي
-export const setDefaultUserAddress = async (address: any) => {
+// الباكند يتوقع: { addressId: string } في الـ body
+export const setDefaultUserAddress = async (addressId: string) => {
   const headers = await getAuthHeaders();
-  const res = await axiosInstance.patch(`/users/default-address`, address, {
-    headers,
-  });
+  const res = await axiosInstance.patch(
+    `/users/default-address`,
+    { addressId },
+    { headers }
+  );
   return res.data;
 };
 

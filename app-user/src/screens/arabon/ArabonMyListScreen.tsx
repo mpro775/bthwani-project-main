@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   RefreshControl,
   ActivityIndicator,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -60,9 +60,11 @@ const ArabonMyListScreen = () => {
     }
   }, []);
 
-  useEffect(() => {
-    loadItems();
-  }, [loadItems]);
+  useFocusEffect(
+    useCallback(() => {
+      loadItems();
+    }, [loadItems])
+  );
 
   const handleRefresh = useCallback(() => {
     setRefreshing(true);
@@ -133,17 +135,17 @@ const ArabonMyListScreen = () => {
       {stats && (
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{stats.total}</Text>
+            <Text style={styles.statValue}>{stats.total ?? 0}</Text>
             <Text style={styles.statLabel}>المجموع</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{stats.pending}</Text>
+            <Text style={styles.statValue}>{stats.pending ?? 0}</Text>
             <Text style={styles.statLabel}>في الانتظار</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{stats.totalDepositAmount.toFixed(0)}</Text>
+            <Text style={styles.statValue}>{(stats.totalDepositAmount ?? 0).toFixed(0)}</Text>
             <Text style={styles.statLabel}>إجمالي ريال</Text>
           </View>
         </View>
@@ -185,6 +187,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     fontSize: 16,
     color: COLORS.textLight,
+    fontFamily: "Cairo-Regular",
   },
   header: {
     flexDirection: "row",
@@ -199,7 +202,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     fontSize: 18,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     textAlign: "center",
   },
@@ -216,8 +219,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   statItem: { alignItems: "center", flex: 1 },
-  statValue: { fontSize: 18, fontWeight: "bold", color: COLORS.primary },
-  statLabel: { fontSize: 12, color: COLORS.textLight, marginTop: 2 },
+  statValue: { fontSize: 18, fontFamily: "Cairo-Bold", color: COLORS.primary },
+  statLabel: { fontSize: 12, fontFamily: "Cairo-Regular", color: COLORS.textLight, marginTop: 2 },
   statDivider: { width: 1, height: 30, backgroundColor: COLORS.border },
   listContainer: { padding: 16 },
   emptyContainer: {
@@ -228,12 +231,13 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 20,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     marginTop: 16,
   },
   emptySubtitle: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
     textAlign: "center",
     marginTop: 8,
@@ -246,9 +250,9 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     borderRadius: 8,
   },
-  emptyButtonText: { color: COLORS.white, fontSize: 16, fontWeight: "600" },
+  emptyButtonText: { color: COLORS.white, fontSize: 16, fontFamily: "Cairo-SemiBold" },
   footerLoader: { paddingVertical: 16, alignItems: "center" },
-  footerText: { fontSize: 14, color: COLORS.textLight, marginTop: 8 },
+  footerText: { fontSize: 14, fontFamily: "Cairo-Regular", color: COLORS.textLight, marginTop: 8 },
 });
 
 export default ArabonMyListScreen;

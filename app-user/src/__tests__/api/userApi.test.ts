@@ -250,17 +250,17 @@ describe("userApi", () => {
 
   describe("setDefaultUserAddress", () => {
     test("يحدد العنوان الافتراضي بنجاح", async () => {
-      const address = { _id: "addr123", label: "المنزل" };
-      const mockResponse = { success: true, defaultAddress: address };
+      const addressId = "addr123";
+      const mockResponse = { success: true, defaultAddressId: addressId };
       (axiosInstance.patch as jest.Mock).mockResolvedValue({
         data: mockResponse,
       });
 
-      const result = await setDefaultUserAddress(address);
+      const result = await setDefaultUserAddress(addressId);
 
       expect(axiosInstance.patch).toHaveBeenCalledWith(
         "/users/default-address",
-        address,
+        { addressId },
         {
           headers: { Authorization: "Bearer fresh-token" },
         }

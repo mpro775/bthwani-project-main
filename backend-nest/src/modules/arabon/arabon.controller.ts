@@ -74,7 +74,14 @@ export class ArabonController {
   @ApiResponse({ status: HttpStatus.CREATED, description: 'تم إنشاء العربون بنجاح' })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'بيانات غير صحيحة' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'غير مخول' })
-  create(@Body() dto: CreateArabonDto) {
+  create(
+    @Req() req: Request & { user?: { id?: string } },
+    @Body() dto: CreateArabonDto,
+  ) {
+    const uid = req?.user?.id;
+    if (uid) {
+      (dto as any).ownerId = uid;
+    }
     return this.service.create(dto);
   }
 

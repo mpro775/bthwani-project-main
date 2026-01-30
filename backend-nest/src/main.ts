@@ -1,5 +1,9 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import {
+  ValidationPipe,
+  VersioningType,
+  BadRequestException,
+} from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
@@ -86,7 +90,7 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Global Validation Pipe
+  // Global Validation Pipe - إرجاع تفاصيل أخطاء التحقق في الاستجابة
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -94,6 +98,18 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
       transformOptions: {
         enableImplicitConversion: true,
+      },
+      exceptionFactory: (errors) => {
+        const messages = errors.map((e) => ({
+          property: e.property,
+          constraints: e.constraints,
+          message: Object.values(e.constraints || {}).join(', '),
+        }));
+        return new BadRequestException({
+          message: 'Validation failed',
+          error: 'Bad Request',
+          validationErrors: messages,
+        });
       },
     }),
   );

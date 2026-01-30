@@ -2,7 +2,7 @@ import Constants from "expo-constants";
 
 // روابط API
 // غيّر العنوان إذا كان الـ backend على جهاز آخر (مثلاً نفس جهاز Expo: استخدم IP الـ hostUri مثل 192.168.1.108)
-const LOCAL_API = "http://192.168.1.108:3000/api/v1";
+const LOCAL_API = "http://192.168.1.103:3000/api/v1";
 const PRODUCTION_API = "https://api-bthwani.smartagency-ye.com/api/v1";
 
 // قراءة hostUri

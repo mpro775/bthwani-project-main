@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -24,7 +24,9 @@ import {
   KENZ_CURRENCIES,
   KenzCategory,
 } from "@/types/types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createKenz } from "@/api/kenzApi";
+import { fetchUserProfile } from "@/api/userApi";
 import { useAuth } from "@/auth/AuthContext";
 import { uploadKenzImageToBunny } from "@/utils/uploadToBunny";
 import COLORS from "@/constants/colors";
@@ -35,7 +37,7 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList, "KenzCreate"
 
 const KenzCreateScreen = () => {
   const navigation = useNavigation<NavigationProp>();
-  const { user } = useAuth();
+  const { user, isLoggedIn } = useAuth();
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState<CreateKenzPayload>({
@@ -58,6 +60,13 @@ const KenzCreateScreen = () => {
   const [imageUris, setImageUris] = useState<string[]>([]);
   const [keywordsText, setKeywordsText] = useState("");
   const [uploadingImages, setUploadingImages] = useState(false);
+
+  // مزامنة ownerId عند توفر المستخدم (قد يُحمّل لاحقاً بعد أول render)
+  useEffect(() => {
+    if (user?.uid) {
+      setFormData((prev) => ({ ...prev, ownerId: user.uid }));
+    }
+  }, [user?.uid]);
 
   const pickImages = async () => {
     if (imageUris.length >= MAX_IMAGES) {
@@ -89,7 +98,22 @@ const KenzCreateScreen = () => {
       return;
     }
 
-    if (!formData.ownerId) {
+    // مصدر الهوية: من AuthContext أولاً، ثم التخزين، ثم جلب البروفايل من API
+    let currentUserId = user?.uid;
+    if (!currentUserId && isLoggedIn) {
+      const storedUserId = await AsyncStorage.getItem("userId");
+      currentUserId = storedUserId || undefined;
+    }
+    if (!currentUserId && isLoggedIn) {
+      try {
+        const profile = await fetchUserProfile();
+        currentUserId = profile?.uid || profile?.id || profile?._id;
+        if (currentUserId) currentUserId = String(currentUserId);
+      } catch (_e) {
+        // تجاهل — سنعرض رسالة تسجيل الدخول أدناه إن بقي فارغاً
+      }
+    }
+    if (!currentUserId) {
       Alert.alert("خطأ", "يجب تسجيل الدخول أولاً");
       return;
     }
@@ -119,6 +143,7 @@ const KenzCreateScreen = () => {
 
       const payload: CreateKenzPayload = {
         ...formData,
+        ownerId: currentUserId,
         images: imageUrls.length ? imageUrls : undefined,
         keywords: keywords.length ? keywords : undefined,
         quantity: qty,

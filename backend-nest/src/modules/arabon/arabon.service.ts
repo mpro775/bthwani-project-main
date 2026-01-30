@@ -67,7 +67,7 @@ export class ArabonService {
     ownerId: string,
     opts: { cursor?: string; status?: string },
   ) {
-    if (!Types.ObjectId.isValid(ownerId)) {
+    if (!ownerId || !Types.ObjectId.isValid(ownerId)) {
       return { items: [], nextCursor: null };
     }
     const filter: Record<string, unknown> = {

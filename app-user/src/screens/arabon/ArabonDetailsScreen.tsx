@@ -157,7 +157,7 @@ const ArabonDetailsScreen = () => {
       const priceInfo = item.pricePerPeriod
         ? `${formatCurrency(item.pricePerPeriod)}/${item.bookingPeriod === "hour" ? "ساعة" : item.bookingPeriod === "day" ? "يوم" : "أسبوع"}`
         : formatCurrency(item.bookingPrice || item.depositAmount);
-      const message = `عربون: ${item.title}\n\n${item.description || ""}\n\n${item.category ? `النوع: ${item.category}\n` : ""}السعر: ${priceInfo}\nعربون: ${formatCurrency(item.depositAmount)}\n${item.contactPhone ? `للحجز: ${item.contactPhone}\n` : ""}${item.scheduleAt ? `الموعد: ${formatDate(item.scheduleAt.toString())}\n` : ""}${item.metadata?.guests ? `عدد الأشخاص: ${item.metadata.guests}\n` : ""}\nالحالة: ${getStatusText(item.status)}\n\nتاريخ النشر: ${formatDate(item.createdAt.toString())}`;
+      const message = `عربون: ${item.title}\n\n${item.description || ""}\n\n${item.category ? `النوع: ${item.category}\n` : ""}السعر: ${priceInfo}\nعربون: ${formatCurrency(item.depositAmount)}\n${item.contactPhone ? `للحجز: ${item.contactPhone}\n` : ""}${item.scheduleAt ? `الموعد: ${formatDate(item.scheduleAt != null ? String(item.scheduleAt) : undefined)}\n` : ""}${item.metadata?.guests ? `عدد الأشخاص: ${item.metadata.guests}\n` : ""}\nالحالة: ${getStatusText(item.status)}\n\nتاريخ النشر: ${formatDate(item.createdAt != null ? String(item.createdAt) : undefined)}`;
 
       await Share.share({
         message,
@@ -490,13 +490,13 @@ const ArabonDetailsScreen = () => {
             <View style={styles.dateItem}>
               <Text style={styles.dateLabel}>تاريخ الإنشاء:</Text>
               <Text style={styles.dateValue}>
-                {formatDate(item.createdAt.toString())}
+                {formatDate(item.createdAt != null ? String(item.createdAt) : undefined)}
               </Text>
             </View>
             <View style={styles.dateItem}>
               <Text style={styles.dateLabel}>آخر تحديث:</Text>
               <Text style={styles.dateValue}>
-                {formatDate(item.updatedAt.toString())}
+                {formatDate(item.updatedAt != null ? String(item.updatedAt) : undefined)}
               </Text>
             </View>
           </View>
@@ -521,9 +521,11 @@ const styles = StyleSheet.create({
     marginTop: 16,
     fontSize: 16,
     color: COLORS.textLight,
+    fontFamily: "Cairo-Regular",
   },
   errorText: {
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.danger,
   },
   header: {
@@ -541,9 +543,9 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     fontSize: 18,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
-    textAlign: 'center',
+    textAlign: "center",
   },
   headerActions: {
     flexDirection: 'row',
@@ -580,6 +582,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 8,
     fontSize: 12,
+    fontFamily: "Cairo-Regular",
   },
   categoryBadge: {
     alignSelf: "flex-start",
@@ -591,7 +594,7 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.primary,
   },
   contactSection: {
@@ -607,13 +610,14 @@ const styles = StyleSheet.create({
   },
   contactText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.primary,
     marginLeft: 12,
     flex: 1,
   },
   contactHint: {
     fontSize: 12,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
   },
   socialRow: {
@@ -640,12 +644,12 @@ const styles = StyleSheet.create({
   },
   pricingLabel: {
     fontSize: 14,
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
-    fontWeight: "500",
   },
   pricingValue: {
     fontSize: 16,
-    fontWeight: "700",
+    fontFamily: "Cairo-Bold",
     color: COLORS.primary,
   },
   depositHighlight: {
@@ -665,7 +669,7 @@ const styles = StyleSheet.create({
   },
   amountText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily: "Cairo-Bold",
     color: COLORS.white,
   },
   statusBadge: {
@@ -675,18 +679,19 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.white,
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: "Cairo-Bold",
     color: COLORS.text,
     marginBottom: 16,
     lineHeight: 32,
   },
   description: {
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.text,
     lineHeight: 24,
     marginBottom: 24,
@@ -696,7 +701,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     marginBottom: 12,
   },
@@ -709,12 +714,13 @@ const styles = StyleSheet.create({
   },
   scheduleText: {
     fontSize: 16,
-    fontWeight: '500',
+    fontFamily: "Cairo-SemiBold",
     marginLeft: 8,
     flex: 1,
   },
   upcomingText: {
     fontSize: 12,
+    fontFamily: "Cairo-Regular",
     color: COLORS.primary,
     backgroundColor: COLORS.lightBlue,
     paddingHorizontal: 8,
@@ -734,15 +740,15 @@ const styles = StyleSheet.create({
   },
   metadataLabel: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     marginLeft: 8,
     flex: 1,
   },
   metadataValue: {
     fontSize: 14,
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.primary,
-    fontWeight: '500',
   },
   notesContainer: {
     backgroundColor: COLORS.white,
@@ -751,13 +757,14 @@ const styles = StyleSheet.create({
   },
   notesTitle: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     marginBottom: 4,
     marginLeft: 24,
   },
   notesText: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
     lineHeight: 20,
     marginLeft: 24,
@@ -772,6 +779,7 @@ const styles = StyleSheet.create({
   },
   statusUpdatingText: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
   },
   statusActionsRow: {
@@ -798,7 +806,7 @@ const styles = StyleSheet.create({
   },
   statusActionText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.white,
   },
   activitySection: {
@@ -816,11 +824,12 @@ const styles = StyleSheet.create({
   },
   activityText: {
     fontSize: 14,
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
-    fontWeight: '500',
   },
   activityDate: {
     fontSize: 12,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
   },
   datesSection: {
@@ -835,12 +844,13 @@ const styles = StyleSheet.create({
   },
   dateLabel: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     width: 100,
   },
   dateValue: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
     flex: 1,
   },

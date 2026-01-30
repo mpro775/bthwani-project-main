@@ -164,11 +164,12 @@ export default function UserProfileScreen() {
     );
   }
 
-  const displayName = profile.displayFullName
-    ? profile.fullName
-    : profile.aliasName?.trim().length
-    ? profile.aliasName
-    : profile.fullName;
+  const displayName =
+    profile.displayFullName !== false && profile.fullName
+      ? profile.fullName
+      : profile.aliasName?.trim()
+      ? profile.aliasName
+      : profile.fullName ?? "—";
 
   return (
     <Animated.ScrollView
@@ -206,8 +207,8 @@ export default function UserProfileScreen() {
         <View style={styles.avatarWrap}>
           <Image
             source={
-              (profile as any)?.avatar
-                ? { uri: (profile as any).avatar }
+              profile.profileImage
+                ? { uri: profile.profileImage }
                 : require("../../../assets/profile_placeholder.png")
             }
             style={styles.avatar}
@@ -217,7 +218,9 @@ export default function UserProfileScreen() {
         <Text style={styles.displayName} numberOfLines={1}>
           {displayName}
         </Text>
-        <Text style={styles.phoneStrong}>{profile.phone}</Text>
+        <Text style={styles.phoneStrong}>
+          {profile.phone ? `${profile.phone}` : "—"}
+        </Text>
       </View>
 
       {/* المحتوى */}
