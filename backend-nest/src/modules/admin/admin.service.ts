@@ -107,6 +107,30 @@ export class AdminService {
     };
   }
 
+  /** إحصائيات المستخدمين للوحة الإحصائيات (total, admins, users, active, blocked) */
+  async getAdminStats(): Promise<{
+    total: number;
+    admins: number;
+    users: number;
+    active: number;
+    blocked: number;
+  }> {
+    const [total, admins, regularUsers, active, blocked] = await Promise.all([
+      this.userModel.countDocuments(),
+      this.userModel.countDocuments({ role: { $in: ['admin', 'superadmin'] } }),
+      this.userModel.countDocuments({ role: 'user' }),
+      this.userModel.countDocuments({ isActive: true }),
+      this.userModel.countDocuments({ isBanned: true }),
+    ]);
+    return {
+      total,
+      admins,
+      users: regularUsers,
+      active,
+      blocked,
+    };
+  }
+
   async getTodayStats(): Promise<DTO.TodayStatsDto> {
     const today = new Date();
     today.setHours(0, 0, 0, 0);

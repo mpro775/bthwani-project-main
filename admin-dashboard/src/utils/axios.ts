@@ -9,7 +9,7 @@ const getBaseURL = () => {
     return import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
   }
   // في الإنتاج: استخدم متغير البيئة أو قيمة ثابتة آمنة
-  return import.meta.env.VITE_API_URL || "https://api.bthwani.com/api/v1";
+  return import.meta.env.VITE_API_URL || "https://api-bthwani.smartagency-ye.com/api/v1";
 };
 
 // Axios instance

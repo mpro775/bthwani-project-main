@@ -56,7 +56,7 @@ export default function StoreTable({
 
         {/* Body */}
         <TableBody>
-          {stores.map((store) => (
+          {(Array.isArray(stores) ? stores : []).map((store) => (
             <TableRow key={store._id} hover>
               <TableCell>
                 <Avatar

@@ -176,62 +176,78 @@ export default function DeliveryStoreDetailsPage() {
     if (!id) return;
     setLoading(true);
     try {
-      // المتجر
-      const storeRes = await axios.get<DeliveryStore>(`/delivery/stores/${id}`);
-      setStore(storeRes.data);
-
-      // أولًا: جرّب بيانات المقاضي (MerchantProduct)
-      const mpRes = await axios.get<MerchantProductItem[]>(
-        `${MCK_PREFIX}/merchant-products`,
-        { params: { store: id, channel: "app" } }
+      // المتجر (قد يُرجع { data: DeliveryStore } أو DeliveryStore)
+      const storeRes = await axios.get<DeliveryStore | { data: DeliveryStore }>(
+        `/delivery/stores/${id}`
       );
+      const raw = storeRes.data;
+      const storeData =
+        raw && typeof raw === "object" && "data" in raw
+          ? (raw as { data: DeliveryStore }).data
+          : (raw as DeliveryStore);
+      setStore(storeData);
 
-      if (Array.isArray(mpRes.data) && mpRes.data.length > 0) {
-        const { sections, products } = adaptFromMerchantProducts(
-          mpRes.data,
-          id
+      // أولًا: جرّب بيانات المقاضي (MerchantProduct) — إن وُجدت في الباكند
+      try {
+        const mpRes = await axios.get<MerchantProductItem[] | { data?: MerchantProductItem[] }>(
+          `${MCK_PREFIX}/merchant-products`,
+          { params: { store: id, channel: "app" } }
         );
-        setSubs(sections);
-        setProds(products);
-        setIsGroceryView(true);
-        setError(null);
-        return;
+        const mpList = Array.isArray(mpRes.data) ? mpRes.data : (mpRes.data as { data?: MerchantProductItem[] })?.data ?? [];
+        if (mpList.length > 0) {
+          const { sections, products } = adaptFromMerchantProducts(mpList, id);
+          setSubs(sections);
+          setProds(products);
+          setIsGroceryView(true);
+          setError(null);
+          return;
+        }
+      } catch {
+        // لا يوجد endpoint merchant-products — نتابع للفولباك
       }
 
-      // ثانيًا: فولباك للأنواع الأخرى (Delivery*)
-      const [subRes, prodRes] = await Promise.all([
-        axios
-          .get<DeliveryProductSubCategory[]>(`/delivery/subcategories`, {
-            params: { storeId: id },
-          })
-          .catch(async () => {
-            const r = await axios.get<DeliveryProductSubCategory[]>(
-              `/delivery/subcategories`
-            );
-            // تصفية محلية آمنة
-            const filtered = r.data.filter((s) => s.storeId === id);
-            return { data: filtered };
-          }),
-        axios
-          .get<DeliveryProduct[]>(`/delivery/products`, {
-            params: { store: id },
-          })
-          .catch(async () => {
-            const r = await axios.get<DeliveryProduct[]>(`/delivery/products`);
-            // بعض المشاريع تسمي الحقل store بدل storeId — ندعم الحالتين
-            type DeliveryProductPossiblyHasStore = DeliveryProduct & {
-              store?: string;
-            };
-            const filtered = (
-              r.data as DeliveryProductPossiblyHasStore[]
-            ).filter((p) => p.storeId === id || p.store === id);
-            return { data: filtered as DeliveryProduct[] };
-          }),
-      ]);
+      // ثانيًا: فولباك — الفئات الفرعية + منتجات المتجر من API التوصيل
+      let subList: DeliveryProductSubCategory[] = [];
+      try {
+        const subRes = await axios.get<{ data?: DeliveryProductSubCategory[] }>(
+          "/delivery/subcategories",
+          { params: { storeId: id } }
+        );
+        subList = Array.isArray(subRes.data?.data) ? subRes.data.data : [];
+      } catch {
+        subList = [];
+      }
+      setSubs(subList);
 
-      setSubs(subRes.data);
-      // نسمح بحقل originalPrice الاختياري دون كسر الأنواع
-      setProds((prodRes.data as DeliveryProduct[]).map((p) => ({ ...p })));
+      const prodRes = await axios.get<{ data?: DeliveryProduct[] }>(
+        `/delivery/stores/${id}/products`,
+        { params: { limit: 100 } }
+      );
+      const rawList = prodRes.data?.data ?? (prodRes.data as unknown as DeliveryProduct[]) ?? [];
+      const list = Array.isArray(rawList) ? rawList : [];
+      type ProductWithStore = DeliveryProduct & {
+        store?: string;
+        subCategory?: string | { _id?: string; name?: string };
+      };
+      const products: DeliveryProductForUI[] = list.map((p: ProductWithStore) => {
+        const subId =
+          p.subCategoryId ??
+          (typeof p.subCategory === "string"
+            ? p.subCategory
+            : (p.subCategory as { _id?: string })?._id) ??
+          "";
+        return {
+          ...p,
+          storeId:
+            p.storeId ??
+            (typeof p.store === "string"
+              ? p.store
+              : (p.store as unknown as { _id?: string })?._id) ??
+            id,
+          subCategoryId: subId,
+        };
+      });
+      setProds(products);
       setIsGroceryView(false);
       setError(null);
     } catch {

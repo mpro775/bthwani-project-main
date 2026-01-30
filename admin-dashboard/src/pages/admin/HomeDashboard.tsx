@@ -194,15 +194,17 @@ export default function UserStats() {
         setRefreshing(false);
         return;
       }
-      const res = await axios.get<Partial<Stats>>("/admin/stats", {
+      const res = await axios.get<{ data?: Partial<Stats> }>("/admin/stats", {
         headers: { Authorization: `Bearer ${token}` },
       });
+      // الباكند يرجع { success, data: { total, admins, ... } }
+      const d = (res.data?.data ?? res.data) as Partial<Stats> | undefined;
       setStats({
-        total: res.data.total ?? 0,
-        admins: res.data.admins ?? 0,
-        users: res.data.users ?? 0,
-        active: res.data.active ?? 0,
-        blocked: res.data.blocked ?? 0,
+        total: d?.total ?? 0,
+        admins: d?.admins ?? 0,
+        users: d?.users ?? 0,
+        active: d?.active ?? 0,
+        blocked: d?.blocked ?? 0,
         lastUpdated: new Date(),
       });
     } catch (err) {

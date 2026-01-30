@@ -46,6 +46,11 @@ export class CreateProductDto {
   @IsMongoId()
   category?: string;
 
+  @ApiPropertyOptional({ description: 'معرف الفئة الداخلية (فرعية المتجر)' })
+  @IsOptional()
+  @IsMongoId()
+  subCategory?: string;
+
   @ApiPropertyOptional({ description: 'صورة المنتج' })
   @IsOptional()
   @IsString()

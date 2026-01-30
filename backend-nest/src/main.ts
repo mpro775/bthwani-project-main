@@ -21,6 +21,21 @@ async function bootstrap() {
       logger,
     });
 
+  // CORS أولاً حتى يعالج طلب preflight (OPTIONS) قبل أي middleware
+  // مع credentials: true لا يمكن استخدام '*' — نستخدم قائمة أصول صريحة
+  const corsEnv = process.env.CORS_ORIGIN?.trim();
+  const defaultOrigins = ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173', 'http://127.0.0.1:3000','https://web-bthwani.smartagency-ye.com','https://app-bthwani.smartagency-ye.com'];
+  const corsOrigins = corsEnv && corsEnv !== '*'
+    ? corsEnv.split(',').map((o) => o.trim()).filter(Boolean)
+    : defaultOrigins;
+  app.enableCors({
+    origin: corsOrigins.length ? corsOrigins : true,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Idempotency-Key', 'Accept'],
+    preflightContinue: false,
+  });
+
   // Security Headers - Helmet
   app.use(
     helmet({
@@ -83,12 +98,6 @@ async function bootstrap() {
 
   // Idempotency Header Middleware - لاستخراج Idempotency-Key من headers
   app.use(new IdempotencyHeaderMiddleware().use);
-
-  // Security & CORS
-  app.enableCors({
-    origin: process.env.CORS_ORIGIN?.split(',') || '*',
-    credentials: true,
-  });
 
   // Global Validation Pipe - إرجاع تفاصيل أخطاء التحقق في الاستجابة
   app.useGlobalPipes(

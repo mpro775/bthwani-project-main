@@ -75,15 +75,29 @@ const mapStoreToForm = (s: DeliveryStore): StoreForm_type => ({
       : (s.pricingStrategy as string) || "",
 });
 
+const lat = (form: StoreForm_type) => parseFloat(form.lat || "0");
+const lng = (form: StoreForm_type) => parseFloat(form.lng || "0");
+
+/** Payload for POST /admin/stores (CreateStoreDto: name, address, location, category?, image?, logo?, commissionRate?) */
+const toAdminCreatePayload = (form: StoreForm_type) => ({
+  name: form.name.trim(),
+  address: form.address.trim(),
+  location: { lat: lat(form), lng: lng(form) },
+  ...(form.categoryId && { category: form.categoryId }),
+  ...((form.image as string) && { image: form.image as string }),
+  ...((form.logo as string) && { logo: form.logo as string }),
+  ...(form.commissionRate && { commissionRate: parseFloat(form.commissionRate) }),
+});
+
+/** Payload for PUT /delivery/stores/:id (update) */
 const toPayload = (form: StoreForm_type, editing?: DeliveryStore | null) => ({
   name: form.name.trim(),
   address: form.address.trim(),
   category: form.categoryId || undefined,
-  lat: parseFloat(form.lat || "0"),
-  lng: parseFloat(form.lng || "0"),
+  location: { lat: lat(form), lng: lng(form) },
   isActive: !!form.isActive,
-  image: editing?.image ?? "",
-  logo: editing?.logo ?? "",
+  image: (form.image as string) ?? editing?.image ?? "",
+  logo: (form.logo as string) ?? editing?.logo ?? "",
   schedule: form.schedule,
   commissionRate: form.commissionRate ? parseFloat(form.commissionRate) : 0,
   isTrending: !!form.isTrending,
@@ -130,14 +144,13 @@ export default function DeliveryStoresPage() {
   const handleSave = useCallback(async () => {
     setSaving(true);
     try {
-      const payload = toPayload(form, editing);
-
       // Note: File uploads are handled by FileUploader component, form.image/logo are already URLs
-
       if (editing) {
+        const payload = toPayload(form, editing);
         await axios.put<DeliveryStore>(`/delivery/stores/${editing._id}`, payload);
       } else {
-        await axios.post<DeliveryStore>("/delivery/stores", payload);
+        const payload = toAdminCreatePayload(form);
+        await axios.post<DeliveryStore>("/admin/stores", payload);
       }
 
       await fetchStores();

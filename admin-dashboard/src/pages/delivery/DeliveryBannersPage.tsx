@@ -123,8 +123,9 @@ export default function DeliveryBannersPage() {
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get("/delivery/categories");
-      setCategories(res.data);
+      const res = await axios.get<{ data?: Category[] }>("/delivery/categories");
+      const list = res.data?.data ?? res.data;
+      setCategories(Array.isArray(list) ? list : []);
     } catch {
       setError("فشل في تحميل الفئات");
     }

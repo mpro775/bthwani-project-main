@@ -29,6 +29,9 @@ export class Product extends Document {
   @Prop({ type: Types.ObjectId, ref: 'DeliveryCategory', index: true })
   category?: Types.ObjectId;
 
+  @Prop({ type: Types.ObjectId, ref: 'DeliverySubCategory', index: true })
+  subCategory?: Types.ObjectId;
+
   @Prop()
   image?: string;
 

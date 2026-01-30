@@ -98,8 +98,9 @@ export default function SimpleMapPicker({ initial, onSelect, onClose }: Props) {
     setSessionToken(new google.maps.places.AutocompleteSessionToken());
   };
 
-  // حدود صنعاء كباوندز للبحث
+  // حدود صنعاء كباوندز للبحث (يُحسب فقط بعد تحميل Google Maps)
   const sanaaBounds = useMemo(() => {
+    if (!isLoaded || typeof google === "undefined") return null;
     const sw = new google.maps.LatLng(SANAA_BBOX.minLat, SANAA_BBOX.minLon);
     const ne = new google.maps.LatLng(SANAA_BBOX.maxLat, SANAA_BBOX.maxLon);
     return new google.maps.LatLngBounds(sw, ne);
@@ -122,8 +123,7 @@ export default function SimpleMapPicker({ initial, onSelect, onClose }: Props) {
           input: q,
           sessionToken,
           componentRestrictions: { country: "ye" },
-          bounds: sanaaBounds,
-          strictBounds: false,
+          ...(sanaaBounds && { bounds: sanaaBounds, strictBounds: false }),
           // يمكنك أيضًا استخدام locationBias كدائرة حول المركز الحالي
         },
         (res) => {

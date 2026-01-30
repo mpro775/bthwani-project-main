@@ -55,9 +55,18 @@ export default function FileUploader({
         throw new Error(`حجم الملف كبير جداً. الحد الأقصى ${Math.round(maxSize / 1024 / 1024)}MB`);
       }
 
-      const allowedTypes = accept.split(',').map(type => type.trim());
-      if (allowedTypes.length > 0 && !allowedTypes.includes(file.type)) {
-        throw new Error(`نوع الملف غير مسموح. الأنواع المسموحة: ${allowedTypes.join(', ')}`);
+      const allowedTypes = accept.split(',').map((type) => type.trim());
+      if (allowedTypes.length > 0) {
+        const isAllowed = allowedTypes.some((allowed) => {
+          if (allowed.endsWith('/*')) {
+            const prefix = allowed.slice(0, -1); // "image/*" → "image/"
+            return file.type.startsWith(prefix);
+          }
+          return file.type === allowed;
+        });
+        if (!isAllowed) {
+          throw new Error(`نوع الملف غير مسموح. الأنواع المسموحة: ${allowedTypes.join(', ')}`);
+        }
       }
 
       setUploading(true);
