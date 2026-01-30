@@ -64,6 +64,64 @@ export class Arabon extends Document {
   })
   @Prop({ default: 'draft' })
   status: ArabonStatus;
+
+  @ApiProperty({
+    description: 'روابط صور CDN (Bunny)',
+    required: false,
+    example: ['https://cdn.bthwani.com/arabon/1-img.jpg'],
+    type: [String],
+  })
+  @Prop({ type: [String], default: [] })
+  images: string[];
+
+  @ApiProperty({
+    description: 'رقم التواصل للحجز',
+    required: false,
+    example: '+967771234567',
+  })
+  @Prop()
+  contactPhone?: string;
+
+  @ApiProperty({
+    description: 'صفحات التواصل',
+    required: false,
+    example: { whatsapp: 'https://wa.me/967771234567', facebook: 'https://facebook.com/page', instagram: 'https://instagram.com/page' },
+  })
+  @Prop({ type: Object })
+  socialLinks?: { whatsapp?: string; facebook?: string; instagram?: string };
+
+  @ApiProperty({
+    description: 'نوع العقار: منشأة، شاليه، صالة، أخرى',
+    required: false,
+    example: 'شاليه',
+  })
+  @Prop()
+  category?: string;
+
+  @ApiProperty({
+    description: 'قيمة الحجز الكاملة (ريال)',
+    required: false,
+    example: 1500,
+  })
+  @Prop()
+  bookingPrice?: number;
+
+  @ApiProperty({
+    description: 'فترة الحجز: ساعة، يوم، أسبوع',
+    required: false,
+    example: 'day',
+    enum: ['hour', 'day', 'week'],
+  })
+  @Prop({ default: 'day' })
+  bookingPeriod?: 'hour' | 'day' | 'week';
+
+  @ApiProperty({
+    description: 'السعر لكل فترة (مثلاً 500 ريال/يوم)',
+    required: false,
+    example: 500,
+  })
+  @Prop()
+  pricePerPeriod?: number;
 }
 
 export const ArabonSchema = SchemaFactory.createForClass(Arabon);

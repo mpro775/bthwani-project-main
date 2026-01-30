@@ -27,14 +27,16 @@ function getFileName(uri: string): string {
 
 /**
  * رفع صورة واحدة من URI محلي (expo-image-picker) إلى Bunny وتُرجع رابط CDN.
+ * @param folder مجلد التخزين: 'kenz' أو 'arabon'
  */
-export async function uploadKenzImageToBunny(
+async function uploadImageToBunnyFolder(
   localUri: string,
+  folder: "kenz" | "arabon",
   mime?: string
 ): Promise<string> {
   const resolvedMime = mime ?? getMimeFromUri(localUri);
   const fileName = getFileName(localUri);
-  const storagePath = `kenz/${fileName}`;
+  const storagePath = `${folder}/${fileName}`;
   const uploadUrl = `https://storage.bunnycdn.com/${BUNNY_STORAGE_ZONE}/${storagePath}`;
 
   const fileResp = await fetch(localUri);
@@ -57,4 +59,22 @@ export async function uploadKenzImageToBunny(
   }
 
   return `${BUNNY_CDN_BASE}/${storagePath}`;
+}
+
+export async function uploadKenzImageToBunny(
+  localUri: string,
+  mime?: string
+): Promise<string> {
+  return uploadImageToBunnyFolder(localUri, "kenz", mime);
+}
+
+/**
+ * رفع صورة عربون إلى Bunny CDN.
+ * يُستخدم من ArabonCreateScreen / ArabonEditScreen بعد اختيار الصور عبر expo-image-picker.
+ */
+export async function uploadArabonImageToBunny(
+  localUri: string,
+  mime?: string
+): Promise<string> {
+  return uploadImageToBunnyFolder(localUri, "arabon", mime);
 }

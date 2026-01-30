@@ -8,6 +8,9 @@ import {
   Alert,
   ActivityIndicator,
   Share,
+  Image,
+  Dimensions,
+  Linking,
 } from "react-native";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -151,7 +154,10 @@ const ArabonDetailsScreen = () => {
     if (!item) return;
 
     try {
-      const message = `عربون: ${item.title}\n\n${item.description || ''}\n\nالمبلغ: ${formatCurrency(item.depositAmount)}\n${item.scheduleAt ? `الموعد: ${formatDate(item.scheduleAt.toString())}\n` : ''}${item.metadata?.guests ? `عدد الأشخاص: ${item.metadata.guests}\n` : ''}\nالحالة: ${getStatusText(item.status)}\n\nتاريخ النشر: ${formatDate(item.createdAt.toString())}`;
+      const priceInfo = item.pricePerPeriod
+        ? `${formatCurrency(item.pricePerPeriod)}/${item.bookingPeriod === "hour" ? "ساعة" : item.bookingPeriod === "day" ? "يوم" : "أسبوع"}`
+        : formatCurrency(item.bookingPrice || item.depositAmount);
+      const message = `عربون: ${item.title}\n\n${item.description || ""}\n\n${item.category ? `النوع: ${item.category}\n` : ""}السعر: ${priceInfo}\nعربون: ${formatCurrency(item.depositAmount)}\n${item.contactPhone ? `للحجز: ${item.contactPhone}\n` : ""}${item.scheduleAt ? `الموعد: ${formatDate(item.scheduleAt.toString())}\n` : ""}${item.metadata?.guests ? `عدد الأشخاص: ${item.metadata.guests}\n` : ""}\nالحالة: ${getStatusText(item.status)}\n\nتاريخ النشر: ${formatDate(item.createdAt.toString())}`;
 
       await Share.share({
         message,
@@ -160,6 +166,10 @@ const ArabonDetailsScreen = () => {
     } catch (error) {
       console.error("خطأ في المشاركة:", error);
     }
+  };
+
+  const openLink = (url?: string) => {
+    if (url?.trim()) Linking.openURL(url.trim());
   };
 
   const handleStatusChange = async (newStatus: ArabonStatus) => {
@@ -235,15 +245,51 @@ const ArabonDetailsScreen = () => {
 
       <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
+          {/* Images Gallery */}
+          {item.images && item.images.length > 0 && (
+            <View style={styles.imagesSection}>
+              <ScrollView
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                style={styles.imagesScroll}
+              >
+                {item.images.map((uri, idx) => (
+                  <Image
+                    key={idx}
+                    source={{ uri }}
+                    style={styles.detailImage}
+                    resizeMode="cover"
+                  />
+                ))}
+              </ScrollView>
+              {item.images.length > 1 && (
+                <Text style={styles.imageCount}>
+                  {item.images.length} صورة
+                </Text>
+              )}
+            </View>
+          )}
+
           {/* Header Info */}
           <View style={styles.infoHeader}>
             <View style={styles.amountContainer}>
-              <Text style={styles.amountText}>{formatCurrency(item.depositAmount)}</Text>
+              <Text style={styles.amountText}>
+                {item.pricePerPeriod
+                  ? `${formatCurrency(item.pricePerPeriod)}/${item.bookingPeriod === "hour" ? "ساعة" : item.bookingPeriod === "day" ? "يوم" : "أسبوع"}`
+                  : formatCurrency(item.bookingPrice || item.depositAmount)}
+              </Text>
             </View>
             <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
               <Text style={styles.statusText}>{getStatusText(item.status)}</Text>
             </View>
           </View>
+
+          {item.category && (
+            <View style={styles.categoryBadge}>
+              <Text style={styles.categoryText}>{item.category}</Text>
+            </View>
+          )}
 
           {/* Title */}
           <Text style={styles.title}>{item.title}</Text>
@@ -251,6 +297,85 @@ const ArabonDetailsScreen = () => {
           {/* Description */}
           {item.description && (
             <Text style={styles.description}>{item.description}</Text>
+          )}
+
+          {/* Contact & Social */}
+          {(item.contactPhone || item.socialLinks) && (
+            <View style={styles.contactSection}>
+              <Text style={styles.sectionTitle}>التواصل والحجز</Text>
+              {item.contactPhone && (
+                <TouchableOpacity
+                  style={styles.contactRow}
+                  onPress={() => Linking.openURL(`tel:${item.contactPhone}`)}
+                >
+                  <Ionicons name="call" size={20} color={COLORS.primary} />
+                  <Text style={styles.contactText}>{item.contactPhone}</Text>
+                  <Text style={styles.contactHint}>اضغط للاتصال</Text>
+                </TouchableOpacity>
+              )}
+              {item.socialLinks && (
+                <View style={styles.socialRow}>
+                  {item.socialLinks.whatsapp && (
+                    <TouchableOpacity
+                      style={styles.socialBtn}
+                      onPress={() => openLink(item.socialLinks?.whatsapp)}
+                    >
+                      <Ionicons name="logo-whatsapp" size={24} color="#25D366" />
+                    </TouchableOpacity>
+                  )}
+                  {item.socialLinks.facebook && (
+                    <TouchableOpacity
+                      style={styles.socialBtn}
+                      onPress={() => openLink(item.socialLinks?.facebook)}
+                    >
+                      <Ionicons name="logo-facebook" size={24} color="#1877F2" />
+                    </TouchableOpacity>
+                  )}
+                  {item.socialLinks.instagram && (
+                    <TouchableOpacity
+                      style={styles.socialBtn}
+                      onPress={() => openLink(item.socialLinks?.instagram)}
+                    >
+                      <Ionicons name="logo-instagram" size={24} color="#E4405F" />
+                    </TouchableOpacity>
+                  )}
+                </View>
+              )}
+            </View>
+          )}
+
+          {/* Pricing */}
+          {(item.bookingPrice || item.pricePerPeriod || item.depositAmount) && (
+            <View style={styles.pricingSection}>
+              <Text style={styles.sectionTitle}>التسعير</Text>
+              {item.pricePerPeriod && (
+                <View style={styles.pricingRow}>
+                  <Text style={styles.pricingLabel}>السعر لكل فترة:</Text>
+                  <Text style={styles.pricingValue}>
+                    {formatCurrency(item.pricePerPeriod)}{" "}
+                    {item.bookingPeriod === "hour"
+                      ? "ريال/ساعة"
+                      : item.bookingPeriod === "day"
+                        ? "ريال/يوم"
+                        : "ريال/أسبوع"}
+                  </Text>
+                </View>
+              )}
+              {item.bookingPrice && (
+                <View style={styles.pricingRow}>
+                  <Text style={styles.pricingLabel}>قيمة الحجز:</Text>
+                  <Text style={styles.pricingValue}>{formatCurrency(item.bookingPrice)}</Text>
+                </View>
+              )}
+              {item.depositAmount && (
+                <View style={styles.pricingRow}>
+                  <Text style={styles.pricingLabel}>قيمة العربون المطلوب تحويلها:</Text>
+                  <Text style={[styles.pricingValue, styles.depositHighlight]}>
+                    {formatCurrency(item.depositAmount)}
+                  </Text>
+                </View>
+              )}
+            </View>
           )}
 
           {/* Schedule */}
@@ -433,6 +558,99 @@ const styles = StyleSheet.create({
   content: {
     padding: 16,
   },
+  imagesSection: {
+    marginBottom: 16,
+    marginHorizontal: -16,
+  },
+  imagesScroll: {
+    maxHeight: 220,
+  },
+  detailImage: {
+    width: Dimensions.get("window").width,
+    height: 220,
+    backgroundColor: COLORS.lightGray,
+  },
+  imageCount: {
+    position: "absolute" as const,
+    bottom: 8,
+    right: 16,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    color: COLORS.white,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    fontSize: 12,
+  },
+  categoryBadge: {
+    alignSelf: "flex-start",
+    backgroundColor: COLORS.lightBlue,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  categoryText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: COLORS.primary,
+  },
+  contactSection: {
+    marginBottom: 24,
+  },
+  contactRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 12,
+    backgroundColor: COLORS.lightGray,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  contactText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: COLORS.primary,
+    marginLeft: 12,
+    flex: 1,
+  },
+  contactHint: {
+    fontSize: 12,
+    color: COLORS.textLight,
+  },
+  socialRow: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 8,
+  },
+  socialBtn: {
+    padding: 8,
+    backgroundColor: COLORS.lightGray,
+    borderRadius: 8,
+  },
+  pricingSection: {
+    marginBottom: 24,
+  },
+  pricingRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 10,
+    backgroundColor: COLORS.white,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  pricingLabel: {
+    fontSize: 14,
+    color: COLORS.text,
+    fontWeight: "500",
+  },
+  pricingValue: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: COLORS.primary,
+  },
+  depositHighlight: {
+    color: COLORS.success,
+  },
   infoHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -448,7 +666,7 @@ const styles = StyleSheet.create({
   amountText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.success,
+    color: COLORS.white,
   },
   statusBadge: {
     paddingHorizontal: 12,

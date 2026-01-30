@@ -33,6 +33,7 @@ import {
   Delete as DeleteIcon,
   AttachMoney as MoneyIcon,
   Event as EventIcon,
+  Phone as PhoneIcon,
 } from '@mui/icons-material';
 import { getArabon, updateArabonStatus, deleteArabon, type ArabonItem as ApiArabonItem } from '../../../api/arabon';
 import { ArabonStatus, ArabonStatusLabels, ArabonStatusColors, type ArabonItem } from '../../../types/arabon';
@@ -234,14 +235,53 @@ const ArabonDetailsPage: React.FC = () => {
         </Box>
 
         {/* Status Chip */}
-        <Box sx={{ mb: 3 }}>
+        <Box sx={{ mb: 3, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           <Chip
             label={ArabonStatusLabels[arabon.status]}
             size="medium"
             color={getStatusColor(arabon.status)}
             variant="outlined"
           />
+          {arabon.category && <Chip label={arabon.category} size="medium" variant="outlined" />}
         </Box>
+
+        {/* Images */}
+        {arabon.images && arabon.images.length > 0 && (
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="h6" gutterBottom>صور العقار</Typography>
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+              {arabon.images.map((url, i) => (
+                <Box
+                  key={i}
+                  component="img"
+                  src={url}
+                  alt=""
+                  sx={{ width: 200, height: 150, objectFit: 'cover', borderRadius: 1 }}
+                />
+              ))}
+            </Box>
+          </Box>
+        )}
+
+        {/* Contact */}
+        {(arabon.contactPhone || arabon.socialLinks) && (
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
+              <PhoneIcon sx={{ mr: 1 }} />
+              التواصل والحجز
+            </Typography>
+            {arabon.contactPhone && (
+              <Typography variant="body1" sx={{ mb: 1 }}>{arabon.contactPhone}</Typography>
+            )}
+            {arabon.socialLinks && (
+              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                {arabon.socialLinks.whatsapp && <Chip label="واتساب" component="a" href={arabon.socialLinks.whatsapp} target="_blank" clickable />}
+                {arabon.socialLinks.facebook && <Chip label="فيسبوك" component="a" href={arabon.socialLinks.facebook} target="_blank" clickable />}
+                {arabon.socialLinks.instagram && <Chip label="إنستغرام" component="a" href={arabon.socialLinks.instagram} target="_blank" clickable />}
+              </Box>
+            )}
+          </Box>
+        )}
 
         {/* Main Content */}
         <Grid container spacing={3}>
@@ -278,17 +318,27 @@ const ArabonDetailsPage: React.FC = () => {
                     </Grid>
                   )}
 
-                  {arabon.depositAmount && (
-                    <Grid  size={{xs: 12, sm: 6}}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                        <MoneyIcon color="action" />
-                        <Typography variant="body2" color="text.secondary">
-                          قيمة العربون
-                        </Typography>
-                      </Box>
-                      <Typography variant="body1" fontWeight="medium" color="primary">
-                        {arabon.depositAmount} ريال
+                  {(arabon.pricePerPeriod || arabon.bookingPrice || arabon.depositAmount) && (
+                    <Grid size={{ xs: 12 }}>
+                      <Typography variant="body2" color="text.secondary" gutterBottom>
+                        التسعير
                       </Typography>
+                      <Stack spacing={1}>
+                        {arabon.pricePerPeriod && (
+                          <Typography variant="body1">
+                            السعر لكل فترة: {arabon.pricePerPeriod} ريال
+                            {arabon.bookingPeriod === 'hour' ? '/ساعة' : arabon.bookingPeriod === 'day' ? '/يوم' : '/أسبوع'}
+                          </Typography>
+                        )}
+                        {arabon.bookingPrice && (
+                          <Typography variant="body1">قيمة الحجز: {arabon.bookingPrice} ريال</Typography>
+                        )}
+                        {arabon.depositAmount && (
+                          <Typography variant="body1" fontWeight="medium" color="primary">
+                            قيمة العربون: {arabon.depositAmount} ريال
+                          </Typography>
+                        )}
+                      </Stack>
                     </Grid>
                   )}
 

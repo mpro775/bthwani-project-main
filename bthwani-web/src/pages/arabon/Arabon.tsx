@@ -15,10 +15,12 @@ import {
   type CreateArabonPayload,
   type UpdateArabonPayload,
 } from '../../features/arabon';
+import { useAuth } from '../../hooks/useAuth';
 
 const ArabonPage: React.FC = () => {
   const navigate = useNavigate();
   const { id, action } = useParams<{ id?: string; action?: string }>();
+  const { user } = useAuth();
 
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
@@ -76,7 +78,13 @@ const ArabonPage: React.FC = () => {
     try {
       const isCreate = id === 'new';
       if (isCreate) {
-        const newItem = await createItem(data as CreateArabonPayload);
+        const payload = data as CreateArabonPayload;
+        if (user?.id) {
+          payload.ownerId = user.id;
+        } else if (user?._id) {
+          payload.ownerId = user._id;
+        }
+        const newItem = await createItem(payload);
         addListItem(newItem);
         setSnackbar({
           open: true,

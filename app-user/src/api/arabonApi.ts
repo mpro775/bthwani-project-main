@@ -24,6 +24,14 @@ export interface ArabonMetadata {
   [key: string]: any;
 }
 
+export type ArabonBookingPeriod = 'hour' | 'day' | 'week';
+
+export interface ArabonSocialLinks {
+  whatsapp?: string;
+  facebook?: string;
+  instagram?: string;
+}
+
 export interface CreateArabonPayload {
   ownerId: string;
   title: string;
@@ -32,6 +40,13 @@ export interface CreateArabonPayload {
   scheduleAt?: string;
   metadata?: ArabonMetadata;
   status?: ArabonStatus;
+  images?: string[];
+  contactPhone?: string;
+  socialLinks?: ArabonSocialLinks;
+  category?: string;
+  bookingPrice?: number;
+  bookingPeriod?: ArabonBookingPeriod;
+  pricePerPeriod?: number;
 }
 
 export interface UpdateArabonPayload {
@@ -41,6 +56,13 @@ export interface UpdateArabonPayload {
   scheduleAt?: string;
   metadata?: ArabonMetadata;
   status?: ArabonStatus;
+  images?: string[];
+  contactPhone?: string;
+  socialLinks?: ArabonSocialLinks;
+  category?: string;
+  bookingPrice?: number;
+  bookingPeriod?: ArabonBookingPeriod;
+  pricePerPeriod?: number;
 }
 
 export interface ArabonItem {
@@ -52,6 +74,13 @@ export interface ArabonItem {
   scheduleAt?: string;
   metadata?: ArabonMetadata;
   status: ArabonStatus;
+  images?: string[];
+  contactPhone?: string;
+  socialLinks?: ArabonSocialLinks;
+  category?: string;
+  bookingPrice?: number;
+  bookingPeriod?: ArabonBookingPeriod;
+  pricePerPeriod?: number;
   createdAt: Date | string;
   updatedAt: Date | string;
 }

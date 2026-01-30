@@ -268,7 +268,9 @@ const ArabonListPage: React.FC = () => {
             <TableHead>
               <TableRow>
                 <TableCell>الطلب</TableCell>
-                <TableCell>قيمة العربون</TableCell>
+                <TableCell>النوع</TableCell>
+                <TableCell>قيمة الحجز / العربون</TableCell>
+                <TableCell>التواصل</TableCell>
                 <TableCell>الحالة</TableCell>
                 <TableCell>موعد التنفيذ</TableCell>
                 <TableCell>تاريخ الإنشاء</TableCell>
@@ -278,13 +280,13 @@ const ArabonListPage: React.FC = () => {
             <TableBody>
               {loading && arabonItems.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} align="center">
+                  <TableCell colSpan={8} align="center">
                     <CircularProgress size={24} />
                   </TableCell>
                 </TableRow>
               ) : filteredItems.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} align="center">
+                  <TableCell colSpan={8} align="center">
                     <Typography color="text.secondary">
                       لا توجد طلبات متاحة
                     </Typography>
@@ -313,12 +315,30 @@ const ArabonListPage: React.FC = () => {
                     </TableCell>
 
                     <TableCell>
+                      <Typography variant="body2">
+                        {item.category || '-'}
+                      </Typography>
+                    </TableCell>
+
+                    <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <MoneyIcon fontSize="small" color="action" />
                         <Typography variant="body2">
-                          {item.depositAmount ? `${item.depositAmount} ريال` : 'غير محدد'}
+                          {item.pricePerPeriod
+                            ? `${item.pricePerPeriod} ريال/${item.bookingPeriod === 'hour' ? 'ساعة' : item.bookingPeriod === 'day' ? 'يوم' : 'أسبوع'}`
+                            : item.bookingPrice
+                              ? `${item.bookingPrice} ريال`
+                              : item.depositAmount
+                                ? `${item.depositAmount} ريال عربون`
+                                : 'غير محدد'}
                         </Typography>
                       </Box>
+                    </TableCell>
+
+                    <TableCell>
+                      <Typography variant="body2">
+                        {item.contactPhone || '-'}
+                      </Typography>
                     </TableCell>
 
                     <TableCell>
