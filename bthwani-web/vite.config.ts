@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => {
     },
     esbuild: isProd ? { drop: ["console", "debugger"] } : undefined,
     build: {
-      sourcemap: true,      // مؤقتًا للتشخيص
+      sourcemap: false,      // مؤقتًا للتشخيص
       minify: "esbuild",
       target: "es2018",
       outDir: "dist",

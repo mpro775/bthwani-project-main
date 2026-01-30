@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => {
     },
     esbuild: isProd ? { drop: ["console", "debugger"] } : undefined,
     build: {
-      sourcemap: true,      // مؤقتًا للتشخيص
+      sourcemap: false,      // disabled in prod to reduce memory during Docker build
       minify: "esbuild",
       target: "es2018",
       outDir: "dist",
