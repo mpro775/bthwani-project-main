@@ -22,6 +22,8 @@ export class DailyPrice extends Document {
 export const DailyPriceSchema = SchemaFactory.createForClass(DailyPrice);
 
 // Indexes
-DailyPriceSchema.index({ kind: 1, city: 1, date: 1, variant: 1 }, { unique: true });
+DailyPriceSchema.index(
+  { kind: 1, city: 1, date: 1, variant: 1 },
+  { unique: true },
+);
 DailyPriceSchema.index({ date: 1 });
-

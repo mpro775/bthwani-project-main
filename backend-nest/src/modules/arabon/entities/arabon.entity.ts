@@ -7,20 +7,31 @@ export enum ArabonStatus {
   PENDING = 'pending',
   CONFIRMED = 'confirmed',
   COMPLETED = 'completed',
-  CANCELLED = 'cancelled'
+  CANCELLED = 'cancelled',
 }
 
 @Schema({ timestamps: true })
 export class Arabon extends Document {
-  @ApiProperty({ description: 'معرف صاحب العربون', example: '507f1f77bcf86cd799439011', type: 'string' })
+  @ApiProperty({
+    description: 'معرف صاحب العربون',
+    example: '507f1f77bcf86cd799439011',
+    type: 'string',
+  })
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   ownerId: Types.ObjectId;
 
-  @ApiProperty({ description: 'عنوان العربون', example: 'عربون لحجز عرض سياحي' })
+  @ApiProperty({
+    description: 'عنوان العربون',
+    example: 'عربون لحجز عرض سياحي',
+  })
   @Prop({ required: true })
   title: string;
 
-  @ApiProperty({ description: 'وصف إضافي', required: false, example: 'تفاصيل الحجز' })
+  @ApiProperty({
+    description: 'وصف إضافي',
+    required: false,
+    example: 'تفاصيل الحجز',
+  })
   @Prop()
   description?: string;
 
@@ -28,15 +39,29 @@ export class Arabon extends Document {
   @Prop()
   depositAmount?: number;
 
-  @ApiProperty({ description: 'موعد التنفيذ/الجدولة', required: false, example: '2025-06-01T10:00:00.000Z', type: 'string', format: 'date-time' })
+  @ApiProperty({
+    description: 'موعد التنفيذ/الجدولة',
+    required: false,
+    example: '2025-06-01T10:00:00.000Z',
+    type: 'string',
+    format: 'date-time',
+  })
   @Prop()
   scheduleAt?: Date;
 
-  @ApiProperty({ description: 'بيانات إضافية', required: false, example: { guests: 2 } })
+  @ApiProperty({
+    description: 'بيانات إضافية',
+    required: false,
+    example: { guests: 2 },
+  })
   @Prop({ type: Object, default: {} })
   metadata: Record<string, any>;
 
-  @ApiProperty({ description: 'حالة العربون', enum: ArabonStatus, default: ArabonStatus.DRAFT })
+  @ApiProperty({
+    description: 'حالة العربون',
+    enum: ArabonStatus,
+    default: ArabonStatus.DRAFT,
+  })
   @Prop({ default: 'draft' })
   status: ArabonStatus;
 }
