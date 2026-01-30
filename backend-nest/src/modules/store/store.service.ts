@@ -60,9 +60,10 @@ export class StoreService {
       data: results,
       pagination: {
         nextCursor: hasMore
-          ? (
-              results[results.length - 1] as { _id: Types.ObjectId }
-            )._id.toString()
+          ? String(
+              (results[results.length - 1] as unknown as { _id: Types.ObjectId })
+                ._id,
+            )
           : null,
         hasMore,
         limit,
@@ -111,9 +112,10 @@ export class StoreService {
       data: results,
       pagination: {
         nextCursor: hasMore
-          ? (
-              results[results.length - 1] as { _id: Types.ObjectId }
-            )._id.toString()
+          ? String(
+              (results[results.length - 1] as unknown as { _id: Types.ObjectId })
+                ._id,
+            )
           : null,
         hasMore,
         limit,
@@ -148,9 +150,10 @@ export class StoreService {
       data: results,
       pagination: {
         nextCursor: hasMore
-          ? (
-              results[results.length - 1] as { _id: Types.ObjectId }
-            )._id.toString()
+          ? String(
+              (results[results.length - 1] as unknown as { _id: Types.ObjectId })
+                ._id,
+            )
           : null,
         hasMore,
         limit,
@@ -171,11 +174,18 @@ export class StoreService {
 
   // Products
   async createProduct(createProductDto: CreateProductDto) {
-    const product = await this.productModel.create({
+    const payload: Record<string, unknown> = {
       ...createProductDto,
       store: new Types.ObjectId(createProductDto.store),
       finalPrice: createProductDto.price - (createProductDto.discount || 0),
-    });
+    };
+    if (createProductDto.category) {
+      payload.category = new Types.ObjectId(createProductDto.category);
+    }
+    if (createProductDto.subCategory) {
+      payload.subCategory = new Types.ObjectId(createProductDto.subCategory);
+    }
+    const product = await this.productModel.create(payload);
     return product;
   }
 
@@ -191,8 +201,11 @@ export class StoreService {
     const limit = pagination.limit || 20;
     const items = await this.productModel
       .find(query)
+      .populate('subCategory', 'name')
       .sort({ createdAt: -1 })
-      .limit(limit + 1);
+      .limit(limit + 1)
+      .lean()
+      .exec();
     const hasMore = items.length > limit;
     const results = hasMore ? items.slice(0, -1) : items;
 
@@ -200,9 +213,10 @@ export class StoreService {
       data: results,
       pagination: {
         nextCursor: hasMore
-          ? (
-              results[results.length - 1] as { _id: Types.ObjectId }
-            )._id.toString()
+          ? String(
+              (results[results.length - 1] as unknown as { _id: Types.ObjectId })
+                ._id,
+            )
           : null,
         hasMore,
         limit,
@@ -263,6 +277,17 @@ export class StoreService {
       });
     }
     return product;
+  }
+
+  async deleteProduct(productId: string) {
+    const product = await this.productModel.findByIdAndDelete(productId);
+    if (!product) {
+      throw new NotFoundException({
+        code: 'PRODUCT_NOT_FOUND',
+        userMessage: 'المنتج غير موجود',
+      });
+    }
+    return { success: true };
   }
 
   // ==================== Store Extended Features ====================

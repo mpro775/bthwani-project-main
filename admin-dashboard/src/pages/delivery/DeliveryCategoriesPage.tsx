@@ -111,11 +111,13 @@ export default function DeliveryCategoriesPage() {
         // لا ترسل usageType في حالة "all"
         ...(usageTypeFilter !== "all" ? { usageType: usageTypeFilter } : {}),
       };
-      const res = await axios.get<Category[]>("/delivery/categories/main", {
+      const res = await axios.get<{ data?: Category[] }>("/delivery/categories/main", {
         params,
       });
-      setMainCategories(res.data);
-      setCategories(res.data);
+      const list = res.data?.data ?? res.data;
+      const arr = Array.isArray(list) ? list : [];
+      setMainCategories(arr);
+      setCategories(arr);
       setSelectedParent("");
       setOrderDirty(false);
     } catch {
@@ -129,11 +131,12 @@ export default function DeliveryCategoriesPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await axios.get<Category[]>(
+      const res = await axios.get<{ data?: Category[] }>(
         `/delivery/categories/children/${parentId}`,
         { params: { withNumbers: 1 } }
       );
-      setCategories(res.data);
+      const list = res.data?.data ?? res.data;
+      setCategories(Array.isArray(list) ? list : []);
       setSelectedParent(parentId);
       setOrderDirty(false);
     } catch {

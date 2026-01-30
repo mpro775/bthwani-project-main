@@ -130,15 +130,19 @@ export default function DeliveryOffersPage() {
     try {
       const [offersRes, productsRes, storesRes, categoriesRes] =
         await Promise.all([
-          axios.get<Offer[]>("/delivery/offer"),
-          axios.get<Product[]>("/delivery/products"),
-          axios.get<Store[]>("/delivery/stores"),
-          axios.get<Category[]>("/delivery/categories"),
+          axios.get<{ data?: Offer[] }>("/delivery/offer"),
+          axios.get<{ data?: Product[] }>("/delivery/products"),
+          axios.get<{ data?: Store[] }>("/delivery/stores"),
+          axios.get<{ data?: Category[] }>("/delivery/categories"),
         ]);
-      setOffers(offersRes.data);
-      setProducts(productsRes.data);
-      setStores(storesRes.data);
-      setCategories(categoriesRes.data);
+      const o = offersRes.data?.data ?? offersRes.data;
+      const p = productsRes.data?.data ?? productsRes.data;
+      const s = storesRes.data?.data ?? storesRes.data;
+      const c = categoriesRes.data?.data ?? categoriesRes.data;
+      setOffers(Array.isArray(o) ? o : []);
+      setProducts(Array.isArray(p) ? p : []);
+      setStores(Array.isArray(s) ? s : []);
+      setCategories(Array.isArray(c) ? c : []);
     } catch (err) {
       setError("فشل في جلب البيانات");
       console.error(err);

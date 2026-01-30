@@ -12,8 +12,9 @@ export function useStores() {
   const fetchStores = async () => {
     setLoading(true);
     try {
-      const res = await axios.get<DeliveryStore[]>("/delivery/stores");
-      setStores(res.data);
+      const res = await axios.get<{ data?: DeliveryStore[]; pagination?: unknown }>("/delivery/stores");
+      const list = res.data?.data ?? res.data;
+      setStores(Array.isArray(list) ? list : []);
       setError(null);
     } catch {
       setError("فشل في جلب المتاجر.");
@@ -24,8 +25,9 @@ export function useStores() {
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get<Category[]>("/delivery/categories");
-      setCategories(res.data);
+      const res = await axios.get<{ data?: Category[] }>("/delivery/categories");
+      const list = res.data?.data ?? res.data;
+      setCategories(Array.isArray(list) ? list : []);
     } catch {
       /* ignore */
     }
@@ -35,7 +37,7 @@ export function useStores() {
     if (!window.confirm("هل أنت متأكد من الحذف؟")) return;
     setLoading(true);
     try {
-      await axios.delete(`/delivery/stores/${id}`);
+      await axios.delete(`/admin/stores/${id}`);
       await fetchStores();
     } catch {
       setError("فشل في حذف المتجر.");

@@ -47,6 +47,13 @@ export class AdminController {
     return this.adminService.getDashboardStats();
   }
 
+  @Get('stats')
+  @ApiOperation({ summary: 'إحصائيات المستخدمين (إجمالي، أدمن، نشط، محظور)' })
+  @ApiResponse({ status: 200, description: 'إحصائيات المستخدمين' })
+  async getAdminStats() {
+    return this.adminService.getAdminStats();
+  }
+
   @Get('stats/today')
   @ApiOperation({ summary: 'إحصائيات اليوم' })
   async getTodayStats() {

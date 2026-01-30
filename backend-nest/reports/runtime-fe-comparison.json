@@ -1,0 +1,61 @@
+{
+  "generatedAt": "2026-01-30T21:00:00.027Z",
+  "period": "24 hours",
+  "backendEndpoints": {
+    "total": 6,
+    "matched": 0,
+    "unmatched": 6
+  },
+  "frontendEndpoints": {
+    "total": 0,
+    "matched": 0,
+    "unmatched": 0
+  },
+  "details": {
+    "matched": [],
+    "unmatched": [
+      {
+        "method": "GET",
+        "path": "/api/v1/delivery/categories/main",
+        "callCount": 2,
+        "lastCall": "2026-01-30T20:59:44.238Z"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/delivery/categories",
+        "callCount": 2,
+        "lastCall": "2026-01-30T20:59:37.053Z"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/delivery/stores",
+        "callCount": 2,
+        "lastCall": "2026-01-30T20:59:36.427Z"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/users/me",
+        "callCount": 1,
+        "lastCall": "2026-01-30T20:44:39.764Z"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/users/init",
+        "callCount": 1,
+        "lastCall": "2026-01-30T20:44:39.445Z"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/login",
+        "callCount": 1,
+        "lastCall": "2026-01-30T20:44:35.846Z"
+      }
+    ],
+    "feOnly": []
+  },
+  "summary": {
+    "coverage": null,
+    "unused": 6,
+    "missing": 0
+  }
+}

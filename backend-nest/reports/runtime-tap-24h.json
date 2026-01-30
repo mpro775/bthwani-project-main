@@ -1,4 +1,348 @@
 {
-  "lastUpdated": "2026-01-30T02:55:00.061Z",
-  "endpoints": []
+  "lastUpdated": "2026-01-30T22:00:00.018Z",
+  "endpoints": [
+    {
+      "endpoint": "POST:/api/v1/auth/login",
+      "calls": [
+        {
+          "timestamp": "2026-01-30T20:44:35.846Z",
+          "statusCode": 201,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        }
+      ]
+    },
+    {
+      "endpoint": "POST:/api/v1/users/init",
+      "calls": [
+        {
+          "timestamp": "2026-01-30T20:44:39.445Z",
+          "statusCode": 400,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101",
+          "userId": "697aa0dd8a5316ed5017aea3"
+        }
+      ]
+    },
+    {
+      "endpoint": "GET:/api/v1/users/me",
+      "calls": [
+        {
+          "timestamp": "2026-01-30T20:44:39.764Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101",
+          "userId": "697aa0dd8a5316ed5017aea3"
+        }
+      ]
+    },
+    {
+      "endpoint": "GET:/api/v1/delivery/stores",
+      "calls": [
+        {
+          "timestamp": "2026-01-30T20:59:36.179Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T20:59:36.427Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T21:14:45.317Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T21:14:45.514Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T21:24:38.871Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T21:24:39.050Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T21:35:46.736Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T21:36:39.082Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T21:36:44.064Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T21:36:53.316Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T21:38:34.500Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        }
+      ]
+    },
+    {
+      "endpoint": "GET:/api/v1/delivery/categories",
+      "calls": [
+        {
+          "timestamp": "2026-01-30T20:59:36.868Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T20:59:37.053Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T21:14:45.314Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T21:14:45.510Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T21:24:38.893Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T21:24:39.079Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T21:35:46.791Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T21:36:39.100Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T21:36:44.068Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T21:36:53.320Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        }
+      ]
+    },
+    {
+      "endpoint": "GET:/api/v1/delivery/categories/main",
+      "calls": [
+        {
+          "timestamp": "2026-01-30T20:59:43.868Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T20:59:44.238Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T21:01:08.476Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T21:02:14.081Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T21:09:04.050Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        }
+      ]
+    },
+    {
+      "endpoint": "PUT:/api/v1/delivery/categories/:param",
+      "calls": [
+        {
+          "timestamp": "2026-01-30T21:01:08.265Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T21:02:13.679Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        }
+      ]
+    },
+    {
+      "endpoint": "POST:/api/v1/delivery/categories",
+      "calls": [
+        {
+          "timestamp": "2026-01-30T21:09:03.866Z",
+          "statusCode": 201,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        }
+      ]
+    },
+    {
+      "endpoint": "POST:/api/v1/admin/stores",
+      "calls": [
+        {
+          "timestamp": "2026-01-30T21:38:33.770Z",
+          "statusCode": 201,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1",
+          "userId": "697d11c75b268383c7bb7d44"
+        }
+      ]
+    },
+    {
+      "endpoint": "GET:/api/v1/delivery/stores/:param",
+      "calls": [
+        {
+          "timestamp": "2026-01-30T21:46:46.359Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T21:47:13.132Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T21:54:22.565Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T21:54:56.658Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        }
+      ]
+    },
+    {
+      "endpoint": "GET:/api/v1/delivery/stores/:param/products",
+      "calls": [
+        {
+          "timestamp": "2026-01-30T21:46:46.706Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T21:47:13.383Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T21:54:23.521Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T21:54:57.580Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        }
+      ]
+    },
+    {
+      "endpoint": "POST:/api/v1/delivery/subcategories",
+      "calls": [
+        {
+          "timestamp": "2026-01-30T21:54:22.077Z",
+          "statusCode": 201,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        }
+      ]
+    },
+    {
+      "endpoint": "GET:/api/v1/delivery/subcategories",
+      "calls": [
+        {
+          "timestamp": "2026-01-30T21:54:23.075Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-30T21:54:57.172Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        }
+      ]
+    },
+    {
+      "endpoint": "POST:/api/v1/delivery/products",
+      "calls": [
+        {
+          "timestamp": "2026-01-30T21:54:56.096Z",
+          "statusCode": 201,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        }
+      ]
+    }
+  ]
 }

@@ -127,15 +127,15 @@ export default function DeliveryPromotionsPage() {
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
       // Endpoint محمي بـ JWT
       const [pRes, sRes, cRes, prRes] = await Promise.all([
-        axios.get<IPromotionPopulated[]>("/promotions", { headers }),
-        axios.get<DeliveryStore[]>("/delivery/stores", { headers }),
-        axios.get<Category[]>("/delivery/categories", { headers }),
-        axios.get<Product[]>("/delivery/products", { headers }),
+        axios.get<{ data?: IPromotionPopulated[] }>("/promotions", { headers }),
+        axios.get<{ data?: DeliveryStore[] }>("/delivery/stores", { headers }),
+        axios.get<{ data?: Category[] }>("/delivery/categories", { headers }),
+        axios.get<{ data?: Product[] }>("/delivery/products", { headers }),
       ]);
-      setPromos(pRes.data);
-      setStores(sRes.data);
-      setCategories(cRes.data);
-      setProducts(prRes.data);
+      setPromos(Array.isArray(pRes.data?.data) ? pRes.data.data : (pRes.data as unknown as IPromotionPopulated[]) ?? []);
+      setStores(Array.isArray(sRes.data?.data) ? sRes.data.data : (sRes.data as unknown as DeliveryStore[]) ?? []);
+      setCategories(Array.isArray(cRes.data?.data) ? cRes.data.data : (cRes.data as unknown as Category[]) ?? []);
+      setProducts(Array.isArray(prRes.data?.data) ? prRes.data.data : (prRes.data as unknown as Product[]) ?? []);
     } catch (err) {
       setError("فشل في تحميل البيانات");
       console.error(err);

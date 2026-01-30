@@ -25,7 +25,7 @@ import {
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api/v2";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
 
 export default function AdminLogin() {
   const [mounted, setMounted] = useState(false);
