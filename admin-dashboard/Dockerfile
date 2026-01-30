@@ -17,7 +17,8 @@ COPY . .
 # Clean any existing build artifacts and cache
 RUN rm -rf dist node_modules/.vite
 
-# Build the application with production mode
+# Build the application with production mode (increase Node heap for Vite build)
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 RUN npm run build:prod
 
 # ===================================
