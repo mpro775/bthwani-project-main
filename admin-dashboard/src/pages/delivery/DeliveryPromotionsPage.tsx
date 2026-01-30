@@ -33,7 +33,7 @@ import {
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import axios from "../../utils/axios";
-// Firebase removed - using JWT from localStorage
+// JWT from localStorage
 import type {
   IPromotionPopulated,
   PromotionForm,
@@ -125,9 +125,7 @@ export default function DeliveryPromotionsPage() {
     try {
       const token = localStorage.getItem("adminToken");
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      // ⚠️ ملاحظة: GET /delivery/promotions في السيرفر لديك لا يطبّق verifyFirebase
-      // لذا لن يُعتبر المستخدم Admin وقد ترى العروض النشطة فقط.
-      // الحل الأفضل: وفّر Endpoint إداري محمي، أو فعّل verifyFirebase على نفس الراوت.
+      // Endpoint محمي بـ JWT
       const [pRes, sRes, cRes, prRes] = await Promise.all([
         axios.get<IPromotionPopulated[]>("/promotions", { headers }),
         axios.get<DeliveryStore[]>("/delivery/stores", { headers }),

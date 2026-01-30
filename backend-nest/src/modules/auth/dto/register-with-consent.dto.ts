@@ -40,12 +40,12 @@ export class RegisterWithConsentDto {
   profileImage?: string;
 
   @ApiProperty({
-    description: 'Firebase ID Token',
-    example: 'eyJhbGciOiJSUzI1NiIsImtpZCI6...',
+    description: 'JWT أو رمز المصادقة',
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6...',
   })
-  @IsString({ message: 'Firebase token مطلوب' })
-  @IsNotEmpty({ message: 'Firebase token مطلوب' })
-  firebaseToken: string;
+  @IsString({ message: 'رمز المصادقة مطلوب' })
+  @IsNotEmpty({ message: 'رمز المصادقة مطلوب' })
+  authToken: string;
 
   // ==================== Consents ====================
 
@@ -106,10 +106,10 @@ export class QuickRegisterDto {
   @IsOptional()
   phone?: string;
 
-  @ApiProperty({ description: 'Firebase ID Token' })
+  @ApiProperty({ description: 'JWT أو رمز المصادقة' })
   @IsString()
   @IsNotEmpty()
-  firebaseToken: string;
+  authToken: string;
 
   @ApiProperty({
     description: 'الموافقة على الشروط والسياسات (مطلوب)',

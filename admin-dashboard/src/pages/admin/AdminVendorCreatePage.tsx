@@ -30,8 +30,8 @@ import {
   Tooltip,
 } from "@mui/material";
 import { Add as AddIcon, Edit as EditIcon } from "@mui/icons-material";
-// Firebase removed - using JWT from localStorage
-// Firebase removed - using JWT from localStorage
+// JWT from localStorage
+// JWT from localStorage
 
 interface Vendor {
   _id: string;

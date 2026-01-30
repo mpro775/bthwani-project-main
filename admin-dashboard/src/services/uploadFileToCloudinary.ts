@@ -1,5 +1,5 @@
 // src/services/uploadFileToBunny.ts
-// Firebase removed - using JWT from localStorage
+// JWT from localStorage
 
 export async function uploadFileToBunny(file: File): Promise<string> {
   // 1) تأكد من أن المستخدم مسجل دخول

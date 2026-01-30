@@ -10,7 +10,7 @@
 
 ### 🔐 المصادقة (Auth) - 01-04
 
-1. **[01-auth-login.md](01-auth-login.md)** - تسجيل الدخول عبر Firebase
+1. **[01-auth-login.md](01-auth-login.md)** - تسجيل الدخول (JWT)
 2. **[02-auth-consent.md](02-auth-consent.md)** - إدارة الموافقات (Consents)
 3. **[03-auth-password-reset.md](03-auth-password-reset.md)** - إعادة تعيين كلمة المرور
 4. **[04-auth-otp.md](04-auth-otp.md)** - التحقق من OTP
@@ -100,8 +100,8 @@
    - أي أداة REST Client أخرى
 
 3. **المصادقة:**
-   - معظم الـ endpoints تتطلب Bearer Token
-   - احصل على Token من `POST /auth/firebase/login`
+   - معظم الـ endpoints تتطلب Bearer Token (JWT)
+   - احصل على Token من `POST /api/v1/auth/login`
    - استخدم Header: `Authorization: Bearer <token>`
 
 ### هيكل كل ملف اختبار

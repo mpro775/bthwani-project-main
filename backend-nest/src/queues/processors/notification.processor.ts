@@ -169,7 +169,7 @@ export class NotificationProcessor {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     // TODO: Replace with actual notification service integration
-    // Example with Firebase:
+    // Example with Firebase Cloud Messaging:
     // await admin.messaging().send({
     //   token: userFcmToken,
     //   notification: {

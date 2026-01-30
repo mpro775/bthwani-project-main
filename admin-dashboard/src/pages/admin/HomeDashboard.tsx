@@ -25,8 +25,8 @@ import {
   AccessTime as TimeIcon,
 } from "@mui/icons-material";
 import axios from "../../utils/axios";
-// Firebase removed - using JWT from localStorage
-// Firebase removed - using JWT from localStorage
+// JWT from localStorage
+// JWT from localStorage
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Stats {

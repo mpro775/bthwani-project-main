@@ -48,8 +48,7 @@ user/
 | `isActive` | Boolean | حالة التفعيل | ✗ |
 | `isBanned` | Boolean | حالة الحظر | ✗ |
 | `isVerified` | Boolean | حالة التحقق | ✗ |
-| `authProvider` | Enum | مزود المصادقة (`firebase`, `local`) | ✗ |
-| `firebaseUID` | String | معرف Firebase (فريد) | ✗ |
+| `authProvider` | Enum | مزود المصادقة (`local`) | ✗ |
 | `pushToken` | String | توكن الإشعارات | ✗ |
 
 #### حقول التاريخ والوقت
@@ -421,7 +420,6 @@ Authorization: Bearer <token>
 
 1. **`email`**: فهرس فريد (Unique Index)
 2. **`phone`**: فهرس للبحث
-3. **`firebaseUID`**: فهرس فريد (Unique Index)
 4. **`createdAt`**: فهرس لترتيب حسب التاريخ
 5. **`role + isActive`**: فهرس مركب
 6. **`phone + isActive`**: فهرس مركب للبحث
@@ -436,7 +434,7 @@ Authorization: Bearer <token>
 
 ### أنواع المصادقة
 
-- **Firebase Auth**: لجميع نقاط النهاية العامة (GET /users/me, PATCH /users/me, إلخ)
+- **JWT Auth**: لجميع نقاط النهاية العامة (GET /users/me, PATCH /users/me, إلخ)
 - **JWT Auth**: لنقاط النهاية الإدارية (البحث عن المستخدمين)
 
 ### الصلاحيات (Roles)

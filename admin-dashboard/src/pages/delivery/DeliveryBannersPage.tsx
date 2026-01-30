@@ -36,7 +36,7 @@ import {
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import axios from "../../utils/axios";
-// Firebase removed - using JWT from localStorage
+// JWT from localStorage
 import type {
   Banner,
   BannerForm,

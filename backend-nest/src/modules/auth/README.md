@@ -11,7 +11,6 @@ auth/
 ├── dto/                            # Data Transfer Objects
 │   ├── consent.dto.ts             # DTOs الموافقات
 │   ├── register-with-consent.dto.ts
-│   ├── firebase-auth.dto.ts
 │   ├── register.dto.ts
 │   └── index.ts                   # Barrel export
 │
@@ -25,8 +24,7 @@ auth/
 │   └── index.ts                   # Barrel export
 │
 ├── strategies/                     # Passport Strategies
-│   ├── jwt.strategy.ts
-│   └── firebase.strategy.ts
+│   └── jwt.strategy.ts
 │
 ├── examples/                       # ✨ جديد
 │   └── consent-integration.example.ts
@@ -43,7 +41,6 @@ auth/
 ## 🚀 الميزات
 
 ### ✅ المصادقة (Authentication)
-- تسجيل الدخول عبر Firebase
 - JWT Authentication
 - Unified Auth Guard
 
@@ -130,7 +127,8 @@ export class OrderController {
 ## 🔗 API Endpoints
 
 ### Authentication
-- `POST /auth/firebase/login` - تسجيل دخول Firebase
+- `POST /auth/login` - تسجيل الدخول (JWT)
+- `POST /auth/register` - تسجيل حساب جديد
 - `GET /auth/me` - بيانات المستخدم
 - `PATCH /auth/profile` - تحديث الملف الشخصي
 

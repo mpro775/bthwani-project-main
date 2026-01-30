@@ -1,7 +1,7 @@
 // src/pages/admin/UserStatsSimple.tsx
 import  { useEffect, useState } from "react";
 import axios from "../../utils/axios"; // استخدم الـaxios instance الموحد
-// Firebase removed - using JWT from localStorage
+// JWT from localStorage
 
 interface Stats {
   total: number;

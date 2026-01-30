@@ -2,14 +2,13 @@
 
 ## نظرة عامة
 
-هذا الملف يغطي اختبار عمليات تسجيل الدخول في التطبيق.
+هذا الملف يغطي اختبار عمليات تسجيل الدخول في التطبيق (JWT).
 
 ---
 
 ## المتطلبات الأساسية
 
-- حساب Firebase صالح
-- Firebase ID Token (يمكن الحصول عليه من تطبيق Firebase)
+- حساب مستخدم صالح (بريد وكلمة مرور)
 - Base URL للبيئة المستخدمة
 
 ---
@@ -17,18 +16,18 @@
 ## البيئة
 
 - **Base URL:** `http://localhost:3000` (أو URL البيئة المستخدمة)
-- **API Version:** v1 أو v2
+- **API Version:** v1
 - **Content-Type:** `application/json`
 
 ---
 
 ## العمليات
 
-### 1. تسجيل الدخول عبر Firebase
+### 1. تسجيل الدخول (JWT)
 
-**الهدف:** تسجيل دخول المستخدم باستخدام Firebase ID Token
+**الهدف:** تسجيل دخول المستخدم باستخدام البريد الإلكتروني وكلمة المرور
 
-**Endpoint:** `POST /auth/firebase/login`
+**Endpoint:** `POST /api/v1/auth/login`
 
 **Headers:**
 ```
@@ -38,27 +37,33 @@ Content-Type: application/json
 **Request Body:**
 ```json
 {
-  "idToken": "eyJhbGciOiJSUzI1NiIsImtpZCI6Ij..."
+  "email": "user@example.com",
+  "password": "password123"
 }
 ```
 
 **خطوات الاختبار:**
 
-1. احصل على Firebase ID Token من تطبيق Firebase
-2. أرسل طلب POST إلى `/auth/firebase/login`
-3. أرسل الـ ID Token في body
-4. تحقق من الرد
+1. أرسل طلب POST إلى `/api/v1/auth/login`
+2. أرسل email و password في body
+3. تحقق من الرد
 
-**Expected Response (201 Created):**
+**Expected Response (200 OK):**
 ```json
 {
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refreshToken": "refresh_token_here",
-  "user": {
-    "id": "507f1f77bcf86cd799439011",
-    "email": "user@example.com",
-    "phone": "+967777123456",
-    "name": "أحمد محمد"
+  "success": true,
+  "message": "تم تسجيل الدخول بنجاح",
+  "data": {
+    "token": {
+      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      "expiresIn": "7d"
+    },
+    "user": {
+      "id": "507f1f77bcf86cd799439011",
+      "email": "user@example.com",
+      "phone": "+967777123456",
+      "fullName": "أحمد محمد"
+    }
   }
 }
 ```
@@ -66,17 +71,16 @@ Content-Type: application/json
 **حالات الاختبار:**
 
 ✅ **حالة النجاح:**
-- ID Token صالح
-- المستخدم موجود في النظام
-- يجب أن يعيد accessToken و user data
+- البريد وكلمة المرور صحيحان
+- المستخدم موجود ونشط
+- يعيد accessToken و user data
 
 ❌ **حالة الفشل (400 Bad Request):**
-- ID Token غير صالح
 - Request body غير صحيح
 
 ❌ **حالة الفشل (401 Unauthorized):**
-- ID Token منتهي الصلاحية
-- ID Token غير صحيح
+- البريد أو كلمة المرور غير صحيحة
+- الحساب غير نشط
 
 **Rate Limiting:**
 - 5 محاولات في الدقيقة الواحدة
@@ -88,7 +92,7 @@ Content-Type: application/json
 
 **الهدف:** تسجيل دخول السائق باستخدام البريد الإلكتروني وكلمة المرور
 
-**Endpoint:** `POST /auth/driver/login`
+**Endpoint:** `POST /api/v1/auth/driver/login`
 
 **Headers:**
 ```
@@ -105,7 +109,7 @@ Content-Type: application/json
 
 **خطوات الاختبار:**
 
-1. أرسل طلب POST إلى `/auth/driver/login`
+1. أرسل طلب POST إلى `/api/v1/auth/driver/login`
 2. أرسل email و password في body
 3. تحقق من الرد
 
@@ -147,8 +151,8 @@ Content-Type: application/json
 
 1. ✅ وجود `accessToken` في الرد
 2. ✅ صحة بيانات المستخدم/السائق
-3. ✅ إمكانية استخدام الـ token في الطلبات التالية
-4. ✅ صلاحية الـ token (يمكن اختباره بإرسال طلب إلى `/users/me`)
+3. ✅ إمكانية استخدام الـ token في الطلبات التالية (Header: `Authorization: Bearer <token>`)
+4. ✅ صلاحية الـ token (يمكن اختباره بإرسال طلب إلى `/api/v1/users/me` أو ما يعادله)
 
 ---
 
@@ -164,15 +168,16 @@ Content-Type: application/json
 ## أمثلة باستخدام curl
 
 ```bash
-# تسجيل الدخول عبر Firebase
-curl -X POST http://localhost:3000/auth/firebase/login \
+# تسجيل الدخول (JWT)
+curl -X POST http://localhost:3000/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
-    "idToken": "YOUR_FIREBASE_ID_TOKEN"
+    "email": "user@example.com",
+    "password": "password123"
   }'
 
 # تسجيل دخول السائق
-curl -X POST http://localhost:3000/auth/driver/login \
+curl -X POST http://localhost:3000/api/v1/auth/driver/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "driver@example.com",
@@ -192,7 +197,7 @@ curl -X POST http://localhost:3000/auth/driver/login \
 ### اختبار Token الصلاحية
 
 1. سجّل الدخول بنجاح
-2. استخدم الـ token في طلب محمي (مثل `/users/me`)
+2. استخدم الـ token في طلب محمي (مثل `/api/v1/users/me`)
 3. يجب أن يعمل الطلب بنجاح
 
 ---

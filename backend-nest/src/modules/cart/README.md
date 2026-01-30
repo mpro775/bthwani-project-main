@@ -438,7 +438,7 @@ total = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
 ### أنواع المصادقة
 
-- **Firebase Auth**: لجميع نقاط النهاية
+- **JWT Auth**: لجميع نقاط النهاية
 
 ### الصلاحيات (Roles)
 

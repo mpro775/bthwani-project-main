@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import axios from "../../../../utils/axios";
-// Firebase removed - using JWT from localStorage
+// JWT from localStorage
 import { useQueryClient } from "@tanstack/react-query";
 
 export function useAdminSocket() {

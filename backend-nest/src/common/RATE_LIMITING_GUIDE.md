@@ -117,7 +117,7 @@ async customEndpoint() {
 
 ### Auth (مصادقة)
 ```typescript
-✅ POST /auth/firebase/login     → 5 محاولات / دقيقة
+✅ POST /auth/login             → 5 محاولات / دقيقة
 ✅ POST /auth/consent            → 10 طلبات / دقيقة
 ✅ GET  /auth/me                 → بدون تحديد (SkipThrottle)
 ```

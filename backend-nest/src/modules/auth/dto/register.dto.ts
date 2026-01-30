@@ -29,9 +29,4 @@ export class RegisterDto {
   @IsOptional()
   @IsString()
   profileImage?: string;
-
-  @ApiPropertyOptional({ description: 'Firebase UID للمصادقة' })
-  @IsOptional()
-  @IsString()
-  firebaseUID?: string;
 }

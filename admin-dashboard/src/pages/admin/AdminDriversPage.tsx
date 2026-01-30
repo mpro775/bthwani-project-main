@@ -36,8 +36,8 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
-// Firebase removed - using JWT from localStorage
-// Firebase removed - using JWT from localStorage
+// JWT from localStorage
+// JWT from localStorage
 import { createDriverSchema, updateDriverSchema, type CreateDriverData, type UpdateDriverData } from "../drivers/schema";
 import { TextFieldWithCounter } from "../../components/TextFieldWithCounter";
 import StateBoundary from "../../components/ui/StateBoundary";

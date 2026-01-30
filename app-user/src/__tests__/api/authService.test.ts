@@ -1,11 +1,11 @@
 // __tests__/authService.test.ts
 import {
   fetchWithAuth,
-  loginWithEmail,
+  loginLocal,
   refreshIdToken,
-  registerWithEmail,
-  sendPasswordReset,
-  storeFirebaseTokens,
+  registerLocal,
+  sendOtp,
+  storeJwtToken,
 } from "../../api/authService";
 
 // Mock AsyncStorage
@@ -61,12 +61,12 @@ describe("authService", () => {
     });
   });
 
-  describe("registerWithEmail", () => {
+  describe("registerLocal", () => {
     test("يتم التسجيل بنجاح", async () => {
       const mockResponse = { idToken: "token123", localId: "user123" };
       (axios.post as jest.Mock).mockResolvedValue({ data: mockResponse });
 
-      const result = await registerWithEmail("test@example.com", "password123");
+      const result = await registerLocal("test@example.com", "password123");
 
       expect(axios.post).toHaveBeenCalledWith(
         expect.stringContaining("/accounts:signUp"),
@@ -84,12 +84,12 @@ describe("authService", () => {
       (axios.post as jest.Mock).mockRejectedValue(error);
 
       await expect(
-        registerWithEmail("test@example.com", "password123")
+        registerLocal("test@example.com", "password123")
       ).rejects.toThrow("Registration failed");
     });
   });
 
-  describe("loginWithEmail", () => {
+  describe("loginLocal", () => {
     test("يتم تسجيل الدخول بنجاح", async () => {
       const mockResponse = {
         idToken: "token123",
@@ -100,7 +100,7 @@ describe("authService", () => {
       };
       (axios.post as jest.Mock).mockResolvedValue({ data: mockResponse });
 
-      const result = await loginWithEmail("test@example.com", "password123");
+      const result = await loginLocal("test@example.com", "password123");
 
       expect(axios.post).toHaveBeenCalledWith(
         expect.stringContaining("/accounts:signInWithPassword"),
@@ -127,7 +127,7 @@ describe("authService", () => {
       (axios.post as jest.Mock).mockResolvedValue({ data: mockResponse });
       (track as jest.Mock).mockRejectedValue(new Error("Track failed"));
 
-      const result = await loginWithEmail("test@example.com", "password123");
+      const result = await loginLocal("test@example.com", "password123");
 
       expect(result).toEqual(mockResponse);
       expect(track).toHaveBeenCalledWith({ type: "login" });
@@ -144,7 +144,7 @@ describe("authService", () => {
         new Error("Push failed")
       );
 
-      const result = await loginWithEmail("test@example.com", "password123");
+      const result = await loginLocal("test@example.com", "password123");
 
       expect(result).toEqual(mockResponse);
       expect(registerPushToken).toHaveBeenCalled();
@@ -155,17 +155,17 @@ describe("authService", () => {
       (axios.post as jest.Mock).mockRejectedValue(error);
 
       await expect(
-        loginWithEmail("test@example.com", "password123")
+        loginLocal("test@example.com", "password123")
       ).rejects.toThrow("Login failed");
     });
   });
 
-  describe("sendPasswordReset", () => {
+  describe("sendOtp", () => {
     test("يتم إرسال إعادة تعيين كلمة المرور بنجاح", async () => {
       const mockResponse = { email: "test@example.com" };
       (axios.post as jest.Mock).mockResolvedValue({ data: mockResponse });
 
-      const result = await sendPasswordReset("test@example.com");
+      const result = await sendOtp("test@example.com");
 
       expect(axios.post).toHaveBeenCalledWith(
         expect.stringContaining("/accounts:sendOobCode"),
@@ -178,7 +178,7 @@ describe("authService", () => {
       const error = new Error("Password reset failed");
       (axios.post as jest.Mock).mockRejectedValue(error);
 
-      await expect(sendPasswordReset("test@example.com")).rejects.toThrow(
+      await expect(sendOtp("test@example.com")).rejects.toThrow(
         "Password reset failed"
       );
     });
@@ -324,34 +324,11 @@ describe("authService", () => {
     });
   });
 
-  describe("storeFirebaseTokens", () => {
-    test("يحفظ الـ tokens في AsyncStorage", async () => {
-      const idToken = "test-id-token";
-      const refreshToken = "test-refresh-token";
-      const expiresIn = 3600;
-
-      await storeFirebaseTokens(idToken, refreshToken, expiresIn);
-
-      expect(AsyncStorage.multiSet).toHaveBeenCalledWith([
-        ["firebase-idToken", idToken],
-        ["firebase-refreshToken", refreshToken],
-        ["firebase-expiryTime", expect.any(String)],
-      ]);
-    });
-
-    test("يحسب وقت الانتهاء بشكل صحيح", async () => {
-      const expiresIn = 3600;
-      const beforeCall = Date.now();
-
-      await storeFirebaseTokens("token", "refresh", expiresIn);
-
-      const afterCall = Date.now();
-      const [, , [, expiryTimeStr]] = (AsyncStorage.multiSet as jest.Mock).mock
-        .calls[0][0];
-      const expiryTime = parseInt(expiryTimeStr, 10);
-
-      expect(expiryTime).toBeGreaterThan(beforeCall + expiresIn * 1000 - 100);
-      expect(expiryTime).toBeLessThan(afterCall + expiresIn * 1000 + 100);
+  describe("storeJwtToken", () => {
+    test("يحفظ JWT token في AsyncStorage", async () => {
+      const token = "test-jwt-token";
+      await storeJwtToken(token);
+      expect(AsyncStorage.setItem).toHaveBeenCalledWith("jwt-token", token);
     });
   });
 });

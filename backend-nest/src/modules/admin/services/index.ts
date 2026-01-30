@@ -3,6 +3,7 @@ export * from './audit.service';
 export * from './support-admin.service';
 export * from './data-deletion.service';
 export * from './settings.service';
+export * from './seed.service';
 export * from './feature-flag.service';
 export * from './security.service';
 export * from './driver-shift.service';

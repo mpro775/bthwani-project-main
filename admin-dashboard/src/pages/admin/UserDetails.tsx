@@ -22,8 +22,8 @@ import {
   Refresh as RefreshIcon,
   Info as InfoIcon,
 } from "@mui/icons-material";
-// Firebase removed - using JWT from localStorage
-// Firebase removed - using JWT from localStorage
+// JWT from localStorage
+// JWT from localStorage
 
 interface Stats {
   total: number;

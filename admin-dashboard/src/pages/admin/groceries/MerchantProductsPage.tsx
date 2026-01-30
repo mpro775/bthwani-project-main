@@ -25,7 +25,7 @@ import {
 import { useEffect, useState } from "react";
 import { Edit, Delete } from "@mui/icons-material";
 import axios from "../../../utils/axios";
-// Firebase removed - using JWT from localStorage
+// JWT from localStorage
 import * as merchantApi from "../../../api/merchant";
 
 type Category = { _id: string; name: string };

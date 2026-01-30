@@ -9,7 +9,7 @@
 ## المتطلبات الأساسية
 
 - حساب مستخدم مسجل دخول
-- Firebase Access Token صالح
+- JWT Access Token صالح
 - معرف المستخدم (userId)
 
 ---

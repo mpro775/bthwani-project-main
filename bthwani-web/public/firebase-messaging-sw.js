@@ -1,5 +1,4 @@
-// IMPORTANT: Replace the config placeholders with your real Firebase config.
-// This file must be served from the site root or /public in Vite projects.
+// Firebase Cloud Messaging - Service Worker للإشعارات
 importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js');
 
@@ -15,7 +14,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
-// Handle background messages
+// استقبال الإشعارات في الخلفية
 messaging.onBackgroundMessage((payload) => {
   const { title = "إشعار", body = "", icon = "/icons/icon-192.png", url = "/" } = (payload?.notification || {});
   self.registration.showNotification(title, {
@@ -30,8 +29,8 @@ self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   const url = event.notification?.data?.url || "/";
   event.waitUntil(
-    clients.matchAll({ type: "window", includeUncontrolled: true }).then(windowClients => {
-      for (let client of windowClients) {
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then((windowClients) => {
+      for (const client of windowClients) {
         if (client.url.includes(url) && "focus" in client) return client.focus();
       }
       if (clients.openWindow) return clients.openWindow(url);

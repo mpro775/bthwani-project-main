@@ -49,7 +49,7 @@ describe('BThwani API E2E Tests (BTW-AUD-001)', () => {
           email: 'test@example.com',
           password: 'password123'
         })
-        .expect(400); // Should fail due to missing Firebase auth
+        .expect(400); // Validation (e.g. invalid payload)
     });
 
     it('should validate registration request structure', () => {
@@ -60,7 +60,7 @@ describe('BThwani API E2E Tests (BTW-AUD-001)', () => {
           password: 'password123',
           name: 'Test User'
         })
-        .expect(400); // Should fail due to Firebase integration
+        .expect(400); // Validation (e.g. wrong field names)
     });
   });
 

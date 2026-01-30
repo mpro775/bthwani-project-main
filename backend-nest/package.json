@@ -51,7 +51,8 @@
     "fix:bearer-auth": "ts-node scripts/add-bearer-auth.ts",
     "script:pause-system": "ts-node scripts/admin/emergency-pause-system.ts",
     "script:resume-system": "ts-node scripts/admin/emergency-resume-system.ts",
-    "script:export-data": "ts-node scripts/admin/export-data.ts"
+    "script:export-data": "ts-node scripts/admin/export-data.ts",
+    "script:drop-firebase-uid-index": "ts-node scripts/drop-firebase-uid-index.ts"
   },
   "dependencies": {
     "@nestjs-modules/ioredis": "^2.0.2",

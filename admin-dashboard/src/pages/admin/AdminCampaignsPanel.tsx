@@ -1,6 +1,6 @@
 import  { useEffect, useState, useCallback } from "react";
 import axios from "../../utils/axios";
-// Firebase removed - using JWT from localStorage
+// JWT from localStorage
 
 
 

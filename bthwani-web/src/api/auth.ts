@@ -97,7 +97,6 @@ export const refreshIdToken = async (): Promise<string | null> => {
     }
 
     // Token expired - user needs to login again
-    // JWT tokens from backend don't have refresh tokens in the same way as Firebase
     console.warn("JWT token expired - user needs to login again");
     storage.clearTokens();
     return null;
@@ -113,8 +112,8 @@ export const getAuthHeader = async (): Promise<Record<string, string>> => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
-// Store JWT tokens (renamed from storeFirebaseTokens)
-export const storeFirebaseTokens = async (
+// Store JWT tokens
+export const storeJwtTokens = async (
   idToken: string,
   refreshToken: string,
   expiresIn: number
@@ -125,8 +124,8 @@ export const storeFirebaseTokens = async (
   storage.setExpiryTime(String(expiryTime));
 };
 
-// Clear tokens (renamed from clearFirebaseTokens for backward compatibility)
-export const clearFirebaseTokens = (): void => {
+// Clear tokens
+export const clearJwtTokens = (): void => {
   storage.clearTokens();
 };
 
@@ -162,7 +161,7 @@ export default {
   registerWithEmail,
   refreshIdToken,
   getAuthHeader,
-  storeFirebaseTokens,
-  clearFirebaseTokens,
+  storeJwtTokens,
+  clearJwtTokens,
   logout,
 };

@@ -7,7 +7,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Download } from "@mui/icons-material";
-// Firebase removed - using JWT from localStorage
+// JWT from localStorage
 import FiltersBar from "./components/FiltersBar";
 import KpiCards from "./components/KpiCards";
 import BulkActionsBar from "./components/BulkActionsBar";
