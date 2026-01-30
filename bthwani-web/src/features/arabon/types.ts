@@ -1,6 +1,14 @@
 // src/features/arabon/types.ts
 export type ArabonStatus = 'draft' | 'pending' | 'confirmed' | 'completed' | 'cancelled';
 
+export type ArabonBookingPeriod = 'hour' | 'day' | 'week';
+
+export interface ArabonSocialLinks {
+  whatsapp?: string;
+  facebook?: string;
+  instagram?: string;
+}
+
 export interface ArabonItem {
   _id: string;
   ownerId: string;
@@ -10,6 +18,13 @@ export interface ArabonItem {
   scheduleAt?: string;
   metadata?: Record<string, any>;
   status: ArabonStatus;
+  images?: string[];
+  contactPhone?: string;
+  socialLinks?: ArabonSocialLinks;
+  category?: string;
+  bookingPrice?: number;
+  bookingPeriod?: ArabonBookingPeriod;
+  pricePerPeriod?: number;
   createdAt: string;
   updatedAt: string;
   owner?: {
@@ -21,11 +36,19 @@ export interface ArabonItem {
 }
 
 export interface CreateArabonPayload {
+  ownerId?: string;
   title: string;
   description?: string;
   depositAmount?: number;
   scheduleAt?: string;
   metadata?: Record<string, any>;
+  images?: string[];
+  contactPhone?: string;
+  socialLinks?: ArabonSocialLinks;
+  category?: string;
+  bookingPrice?: number;
+  bookingPeriod?: ArabonBookingPeriod;
+  pricePerPeriod?: number;
 }
 
 export interface UpdateArabonPayload {
@@ -35,6 +58,13 @@ export interface UpdateArabonPayload {
   scheduleAt?: string;
   metadata?: Record<string, any>;
   status?: ArabonStatus;
+  images?: string[];
+  contactPhone?: string;
+  socialLinks?: ArabonSocialLinks;
+  category?: string;
+  bookingPrice?: number;
+  bookingPeriod?: ArabonBookingPeriod;
+  pricePerPeriod?: number;
 }
 
 export interface ArabonFilters {

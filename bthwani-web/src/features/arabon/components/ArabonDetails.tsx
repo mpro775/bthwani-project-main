@@ -7,7 +7,6 @@ import {
   Chip,
   Divider,
   CircularProgress,
- 
   IconButton,
   Tooltip,
   Grid,
@@ -109,12 +108,29 @@ const ArabonDetails: React.FC<ArabonDetailsProps> = ({
       </Box>
 
       <Paper sx={{ p: 3 }}>
+        {/* Images */}
+        {item.images && item.images.length > 0 && (
+          <Box sx={{ mb: 3, display: 'flex', gap: 2, overflowX: 'auto', pb: 1 }}>
+            {item.images.map((url, i) => (
+              <Box
+                key={i}
+                component="img"
+                src={url}
+                alt=""
+                sx={{ width: 200, height: 150, objectFit: 'cover', borderRadius: 1 }}
+              />
+            ))}
+          </Box>
+        )}
+
         {/* Title and Status */}
         <Box sx={{ mb: 3 }}>
+          {item.category && (
+            <Chip label={item.category} size="small" sx={{ mb: 1 }} />
+          )}
           <Typography variant="h5" gutterBottom>
             {item.title}
           </Typography>
-
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
             <Chip
               label={ArabonStatusLabels[item.status]}
@@ -129,18 +145,63 @@ const ArabonDetails: React.FC<ArabonDetailsProps> = ({
 
         <Divider sx={{ my: 3 }} />
 
-        {/* Deposit Amount */}
-        {item.depositAmount && (
+        {/* Contact & Social */}
+        {(item.contactPhone || item.socialLinks) && (
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
+              <PhoneIcon sx={{ mr: 1 }} />
+              التواصل والحجز
+            </Typography>
+            {item.contactPhone && (
+              <Typography variant="body1" sx={{ mb: 1 }}>
+                <a href={`tel:${item.contactPhone}`}>{item.contactPhone}</a>
+              </Typography>
+            )}
+            {item.socialLinks && (
+              <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                {item.socialLinks.whatsapp && (
+                  <Chip label="واتساب" component="a" href={item.socialLinks.whatsapp} target="_blank" rel="noopener" clickable />
+                )}
+                {item.socialLinks.facebook && (
+                  <Chip label="فيسبوك" component="a" href={item.socialLinks.facebook} target="_blank" rel="noopener" clickable />
+                )}
+                {item.socialLinks.instagram && (
+                  <Chip label="إنستغرام" component="a" href={item.socialLinks.instagram} target="_blank" rel="noopener" clickable />
+                )}
+              </Box>
+            )}
+          </Box>
+        )}
+
+        <Divider sx={{ my: 3 }} />
+
+        {/* Pricing */}
+        {(item.pricePerPeriod || item.bookingPrice || item.depositAmount) && (
           <Box sx={{ mb: 3 }}>
             <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
               <MoneyIcon sx={{ mr: 1 }} />
-              قيمة العربون
+              التسعير
             </Typography>
-            <Typography variant="h4" color="primary" fontWeight="bold">
-              {formatCurrency(item.depositAmount)}
-            </Typography>
+            {item.pricePerPeriod && (
+              <Typography variant="body1" sx={{ mb: 1 }}>
+                السعر لكل فترة: {formatCurrency(item.pricePerPeriod)}{' '}
+                {item.bookingPeriod === 'hour' ? 'ريال/ساعة' : item.bookingPeriod === 'day' ? 'ريال/يوم' : 'ريال/أسبوع'}
+              </Typography>
+            )}
+            {item.bookingPrice && (
+              <Typography variant="body1" sx={{ mb: 1 }}>
+                قيمة الحجز: {formatCurrency(item.bookingPrice)}
+              </Typography>
+            )}
+            {item.depositAmount && (
+              <Typography variant="h6" color="primary" fontWeight="bold">
+                قيمة العربون المطلوب تحويلها: {formatCurrency(item.depositAmount)}
+              </Typography>
+            )}
           </Box>
         )}
+
+        <Divider sx={{ my: 3 }} />
 
         {/* Description */}
         {item.description && (

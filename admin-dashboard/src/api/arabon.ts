@@ -10,6 +10,13 @@ export interface ArabonItem {
   scheduleAt?: string;
   metadata: Record<string, any>;
   status: 'draft' | 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  images?: string[];
+  contactPhone?: string;
+  socialLinks?: { whatsapp?: string; facebook?: string; instagram?: string };
+  category?: string;
+  bookingPrice?: number;
+  bookingPeriod?: 'hour' | 'day' | 'week';
+  pricePerPeriod?: number;
   createdAt: string;
   updatedAt: string;
 }

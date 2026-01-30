@@ -5,7 +5,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export enum SanadKind {
   SPECIALIST = 'specialist',
   EMERGENCY = 'emergency',
-  CHARITY = 'charity'
+  CHARITY = 'charity',
 }
 
 export enum SanadStatus {
@@ -13,12 +13,16 @@ export enum SanadStatus {
   PENDING = 'pending',
   CONFIRMED = 'confirmed',
   COMPLETED = 'completed',
-  CANCELLED = 'cancelled'
+  CANCELLED = 'cancelled',
 }
 
 @Schema({ timestamps: true })
 export class Sanad extends Document {
-  @ApiProperty({ description: 'معرف صاحب الطلب', example: '507f1f77bcf86cd799439011', type: 'string' })
+  @ApiProperty({
+    description: 'معرف صاحب الطلب',
+    example: '507f1f77bcf86cd799439011',
+    type: 'string',
+  })
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   ownerId: Types.ObjectId;
 
@@ -26,19 +30,36 @@ export class Sanad extends Document {
   @Prop({ required: true })
   title: string;
 
-  @ApiProperty({ description: 'تفاصيل الطلب', required: false, example: 'حالة طبية تحتاج نقل عاجل' })
+  @ApiProperty({
+    description: 'تفاصيل الطلب',
+    required: false,
+    example: 'حالة طبية تحتاج نقل عاجل',
+  })
   @Prop()
   description?: string;
 
-  @ApiProperty({ description: 'نوع الطلب', required: false, enum: SanadKind, example: SanadKind.EMERGENCY })
+  @ApiProperty({
+    description: 'نوع الطلب',
+    required: false,
+    enum: SanadKind,
+    example: SanadKind.EMERGENCY,
+  })
   @Prop()
   kind?: SanadKind;
 
-  @ApiProperty({ description: 'بيانات إضافية', required: false, example: { location: 'الرياض', contact: '+9665XXXXXXX' } })
+  @ApiProperty({
+    description: 'بيانات إضافية',
+    required: false,
+    example: { location: 'الرياض', contact: '+9665XXXXXXX' },
+  })
   @Prop({ type: Object, default: {} })
   metadata: Record<string, any>;
 
-  @ApiProperty({ description: 'حالة الطلب', enum: SanadStatus, default: SanadStatus.DRAFT })
+  @ApiProperty({
+    description: 'حالة الطلب',
+    enum: SanadStatus,
+    default: SanadStatus.DRAFT,
+  })
   @Prop({ default: 'draft' })
   status: SanadStatus;
 }

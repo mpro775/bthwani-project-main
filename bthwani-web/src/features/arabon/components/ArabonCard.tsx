@@ -15,9 +15,16 @@ import {
   AttachMoney as MoneyIcon,
   Visibility as ViewIcon,
   Event as EventIcon,
+  Call as CallIcon,
 } from '@mui/icons-material';
 import type { ArabonItem } from '../types';
 import { ArabonStatusLabels, ArabonStatusColors } from '../types';
+
+const BOOKING_LABELS: Record<string, string> = {
+  hour: 'ريال/ساعة',
+  day: 'ريال/يوم',
+  week: 'ريال/أسبوع',
+};
 
 interface ArabonCardProps {
   item: ArabonItem;
@@ -43,13 +50,34 @@ const ArabonCard: React.FC<ArabonCardProps> = ({ item, onView }) => {
     });
   };
 
+  const priceLabel = item.pricePerPeriod
+    ? `${item.pricePerPeriod} ${BOOKING_LABELS[item.bookingPeriod || 'day'] || ''}`
+    : item.bookingPrice
+      ? `${item.bookingPrice} ريال`
+      : item.depositAmount
+        ? `${item.depositAmount} ريال عربون`
+        : null;
+
   const handleView = () => {
     onView?.(item);
   };
 
+  const primaryImage = item.images?.[0];
+
   return (
-    <Card sx={{ mb: 2, cursor: onView ? 'pointer' : 'default' }} onClick={onView ? handleView : undefined}>
+    <Card sx={{ mb: 2, cursor: onView ? 'pointer' : 'default', overflow: 'hidden' }} onClick={onView ? handleView : undefined}>
+      {primaryImage && (
+        <Box
+          component="img"
+          src={primaryImage}
+          alt=""
+          sx={{ width: '100%', height: 160, objectFit: 'cover' }}
+        />
+      )}
       <CardContent>
+        {item.category && (
+          <Chip label={item.category} size="small" sx={{ mb: 1 }} />
+        )}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
           <Box sx={{ flex: 1 }}>
             <Typography variant="h6" gutterBottom>
@@ -73,17 +101,22 @@ const ArabonCard: React.FC<ArabonCardProps> = ({ item, onView }) => {
           )}
         </Box>
 
-        {/* Deposit Amount */}
-        {item.depositAmount && (
+        {priceLabel && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
             <MoneyIcon fontSize="small" color="action" />
             <Typography variant="body2" fontWeight="medium">
-              {item.depositAmount} ريال
+              {priceLabel}
             </Typography>
           </Box>
         )}
 
-        {/* Schedule */}
+        {item.contactPhone && (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+            <CallIcon fontSize="small" color="primary" />
+            <Typography variant="body2">{item.contactPhone}</Typography>
+          </Box>
+        )}
+
         {item.scheduleAt && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
             <EventIcon fontSize="small" color="action" />
@@ -111,7 +144,6 @@ const ArabonCard: React.FC<ArabonCardProps> = ({ item, onView }) => {
               {item.owner?.name || 'غير محدد'}
             </Typography>
           </Box>
-
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <TimeIcon fontSize="small" color="action" />
             <Typography variant="body2" color="text.secondary">

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsNumber, IsObject, IsEnum, IsISO8601 } from 'class-validator';
-import { ArabonStatus } from './create-arabon.dto';
+import { IsString, IsOptional, IsNumber, IsObject, IsEnum, IsISO8601, IsArray } from 'class-validator';
+import { ArabonStatus, ArabonBookingPeriod } from './create-arabon.dto';
 
 export default class UpdateArabonDto {
   @ApiProperty({ description: 'عنوان العربون', required: false, example: 'عربون محدث' })
@@ -32,4 +32,40 @@ export default class UpdateArabonDto {
   @IsOptional()
   @IsEnum(ArabonStatus)
   status?: ArabonStatus;
+
+  @ApiProperty({ description: 'روابط صور CDN (Bunny)', required: false, type: [String] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  images?: string[];
+
+  @ApiProperty({ description: 'رقم التواصل للحجز', required: false })
+  @IsOptional()
+  @IsString()
+  contactPhone?: string;
+
+  @ApiProperty({ description: 'صفحات التواصل', required: false })
+  @IsOptional()
+  @IsObject()
+  socialLinks?: { whatsapp?: string; facebook?: string; instagram?: string };
+
+  @ApiProperty({ description: 'نوع العقار', required: false })
+  @IsOptional()
+  @IsString()
+  category?: string;
+
+  @ApiProperty({ description: 'قيمة الحجز الكاملة (ريال)', required: false })
+  @IsOptional()
+  @IsNumber()
+  bookingPrice?: number;
+
+  @ApiProperty({ description: 'فترة الحجز', required: false, enum: ArabonBookingPeriod })
+  @IsOptional()
+  @IsEnum(ArabonBookingPeriod)
+  bookingPeriod?: 'hour' | 'day' | 'week';
+
+  @ApiProperty({ description: 'السعر لكل فترة (ريال)', required: false })
+  @IsOptional()
+  @IsNumber()
+  pricePerPeriod?: number;
 }

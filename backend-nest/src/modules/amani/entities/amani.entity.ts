@@ -8,7 +8,7 @@ export enum AmaniStatus {
   CONFIRMED = 'confirmed',
   IN_PROGRESS = 'in_progress',
   COMPLETED = 'completed',
-  CANCELLED = 'cancelled'
+  CANCELLED = 'cancelled',
 }
 
 @Schema({ timestamps: true })
@@ -16,7 +16,7 @@ export class Amani extends Document {
   @ApiProperty({
     description: 'معرف المستخدم صاحب الطلب',
     example: '507f1f77bcf86cd799439011',
-    type: 'string'
+    type: 'string',
   })
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   ownerId: Types.ObjectId;
@@ -24,7 +24,7 @@ export class Amani extends Document {
   @ApiProperty({
     description: 'عنوان الطلب',
     example: 'نقل عائلي من الرياض إلى جدة',
-    type: 'string'
+    type: 'string',
   })
   @Prop({ required: true })
   title: string;
@@ -33,23 +33,31 @@ export class Amani extends Document {
     description: 'وصف تفصيلي للطلب',
     example: 'نقل عائلي مكون من 4 أفراد مع أمتعة',
     required: false,
-    type: 'string'
+    type: 'string',
   })
   @Prop()
   description?: string;
 
   @ApiProperty({
     description: 'موقع الانطلاق',
-    example: { lat: 24.7136, lng: 46.6753, address: 'الرياض، المملكة العربية السعودية' },
-    required: false
+    example: {
+      lat: 24.7136,
+      lng: 46.6753,
+      address: 'الرياض، المملكة العربية السعودية',
+    },
+    required: false,
   })
   @Prop({ type: Object })
   origin?: any;
 
   @ApiProperty({
     description: 'الوجهة المطلوبة',
-    example: { lat: 21.4858, lng: 39.1925, address: 'جدة، المملكة العربية السعودية' },
-    required: false
+    example: {
+      lat: 21.4858,
+      lng: 39.1925,
+      address: 'جدة، المملكة العربية السعودية',
+    },
+    required: false,
   })
   @Prop({ type: Object })
   destination?: any;
@@ -57,7 +65,7 @@ export class Amani extends Document {
   @ApiProperty({
     description: 'بيانات إضافية للطلب',
     example: { passengers: 4, luggage: true, specialRequests: 'كرسي أطفال' },
-    required: false
+    required: false,
   })
   @Prop({ type: Object, default: {} })
   metadata: Record<string, any>;
@@ -66,7 +74,7 @@ export class Amani extends Document {
     description: 'حالة الطلب',
     enum: AmaniStatus,
     default: AmaniStatus.DRAFT,
-    example: AmaniStatus.DRAFT
+    example: AmaniStatus.DRAFT,
   })
   @Prop({ default: 'draft' })
   status: AmaniStatus;
@@ -75,7 +83,7 @@ export class Amani extends Document {
     description: 'السائق المعين للطلب',
     example: '507f1f77bcf86cd799439013',
     type: 'string',
-    required: false
+    required: false,
   })
   @Prop({ type: Types.ObjectId, ref: 'Driver' })
   driver?: Types.ObjectId;
@@ -85,7 +93,7 @@ export class Amani extends Document {
     example: '2024-01-15T10:30:00.000Z',
     type: 'string',
     format: 'date-time',
-    required: false
+    required: false,
   })
   @Prop({ type: Date })
   assignedAt?: Date;
@@ -95,7 +103,7 @@ export class Amani extends Document {
     example: '2024-01-15T11:00:00.000Z',
     type: 'string',
     format: 'date-time',
-    required: false
+    required: false,
   })
   @Prop({ type: Date })
   pickedUpAt?: Date;
@@ -105,7 +113,7 @@ export class Amani extends Document {
     example: '2024-01-15T12:00:00.000Z',
     type: 'string',
     format: 'date-time',
-    required: false
+    required: false,
   })
   @Prop({ type: Date })
   completedAt?: Date;
@@ -113,7 +121,7 @@ export class Amani extends Document {
   @ApiProperty({
     description: 'سجل تغييرات الحالة',
     type: 'array',
-    required: false
+    required: false,
   })
   @Prop({ type: [Object], default: [] })
   statusHistory?: Array<{
@@ -127,7 +135,7 @@ export class Amani extends Document {
     description: 'سبب الإلغاء',
     example: 'تم الإلغاء من قبل العميل',
     type: 'string',
-    required: false
+    required: false,
   })
   @Prop()
   cancellationReason?: string;
@@ -136,7 +144,7 @@ export class Amani extends Document {
     description: 'السعر المقدر',
     example: 150,
     type: 'number',
-    required: false
+    required: false,
   })
   @Prop()
   estimatedPrice?: number;
@@ -145,7 +153,7 @@ export class Amani extends Document {
     description: 'السعر الفعلي',
     example: 150,
     type: 'number',
-    required: false
+    required: false,
   })
   @Prop()
   actualPrice?: number;
@@ -153,7 +161,7 @@ export class Amani extends Document {
   @ApiProperty({
     description: 'تقييم الخدمة',
     type: Object,
-    required: false
+    required: false,
   })
   @Prop({ type: Object })
   rating?: {
@@ -166,7 +174,7 @@ export class Amani extends Document {
   @ApiProperty({
     description: 'موقع السائق الحالي',
     type: Object,
-    required: false
+    required: false,
   })
   @Prop({ type: Object })
   driverLocation?: {
@@ -178,7 +186,7 @@ export class Amani extends Document {
   @ApiProperty({
     description: 'سجل المسار',
     type: 'array',
-    required: false
+    required: false,
   })
   @Prop({ type: [Object], default: [] })
   routeHistory?: Array<{
@@ -191,7 +199,7 @@ export class Amani extends Document {
     description: 'تاريخ الإنشاء',
     example: '2024-01-15T10:30:00.000Z',
     type: 'string',
-    format: 'date-time'
+    format: 'date-time',
   })
   createdAt: Date;
 
@@ -199,7 +207,7 @@ export class Amani extends Document {
     description: 'تاريخ آخر تحديث',
     example: '2024-01-15T10:30:00.000Z',
     type: 'string',
-    format: 'date-time'
+    format: 'date-time',
   })
   updatedAt: Date;
 }

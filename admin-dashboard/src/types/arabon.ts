@@ -1,4 +1,10 @@
 // أنواع بيانات قسم العربون
+export interface ArabonSocialLinks {
+  whatsapp?: string;
+  facebook?: string;
+  instagram?: string;
+}
+
 export interface ArabonItem {
   _id: string;
   ownerId: string;
@@ -8,6 +14,13 @@ export interface ArabonItem {
   scheduleAt?: string;
   metadata: Record<string, any>;
   status: ArabonStatus;
+  images?: string[];
+  contactPhone?: string;
+  socialLinks?: ArabonSocialLinks;
+  category?: string;
+  bookingPrice?: number;
+  bookingPeriod?: 'hour' | 'day' | 'week';
+  pricePerPeriod?: number;
   createdAt: string;
   updatedAt: string;
 }

@@ -202,9 +202,17 @@ export interface MaaroufListResponse {
   hasMore: boolean;
 }
 
-// ==================== عربون (Deposits) Types ====================
+// ==================== عربون (Rental Listings) Types ====================
 
 export type ArabonStatus = 'draft' | 'pending' | 'confirmed' | 'completed' | 'cancelled';
+
+export type ArabonBookingPeriod = 'hour' | 'day' | 'week';
+
+export interface ArabonSocialLinks {
+  whatsapp?: string;
+  facebook?: string;
+  instagram?: string;
+}
 
 export interface ArabonMetadata {
   guests?: number;
@@ -221,6 +229,13 @@ export interface ArabonItem {
   scheduleAt?: string;
   metadata?: ArabonMetadata;
   status: ArabonStatus;
+  images?: string[];
+  contactPhone?: string;
+  socialLinks?: ArabonSocialLinks;
+  category?: string;
+  bookingPrice?: number;
+  bookingPeriod?: ArabonBookingPeriod;
+  pricePerPeriod?: number;
   createdAt: Date | string;
   updatedAt: Date | string;
 }
@@ -233,6 +248,13 @@ export interface CreateArabonPayload {
   scheduleAt?: string;
   metadata?: ArabonMetadata;
   status?: ArabonStatus;
+  images?: string[];
+  contactPhone?: string;
+  socialLinks?: ArabonSocialLinks;
+  category?: string;
+  bookingPrice?: number;
+  bookingPeriod?: ArabonBookingPeriod;
+  pricePerPeriod?: number;
 }
 
 export interface UpdateArabonPayload {
@@ -242,6 +264,13 @@ export interface UpdateArabonPayload {
   scheduleAt?: string;
   metadata?: ArabonMetadata;
   status?: ArabonStatus;
+  images?: string[];
+  contactPhone?: string;
+  socialLinks?: ArabonSocialLinks;
+  category?: string;
+  bookingPrice?: number;
+  bookingPeriod?: ArabonBookingPeriod;
+  pricePerPeriod?: number;
 }
 
 export interface ArabonListResponse {

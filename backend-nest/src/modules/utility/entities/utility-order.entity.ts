@@ -155,4 +155,3 @@ UtilityOrderSchema.index({ kind: 1, city: 1, createdAt: -1 });
 UtilityOrderSchema.index({ status: 1, createdAt: -1 });
 UtilityOrderSchema.index({ createdAt: -1 });
 UtilityOrderSchema.index({ scheduledFor: 1 }, { sparse: true });
-

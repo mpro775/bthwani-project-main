@@ -19,5 +19,6 @@ export class ArabonStatusLog extends Document {
   createdAt: Date;
 }
 
-export const ArabonStatusLogSchema = SchemaFactory.createForClass(ArabonStatusLog);
+export const ArabonStatusLogSchema =
+  SchemaFactory.createForClass(ArabonStatusLog);
 ArabonStatusLogSchema.index({ arabonId: 1, createdAt: -1 });

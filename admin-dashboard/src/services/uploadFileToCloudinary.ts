@@ -35,3 +35,31 @@ export async function uploadFileToBunny(file: File): Promise<string> {
   const cdnUrl = `https://cdn.bthwani.com/stores/${fileName}`;
   return cdnUrl;
 }
+
+/**
+ * رفع صورة عربون إلى Bunny Storage (مسار arabon/)
+ */
+export async function uploadArabonImageToBunny(file: File): Promise<string> {
+  const adminToken = localStorage.getItem("adminToken");
+  if (!adminToken) throw new Error("🚫 لا يوجد توكن مصادقة");
+
+  const fileName = `arabon/${Date.now()}-${file.name}`;
+  const storageZone = "bthwani-storage";
+  const accessKey = "2ea49c52-481c-48f9-a7ce4d882e42-0cf4-4dca";
+  const url = `https://storage.bunnycdn.com/${storageZone}/${fileName}`;
+
+  const resp = await fetch(url, {
+    method: "PUT",
+    headers: {
+      AccessKey: accessKey,
+      "Content-Type": file.type || "image/jpeg",
+    },
+    body: file,
+  });
+
+  if (!resp.ok) {
+    throw new Error(`فشل رفع الصورة إلى Bunny: ${resp.status}`);
+  }
+
+  return `https://cdn.bthwani.com/${fileName}`;
+}
