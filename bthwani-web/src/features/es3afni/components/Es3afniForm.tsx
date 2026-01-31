@@ -195,7 +195,7 @@ const Es3afniForm: React.FC<Es3afniFormProps> = ({
                 value={formData.title}
                 onChange={(e) => updateForm("title", e.target.value)}
                 placeholder="مثال: حاجة عاجلة لفصيلة O+ في الرياض"
-                maxLength={100}
+                inputProps={{ maxLength: 100 }}
               />
             </Grid>
 
@@ -208,7 +208,7 @@ const Es3afniForm: React.FC<Es3afniFormProps> = ({
                 placeholder="وصف تفصيلي للحاجة والحالة الطبية..."
                 multiline
                 rows={3}
-                maxLength={500}
+                inputProps={{ maxLength: 500 }}
               />
             </Grid>
 
@@ -275,7 +275,7 @@ const Es3afniForm: React.FC<Es3afniFormProps> = ({
                 value={formData.metadata.contact}
                 onChange={(e) => updateMetadata("contact", e.target.value)}
                 placeholder="مثال: +9665XXXXXXXX"
-                maxLength={20}
+                inputProps={{ maxLength: 20 }}
               />
             </Grid>
 

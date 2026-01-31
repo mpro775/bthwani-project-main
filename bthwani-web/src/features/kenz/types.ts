@@ -122,6 +122,15 @@ export const KENZ_CURRENCIES = [
 
 export type KenzCurrency = (typeof KENZ_CURRENCIES)[number];
 
+export const KenzCategoryLabels: Record<KenzCategory, string> = {
+  إلكترونيات: "إلكترونيات", سيارات: "سيارات", عقارات: "عقارات", أثاث: "أثاث",
+  ملابس: "ملابس", رياضة: "رياضة", كتب: "كتب", خدمات: "خدمات",
+  وظائف: "وظائف", حيوانات: "حيوانات", أخرى: "أخرى",
+};
+
+export const KenzCategoryValues: KenzCategory[] = [...KENZ_CATEGORIES];
+export const KenzStatusValues: KenzStatus[] = ["draft", "pending", "confirmed", "completed", "cancelled"];
+
 // ترجمة الحالات
 export const KenzStatusLabels: Record<KenzStatus, string> = {
   draft: "مسودة",

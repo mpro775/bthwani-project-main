@@ -216,7 +216,7 @@ const SanadForm: React.FC<SanadFormProps> = ({
                 value={formData.title}
                 onChange={(e) => handleInputChange("title", e.target.value)}
                 placeholder="مثال: طلب فزعة لإسعاف عاجل"
-                maxLength={100}
+                inputProps={{ maxLength: 100 }}
               />
             </Grid>
 
@@ -229,7 +229,7 @@ const SanadForm: React.FC<SanadFormProps> = ({
                 placeholder="وصف تفصيلي لطلبك..."
                 multiline
                 rows={4}
-                maxLength={500}
+                inputProps={{ maxLength: 500 }}
               />
             </Grid>
 

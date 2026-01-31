@@ -82,6 +82,8 @@ export interface UpdateArabonPayload {
 export interface ArabonFilters {
   status?: ArabonStatus;
   search?: string;
+  dateFrom?: string;
+  dateTo?: string;
 }
 
 export interface ArabonListResponse {

@@ -243,7 +243,7 @@ const KenzForm: React.FC<KenzFormProps> = ({
                 value={formData.title}
                 onChange={(e) => updateForm("title", e.target.value)}
                 placeholder="مثال: iPhone 14 Pro مستعمل بحالة ممتازة"
-                maxLength={100}
+                inputProps={{ maxLength: 100 }}
               />
             </Grid>
 
@@ -256,7 +256,7 @@ const KenzForm: React.FC<KenzFormProps> = ({
                 placeholder="وصف تفصيلي للمنتج أو الخدمة..."
                 multiline
                 rows={4}
-                maxLength={1000}
+                inputProps={{ maxLength: 1000 }}
               />
             </Grid>
 
@@ -318,7 +318,7 @@ const KenzForm: React.FC<KenzFormProps> = ({
                 value={formData.metadata.contact}
                 onChange={(e) => updateMetadata("contact", e.target.value)}
                 placeholder="مثال: +9665XXXXXXXX"
-                maxLength={20}
+                inputProps={{ maxLength: 20 }}
               />
             </Grid>
 
@@ -329,7 +329,7 @@ const KenzForm: React.FC<KenzFormProps> = ({
                 value={formData.metadata.location}
                 onChange={(e) => updateMetadata("location", e.target.value)}
                 placeholder="مثال: الرياض، حي العليا"
-                maxLength={100}
+                inputProps={{ maxLength: 100 }}
               />
             </Grid>
 

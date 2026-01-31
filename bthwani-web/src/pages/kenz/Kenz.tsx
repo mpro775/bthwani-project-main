@@ -124,7 +124,7 @@ const KenzPage: React.FC = () => {
         currentItem &&
         (typeof currentItem.ownerId === "object" && (currentItem.ownerId as { _id?: string })?._id
           ? String((currentItem.ownerId as { _id: string })._id)
-          : String(currentItem.ownerId || "");
+          : String(currentItem.ownerId || ""));
       const isOwner = !!(currentUserId && currentItem && ownerIdStr === currentUserId);
       return (
         <KenzDetails

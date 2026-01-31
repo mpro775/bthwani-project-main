@@ -36,7 +36,6 @@ const KenzList: React.FC<KenzListProps> = ({
     handleCategoryChange,
     handleCityChange,
     loadMore,
-    refresh,
   } = useKenzList();
 
   return (

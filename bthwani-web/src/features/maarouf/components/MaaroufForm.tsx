@@ -187,7 +187,7 @@ const MaaroufForm: React.FC<MaaroufFormProps> = ({
                 value={formData.title}
                 onChange={(e) => handleInputChange("title", e.target.value)}
                 placeholder="مثال: محفظة سوداء مفقودة في منطقة النرجس"
-                maxLength={100}
+                inputProps={{ maxLength: 100 }}
               />
             </Grid>
 
@@ -200,7 +200,7 @@ const MaaroufForm: React.FC<MaaroufFormProps> = ({
                 placeholder="وصف تفصيلي للشيء المفقود أو الموجود..."
                 multiline
                 rows={4}
-                maxLength={500}
+                inputProps={{ maxLength: 500 }}
               />
             </Grid>
 

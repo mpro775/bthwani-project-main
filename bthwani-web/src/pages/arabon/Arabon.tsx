@@ -52,11 +52,11 @@ const ArabonPage: React.FC = () => {
     navigate("/arabon/new");
   };
 
-  const handleEditItem = (item: ArabonItem) => {
-    navigate(`/arabon/${item._id}/edit`);
+  const handleEditItem = (it: ArabonItem) => {
+    navigate(`/arabon/${it._id}/edit`);
   };
 
-  const handleDeleteItem = async (item: ArabonItem) => {
+  const handleDeleteItem = async (_item: ArabonItem) => {
     if (
       window.confirm(
         "هل أنت متأكد من حذف هذا العربون؟ لا يمكن التراجع عن هذا الإجراء."

@@ -170,7 +170,7 @@ const KawaderForm: React.FC<KawaderFormProps> = ({
                 value={formData.title}
                 onChange={(e) => handleInputChange("title", e.target.value)}
                 placeholder="مثال: مطور Full Stack مطلوب لمشروع تقني"
-                maxLength={100}
+                inputProps={{ maxLength: 100 }}
               />
             </Grid>
 
@@ -183,7 +183,7 @@ const KawaderForm: React.FC<KawaderFormProps> = ({
                 placeholder="وصف تفصيلي للعرض الوظيفي أو الخدمة المهنية..."
                 multiline
                 rows={4}
-                maxLength={500}
+                inputProps={{ maxLength: 500 }}
               />
             </Grid>
 
