@@ -17,11 +17,12 @@ export type OrdersFilters = Partial<{
 
   paymentMethod: string;
 }>;
+// استجابة الـ API: { success, data: OrderRow[], pagination, meta }
 export const OrdersApi = {
   list: (filters: OrdersFilters) =>
     axios
-      .get<OrderRow[]>("/delivery/order", { params: filters })
-      .then((r) => r.data),
+      .get<{ success?: boolean; data: OrderRow[]; pagination?: unknown; meta?: unknown }>("/delivery/order", { params: filters })
+      .then((r) => (Array.isArray(r.data) ? r.data : (r.data?.data ?? []))),
 
   get: (id: string) =>
     axios.get<OrderRow>(`/delivery/order/${id}`).then((r) => r.data),

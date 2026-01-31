@@ -30,6 +30,7 @@ export interface AdminUser {
   email: string;
   role: AdminRole;
   status: AdminStatus;
+  lastLoginAt?: string;
   // ملاحظة: في الواجهة نتعامل عادة مع "capabilities" بشكل خريطة عند القراءة
   // لكن عند الإرسال نستخدم مصفوفة flatCaps في CreateAdminPayload
   capabilities?: CapabilitiesMap;

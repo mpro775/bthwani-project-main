@@ -12,9 +12,10 @@ import type { OrderRow } from "../types";
 const nf = new Intl.NumberFormat("ar-EG", { maximumFractionDigits: 0 });
 
 export default function KpiCards({ rows }: { rows: OrderRow[] }) {
-  const total = rows.length;
-  const delivered = rows.filter((r) => r.status === "delivered").length;
-  const cancelled = rows.filter((r) => r.status === "cancelled").length;
+  const list = Array.isArray(rows) ? rows : [];
+  const total = list.length;
+  const delivered = list.filter((r) => r.status === "delivered").length;
+  const cancelled = list.filter((r) => r.status === "cancelled").length;
 
   const deliveredRate = total ? Math.round((delivered / total) * 100) : 0;
   const cancelledRate = total ? Math.round((cancelled / total) * 100) : 0;

@@ -13,7 +13,7 @@ export const ERROR_MESSAGES = {
     FULL_NAME_REQUIRED: "اسم السائق مطلوب",
     FULL_NAME_TOO_LONG: "اسم السائق يجب ألا يزيد عن 100 حرف",
     PHONE_REQUIRED: "رقم الجوال مطلوب",
-    PHONE_INVALID: "رقم الجوال يجب أن يكون 10 أرقام ويبدأ بـ 05",
+    PHONE_INVALID: "رقم الجوال يجب أن يكون 9 أرقام ويبدأ بـ 77 أو 78 أو 71 أو 73",
     EMAIL_REQUIRED: "البريد الإلكتروني مطلوب",
     EMAIL_INVALID: "البريد الإلكتروني غير صالح",
     PASSWORD_REQUIRED: "كلمة المرور مطلوبة",

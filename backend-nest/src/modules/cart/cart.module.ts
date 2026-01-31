@@ -6,6 +6,7 @@ import { CartService } from './services/cart.service';
 import { SheinCartService } from './services/shein-cart.service';
 import { Cart, CartSchema } from './entities/cart.entity';
 import { SheinCart, SheinCartSchema } from './entities/shein-cart.entity';
+import { RolesGuard } from '../../common/guards/roles.guard';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { SheinCart, SheinCartSchema } from './entities/shein-cart.entity';
     JwtModule.register({}),
   ],
   controllers: [CartController],
-  providers: [CartService, SheinCartService],
+  providers: [CartService, SheinCartService, RolesGuard],
   exports: [CartService, SheinCartService],
 })
 export class CartModule {}

@@ -6,6 +6,8 @@ import {
   Delete,
   Body,
   Param,
+  Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody } from '@nestjs/swagger';
 import { CartService } from './services/cart.service';
@@ -21,8 +23,9 @@ import {
   UpdateSheinCartItemDto,
   UpdateSheinShippingDto,
 } from './dto/shein-cart.dto';
-import { Auth, CurrentUser } from '../../common/decorators/auth.decorator';
+import { Auth, CurrentUser, Roles } from '../../common/decorators/auth.decorator';
 import { AuthType } from '../../common/guards/unified-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
 
 @ApiTags('Cart')
 @Controller({ path: 'delivery/cart', version: '1' })
@@ -53,6 +56,33 @@ export class CartController {
   @ApiOperation({ summary: 'الحصول على سلة مستخدم' })
   async getUserCart(@Param('userId') userId: string) {
     return this.cartService.getOrCreateCart(userId);
+  }
+
+  @Get('list')
+  @UseGuards(RolesGuard)
+  @Roles('admin', 'superadmin')
+  @ApiResponse({ status: 200, description: 'Success' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @Auth(AuthType.JWT)
+  @ApiOperation({ summary: 'قائمة كل السلات (Admin)' })
+  async listAllCarts(@Query('limit') limit?: string) {
+    const limitNum = limit ? Math.min(parseInt(limit, 10) || 200, 500) : 200;
+    return this.cartService.listAllCarts(limitNum);
+  }
+
+  @Get('abandoned')
+  @ApiResponse({ status: 200, description: 'Success' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @Auth(AuthType.JWT)
+  @ApiOperation({ summary: 'الحصول على السلات المهجورة (Admin)' })
+  async getAbandonedCarts() {
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    return this.cartService['cartModel']
+      .find({ lastModified: { $lt: oneDayAgo }, 'items.0': { $exists: true } })
+      .populate('user', 'name phone')
+      .sort({ lastModified: -1 })
+      .limit(100);
   }
 
   @Get(':cartId')
@@ -395,21 +425,6 @@ export class CartController {
   }
 
   // ==================== Admin Endpoints ====================
-
-  @Get('abandoned')
-  @ApiResponse({ status: 200, description: 'Success' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.JWT)
-  @ApiOperation({ summary: 'الحصول على السلات المهجورة (Admin)' })
-  async getAbandonedCarts() {
-    // سلات لم يتم تحديثها منذ 24 ساعة
-    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    return this.cartService['cartModel']
-      .find({ lastModified: { $lt: oneDayAgo }, 'items.0': { $exists: true } })
-      .populate('user', 'name phone')
-      .sort({ lastModified: -1 })
-      .limit(100);
-  }
 
   @Delete(':cartId/items/:productId')
   @ApiParam({ name: 'cartId', type: String })

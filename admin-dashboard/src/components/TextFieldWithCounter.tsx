@@ -30,7 +30,7 @@ export const TextFieldWithCounter: React.FC<TextFieldWithCounterProps> = ({
     <div>
       <TextField
         {...textFieldProps}
-        value={value}
+        {...(value !== undefined ? { value } : {})}
         error={error}
         helperText={helperText}
         inputProps={{
