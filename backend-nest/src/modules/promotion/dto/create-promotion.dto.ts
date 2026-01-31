@@ -143,15 +143,19 @@ export class CreatePromotionDto {
   @IsNumber({}, { message: 'الترتيب يجب أن يكون رقماً' })
   order?: number;
 
-  @ApiProperty({ description: 'تاريخ البداية', example: '2025-01-01' })
+  @ApiProperty({
+    description: 'تاريخ البداية (ISO 8601)',
+    example: '2026-02-01T00:00:00.000Z',
+  })
   @IsDateString({}, { message: 'تاريخ البداية غير صحيح' })
-  @Type(() => Date)
-  startDate: Date;
+  startDate: string;
 
-  @ApiProperty({ description: 'تاريخ النهاية', example: '2025-12-31' })
+  @ApiProperty({
+    description: 'تاريخ النهاية (ISO 8601)',
+    example: '2026-02-10T23:59:59.999Z',
+  })
   @IsDateString({}, { message: 'تاريخ النهاية غير صحيح' })
-  @Type(() => Date)
-  endDate: Date;
+  endDate: string;
 
   @ApiProperty({ description: 'حالة النشاط', example: true, default: true })
   @IsBoolean({ message: 'حالة النشاط يجب أن تكون true أو false' })

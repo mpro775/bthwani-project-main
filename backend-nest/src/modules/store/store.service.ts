@@ -224,6 +224,50 @@ export class StoreService {
     };
   }
 
+  /** قائمة المنتجات للإدارة (عروض، ترقيات، إلخ) - اختياريًا حسب المتجر و/أو الفئة الفرعية */
+  async findProductsForAdmin(
+    pagination: CursorPaginationDto,
+    storeId?: string,
+    subCategoryId?: string,
+  ) {
+    const query: Record<string, unknown> = {};
+    if (storeId) {
+      query.store = new Types.ObjectId(storeId);
+    }
+    if (subCategoryId) {
+      query.subCategory = new Types.ObjectId(subCategoryId);
+    }
+    if (pagination.cursor) {
+      query._id = { $gt: new Types.ObjectId(pagination.cursor) };
+    }
+
+    const limit = Math.min(pagination.limit || 100, 500);
+    const items = await this.productModel
+      .find(query)
+      .populate('store', 'name name_ar')
+      .populate('subCategory', 'name')
+      .sort({ createdAt: -1 })
+      .limit(limit + 1)
+      .lean()
+      .exec();
+    const hasMore = items.length > limit;
+    const results = hasMore ? items.slice(0, -1) : items;
+
+    return {
+      data: results,
+      pagination: {
+        nextCursor: hasMore
+          ? String(
+              (results[results.length - 1] as unknown as { _id: Types.ObjectId })
+                ._id,
+            )
+          : null,
+        hasMore,
+        limit,
+      },
+    };
+  }
+
   async updateStore(storeId: string, updates: Partial<Store>) {
     const store = await this.storeModel.findByIdAndUpdate(storeId, updates, {
       new: true,

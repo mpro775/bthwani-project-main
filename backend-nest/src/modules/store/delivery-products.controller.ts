@@ -1,15 +1,18 @@
 import {
   Controller,
+  Get,
   Post,
   Put,
   Delete,
   Body,
   Param,
+  Query,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { StoreService } from './store.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { DeliveryProductCreateDto } from './dto/delivery-product.dto';
+import { CursorPaginationDto } from '../../common/dto/pagination.dto';
 import { Types } from 'mongoose';
 
 function toCreateProductDto(body: DeliveryProductCreateDto): CreateProductDto {
@@ -47,6 +50,23 @@ function toProductUpdates(body: DeliveryProductCreateDto): Record<string, unknow
 @Controller({ path: 'delivery/products', version: '1' })
 export class DeliveryProductsController {
   constructor(private readonly storeService: StoreService) {}
+
+  @Get()
+  @ApiQuery({ name: 'storeId', required: false, description: 'تصفية حسب المتجر' })
+  @ApiQuery({ name: 'subCategoryId', required: false, description: 'تصفية حسب الفئة الفرعية' })
+  @ApiResponse({ status: 200, description: 'قائمة المنتجات' })
+  @ApiOperation({ summary: 'قائمة منتجات التوصيل (للإدارة)' })
+  async list(
+    @Query() pagination: CursorPaginationDto,
+    @Query('storeId') storeId?: string,
+    @Query('subCategoryId') subCategoryId?: string,
+  ) {
+    return this.storeService.findProductsForAdmin(
+      pagination,
+      storeId,
+      subCategoryId,
+    );
+  }
 
   @Post()
   @ApiResponse({ status: 201, description: 'Created' })

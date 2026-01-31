@@ -124,10 +124,14 @@ async function bootstrap() {
   );
 
   // Global Filters & Interceptors
+  const requestTimeoutMs = parseInt(
+    process.env.REQUEST_TIMEOUT_MS || '60000',
+    10,
+  ); // default 60s (للقوائم والاستعلامات البطيئة)
   app.useGlobalFilters(new GlobalExceptionFilter());
   app.useGlobalInterceptors(
     new TransformInterceptor(),
-    new TimeoutInterceptor(30000), // 30 seconds timeout
+    new TimeoutInterceptor(requestTimeoutMs),
     new PerformanceInterceptor(null), // Performance tracking
   );
 

@@ -74,7 +74,7 @@ interface Store {
   _id: string;
   name: string;
 }
-interface Category {
+interface SubCategory {
   _id: string;
   name: string;
 }
@@ -101,9 +101,13 @@ const OfferTypeChip = styled(Chip)({
 
 export default function DeliveryOffersPage() {
   const [offers, setOffers] = useState<Offer[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
   const [stores, setStores] = useState<Store[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  /** فئات (أقسام) المتجر المختار فقط */
+  const [storeCategories, setStoreCategories] = useState<SubCategory[]>([]);
+  /** منتجات المتجر + الفئة المختارة فقط */
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(false);
+  const [loadingProducts, setLoadingProducts] = useState(false);
 
   const [form, setForm] = useState<OfferForm>({
     title: "",
@@ -123,26 +127,21 @@ export default function DeliveryOffersPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // Fetch initial data
+  // جلب العروض والمتاجر فقط عند التحميل
   const fetchData = async () => {
     setLoading(true);
     setError(null);
     try {
-      const [offersRes, productsRes, storesRes, categoriesRes] =
-        await Promise.all([
-          axios.get<{ data?: Offer[] }>("/delivery/offer"),
-          axios.get<{ data?: Product[] }>("/delivery/products"),
-          axios.get<{ data?: Store[] }>("/delivery/stores"),
-          axios.get<{ data?: Category[] }>("/delivery/categories"),
-        ]);
+      const [offersRes, storesRes] = await Promise.all([
+        axios.get<{ data?: Offer[] }>("/delivery/offer"),
+        axios.get<{ data?: Store[] }>("/delivery/stores", {
+          params: { limit: 500 },
+        }),
+      ]);
       const o = offersRes.data?.data ?? offersRes.data;
-      const p = productsRes.data?.data ?? productsRes.data;
       const s = storesRes.data?.data ?? storesRes.data;
-      const c = categoriesRes.data?.data ?? categoriesRes.data;
       setOffers(Array.isArray(o) ? o : []);
-      setProducts(Array.isArray(p) ? p : []);
       setStores(Array.isArray(s) ? s : []);
-      setCategories(Array.isArray(c) ? c : []);
     } catch (err) {
       setError("فشل في جلب البيانات");
       console.error(err);
@@ -154,6 +153,51 @@ export default function DeliveryOffersPage() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  // عند اختيار متجر: جلب فئات (أقسام) هذا المتجر فقط
+  useEffect(() => {
+    if (!form.storeId || (form.type !== "category" && form.type !== "product")) {
+      setStoreCategories([]);
+      setProducts([]);
+      return;
+    }
+    setLoadingCategories(true);
+    setStoreCategories([]);
+    axios
+      .get<{ data?: SubCategory[] }>("/delivery/subcategories", {
+        params: { storeId: form.storeId },
+      })
+      .then((res) => {
+        const list = res.data?.data ?? res.data;
+        setStoreCategories(Array.isArray(list) ? list : []);
+      })
+      .catch(() => setStoreCategories([]))
+      .finally(() => setLoadingCategories(false));
+  }, [form.storeId, form.type]);
+
+  // عند اختيار متجر + فئة (نوع عرض = منتج): جلب منتجات هذه الفئة فقط
+  useEffect(() => {
+    if (form.type !== "product" || !form.storeId || !form.categoryId) {
+      setProducts([]);
+      return;
+    }
+    setLoadingProducts(true);
+    setProducts([]);
+    axios
+      .get<{ data?: Product[] }>("/delivery/products", {
+        params: {
+          storeId: form.storeId,
+          subCategoryId: form.categoryId,
+          limit: 200,
+        },
+      })
+      .then((res) => {
+        const list = res.data?.data ?? res.data;
+        setProducts(Array.isArray(list) ? list : []);
+      })
+      .catch(() => setProducts([]))
+      .finally(() => setLoadingProducts(false));
+  }, [form.type, form.storeId, form.categoryId]);
 
   // Format date
   const formatDate = (dateString?: string) => {
@@ -451,9 +495,9 @@ export default function DeliveryOffersPage() {
               setForm((prev) => ({
                 ...prev,
                 type: newType,
-                productId: newType === "product" ? prev.productId : "",
-                storeId: newType === "store" ? prev.storeId : "",
-                categoryId: newType === "category" ? prev.categoryId : "",
+                storeId: "",
+                categoryId: "",
+                productId: "",
               }));
             }}
             fullWidth
@@ -463,7 +507,73 @@ export default function DeliveryOffersPage() {
             <MenuItem value="category">قسم</MenuItem>
           </TextField>
 
-          {form.type === "product" && (
+          {/* متجر: يظهر لنوع "متجر" أو "قسم" أو "منتج" — يُختار أولاً */}
+          {(form.type === "store" || form.type === "category" || form.type === "product") && (
+            <TextField
+              select
+              label={form.type === "store" ? "المتجر" : "اختر المتجر"}
+              value={form.storeId}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  storeId: e.target.value,
+                  categoryId: "",
+                  productId: "",
+                }))
+              }
+              fullWidth
+              required
+            >
+              <MenuItem value="">
+                {form.type === "store" ? "اختر متجراً" : "اختر المتجر أولاً"}
+              </MenuItem>
+              {stores.map((s) => (
+                <MenuItem key={s._id} value={s._id}>
+                  {s.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
+
+          {/* الفئات: تظهر بعد اختيار المتجر (لنوع "قسم" أو "منتج") — فئات هذا المتجر فقط */}
+          {(form.type === "category" || form.type === "product") &&
+            form.storeId && (
+              <TextField
+                select
+                label={
+                  form.type === "product"
+                    ? "اختر الفئة (ثم المنتج)"
+                    : "اختر القسم"
+                }
+                value={form.categoryId}
+                onChange={(e) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    categoryId: e.target.value,
+                    productId: "",
+                  }))
+                }
+                fullWidth
+                disabled={loadingCategories}
+                helperText={
+                  loadingCategories ? "جاري تحميل الفئات..." : undefined
+                }
+              >
+                <MenuItem value="">
+                  {form.type === "product"
+                    ? "اختر الفئة أولاً"
+                    : "اختر قسماً"}
+                </MenuItem>
+                {storeCategories.map((c) => (
+                  <MenuItem key={c._id} value={c._id}>
+                    {c.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            )}
+
+          {/* المنتجات: تظهر بعد اختيار المتجر + الفئة (لنوع "منتج") فقط */}
+          {form.type === "product" && form.storeId && form.categoryId && (
             <TextField
               select
               label="المنتج"
@@ -472,6 +582,10 @@ export default function DeliveryOffersPage() {
                 setForm((prev) => ({ ...prev, productId: e.target.value }))
               }
               fullWidth
+              disabled={loadingProducts}
+              helperText={
+                loadingProducts ? "جاري تحميل المنتجات..." : undefined
+              }
             >
               <MenuItem value="">اختر منتجاً</MenuItem>
               {products.map((p) => (
@@ -482,44 +596,6 @@ export default function DeliveryOffersPage() {
                     )}
                     {p.name}
                   </Box>
-                </MenuItem>
-              ))}
-            </TextField>
-          )}
-
-          {form.type === "store" && (
-            <TextField
-              select
-              label="المتجر"
-              value={form.storeId}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, storeId: e.target.value }))
-              }
-              fullWidth
-            >
-              <MenuItem value="">اختر متجراً</MenuItem>
-              {stores.map((s) => (
-                <MenuItem key={s._id} value={s._id}>
-                  {s.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          )}
-
-          {form.type === "category" && (
-            <TextField
-              select
-              label="القسم"
-              value={form.categoryId}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, categoryId: e.target.value }))
-              }
-              fullWidth
-            >
-              <MenuItem value="">اختر قسماً</MenuItem>
-              {categories.map((c) => (
-                <MenuItem key={c._id} value={c._id}>
-                  {c.name}
                 </MenuItem>
               ))}
             </TextField>

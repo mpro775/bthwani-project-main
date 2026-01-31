@@ -20,7 +20,7 @@ export class Product extends Document {
 
   @Prop({
     type: Types.ObjectId,
-    ref: 'DeliveryStore',
+    ref: 'Store',
     required: true,
     index: true,
   })

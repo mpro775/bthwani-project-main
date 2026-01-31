@@ -25,11 +25,14 @@ export class CursorPaginationDto {
   @IsString()
   cursor?: string;
 
-  @ApiPropertyOptional({ description: 'عدد العناصر', default: 20 })
+  @ApiPropertyOptional({
+    description: 'عدد العناصر (افتراضي 20، أقصى 500 للقوائم الإدارية)',
+    default: 20,
+  })
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(1)
-  @Max(100)
+  @Max(500)
   limit?: number = 20;
 }

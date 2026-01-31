@@ -109,8 +109,10 @@ const isPopulatedCategory = (obj: unknown): obj is Category =>
 export default function DeliveryPromotionsPage() {
   const [promos, setPromos] = useState<IPromotionPopulated[]>([]);
   const [stores, setStores] = useState<DeliveryStore[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [storeCategories, setStoreCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(false);
+  const [loadingProducts, setLoadingProducts] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -119,23 +121,19 @@ export default function DeliveryPromotionsPage() {
   const [editing, setEditing] = useState<IPromotionPopulated | null>(null);
   const [form, setForm] = useState<PromotionForm>({ ...INITIAL_FORM });
 
-  // Fetch lists
+  const token = localStorage.getItem("adminToken");
+  const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+  // جلب الترويجات والمتاجر فقط
   const fetchAll = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("adminToken");
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      // Endpoint محمي بـ JWT
-      const [pRes, sRes, cRes, prRes] = await Promise.all([
+      const [pRes, sRes] = await Promise.all([
         axios.get<{ data?: IPromotionPopulated[] }>("/promotions", { headers }),
-        axios.get<{ data?: DeliveryStore[] }>("/delivery/stores", { headers }),
-        axios.get<{ data?: Category[] }>("/delivery/categories", { headers }),
-        axios.get<{ data?: Product[] }>("/delivery/products", { headers }),
+        axios.get<{ data?: DeliveryStore[] }>("/delivery/stores", { headers, params: { limit: 500 } }),
       ]);
       setPromos(Array.isArray(pRes.data?.data) ? pRes.data.data : (pRes.data as unknown as IPromotionPopulated[]) ?? []);
       setStores(Array.isArray(sRes.data?.data) ? sRes.data.data : (sRes.data as unknown as DeliveryStore[]) ?? []);
-      setCategories(Array.isArray(cRes.data?.data) ? cRes.data.data : (cRes.data as unknown as Category[]) ?? []);
-      setProducts(Array.isArray(prRes.data?.data) ? prRes.data.data : (prRes.data as unknown as Product[]) ?? []);
     } catch (err) {
       setError("فشل في تحميل البيانات");
       console.error(err);
@@ -143,6 +141,47 @@ export default function DeliveryPromotionsPage() {
       setLoading(false);
     }
   };
+
+  // عند اختيار متجر: جلب فئات هذا المتجر فقط
+  useEffect(() => {
+    if (!form.storeId || (form.target !== "category" && form.target !== "product")) {
+      setStoreCategories([]);
+      setProducts([]);
+      return;
+    }
+    setLoadingCategories(true);
+    setStoreCategories([]);
+    axios
+      .get<{ data?: Category[] }>("/delivery/subcategories", { headers, params: { storeId: form.storeId } })
+      .then((res) => {
+        const list = res.data?.data ?? res.data;
+        setStoreCategories(Array.isArray(list) ? list : []);
+      })
+      .catch(() => setStoreCategories([]))
+      .finally(() => setLoadingCategories(false));
+  }, [form.storeId, form.target]);
+
+  // عند اختيار متجر + فئة (هدف = منتج): جلب منتجات هذه الفئة فقط
+  useEffect(() => {
+    if (form.target !== "product" || !form.storeId || !form.categoryId) {
+      setProducts([]);
+      return;
+    }
+    setLoadingProducts(true);
+    setProducts([]);
+    axios
+      .get<{ data?: Product[] }>("/delivery/products", {
+        headers,
+        params: { storeId: form.storeId, subCategoryId: form.categoryId, limit: 200 },
+      })
+      .then((res) => {
+        const list = res.data?.data ?? res.data;
+        setProducts(Array.isArray(list) ? list : []);
+      })
+      .catch(() => setProducts([]))
+      .finally(() => setLoadingProducts(false));
+  }, [form.target, form.storeId, form.categoryId]);
+
   const toArray = <T extends string>(v: unknown): T[] =>
     Array.isArray(v) ? (v as T[]) : typeof v === "string" ? (v.split(",") as T[]) : [];
   useEffect(() => {
