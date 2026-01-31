@@ -1,12 +1,4 @@
-<<<<<<< HEAD
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
-=======
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
->>>>>>> 74cd326ae9b91d038fbc828393331c9cfa3f32e6
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Cart, CartItem } from '../entities/cart.entity';
@@ -24,20 +16,14 @@ export class CartService {
    */
   async getOrCreateCart(userId: string): Promise<Cart> {
     if (!userId || typeof userId !== 'string' || !String(userId).trim()) {
-<<<<<<< HEAD
-      throw new BadRequestException('user is required');
-    }
-    const uid = String(userId).trim();
-    let cart = await this.cartModel.findOne({ user: uid });
-=======
       throw new BadRequestException({
         code: 'USER_ID_REQUIRED',
         message: 'User ID is required to get or create a cart',
         userMessage: 'يجب تحديد المستخدم',
       });
     }
-    let cart = await this.cartModel.findOne({ user: userId });
->>>>>>> 74cd326ae9b91d038fbc828393331c9cfa3f32e6
+    const uid = String(userId).trim();
+    let cart = await this.cartModel.findOne({ user: uid });
     if (!cart) {
       cart = new this.cartModel({
         user: uid,
@@ -164,6 +150,6 @@ export class CartService {
       .sort({ lastModified: -1 })
       .limit(limit)
       .lean()
-      .exec() as Promise<Cart[]>;
+      .exec() as unknown as Promise<Cart[]>;
   }
 }
