@@ -1,51 +1,57 @@
-// src/features/maarouf/api.ts
-import axiosInstance from '../../api/axios-instance';
+// مطابق لـ app-user
+import axiosInstance from "../../api/axios-instance";
 import type {
   MaaroufItem,
   CreateMaaroufPayload,
   UpdateMaaroufPayload,
-  MaaroufFilters,
-  MaaroufListResponse
-} from './types';
+  MaaroufListResponse,
+} from "./types";
 
-/**
- * إنشاء إعلان معروف جديد
- */
-export async function createMaarouf(payload: CreateMaaroufPayload): Promise<MaaroufItem> {
-  const response = await axiosInstance.post('/maarouf', payload);
-  return response.data;
+export async function createMaarouf(
+  payload: CreateMaaroufPayload
+): Promise<MaaroufItem> {
+  const response = await axiosInstance.post("/maarouf", payload);
+  const raw = response.data;
+  return raw?.data ?? raw;
 }
 
-/**
- * استرجاع قائمة إعلانات معروف
- */
 export async function getMaaroufList(params?: {
   cursor?: string;
   limit?: number;
-} & MaaroufFilters): Promise<MaaroufListResponse> {
-  const response = await axiosInstance.get('/maarouf', { params });
-  return response.data;
+}): Promise<MaaroufListResponse> {
+  const response = await axiosInstance.get("/maarouf", { params });
+  const raw = response.data;
+  const data = raw?.data ?? raw;
+  const list = Array.isArray(data?.items)
+    ? data.items
+    : Array.isArray(data?.data)
+      ? data.data
+      : Array.isArray(data)
+        ? data
+        : [];
+  return {
+    items: list,
+    data: list,
+    nextCursor: data?.nextCursor ?? raw?.nextCursor,
+    hasMore: data?.hasMore ?? raw?.hasMore ?? !!data?.nextCursor,
+  };
 }
 
-/**
- * استرجاع إعلان معروف واحد
- */
 export async function getMaarouf(id: string): Promise<MaaroufItem> {
   const response = await axiosInstance.get(`/maarouf/${id}`);
-  return response.data;
+  const raw = response.data;
+  return raw?.data ?? raw;
 }
 
-/**
- * تحديث إعلان معروف
- */
-export async function updateMaarouf(id: string, payload: UpdateMaaroufPayload): Promise<MaaroufItem> {
+export async function updateMaarouf(
+  id: string,
+  payload: UpdateMaaroufPayload
+): Promise<MaaroufItem> {
   const response = await axiosInstance.patch(`/maarouf/${id}`, payload);
-  return response.data;
+  const raw = response.data;
+  return raw?.data ?? raw;
 }
 
-/**
- * حذف إعلان معروف
- */
 export async function deleteMaarouf(id: string): Promise<void> {
   await axiosInstance.delete(`/maarouf/${id}`);
 }

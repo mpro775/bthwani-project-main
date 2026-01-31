@@ -183,9 +183,11 @@ export default function SelectLocation() {
     setTimeout(() => {
       successMessage.remove();
       if (returnTo) {
-        navigate(returnTo, { replace: true });
+        const sep = returnTo.includes("?") ? "&" : "?";
+        const target = returnStep ? `${returnTo}${sep}step=${returnStep}` : returnTo;
+        navigate(target, { replace: true });
       } else {
-        navigate(`/akhdimni?step=${returnStep}`, { replace: true });
+        navigate(`/akhdimni/errand?step=${returnStep}`, { replace: true });
       }
     }, 1500);
   };

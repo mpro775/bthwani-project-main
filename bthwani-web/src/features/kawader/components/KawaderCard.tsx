@@ -1,23 +1,9 @@
-// src/features/kawader/components/KawaderCard.tsx
-import React from 'react';
-import {
-  Card,
-  CardContent,
-  Typography,
-  Chip,
-  Box,
-  IconButton,
-  Tooltip,
-} from '@mui/material';
-import {
-  AccessTime as TimeIcon,
-  Person as PersonIcon,
-  AttachMoney as MoneyIcon,
-  WorkOutline as WorkIcon,
-  Visibility as ViewIcon,
-} from '@mui/icons-material';
-import type { KawaderItem } from '../types';
-import { KawaderStatusLabels, KawaderStatusColors } from '../types';
+// مطابق لـ app-user KawaderCard
+import React from "react";
+import { Card, CardContent, Typography, Box } from "@mui/material";
+import { WorkOutline, LocationOn, ChevronRight } from "@mui/icons-material";
+import type { KawaderItem } from "../types";
+import { KawaderStatusLabels, KawaderStatusColors } from "../types";
 
 interface KawaderCardProps {
   item: KawaderItem;
@@ -25,96 +11,148 @@ interface KawaderCardProps {
 }
 
 const KawaderCard: React.FC<KawaderCardProps> = ({ item, onView }) => {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-SA', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('ar-SA', {
-      style: 'currency',
-      currency: 'SAR',
-    }).format(amount);
-  };
-
-  const handleView = () => {
-    onView?.(item);
+  const formatCurrency = (amount?: number) => {
+    if (!amount) return "غير محدد";
+    return `${amount.toLocaleString("ar-SA")} ريال`;
   };
 
   return (
-    <Card sx={{ mb: 2, cursor: onView ? 'pointer' : 'default' }} onClick={onView ? handleView : undefined}>
-      <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-          <Box sx={{ flex: 1 }}>
-            <Typography variant="h6" gutterBottom>
-              {item.title}
-            </Typography>
-            {item.description && (
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                {item.description.length > 100
-                  ? `${item.description.substring(0, 100)}...`
-                  : item.description
-                }
-              </Typography>
-            )}
-          </Box>
-          {onView && (
-            <Tooltip title="عرض التفاصيل">
-              <IconButton onClick={(e) => { e.stopPropagation(); handleView(); }}>
-                <ViewIcon />
-              </IconButton>
-            </Tooltip>
-          )}
-        </Box>
-
-        {/* Budget */}
-        {item.budget && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-            <MoneyIcon fontSize="small" color="action" />
-            <Typography variant="body2" fontWeight="medium">
+    <Card
+      sx={{
+        mb: 2,
+        cursor: onView ? "pointer" : "default",
+        borderRadius: 2,
+        boxShadow: 1,
+        "&:hover": onView ? { boxShadow: 3 } : {},
+      }}
+      onClick={onView ? () => onView(item) : undefined}
+    >
+      <CardContent sx={{ p: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 1.5,
+          }}
+        >
+          <Box
+            sx={{
+              backgroundColor: "success.main",
+              px: 1.5,
+              py: 0.75,
+              borderRadius: 1,
+            }}
+          >
+            <Typography variant="body2" fontWeight={700} sx={{ color: "success.dark" }}>
               {formatCurrency(item.budget)}
             </Typography>
           </Box>
+          <Box
+            sx={{
+              px: 1,
+              py: 0.5,
+              borderRadius: 1,
+              backgroundColor: KawaderStatusColors[item.status],
+            }}
+          >
+            <Typography
+              variant="caption"
+              sx={{ color: "white", fontWeight: 600 }}
+            >
+              {KawaderStatusLabels[item.status]}
+            </Typography>
+          </Box>
+        </Box>
+
+        <Typography
+          variant="subtitle1"
+          fontWeight={600}
+          sx={{ mb: 1, lineHeight: 1.4 }}
+        >
+          {item.title}
+        </Typography>
+
+        {item.description && (
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{
+              mb: 1,
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+            }}
+          >
+            {item.description}
+          </Typography>
         )}
 
-        {/* Scope */}
         {item.scope && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-            <WorkIcon fontSize="small" color="action" />
-            <Typography variant="body2">
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 1 }}>
+            <WorkOutline sx={{ fontSize: 14, color: "primary.main" }} />
+            <Typography variant="caption" color="primary.main" fontWeight={500}>
               {item.scope}
             </Typography>
           </Box>
         )}
 
-        <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
-          <Chip
-            label={KawaderStatusLabels[item.status]}
-            size="small"
-            sx={{
-              backgroundColor: KawaderStatusColors[item.status],
-              color: 'white',
-            }}
-          />
-        </Box>
+        {item.metadata?.skills && item.metadata.skills.length > 0 && (
+          <Box sx={{ mb: 1 }}>
+            <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: "block" }}>
+              المهارات:
+            </Typography>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+              {item.metadata.skills.slice(0, 2).map((skill, i) => (
+                <Typography
+                  key={i}
+                  variant="caption"
+                  sx={{
+                    color: "primary.main",
+                    backgroundColor: "primary.light",
+                    px: 1,
+                    py: 0.25,
+                    borderRadius: 2,
+                  }}
+                >
+                  {skill}
+                </Typography>
+              ))}
+              {item.metadata.skills.length > 2 && (
+                <Typography variant="caption" color="text.secondary">
+                  +{item.metadata.skills.length - 2}
+                </Typography>
+              )}
+            </Box>
+          </Box>
+        )}
 
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <PersonIcon fontSize="small" color="action" />
-            <Typography variant="body2" color="text.secondary">
-              {item.owner?.name || 'غير محدد'}
+        {item.metadata?.location && (
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+            <LocationOn sx={{ fontSize: 14, color: "text.secondary" }} />
+            <Typography variant="caption" color="text.secondary">
+              {item.metadata.location}
+              {item.metadata.remote && " (عن بعد)"}
             </Typography>
           </Box>
+        )}
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <TimeIcon fontSize="small" color="action" />
-            <Typography variant="body2" color="text.secondary">
-              {formatDate(item.createdAt)}
-            </Typography>
-          </Box>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mt: 1.5,
+            pt: 1,
+          }}
+        >
+          <Typography variant="caption" color="text.secondary">
+            نشر: {new Date(item.createdAt).toLocaleDateString("ar-SA")}
+          </Typography>
+          {onView && (
+            <ChevronRight sx={{ fontSize: 16, color: "grey.500" }} />
+          )}
         </Box>
       </CardContent>
     </Card>

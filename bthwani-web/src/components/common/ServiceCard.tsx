@@ -9,10 +9,12 @@ import {
   People,
   Storefront,
   Favorite,
+  BackHand,
 } from "@mui/icons-material";
 
 const ICON_MAP: Record<string, React.ElementType> = {
   bicycle: DirectionsBike,
+  "hand-left-outline": BackHand,
   "briefcase-outline": Work,
   "car-outline": DirectionsCar,
   "search-outline": Search,

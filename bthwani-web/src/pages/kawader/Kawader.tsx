@@ -1,116 +1,132 @@
-// src/pages/kawader/Kawader.tsx
-import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import {
-  Snackbar,
-  Alert,
-} from '@mui/material';
+// مطابق لـ app-user
+import React, { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Snackbar, Alert } from "@mui/material";
 import {
   KawaderList,
   KawaderDetails,
   KawaderForm,
   useKawader,
-  useKawaderList,
   type KawaderItem,
   type CreateKawaderPayload,
   type UpdateKawaderPayload,
-} from '../../features/kawader';
+} from "../../features/kawader";
+import { useAuth } from "../../hooks/useAuth";
 
 const KawaderPage: React.FC = () => {
   const navigate = useNavigate();
   const { id, action } = useParams<{ id?: string; action?: string }>();
+  const { user } = useAuth();
+
+  const currentUserId = user?._id ?? user?.id ?? null;
 
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
-    severity: 'success' | 'error';
+    severity: "success" | "error" | "info";
   }>({
     open: false,
-    message: '',
-    severity: 'success',
+    message: "",
+    severity: "success",
   });
 
-  // Hooks for data management
-  const { item: currentItem, createItem, updateItem, deleteItem, loading: itemLoading } = useKawader(id);
-  const { updateItem: updateListItem, removeItem: removeListItem, addItem: addListItem } = useKawaderList();
+  const { item: currentItem, createItem, updateItem, deleteItem, loading: itemLoading } =
+    useKawader(id);
 
-  // Handle view item
   const handleViewItem = (item: KawaderItem) => {
     navigate(`/kawader/${item._id}`);
   };
 
-  // Handle create item
   const handleCreateItem = () => {
-    navigate('/kawader/new');
+    if (!currentUserId) {
+      navigate("/login", { state: { from: "/kawader/new" } });
+      return;
+    }
+    navigate("/kawader/new");
   };
 
-  // Handle edit item
   const handleEditItem = (item: KawaderItem) => {
     navigate(`/kawader/${item._id}/edit`);
   };
 
-  // Handle delete item
   const handleDeleteItem = async (item: KawaderItem) => {
-    if (window.confirm(`هل أنت متأكد من حذف عرض "${item.title}"؟`)) {
+    if (
+      window.confirm(
+        "هل أنت متأكد من حذف هذا العرض الوظيفي؟ لا يمكن التراجع عن هذا الإجراء."
+      )
+    ) {
       try {
         await deleteItem();
-        removeListItem(item._id);
         setSnackbar({
           open: true,
-          message: 'تم حذف العرض الوظيفي بنجاح',
-          severity: 'success',
+          message: "تم حذف العرض الوظيفي بنجاح",
+          severity: "success",
         });
-        navigate('/kawader');
+        navigate("/kawader");
       } catch (error) {
         setSnackbar({
           open: true,
-          message: 'فشل في حذف العرض الوظيفي',
-          severity: 'error',
+          message: "فشل في حذف العرض الوظيفي",
+          severity: "error",
         });
       }
     }
   };
 
-  // Handle form submit
-  const handleFormSubmit = async (data: CreateKawaderPayload | UpdateKawaderPayload) => {
+  const handleChat = (item: KawaderItem) => {
+    setSnackbar({
+      open: true,
+      message: "محادثات الكوادر قريباً على الويب",
+      severity: "info",
+    });
+  };
+
+  const handleFormSubmit = async (
+    data: CreateKawaderPayload | UpdateKawaderPayload
+  ) => {
     try {
-      const isCreate = id === 'new';
+      const isCreate = id === "new";
       if (isCreate) {
-        const newItem = await createItem(data as CreateKawaderPayload);
-        addListItem(newItem);
+        const payload = data as CreateKawaderPayload;
+        payload.ownerId = String(currentUserId ?? "");
+        const newItem = await createItem(payload);
         setSnackbar({
           open: true,
-          message: 'تم إنشاء العرض الوظيفي بنجاح',
-          severity: 'success',
+          message: "تم إنشاء العرض الوظيفي بنجاح",
+          severity: "success",
         });
         navigate(`/kawader/${newItem._id}`);
-      } else if (id && action === 'edit' && currentItem) {
-        const updatedItem = await updateItem(data as UpdateKawaderPayload);
-        updateListItem(updatedItem);
+      } else if (id && action === "edit" && currentItem) {
+        await updateItem(data as UpdateKawaderPayload);
         setSnackbar({
           open: true,
-          message: 'تم تحديث العرض الوظيفي بنجاح',
-          severity: 'success',
+          message: "تم تحديث العرض الوظيفي بنجاح",
+          severity: "success",
         });
-        navigate(`/kawader/${updatedItem._id}`);
+        navigate(`/kawader/${currentItem._id}`);
       }
     } catch (error) {
       setSnackbar({
         open: true,
-        message: 'فشل في حفظ العرض الوظيفي',
-        severity: 'error',
+        message: "فشل في حفظ العرض الوظيفي",
+        severity: "error",
       });
     }
   };
 
-  // Handle back navigation
   const handleBack = () => {
-    navigate('/kawader');
+    navigate("/kawader");
   };
 
-  // Determine what to render based on route
+  const ownerIdStr =
+    currentItem &&
+    (typeof currentItem.ownerId === "object" &&
+    (currentItem.ownerId as { _id?: string })?._id
+      ? String((currentItem.ownerId as { _id: string })._id)
+      : String(currentItem.ownerId || "");
+  const isOwner = !!(currentUserId && currentItem && ownerIdStr === currentUserId);
+
   const renderContent = () => {
-    // Show details page
     if (id && !action) {
       return (
         <KawaderDetails
@@ -119,25 +135,24 @@ const KawaderPage: React.FC = () => {
           onBack={handleBack}
           onEdit={handleEditItem}
           onDelete={handleDeleteItem}
+          isOwner={isOwner}
+          onChat={handleChat}
         />
       );
     }
-
-    // Show form (create/edit)
-    if ((id === 'new') || (id && action === 'edit')) {
-      const isEdit = id !== 'new' && action === 'edit';
+    if (id === "new" || (id && action === "edit")) {
+      const isEdit = id !== "new" && action === "edit";
       return (
         <KawaderForm
           item={isEdit ? (currentItem ?? undefined) : undefined}
           loading={itemLoading}
-          mode={isEdit ? 'edit' : 'create'}
+          mode={isEdit ? "edit" : "create"}
           onSubmit={handleFormSubmit}
           onCancel={handleBack}
+          ownerId={String(currentUserId ?? "")}
         />
       );
     }
-
-    // Show list page (default)
     return (
       <KawaderList
         onViewItem={handleViewItem}
@@ -149,8 +164,6 @@ const KawaderPage: React.FC = () => {
   return (
     <>
       {renderContent()}
-
-      {/* Snackbar for notifications */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}
@@ -159,7 +172,7 @@ const KawaderPage: React.FC = () => {
         <Alert
           onClose={() => setSnackbar({ ...snackbar, open: false })}
           severity={snackbar.severity}
-          sx={{ width: '100%' }}
+          sx={{ width: "100%" }}
         >
           {snackbar.message}
         </Alert>

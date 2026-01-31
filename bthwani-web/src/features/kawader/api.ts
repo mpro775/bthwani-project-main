@@ -1,51 +1,57 @@
-// src/features/kawader/api.ts
-import axiosInstance from '../../api/axios-instance';
+// مطابق لـ app-user
+import axiosInstance from "../../api/axios-instance";
 import type {
   KawaderItem,
   CreateKawaderPayload,
   UpdateKawaderPayload,
-  KawaderFilters,
-  KawaderListResponse
-} from './types';
+  KawaderListResponse,
+} from "./types";
 
-/**
- * إنشاء عرض وظيفي جديد
- */
-export async function createKawader(payload: CreateKawaderPayload): Promise<KawaderItem> {
-  const response = await axiosInstance.post('/kawader', payload);
-  return response.data;
+export async function createKawader(
+  payload: CreateKawaderPayload
+): Promise<KawaderItem> {
+  const response = await axiosInstance.post("/kawader", payload);
+  const raw = response.data;
+  return raw?.data ?? raw;
 }
 
-/**
- * استرجاع قائمة العروض الوظيفية
- */
 export async function getKawaderList(params?: {
   cursor?: string;
   limit?: number;
-} & KawaderFilters): Promise<KawaderListResponse> {
-  const response = await axiosInstance.get('/kawader', { params });
-  return response.data;
+}): Promise<KawaderListResponse> {
+  const response = await axiosInstance.get("/kawader", { params });
+  const raw = response.data;
+  const data = raw?.data ?? raw;
+  const list = Array.isArray(data?.items)
+    ? data.items
+    : Array.isArray(data?.data)
+      ? data.data
+      : Array.isArray(data)
+        ? data
+        : [];
+  return {
+    items: list,
+    data: list,
+    nextCursor: data?.nextCursor ?? raw?.nextCursor,
+    hasMore: data?.hasMore ?? raw?.hasMore ?? !!data?.nextCursor,
+  };
 }
 
-/**
- * استرجاع عرض وظيفي واحد
- */
 export async function getKawader(id: string): Promise<KawaderItem> {
   const response = await axiosInstance.get(`/kawader/${id}`);
-  return response.data;
+  const raw = response.data;
+  return raw?.data ?? raw;
 }
 
-/**
- * تحديث عرض وظيفي
- */
-export async function updateKawader(id: string, payload: UpdateKawaderPayload): Promise<KawaderItem> {
+export async function updateKawader(
+  id: string,
+  payload: UpdateKawaderPayload
+): Promise<KawaderItem> {
   const response = await axiosInstance.patch(`/kawader/${id}`, payload);
-  return response.data;
+  const raw = response.data;
+  return raw?.data ?? raw;
 }
 
-/**
- * حذف عرض وظيفي
- */
 export async function deleteKawader(id: string): Promise<void> {
   await axiosInstance.delete(`/kawader/${id}`);
 }

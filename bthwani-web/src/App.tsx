@@ -38,6 +38,7 @@ import AddAddress from './pages/profile/AddAddress';
 import EditAddress from './pages/profile/EditAddress';
 import Search from './pages/search/Search';
 import SelectLocation from './pages/map/SelectLocation';
+import AkhdimniOptions from './pages/akhdimni/AkhdimniOptions';
 import Akhdimni from './pages/akhdimni/Akhdimni';
 import MyErrandsPage from './pages/orders/MyErrandsPage';
 import ErrandDetailsPage from './pages/orders/ErrandDetailsPage';
@@ -216,9 +217,17 @@ const AppContent: React.FC = () => {
         }
       />
 
-      {/* أخدمني Service */}
+      {/* أخدمني Service - خيارات (اخدمني، غاز، وايت ماء) */}
       <Route
         path="/akhdimni"
+        element={
+          <AppLayout>
+            <AkhdimniOptions />
+          </AppLayout>
+        }
+      />
+      <Route
+        path="/akhdimni/errand"
         element={
           <AppLayout>
             <Akhdimni />

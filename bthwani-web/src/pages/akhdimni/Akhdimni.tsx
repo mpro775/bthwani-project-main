@@ -243,7 +243,7 @@ const AkhdimniPage: React.FC = () => {
                 color: "primary.main",
               }}
             >
-               سند — إنشاء طلب
+               اخدمني — إنشاء طلب
             </Typography>
             <Box sx={{ width: 48 }} />
           </Toolbar>

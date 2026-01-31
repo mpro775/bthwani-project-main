@@ -58,7 +58,7 @@ export const PickupStep: React.FC<{
                 variant="contained"
                 sx={{ background: theme.palette.primary.dark }}
                 onClick={() =>
-                  navigate(`/select-location?storageKey=akhdimni_pickup&step=${currentStep}`)
+                  navigate(`/select-location?storageKey=akhdimni_pickup&step=${currentStep}&returnTo=${encodeURIComponent(`/akhdimni/errand`)}`)
                 }
               >
                 اختيار من الخريطة

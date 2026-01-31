@@ -20,6 +20,15 @@ export const SERVICES: Service[] = [
     enabled: true,
   },
   {
+    id: "akhdimni",
+    name: "اخدمني",
+    description: "أغراض خاصة، غاز، وايت ماء",
+    icon: "hand-left-outline",
+    color: "#1976D2",
+    path: "/akhdimni",
+    enabled: true,
+  },
+  {
     id: "sanad",
     name: "سند",
     description: "خدمات عامة وطوارئ وخيرية",
