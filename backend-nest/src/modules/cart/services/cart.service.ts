@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Cart, CartItem } from '../entities/cart.entity';
@@ -15,6 +15,13 @@ export class CartService {
    * الحصول على سلة المستخدم أو إنشاء واحدة جديدة
    */
   async getOrCreateCart(userId: string): Promise<Cart> {
+    if (!userId || typeof userId !== 'string' || !String(userId).trim()) {
+      throw new BadRequestException({
+        code: 'USER_ID_REQUIRED',
+        message: 'User ID is required to get or create a cart',
+        userMessage: 'يجب تحديد المستخدم',
+      });
+    }
     let cart = await this.cartModel.findOne({ user: userId });
     if (!cart) {
       cart = new this.cartModel({
@@ -130,5 +137,18 @@ export class CartService {
   async getItemsCount(userId: string): Promise<number> {
     const cart = await this.getOrCreateCart(userId);
     return cart.items.reduce((sum, item) => sum + item.quantity, 0);
+  }
+
+  /**
+   * قائمة كل السلات (للأدمن فقط)
+   */
+  async listAllCarts(limit = 200): Promise<Cart[]> {
+    return this.cartModel
+      .find({})
+      .populate('user', 'name phone email fullName')
+      .sort({ lastModified: -1 })
+      .limit(limit)
+      .lean()
+      .exec() as Promise<Cart[]>;
   }
 }

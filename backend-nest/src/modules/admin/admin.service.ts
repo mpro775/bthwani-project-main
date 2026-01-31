@@ -498,6 +498,20 @@ export class AdminService {
     return { driver, stats: { totalOrders, completedOrders, cancelledOrders } };
   }
 
+  async updateDriver(driverId: string, updates: DTO.UpdateDriverDto) {
+    const driver = await this.driverModel.findByIdAndUpdate(
+      driverId,
+      { $set: updates },
+      { new: true },
+    ).select('-password');
+    if (!driver)
+      throw new NotFoundException({
+        code: 'DRIVER_NOT_FOUND',
+        userMessage: 'السائق غير موجود',
+      });
+    return driver;
+  }
+
   async getDriverPerformance(
     driverId: string,
     query?: DTO.DriverPerformanceQueryDto,

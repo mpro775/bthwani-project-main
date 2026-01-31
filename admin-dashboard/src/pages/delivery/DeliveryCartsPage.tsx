@@ -234,9 +234,10 @@ export default function DeliveryCartsPage() {
       try {
         const endpoint = showAbandonedOnly
           ? "/delivery/cart/abandoned"
-          : "/delivery/cart";
+          : "/delivery/cart/list";
         const res = await axios.get<RawCart[]>(endpoint, { signal });
-        setCarts(res.data.map(normalizeCart));
+        const data = Array.isArray(res.data) ? res.data : (res.data as { data?: RawCart[] })?.data ?? [];
+        setCarts(data.map(normalizeCart));
       } catch (err) {
         // تجاهل الإلغاء
         if (

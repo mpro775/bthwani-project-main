@@ -27,7 +27,8 @@ import {
   UpdateRoleResponseDto,
   GetRoleByIdResponseDto,
   CreateRoleDto,
-  UpdateRoleDto
+  UpdateRoleDto,
+  UpdateDriverDto,
 } from './dto';
 
 @ApiTags('Admin')
@@ -170,6 +171,19 @@ export class AdminController {
       startDate,
       endDate,
     });
+  }
+
+  @Patch('drivers/:id')
+  @ApiParam({ name: 'id', type: String })
+  @ApiOperation({ summary: 'تحديث بيانات سائق (بما فيها التوثيق)' })
+  @ApiBody({ schema: { type: 'object', properties: { fullName: { type: 'string' }, phone: { type: 'string' }, email: { type: 'string' }, role: { type: 'string' }, vehicleType: { type: 'string' }, driverType: { type: 'string' }, isVerified: { type: 'boolean' }, isBanned: { type: 'boolean' } } } })
+  @ApiResponse({ status: 200, description: 'Updated' })
+  @ApiResponse({ status: 404, description: 'Not found' })
+  async updateDriver(
+    @Param('id') driverId: string,
+    @Body() body: UpdateDriverDto,
+  ) {
+    return this.adminService.updateDriver(driverId, body);
   }
 
   @Delete('drivers/:id')

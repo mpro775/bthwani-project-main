@@ -11,6 +11,14 @@ export const validationUtils = {
       .regex(/^05\d{8}$/, message);
   },
 
+  // تحقق من رقم الهاتف اليمني (9 أرقام تبدأ بـ 77 أو 78 أو 71 أو 73)
+  yemenPhone: (message = "رقم الجوال يجب أن يكون 9 أرقام ويبدأ بـ 77 أو 78 أو 71 أو 73") => {
+    return z
+      .string()
+      .min(1, "رقم الجوال مطلوب")
+      .regex(/^7[1378]\d{7}$/, message);
+  },
+
   // تحقق من كلمة المرور القوية
   strongPassword: () => {
     return z

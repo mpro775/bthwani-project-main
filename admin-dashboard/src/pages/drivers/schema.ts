@@ -5,10 +5,15 @@ import { ERROR_MESSAGES } from "../../utils/errorMessages";
 
 // Base schema لإنشاء سائق (يحتوي .pipe على fullName؛ Zod لا يسمح بـ .omit() على مثل هذه الـ schemas)
 export const createDriverSchema = z.object({
-  fullName: validationUtils.required(ERROR_MESSAGES.DRIVER.FULL_NAME_REQUIRED)
-    .pipe(validationUtils.maxLength(100, ERROR_MESSAGES.DRIVER.FULL_NAME_TOO_LONG)),
+  fullName: z
+    .string({
+      required_error: ERROR_MESSAGES.DRIVER.FULL_NAME_REQUIRED,
+      invalid_type_error: ERROR_MESSAGES.DRIVER.FULL_NAME_REQUIRED,
+    })
+    .min(1, ERROR_MESSAGES.DRIVER.FULL_NAME_REQUIRED)
+    .max(100, ERROR_MESSAGES.DRIVER.FULL_NAME_TOO_LONG),
 
-  phone: validationUtils.saudiPhone(ERROR_MESSAGES.DRIVER.PHONE_INVALID),
+  phone: validationUtils.yemenPhone(ERROR_MESSAGES.DRIVER.PHONE_INVALID),
 
   email: validationUtils.email(ERROR_MESSAGES.DRIVER.EMAIL_INVALID),
 
@@ -64,7 +69,7 @@ export const createDriverSchema = z.object({
 // Schema لتحديث بيانات السائق (بدون كلمة المرور) — معرف يدوياً لأن .omit() لا يعمل مع schemas فيها refine/pipe
 export const updateDriverSchema = z.object({
   fullName: z.string().min(1, "اسم السائق مطلوب").max(100, "اسم السائق يجب ألا يزيد عن 100 حرف").optional(),
-  phone: z.string().regex(/^05\d{8}$/, "رقم الجوال يجب أن يكون 10 أرقام ويبدأ بـ 05").optional(),
+  phone: z.string().regex(/^7[1378]\d{7}$/, "رقم الجوال يجب أن يكون 9 أرقام ويبدأ بـ 77 أو 78 أو 71 أو 73").optional(),
   email: z.string().email("البريد الإلكتروني غير صالح").optional(),
   role: z.enum(["rider_driver", "light_driver", "women_driver"]).optional(),
   vehicleType: z.enum(["motor", "bike", "car"]).optional(),

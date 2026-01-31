@@ -1,7 +1,7 @@
 // src/pages/admin/AdminDriversPage.tsx
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "../../utils/axios";
 import {
@@ -31,6 +31,7 @@ import {
   Add as AddIcon,
   Block as BlockIcon,
   Edit as EditIcon,
+  VerifiedUser as VerifiedIcon,
 } from "@mui/icons-material";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -101,6 +102,7 @@ export default function AdminDriversPage() {
       role: "rider_driver",
       vehicleType: "bike",
       driverType: "primary",
+      isVerified: false,
       jokerFrom: new Date().toISOString(),
       jokerTo: new Date(Date.now() + 3600_000).toISOString(),
     },
@@ -129,14 +131,13 @@ export default function AdminDriversPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // Ensure the response data is an array before setting it
-      if (Array.isArray(response?.data)) {
-        setDrivers(response.data);
-      } else {
-        console.error("Expected drivers array but received:", response?.data);
-        setError("تنسيق البيانات غير صحيح");
-        setDrivers([]);
-      }
+      // Backend returns { success, data: Driver[], meta }; extract the array
+      const raw = response?.data;
+      const list = raw && typeof raw === "object" && "success" in raw && "data" in raw
+        ? (Array.isArray(raw.data) ? raw.data : [])
+        : Array.isArray(raw) ? raw : [];
+
+      setDrivers(list);
     } catch (error) {
       console.error("Error fetching drivers:", error);
       setError("فشل في جلب قائمة الموصلين");
@@ -166,6 +167,17 @@ export default function AdminDriversPage() {
     }
   };
 
+  // Toggle verify (توثيق)
+  const toggleVerify = async (id: string, verified: boolean) => {
+    try {
+      await axios.patch(`/admin/drivers/${id}`, { isVerified: verified });
+      setSnackbar({ open: true, message: verified ? "تم توثيق الموصل" : "تم إلغاء التوثيق" });
+      fetchDrivers();
+    } catch {
+      setSnackbar({ open: true, message: "فشل في تغيير حالة التوثيق" });
+    }
+  };
+
   // Open create dialog
   const openCreate = () => {
     createForm.reset({
@@ -191,10 +203,20 @@ export default function AdminDriversPage() {
 
   const closeCreate = () => setCreateDialog(false);
 
-  // Save new driver
+  // Save new driver — send only fields accepted by backend CreateDriverDto
   const saveNew = async (data: CreateDriverData) => {
     try {
-      await axios.post("/admin/drivers", data);
+      const payload = {
+        fullName: data.fullName,
+        email: data.email,
+        password: data.password,
+        phone: data.phone,
+        role: data.role,
+        vehicleType: data.vehicleType,
+        driverType: data.driverType ?? "primary",
+        isFemaleDriver: data.isFemaleDriver,
+      };
+      await axios.post("/drivers", payload);
       setSnackbar({ open: true, message: "تم إنشاء الموصل بنجاح" });
       closeCreate();
       fetchDrivers();
@@ -207,16 +229,17 @@ export default function AdminDriversPage() {
   // Handle form submission
   const onSubmitCreate = createForm.handleSubmit(saveNew);
 
-  // Open edit dialog
+  // Open edit dialog — ensure role/vehicleType/driverType are strings so selects show
   const openEditDialog = (d: Driver) => {
     setEditingId(d._id);
     editForm.reset({
-      fullName: d.fullName,
-      phone: d.phone,
-      email: d.email,
-      role: d.role,
-      vehicleType: d.vehicleType,
-      driverType: d.driverType,
+      fullName: d.fullName ?? "",
+      phone: d.phone ?? "",
+      email: d.email ?? "",
+      role: (d.role ?? "rider_driver") as "rider_driver" | "light_driver" | "women_driver",
+      vehicleType: (d.vehicleType ?? "bike") as "bike" | "car" | "motor",
+      driverType: (d.driverType ?? "primary") as "primary" | "joker",
+      isVerified: d.isVerified ?? false,
       jokerFrom: d.jokerFrom || new Date().toISOString(),
       jokerTo: d.jokerTo || new Date(Date.now() + 3600_000).toISOString(),
     });
@@ -225,11 +248,20 @@ export default function AdminDriversPage() {
 
   const closeEditDialog = () => setEditDialog(false);
 
-  // Save edits
+  // Save edits — send only fields accepted by backend UpdateDriverDto
   const saveEdit = async (data: UpdateDriverData) => {
     if (!editingId) return;
     try {
-      await axios.patch(`/admin/drivers/${editingId}`, data);
+      const payload = {
+        fullName: data.fullName,
+        phone: data.phone,
+        email: data.email,
+        role: data.role,
+        vehicleType: data.vehicleType,
+        driverType: data.driverType,
+        isVerified: data.isVerified,
+      };
+      await axios.patch(`/admin/drivers/${editingId}`, payload);
       setSnackbar({ open: true, message: "تم تحديث بيانات الموصل" });
       closeEditDialog();
       fetchDrivers();
@@ -359,6 +391,11 @@ export default function AdminDriversPage() {
                       )}
                     </TableCell>
                     <TableCell align="right">
+                      <Tooltip title={d.isVerified ? "إلغاء التوثيق" : "توثيق الموصل"}>
+                        <IconButton onClick={() => toggleVerify(d._id, !d.isVerified)} color={d.isVerified ? "primary" : "default"}>
+                          <VerifiedIcon />
+                        </IconButton>
+                      </Tooltip>
                       <Tooltip title="تعديل">
                         <IconButton onClick={() => openEditDialog(d)}>
                           <EditIcon />
@@ -387,13 +424,19 @@ export default function AdminDriversPage() {
           <form onSubmit={onSubmitCreate}>
             <DialogContent>
               <Stack spacing={2} mt={1}>
-                <TextFieldWithCounter
-                  label="الاسم"
-                  fullWidth
-                  maxLength={100}
-                  {...createForm.register("fullName")}
-                  error={!!createForm.formState.errors.fullName}
-                  helperText={createForm.formState.errors.fullName?.message}
+                <Controller
+                  name="fullName"
+                  control={createForm.control}
+                  render={({ field }) => (
+                    <TextFieldWithCounter
+                      {...field}
+                      label="الاسم"
+                      fullWidth
+                      maxLength={100}
+                      error={!!createForm.formState.errors.fullName}
+                      helperText={createForm.formState.errors.fullName?.message}
+                    />
+                  )}
                 />
                 <TextField
                   label="الهاتف"
@@ -520,13 +563,19 @@ export default function AdminDriversPage() {
           <form onSubmit={onSubmitEdit}>
             <DialogContent>
               <Stack spacing={2} mt={1}>
-                <TextFieldWithCounter
-                  label="الاسم"
-                  fullWidth
-                  maxLength={100}
-                  {...editForm.register("fullName")}
-                  error={!!editForm.formState.errors.fullName}
-                  helperText={editForm.formState.errors.fullName?.message}
+                <Controller
+                  name="fullName"
+                  control={editForm.control}
+                  render={({ field }) => (
+                    <TextFieldWithCounter
+                      {...field}
+                      label="الاسم"
+                      fullWidth
+                      maxLength={100}
+                      error={!!editForm.formState.errors.fullName}
+                      helperText={editForm.formState.errors.fullName?.message}
+                    />
+                  )}
                 />
                 <TextField
                   label="الهاتف"
@@ -542,41 +591,69 @@ export default function AdminDriversPage() {
                   error={!!editForm.formState.errors.email}
                   helperText={editForm.formState.errors.email?.message}
                 />
-                <TextField
-                  select
-                  label="الدور"
-                  fullWidth
-                  {...editForm.register("role")}
-                  error={!!editForm.formState.errors.role}
-                  helperText={editForm.formState.errors.role?.message}
-                >
-                  <MenuItem value="rider_driver">توصيل</MenuItem>
-                  <MenuItem value="light_driver">Light</MenuItem>
-                  <MenuItem value="women_driver">Women</MenuItem>
-                </TextField>
-                <TextField
-                  select
-                  label="المركبة"
-                  fullWidth
-                  {...editForm.register("vehicleType")}
-                  error={!!editForm.formState.errors.vehicleType}
-                  helperText={editForm.formState.errors.vehicleType?.message}
-                >
-                  <MenuItem value="motor">متر</MenuItem>
-                  <MenuItem value="bike">دراجة</MenuItem>
-                  <MenuItem value="car">سيارة</MenuItem>
-                </TextField>
-                <TextField
-                  select
-                  label="نوع الموصل"
-                  fullWidth
-                  {...editForm.register("driverType")}
-                  error={!!editForm.formState.errors.driverType}
-                  helperText={editForm.formState.errors.driverType?.message}
-                >
-                  <MenuItem value="primary">أساسي</MenuItem>
-                  <MenuItem value="joker">جوكر</MenuItem>
-                </TextField>
+                <Controller
+                  name="role"
+                  control={editForm.control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      select
+                      label="الدور"
+                      fullWidth
+                      error={!!editForm.formState.errors.role}
+                      helperText={editForm.formState.errors.role?.message}
+                    >
+                      <MenuItem value="rider_driver">توصيل</MenuItem>
+                      <MenuItem value="light_driver">Light</MenuItem>
+                      <MenuItem value="women_driver">Women</MenuItem>
+                    </TextField>
+                  )}
+                />
+                <Controller
+                  name="vehicleType"
+                  control={editForm.control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      select
+                      label="المركبة"
+                      fullWidth
+                      error={!!editForm.formState.errors.vehicleType}
+                      helperText={editForm.formState.errors.vehicleType?.message}
+                    >
+                      <MenuItem value="motor">متر</MenuItem>
+                      <MenuItem value="bike">دراجة</MenuItem>
+                      <MenuItem value="car">سيارة</MenuItem>
+                    </TextField>
+                  )}
+                />
+                <Controller
+                  name="driverType"
+                  control={editForm.control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      select
+                      label="نوع الموصل"
+                      fullWidth
+                      error={!!editForm.formState.errors.driverType}
+                      helperText={editForm.formState.errors.driverType?.message}
+                    >
+                      <MenuItem value="primary">أساسي</MenuItem>
+                      <MenuItem value="joker">جوكر</MenuItem>
+                    </TextField>
+                  )}
+                />
+                <Controller
+                  name="isVerified"
+                  control={editForm.control}
+                  render={({ field }) => (
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Switch checked={!!field.value} onChange={(e) => field.onChange(e.target.checked)} />
+                      <Typography variant="body2">موثق</Typography>
+                    </Box>
+                  )}
+                />
                 {editForm.watch("driverType") === "joker" && (
                   <>
                     <DateTimePicker

@@ -44,12 +44,13 @@ function unwrapAdmin(input: unknown): AdminUser {
     (raw as { permissions?: CapabilitiesMap }).permissions ??
     undefined;
 
-  // استخراج الحقول بأمان مع type assertions محسوبة
+  // استخراج الحقول بأمان مع type assertions محسوبة (يدعم شكل الباك: id, fullName)
   const admin: AdminUser = {
-    _id: String((raw as { _id?: unknown })._id ?? ""),
+    _id: String((raw as { _id?: unknown })._id ?? (raw as { id?: unknown }).id ?? ""),
     name: String(
       (raw as { name?: unknown }).name ??
       (raw as { username?: unknown }).username ??
+      (raw as { fullName?: unknown }).fullName ??
       ""
     ),
     email: String(
@@ -67,6 +68,9 @@ function unwrapAdmin(input: unknown): AdminUser {
     status: (raw as { status?: AdminStatus }).status ?? statusFromIsActive(
       Boolean((raw as { isActive?: unknown }).isActive)
     ),
+    lastLoginAt: (raw as { lastLogin?: string }).lastLogin
+      ? String((raw as { lastLogin?: string }).lastLogin)
+      : undefined,
     capabilities: caps,
   };
   return admin;
@@ -79,6 +83,7 @@ function toListItem(a: AdminUser): AdminListItem {
     email: a.email,
     role: a.role,
     status: a.status,
+    lastLoginAt: a.lastLoginAt,
     capsCount: countCaps(a.capabilities),
   };
 }
@@ -94,13 +99,19 @@ export async function apiListAdmins(
   params?: UsersListParams
 ): Promise<AdminsListResponse> {
   const { data } = await axios.get("/admin/list", { params });
-  const arr: AdminListItem[] = Array.isArray(data)
+  // الباك يرجع: { success, data: { users: [...], pagination }, pagination, meta }
+  const rawList = Array.isArray((data as { data?: { users?: unknown[] } })?.data?.users)
+    ? (data as { data: { users: unknown[] } }).data.users
+    : Array.isArray(data)
     ? data
-    : Array.isArray(data?.data)
-    ? data.data
+    : Array.isArray((data as { data?: unknown[] })?.data)
+    ? (data as { data: unknown[] }).data
     : [];
-  const items: AdminListItem[] = arr.map((x) => toListItem(unwrapAdmin(x)));
-  return { data: items }; // لا meta إذا النوع لا يتوقعه
+  const items: AdminListItem[] = rawList.map((x) => toListItem(unwrapAdmin(x)));
+  const pagination = (data as { pagination?: { total?: number }; data?: { pagination?: { total?: number } } })?.pagination
+    ?? (data as { data?: { pagination?: { total?: number } } })?.data?.pagination;
+  const total = typeof pagination?.total === "number" ? pagination.total : items.length;
+  return { data: items, total };
 }
 
 /** إنشاء */
