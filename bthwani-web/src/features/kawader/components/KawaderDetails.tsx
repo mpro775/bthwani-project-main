@@ -1,30 +1,43 @@
-// src/features/kawader/components/KawaderDetails.tsx
-import React from 'react';
+// مطابق لـ app-user KawaderDetailsScreen
+import React from "react";
 import {
   Box,
   Typography,
   Paper,
   Chip,
-  Divider,
-  CircularProgress,
- 
   IconButton,
-  Tooltip,
-  Grid,
-} from '@mui/material';
+  Button,
+  CircularProgress,
+} from "@mui/material";
 import {
-  ArrowBack as ArrowBackIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Person as PersonIcon,
-  AccessTime as TimeIcon,
-  AttachMoney as MoneyIcon,
-  WorkOutline as WorkIcon,
-  Phone as PhoneIcon,
-  Email as EmailIcon,
-} from '@mui/icons-material';
-import type { KawaderItem } from '../types';
-import { KawaderStatusLabels, KawaderStatusColors } from '../types';
+  ArrowBack,
+  Share,
+  Edit,
+  Delete,
+  WorkOutline,
+  School,
+  Build,
+  LocationOn,
+  Home,
+  Phone,
+  ChatBubbleOutline,
+} from "@mui/icons-material";
+import type { KawaderItem } from "../types";
+import { KawaderStatusLabels, KawaderStatusColors } from "../types";
+
+const normalizePhoneNumber = (phone: string): string | null => {
+  if (!phone || typeof phone !== "string") return null;
+  const digits = phone.replace(/\D/g, "").replace(/^0+/, "");
+  if (digits.length < 8) return null;
+  if (/^966\d{9}$/.test(digits)) return `+${digits}`;
+  if (/^5\d{8}$/.test(digits)) return `+966${digits}`;
+  if (/^05\d{8}$/.test(digits)) return `+966${digits.slice(1)}`;
+  if (/^967\d{8,}$/.test(digits)) return `+${digits}`;
+  if (/^7\d{8}$/.test(digits)) return `+967${digits}`;
+  if (/^0\d{8,}$/.test(digits)) return `+967${digits.slice(1)}`;
+  if (digits.length >= 9) return `+${digits}`;
+  return null;
+};
 
 interface KawaderDetailsProps {
   item: KawaderItem;
@@ -32,6 +45,8 @@ interface KawaderDetailsProps {
   onBack?: () => void;
   onEdit?: (item: KawaderItem) => void;
   onDelete?: (item: KawaderItem) => void;
+  isOwner?: boolean;
+  onChat?: (item: KawaderItem) => void;
 }
 
 const KawaderDetails: React.FC<KawaderDetailsProps> = ({
@@ -40,232 +55,297 @@ const KawaderDetails: React.FC<KawaderDetailsProps> = ({
   onBack,
   onEdit,
   onDelete,
+  isOwner = false,
+  onChat,
 }) => {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-SA', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+  const formatCurrency = (amount?: number) => {
+    if (!amount) return "غير محدد";
+    return `${amount.toLocaleString("ar-SA")} ريال`;
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('ar-SA', {
-      style: 'currency',
-      currency: 'SAR',
-    }).format(amount);
+  const formatDate = (dateInput?: string | Date) => {
+    if (!dateInput) return "غير محدد";
+    try {
+      const d =
+        dateInput instanceof Date ? dateInput : new Date(dateInput);
+      return d.toLocaleDateString("ar-SA", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return String(dateInput);
+    }
   };
 
-  const handleEdit = () => {
-    onEdit?.(item);
+  const handleShare = async () => {
+    if (!item) return;
+    const text = `عرض وظيفي: ${item.title}\n\n${item.description || ""}\n\nالنطاق: ${item.scope || "غير محدد"}\nالميزانية: ${formatCurrency(item.budget)}\n${item.metadata?.location ? `الموقع: ${item.metadata.location}\n` : ""}${item.metadata?.remote ? "متاح العمل عن بعد\n" : ""}${item.metadata?.experience ? `الخبرة المطلوبة: ${item.metadata.experience}\n` : ""}${item.metadata?.skills?.length ? `المهارات: ${item.metadata.skills.join(", ")}\n` : ""}\nالحالة: ${KawaderStatusLabels[item.status]}\n\nتاريخ النشر: ${formatDate(item.createdAt)}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: item.title, text });
+      } else {
+        await navigator.clipboard.writeText(text);
+      }
+    } catch (e) {
+      console.error("Share failed:", e);
+    }
   };
 
-  const handleDelete = () => {
-    onDelete?.(item);
+  const handleCall = () => {
+    const raw = item?.metadata?.contact;
+    if (!raw) return;
+    const normalized = normalizePhoneNumber(raw);
+    if (normalized) {
+      window.location.href = `tel:${normalized}`;
+    }
   };
+
+  const handleChat = () => {
+    if (onChat) {
+      onChat(item);
+    }
+  };
+
+  const hasContact = !!(item?.metadata?.contact);
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-        <CircularProgress />
+      <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+        <CircularProgress color="primary" />
       </Box>
     );
   }
 
   return (
-    <Box sx={{ maxWidth: 800, mx: 'auto', py: 4 }}>
-      {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+    <Box sx={{ maxWidth: 800, mx: "auto", pb: 4 }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          px: 2,
+          py: 1.5,
+          backgroundColor: "background.paper",
+          borderBottom: 1,
+          borderColor: "divider",
+        }}
+      >
         {onBack && (
-          <IconButton onClick={onBack} sx={{ mr: 2 }}>
-            <ArrowBackIcon />
+          <IconButton onClick={onBack} sx={{ mr: 1 }}>
+            <ArrowBack />
           </IconButton>
         )}
-
-        <Box sx={{ flex: 1 }}>
-          <Typography variant="h4" component="h1" gutterBottom>
-            تفاصيل العرض الوظيفي
-          </Typography>
-        </Box>
-
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          {onEdit && (
-            <Tooltip title="تعديل العرض الوظيفي">
-              <IconButton onClick={handleEdit} color="primary">
-                <EditIcon />
+        <Typography variant="h6" sx={{ flex: 1, textAlign: "center" }}>
+          تفاصيل العرض الوظيفي
+        </Typography>
+        <IconButton onClick={handleShare}>
+          <Share />
+        </IconButton>
+        {isOwner && (
+          <>
+            {onEdit && (
+              <IconButton onClick={() => onEdit(item)}>
+                <Edit />
               </IconButton>
-            </Tooltip>
-          )}
-          {onDelete && (
-            <Tooltip title="حذف العرض الوظيفي">
-              <IconButton onClick={handleDelete} color="error">
-                <DeleteIcon />
+            )}
+            {onDelete && (
+              <IconButton onClick={() => onDelete(item)} color="error">
+                <Delete />
               </IconButton>
-            </Tooltip>
-          )}
-        </Box>
+            )}
+          </>
+        )}
       </Box>
 
-      <Paper sx={{ p: 3 }}>
-        {/* Title and Status */}
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="h5" gutterBottom>
-            {item.title}
-          </Typography>
-
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-            <Chip
-              label={KawaderStatusLabels[item.status]}
-              size="small"
-              sx={{
-                backgroundColor: KawaderStatusColors[item.status],
-                color: 'white',
-              }}
-            />
-          </Box>
-        </Box>
-
-        <Divider sx={{ my: 3 }} />
-
-        {/* Budget */}
-        {item.budget && (
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
-              <MoneyIcon sx={{ mr: 1 }} />
-              الميزانية
-            </Typography>
-            <Typography variant="h4" color="primary" fontWeight="bold">
+      <Box sx={{ px: 2, py: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 2,
+          }}
+        >
+          <Box
+            sx={{
+              backgroundColor: "success.light",
+              px: 2,
+              py: 1,
+              borderRadius: 2,
+            }}
+          >
+            <Typography variant="h6" fontWeight={700} color="success.dark">
               {formatCurrency(item.budget)}
             </Typography>
           </Box>
-        )}
+          <Chip
+            label={KawaderStatusLabels[item.status]}
+            sx={{
+              backgroundColor: KawaderStatusColors[item.status],
+              color: "white",
+            }}
+          />
+        </Box>
 
-        {/* Description */}
+        <Typography variant="h5" fontWeight={700} sx={{ mb: 2 }}>
+          {item.title}
+        </Typography>
+
         {item.description && (
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              الوصف
-            </Typography>
-            <Typography variant="body1" sx={{ whiteSpace: 'pre-line' }}>
-              {item.description}
-            </Typography>
-          </Box>
+          <Typography variant="body1" sx={{ mb: 3, whiteSpace: "pre-line" }}>
+            {item.description}
+          </Typography>
         )}
 
-        {/* Scope */}
         {item.scope && (
           <Box sx={{ mb: 3 }}>
-            <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
-              <WorkIcon sx={{ mr: 1 }} />
+            <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
               نطاق العمل
             </Typography>
-            <Typography variant="body1">
-              {item.scope}
-            </Typography>
-          </Box>
-        )}
-
-        {/* Metadata */}
-        {item.metadata && Object.keys(item.metadata).length > 0 && (
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              معلومات إضافية
-            </Typography>
-            <Grid container spacing={2}>
-              {Object.entries(item.metadata).map(([key, value]) => (
-                <Grid size={{xs: 12, sm: 6}} key={key}>
-                  <Paper variant="outlined" sx={{ p: 2 }}>
-                    <Typography variant="subtitle2" color="text.secondary">
-                      {key}
-                    </Typography>
-                    <Typography variant="body2">
-                      {String(value)}
-                    </Typography>
-                  </Paper>
-                </Grid>
-              ))}
-            </Grid>
-          </Box>
-        )}
-
-        <Divider sx={{ my: 3 }} />
-
-        {/* Owner Information */}
-        {item.owner && (
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
-              <PersonIcon sx={{ mr: 1 }} />
-              معلومات المالك
-            </Typography>
-
-            <Paper variant="outlined" sx={{ p: 2 }}>
-              <Grid container spacing={2}>
-                <Grid size={{xs: 12, sm: 6}}>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    الاسم
-                  </Typography>
-                  <Typography variant="body1">
-                    {item.owner.name}
-                  </Typography>
-                </Grid>
-
-                {item.owner.email && (
-                  <Grid size={{xs: 12, sm: 6}}>
-                    <Typography variant="subtitle2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
-                      <EmailIcon sx={{ mr: 0.5, fontSize: 16 }} />
-                      البريد الإلكتروني
-                    </Typography>
-                    <Typography variant="body1">
-                      {item.owner.email}
-                    </Typography>
-                  </Grid>
-                )}
-
-                {item.owner.phone && (
-                  <Grid size={{xs: 12, sm: 6}}>
-                    <Typography variant="subtitle2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
-                      <PhoneIcon sx={{ mr: 0.5, fontSize: 16 }} />
-                      رقم الهاتف
-                    </Typography>
-                    <Typography variant="body1">
-                      {item.owner.phone}
-                    </Typography>
-                  </Grid>
-                )}
-              </Grid>
+            <Paper sx={{ p: 2, display: "flex", alignItems: "center", gap: 1 }}>
+              <WorkOutline color="primary" />
+              <Typography variant="body2" color="primary.main" fontWeight={500}>
+                {item.scope}
+              </Typography>
             </Paper>
           </Box>
         )}
 
-        {/* Dates */}
-        <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <TimeIcon fontSize="small" color="action" />
-            <Box>
-              <Typography variant="caption" color="text.secondary">
-                تاريخ الإنشاء
-              </Typography>
-              <Typography variant="body2">
-                {formatDate(item.createdAt)}
-              </Typography>
-            </Box>
+        {item.metadata && (
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
+              متطلبات العمل
+            </Typography>
+            {item.metadata.experience && (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  mb: 1,
+                  p: 1,
+                  backgroundColor: "grey.50",
+                  borderRadius: 1,
+                }}
+              >
+                <School fontSize="small" color="action" />
+                <Typography variant="body2">الخبرة المطلوبة:</Typography>
+                <Typography variant="body2" fontWeight={500}>
+                  {item.metadata.experience}
+                </Typography>
+              </Box>
+            )}
+            {item.metadata.skills && item.metadata.skills.length > 0 && (
+              <Paper sx={{ p: 2, mb: 1 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                  <Build fontSize="small" color="action" />
+                  <Typography variant="body2" fontWeight={600}>
+                    المهارات المطلوبة:
+                  </Typography>
+                </Box>
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                  {item.metadata.skills.map((skill, i) => (
+                    <Chip key={i} label={skill} size="small" sx={{ mb: 0.5 }} />
+                  ))}
+                </Box>
+              </Paper>
+            )}
+            {item.metadata.location && (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  mb: 1,
+                  p: 1,
+                  backgroundColor: "grey.50",
+                  borderRadius: 1,
+                }}
+              >
+                <LocationOn fontSize="small" color="action" />
+                <Typography variant="body2">الموقع:</Typography>
+                <Typography variant="body2" fontWeight={500}>
+                  {item.metadata.location}
+                  {item.metadata.remote && " (متاح العمل عن بعد)"}
+                </Typography>
+              </Box>
+            )}
+            {item.metadata.remote && !item.metadata.location && (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  p: 1,
+                  backgroundColor: "grey.50",
+                  borderRadius: 1,
+                }}
+              >
+                <Home fontSize="small" color="action" />
+                <Typography variant="body2">نوع العمل:</Typography>
+                <Typography variant="body2" fontWeight={500}>
+                  عن بعد
+                </Typography>
+              </Box>
+            )}
           </Box>
+        )}
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <TimeIcon fontSize="small" color="action" />
-            <Box>
-              <Typography variant="caption" color="text.secondary">
-                آخر تحديث
-              </Typography>
-              <Typography variant="body2">
-                {formatDate(item.updatedAt)}
-              </Typography>
-            </Box>
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
+            التواصل
+          </Typography>
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+            {!isOwner && onChat && (
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<ChatBubbleOutline />}
+                onClick={handleChat}
+              >
+                تواصل مع المعلن
+              </Button>
+            )}
+            {hasContact && (
+              <Button
+                variant="contained"
+                color="success"
+                startIcon={<Phone />}
+                onClick={handleCall}
+              >
+                اتصال مباشر
+              </Button>
+            )}
           </Box>
+          {hasContact && (
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              رقم التواصل:{" "}
+              {normalizePhoneNumber(item.metadata!.contact!) ??
+                item.metadata!.contact}
+            </Typography>
+          )}
+          {!hasContact && !isOwner && onChat && (
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              لم يُذكر رقم تواصل في هذا الإعلان. يمكنك المحادثة مع المعلن
+              أعلاه.
+            </Typography>
+          )}
         </Box>
-      </Paper>
+
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
+            تواريخ مهمة
+          </Typography>
+          <Typography variant="body2">
+            تاريخ النشر: {formatDate(item.createdAt)}
+          </Typography>
+          <Typography variant="body2">
+            آخر تحديث: {formatDate(item.updatedAt)}
+          </Typography>
+        </Box>
+      </Box>
     </Box>
   );
 };

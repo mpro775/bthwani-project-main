@@ -1,77 +1,68 @@
-// مطابق لـ app-user KawaderListScreen
+// مطابق لـ app-user ArabonMyListScreen
 import React from "react";
 import {
   Box,
   Typography,
   Button,
+  IconButton,
   CircularProgress,
   Alert,
   Container,
 } from "@mui/material";
-import { Add as AddIcon, Work as WorkIcon } from "@mui/icons-material";
-import KawaderCard from "./KawaderCard";
-import { useKawaderList } from "../hooks/useKawaderList";
-import type { KawaderItem } from "../types";
+import { ArrowBack, AccountBalanceWallet } from "@mui/icons-material";
+import ArabonCard from "./ArabonCard";
+import { useArabonMyList } from "../hooks/useArabonMyList";
+import type { ArabonItem } from "../types";
 
-interface KawaderListProps {
-  onViewItem?: (item: KawaderItem) => void;
-  onCreateItem?: () => void;
+interface ArabonMyListProps {
+  onBack: () => void;
+  onViewItem?: (item: ArabonItem) => void;
 }
 
-const KawaderList: React.FC<KawaderListProps> = ({
+const ArabonMyList: React.FC<ArabonMyListProps> = ({
+  onBack,
   onViewItem,
-  onCreateItem,
 }) => {
-  const { items, loading, loadingMore, hasMore, error, loadMore } =
-    useKawaderList();
-
-  const stats = {
-    total: items.length,
-    completed: items.filter((i) => i.status === "completed").length,
-    pending: items.filter((i) => i.status === "pending").length,
-    totalBudget: items.reduce((sum, i) => sum + (i.budget || 0), 0),
-  };
+  const {
+    items,
+    stats,
+    loading,
+    loadingMore,
+    hasMore,
+    error,
+    loadMore,
+  } = useArabonMyList();
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        backgroundColor: "background.default",
-        pb: 10,
-      }}
-    >
+    <Box sx={{ minHeight: "100vh", backgroundColor: "background.default", pb: 10 }}>
       <Box
         sx={{
-          p: 2.5,
+          display: "flex",
+          alignItems: "center",
+          px: 2,
+          py: 1.5,
           backgroundColor: "background.paper",
           borderBottom: 1,
           borderColor: "divider",
         }}
       >
-        <Typography
-          variant="h5"
-          sx={{
-            fontWeight: 700,
-            textAlign: "center",
-            fontFamily: "Cairo, sans-serif",
-          }}
-        >
-          الكوادر
+        <IconButton onClick={onBack} sx={{ mr: 1 }}>
+          <ArrowBack />
+        </IconButton>
+        <Typography variant="h6" sx={{ flex: 1, textAlign: "center" }}>
+          عربوناتي
         </Typography>
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{ textAlign: "center", mt: 0.5 }}
-        >
-          الوظائف والخدمات المهنية
-        </Typography>
+        <Box sx={{ width: 40 }} />
+      </Box>
 
+      {stats && (
         <Box
           sx={{
+            mx: 2,
+            mt: 2,
             display: "flex",
             justifyContent: "space-around",
             alignItems: "center",
-            mt: 2,
             py: 1.5,
             px: 2,
             backgroundColor: "grey.100",
@@ -80,7 +71,7 @@ const KawaderList: React.FC<KawaderListProps> = ({
         >
           <Box sx={{ flex: 1, textAlign: "center" }}>
             <Typography variant="h6" fontWeight={700} color="primary.main">
-              {stats.total}
+              {stats.total ?? 0}
             </Typography>
             <Typography variant="caption" color="text.secondary">
               المجموع
@@ -89,7 +80,7 @@ const KawaderList: React.FC<KawaderListProps> = ({
           <Box sx={{ width: 1, height: 30, backgroundColor: "divider" }} />
           <Box sx={{ flex: 1, textAlign: "center" }}>
             <Typography variant="h6" fontWeight={700} color="primary.main">
-              {stats.pending}
+              {stats.pending ?? 0}
             </Typography>
             <Typography variant="caption" color="text.secondary">
               في الانتظار
@@ -98,26 +89,14 @@ const KawaderList: React.FC<KawaderListProps> = ({
           <Box sx={{ width: 1, height: 30, backgroundColor: "divider" }} />
           <Box sx={{ flex: 1, textAlign: "center" }}>
             <Typography variant="h6" fontWeight={700} color="primary.main">
-              {(stats.totalBudget / 1000).toFixed(0)}K
+              {(stats.totalDepositAmount ?? 0).toFixed(0)}
             </Typography>
             <Typography variant="caption" color="text.secondary">
               إجمالي ريال
             </Typography>
           </Box>
         </Box>
-
-        {onCreateItem && (
-          <Button
-            variant="contained"
-            fullWidth
-            startIcon={<AddIcon />}
-            onClick={onCreateItem}
-            sx={{ mt: 2 }}
-          >
-            إضافة عرض وظيفي
-          </Button>
-        )}
-      </Box>
+      )}
 
       <Container maxWidth="md" sx={{ py: 2 }}>
         {error && (
@@ -127,44 +106,29 @@ const KawaderList: React.FC<KawaderListProps> = ({
         )}
 
         {loading && items.length === 0 ? (
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              py: 8,
-            }}
-          >
+          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", py: 8 }}>
             <CircularProgress color="primary" />
             <Typography sx={{ mt: 2, color: "text.secondary" }}>
-              جاري تحميل العروض الوظيفية...
+              جاري تحميل عربوناتك...
             </Typography>
           </Box>
         ) : !loading && items.length === 0 ? (
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              py: 8,
-            }}
-          >
-            <WorkIcon sx={{ fontSize: 64, color: "grey.400" }} />
+          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", py: 8 }}>
+            <AccountBalanceWallet sx={{ fontSize: 64, color: "grey.400" }} />
             <Typography variant="h6" sx={{ mt: 2, fontWeight: 600 }}>
-              لا توجد عروض وظيفية
+              لا توجد عربونات خاصة بك
             </Typography>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ mt: 1, textAlign: "center" }}
-            >
-              لا توجد عروض وظائف أو خدمات مهنية في الوقت الحالي
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1, textAlign: "center" }}>
+              أضف عربوناً جديداً من القائمة الرئيسية
             </Typography>
+            <Button variant="contained" sx={{ mt: 3 }} onClick={onBack}>
+              العودة للقائمة
+            </Button>
           </Box>
         ) : (
           <>
             {items.map((item) => (
-              <KawaderCard
+              <ArabonCard
                 key={item._id}
                 item={item}
                 onView={onViewItem ? () => onViewItem(item) : undefined}
@@ -176,11 +140,6 @@ const KawaderList: React.FC<KawaderListProps> = ({
                   variant="outlined"
                   onClick={loadMore}
                   disabled={loadingMore}
-                  startIcon={
-                    loadingMore ? (
-                      <CircularProgress size={16} color="inherit" />
-                    ) : null
-                  }
                 >
                   {loadingMore ? "جاري التحميل..." : "تحميل المزيد"}
                 </Button>
@@ -193,4 +152,4 @@ const KawaderList: React.FC<KawaderListProps> = ({
   );
 };
 
-export default KawaderList;
+export default ArabonMyList;

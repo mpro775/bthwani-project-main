@@ -1,30 +1,27 @@
-// src/features/es3afni/components/Es3afniDetails.tsx
-import React from 'react';
+// مطابق لـ app-user Es3afniDetailsScreen
+import React from "react";
 import {
   Box,
   Typography,
   Paper,
   Chip,
-  Divider,
-  CircularProgress,
-  Alert,
   IconButton,
-  Tooltip,
-  Grid,
-} from '@mui/material';
+  Button,
+  CircularProgress,
+} from "@mui/material";
 import {
-  ArrowBack as ArrowBackIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Person as PersonIcon,
-  AccessTime as TimeIcon,
-  LocationOn as LocationIcon,
-  Bloodtype as BloodIcon,
-  Phone as PhoneIcon,
-  Email as EmailIcon,
-} from '@mui/icons-material';
-import type { Es3afniItem } from '../types';
-import { Es3afniStatusLabels, BloodTypeLabels, Es3afniStatusColors, BloodTypeColors } from '../types';
+  ArrowBack,
+  Share,
+  Edit,
+  Delete,
+  LocationOn,
+  WaterDrop,
+  Science,
+  Phone,
+  Warning,
+} from "@mui/icons-material";
+import type { Es3afniItem } from "../types";
+import { Es3afniStatusLabels, Es3afniStatusColors } from "../types";
 
 interface Es3afniDetailsProps {
   item: Es3afniItem;
@@ -32,6 +29,7 @@ interface Es3afniDetailsProps {
   onBack?: () => void;
   onEdit?: (item: Es3afniItem) => void;
   onDelete?: (item: Es3afniItem) => void;
+  isOwner?: boolean;
 }
 
 const Es3afniDetails: React.FC<Es3afniDetailsProps> = ({
@@ -40,248 +38,320 @@ const Es3afniDetails: React.FC<Es3afniDetailsProps> = ({
   onBack,
   onEdit,
   onDelete,
+  isOwner = false,
 }) => {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-SA', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+  const formatDate = (dateInput?: string | Date) => {
+    if (!dateInput) return "غير محدد";
+    try {
+      const d =
+        dateInput instanceof Date ? dateInput : new Date(dateInput);
+      return d.toLocaleDateString("ar-SA", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return String(dateInput);
+    }
   };
 
-  const handleEdit = () => {
-    onEdit?.(item);
+  const handleShare = async () => {
+    if (!item) return;
+    const text = `طلب تبرع بالدم: ${item.title}\n\n${item.description || ""}\n\nفصيلة الدم: ${item.bloodType || "غير محدد"}\n${item.location ? `الموقع: ${item.location.address}\n` : ""}${item.metadata?.unitsNeeded ? `الوحدات المطلوبة: ${item.metadata.unitsNeeded}\n` : ""}${item.metadata?.contact ? `التواصل: ${item.metadata.contact}\n` : ""}\nالحالة: ${Es3afniStatusLabels[item.status]}\n\nتاريخ النشر: ${formatDate(item.createdAt)}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: item.title, text });
+      } else {
+        await navigator.clipboard.writeText(text);
+      }
+    } catch (e) {
+      console.error("Share failed:", e);
+    }
   };
 
-  const handleDelete = () => {
-    onDelete?.(item);
+  const handleCall = () => {
+    if (!item?.metadata?.contact) return;
+    const phone = item.metadata.contact.replace(/\D/g, "");
+    window.location.href = `tel:+966${phone}`;
+  };
+
+  const handleLocation = () => {
+    if (!item?.location) return;
+    const { lat, lng } = item.location;
+    window.open(
+      `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`,
+      "_blank"
+    );
   };
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-        <CircularProgress />
+      <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+        <CircularProgress color="error" />
       </Box>
     );
   }
 
   return (
-    <Box sx={{ maxWidth: 800, mx: 'auto', py: 4 }}>
-      {/* Emergency Alert */}
-      <Alert severity="error" sx={{ mb: 3 }}>
-        <Typography variant="body2">
-          <strong>بلاغ عاجل لتبرع بالدم!</strong> يرجى التواصل فوراً مع الشخص المسؤول عن البلاغ.
-        </Typography>
-      </Alert>
-
-      {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+    <Box sx={{ maxWidth: 800, mx: "auto", pb: 4 }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          px: 2,
+          py: 1.5,
+          backgroundColor: "background.paper",
+          borderBottom: 1,
+          borderColor: "divider",
+        }}
+      >
         {onBack && (
-          <IconButton onClick={onBack} sx={{ mr: 2 }}>
-            <ArrowBackIcon />
+          <IconButton onClick={onBack} sx={{ mr: 1 }}>
+            <ArrowBack />
           </IconButton>
         )}
-
-        <Box sx={{ flex: 1 }}>
-          <Typography variant="h4" component="h1" gutterBottom>
-            تفاصيل البلاغ
-          </Typography>
-        </Box>
-
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          {onEdit && (
-            <Tooltip title="تعديل البلاغ">
-              <IconButton onClick={handleEdit} color="primary">
-                <EditIcon />
+        <Typography variant="h6" sx={{ flex: 1, textAlign: "center" }}>
+          تفاصيل طلب التبرع
+        </Typography>
+        <IconButton onClick={handleShare}>
+          <Share />
+        </IconButton>
+        {isOwner && (
+          <>
+            {onEdit && (
+              <IconButton onClick={() => onEdit(item)}>
+                <Edit />
               </IconButton>
-            </Tooltip>
-          )}
-          {onDelete && (
-            <Tooltip title="حذف البلاغ">
-              <IconButton onClick={handleDelete} color="error">
-                <DeleteIcon />
+            )}
+            {onDelete && (
+              <IconButton onClick={() => onDelete(item)} color="error">
+                <Delete />
               </IconButton>
-            </Tooltip>
-          )}
-        </Box>
+            )}
+          </>
+        )}
       </Box>
 
-      <Paper sx={{ p: 3 }}>
-        {/* Title and Status */}
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="h5" gutterBottom>
-            {item.title}
-          </Typography>
-
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-            <Chip
-              label={Es3afniStatusLabels[item.status]}
-              sx={{
-                backgroundColor: Es3afniStatusColors[item.status],
-                color: 'white',
-              }}
-            />
+      <Box sx={{ px: 2, py: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 2,
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              backgroundColor: "error.light",
+              px: 2,
+              py: 1,
+              borderRadius: 2,
+            }}
+          >
+            <WaterDrop sx={{ fontSize: 24, color: "error.main" }} />
+            <Typography
+              variant="h6"
+              fontWeight={700}
+              color="error.main"
+              sx={{ ml: 1 }}
+            >
+              {item.bloodType || "غير محدد"}
+            </Typography>
           </Box>
+          <Chip
+            label={Es3afniStatusLabels[item.status]}
+            sx={{
+              backgroundColor: Es3afniStatusColors[item.status],
+              color: "white",
+            }}
+          />
         </Box>
 
-        <Divider sx={{ my: 3 }} />
+        <Typography variant="h5" fontWeight={700} sx={{ mb: 2 }}>
+          {item.title}
+        </Typography>
 
-        {/* Blood Type */}
+        {item.description && (
+          <Typography variant="body1" sx={{ mb: 3, whiteSpace: "pre-line" }}>
+            {item.description}
+          </Typography>
+        )}
+
         {item.bloodType && (
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
-              <BloodIcon sx={{ mr: 1, color: 'error' }} />
+          <Paper sx={{ p: 2, mb: 3, backgroundColor: "grey.100" }}>
+            <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
               فصيلة الدم المطلوبة
             </Typography>
-            <Chip
-              label={BloodTypeLabels[item.bloodType]}
-              size="medium"
-              sx={{
-                backgroundColor: BloodTypeColors[item.bloodType],
-                color: 'white',
-                fontSize: '1.2rem',
-                fontWeight: 'bold',
-                height: 40,
-              }}
-            />
-          </Box>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <WaterDrop sx={{ color: "error.main" }} />
+              <Typography variant="h6" fontWeight={600} color="error.main">
+                {item.bloodType}
+              </Typography>
+              {["O-", "AB-", "B-"].includes(item.bloodType) && (
+                <Chip label="نادرة" size="small" color="error" />
+              )}
+            </Box>
+          </Paper>
         )}
 
-        {/* Description */}
-        {item.description && (
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              الوصف
-            </Typography>
-            <Typography variant="body1" sx={{ whiteSpace: 'pre-line' }}>
-              {item.description}
-            </Typography>
-          </Box>
-        )}
-
-        {/* Location */}
         {item.location && (
           <Box sx={{ mb: 3 }}>
-            <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
-              <LocationIcon sx={{ mr: 1 }} />
+            <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
               الموقع
             </Typography>
-            <Paper variant="outlined" sx={{ p: 2 }}>
-              {item.location.address && (
-                <Typography variant="body1" sx={{ mb: 1 }}>
-                  {item.location.address}
-                </Typography>
-              )}
-              {item.location.lat && item.location.lng && (
-                <Typography variant="body2" color="text.secondary">
-                  الإحداثيات: {item.location.lat.toFixed(6)}, {item.location.lng.toFixed(6)}
-                </Typography>
-              )}
+            <Paper
+              component="button"
+              onClick={handleLocation}
+              sx={{
+                p: 2,
+                width: "100%",
+                textAlign: "right",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                backgroundColor: "primary.light",
+                border: "none",
+                "&:hover": { backgroundColor: "action.hover" },
+              }}
+            >
+              <LocationOn sx={{ color: "primary.main" }} />
+              <Typography sx={{ flex: 1, color: "primary.main" }}>
+                {item.location.address}
+              </Typography>
+              <Typography variant="caption" color="primary.main">
+                فتح الخريطة
+              </Typography>
             </Paper>
           </Box>
         )}
 
-        {/* Metadata */}
-        {item.metadata && Object.keys(item.metadata).length > 0 && (
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              معلومات إضافية
-            </Typography>
-            <Grid container spacing={2}>
-              {Object.entries(item.metadata).map(([key, value]) => (
-                <Grid size={{xs: 12, sm: 6}} key={key}>
-                  <Paper variant="outlined" sx={{ p: 2 }}>
-                    <Typography variant="subtitle2" color="text.secondary">
-                      {key}
-                    </Typography>
-                    <Typography variant="body2">
-                      {String(value)}
-                    </Typography>
-                  </Paper>
-                </Grid>
-              ))}
-            </Grid>
-          </Box>
-        )}
-
-        <Divider sx={{ my: 3 }} />
-
-        {/* Owner Information */}
-        {item.owner && (
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
-              <PersonIcon sx={{ mr: 1 }} />
-              معلومات الاتصال
-            </Typography>
-
-            <Paper variant="outlined" sx={{ p: 2 }}>
-              <Grid container spacing={2}>
-                <Grid size={{xs: 12, sm: 6}}>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    الاسم
+        {item.metadata &&
+          (item.metadata.unitsNeeded ||
+            item.metadata.contact ||
+            item.metadata.urgency) && (
+            <Box sx={{ mb: 3 }}>
+              <Typography
+                variant="subtitle2"
+                color="text.secondary"
+                sx={{ mb: 1 }}
+              >
+                بيانات إضافية
+              </Typography>
+              {item.metadata.unitsNeeded && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    mb: 1,
+                    p: 1,
+                    backgroundColor: "background.paper",
+                    borderRadius: 1,
+                  }}
+                >
+                  <Science fontSize="small" color="action" />
+                  <Typography variant="body2">الوحدات المطلوبة:</Typography>
+                  <Typography variant="body2" fontWeight={600}>
+                    {item.metadata.unitsNeeded} وحدة
                   </Typography>
-                  <Typography variant="body1">
-                    {item.owner.name}
+                </Box>
+              )}
+              {item.metadata.contact && (
+                <Paper
+                  component="button"
+                  onClick={handleCall}
+                  sx={{
+                    p: 1.5,
+                    width: "100%",
+                    textAlign: "right",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    mb: 1,
+                    border: "none",
+                    "&:hover": { backgroundColor: "action.hover" },
+                  }}
+                >
+                  <Phone sx={{ color: "primary.main" }} />
+                  <Typography variant="body2">رقم التواصل:</Typography>
+                  <Typography
+                    variant="body2"
+                    fontWeight={600}
+                    color="primary.main"
+                  >
+                    {item.metadata.contact}
                   </Typography>
-                </Grid>
-
-                {item.owner.email && (
-                  <Grid size={{xs: 12, sm: 6}}>
-                    <Typography variant="subtitle2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
-                      <EmailIcon sx={{ mr: 0.5, fontSize: 16 }} />
-                      البريد الإلكتروني
-                    </Typography>
-                    <Typography variant="body1">
-                      {item.owner.email}
-                    </Typography>
-                  </Grid>
-                )}
-
-                {item.owner.phone && (
-                  <Grid size={{xs: 12, sm: 6}}>
-                    <Typography variant="subtitle2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
-                      <PhoneIcon sx={{ mr: 0.5, fontSize: 16 }} />
-                      رقم الهاتف
-                    </Typography>
-                    <Typography variant="body1" sx={{ direction: 'ltr', textAlign: 'left' }}>
-                      {item.owner.phone}
-                    </Typography>
-                  </Grid>
-                )}
-              </Grid>
-            </Paper>
-          </Box>
-        )}
-
-        {/* Dates */}
-        <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <TimeIcon fontSize="small" color="action" />
-            <Box>
-              <Typography variant="caption" color="text.secondary">
-                تاريخ النشر
-              </Typography>
-              <Typography variant="body2">
-                {formatDate(item.createdAt)}
-              </Typography>
+                </Paper>
+              )}
+              {item.metadata.urgency && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    p: 1,
+                    backgroundColor: "background.paper",
+                    borderRadius: 1,
+                  }}
+                >
+                  <Warning fontSize="small" color="error" />
+                  <Typography variant="body2">درجة الاستعجال:</Typography>
+                  <Typography variant="body2" fontWeight={600} color="error.main">
+                    {item.metadata.urgency}
+                  </Typography>
+                </Box>
+              )}
             </Box>
-          </Box>
+          )}
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <TimeIcon fontSize="small" color="action" />
-            <Box>
-              <Typography variant="caption" color="text.secondary">
-                آخر تحديث
-              </Typography>
-              <Typography variant="body2">
-                {formatDate(item.updatedAt)}
-              </Typography>
-            </Box>
-          </Box>
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+            تواريخ مهمة
+          </Typography>
+          <Typography variant="body2">
+            تاريخ الإنشاء: {formatDate(item.createdAt)}
+          </Typography>
+          <Typography variant="body2">
+            آخر تحديث: {formatDate(item.updatedAt)}
+          </Typography>
         </Box>
-      </Paper>
+
+        {isOwner && (
+          <Paper sx={{ p: 2, border: 1, borderColor: "primary.main" }}>
+            <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
+              إدارة طلبك
+            </Typography>
+            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+              {onEdit && (
+                <Button
+                  variant="contained"
+                  startIcon={<Edit />}
+                  onClick={() => onEdit(item)}
+                >
+                  تعديل البيانات
+                </Button>
+              )}
+              {onDelete && (
+                <Button
+                  variant="contained"
+                  color="error"
+                  startIcon={<Delete />}
+                  onClick={() => onDelete(item)}
+                >
+                  حذف الطلب
+                </Button>
+              )}
+            </Box>
+          </Paper>
+        )}
+      </Box>
     </Box>
   );
 };

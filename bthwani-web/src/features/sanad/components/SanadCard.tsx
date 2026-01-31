@@ -1,116 +1,153 @@
-// src/features/sanad/components/SanadCard.tsx
-import React from 'react';
+// مطابق لـ app-user SanadCard
+import React from "react";
+import { Card, CardContent, Typography, Box } from "@mui/material";
 import {
-  Card,
-  CardContent,
-  Typography,
-  Chip,
-  Box,
-  IconButton,
-  Tooltip,
-} from '@mui/material';
+  WorkOutline,
+  Warning,
+  Favorite,
+  HelpOutline,
+  LocationOn,
+  ChevronRight,
+} from "@mui/icons-material";
+import type { SanadItem } from "../types";
 import {
-  AccessTime as TimeIcon,
-  Person as PersonIcon,
-  Help as HelpIcon,
-  Emergency as EmergencyIcon,
-  VolunteerActivism as CharityIcon,
-  Visibility as ViewIcon,
-} from '@mui/icons-material';
-import { type SanadItem, SanadStatusLabels, SanadStatusColors, SanadKindLabels, SanadKindColors } from '../types';
+  SanadKindLabels,
+  SanadStatusLabels,
+  SanadStatusColors,
+  SanadKindColors,
+} from "../types";
 
 interface SanadCardProps {
   item: SanadItem;
   onView?: (item: SanadItem) => void;
 }
 
-const getKindIcon = (kind: string) => {
+const getKindIcon = (kind?: string) => {
   switch (kind) {
-    case 'emergency':
-      return <EmergencyIcon />;
-    case 'charity':
-      return <CharityIcon />;
+    case "specialist":
+      return <WorkOutline sx={{ fontSize: 16 }} />;
+    case "emergency":
+      return <Warning sx={{ fontSize: 16 }} />;
+    case "charity":
+      return <Favorite sx={{ fontSize: 16 }} />;
     default:
-      return <HelpIcon />;
+      return <HelpOutline sx={{ fontSize: 16 }} />;
   }
 };
 
 const SanadCard: React.FC<SanadCardProps> = ({ item, onView }) => {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-SA', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
-  const handleView = () => {
-    onView?.(item);
-  };
+  const kindColor =
+    item.kind && item.kind in SanadKindColors
+      ? SanadKindColors[item.kind]
+      : "#9e9e9e";
 
   return (
-    <Card sx={{ mb: 2, cursor: onView ? 'pointer' : 'default' }} onClick={onView ? handleView : undefined}>
-      <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-          <Box sx={{ flex: 1 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-              {getKindIcon(item.kind)}
-              <Typography variant="h6" gutterBottom>
-                {item.title}
-              </Typography>
-            </Box>
-            {item.description && (
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                {item.description.length > 100
-                  ? `${item.description.substring(0, 100)}...`
-                  : item.description
-                }
-              </Typography>
-            )}
-          </Box>
-          {onView && (
-            <Tooltip title="عرض التفاصيل">
-              <IconButton onClick={(e) => { e.stopPropagation(); handleView(); }}>
-                <ViewIcon />
-              </IconButton>
-            </Tooltip>
-          )}
-        </Box>
-
-        <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
-          <Chip
-            label={SanadKindLabels[item.kind]}
-            size="small"
+    <Card
+      sx={{
+        mb: 2,
+        cursor: onView ? "pointer" : "default",
+        borderRadius: 2,
+        boxShadow: 1,
+        "&:hover": onView ? { boxShadow: 3 } : {},
+      }}
+      onClick={onView ? () => onView(item) : undefined}
+    >
+      <CardContent sx={{ p: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 1.5,
+          }}
+        >
+          <Box
             sx={{
-              backgroundColor: SanadKindColors[item.kind],
-              color: 'white',
+              display: "flex",
+              alignItems: "center",
+              gap: 0.5,
+              backgroundColor: "grey.200",
+              px: 1,
+              py: 0.5,
+              borderRadius: 1,
             }}
-            icon={getKindIcon(item.kind)}
-          />
-          <Chip
-            label={SanadStatusLabels[item.status]}
-            size="small"
+          >
+            <Box sx={{ color: kindColor }}>{getKindIcon(item.kind)}</Box>
+            <Typography variant="caption" fontWeight={600} sx={{ color: kindColor }}>
+              {item.kind ? SanadKindLabels[item.kind] : "غير محدد"}
+            </Typography>
+          </Box>
+          <Box
             sx={{
+              px: 1,
+              py: 0.5,
+              borderRadius: 1,
               backgroundColor: SanadStatusColors[item.status],
-              color: 'white',
             }}
-          />
+          >
+            <Typography
+              variant="caption"
+              sx={{ color: "white", fontWeight: 600 }}
+            >
+              {SanadStatusLabels[item.status]}
+            </Typography>
+          </Box>
         </Box>
 
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <PersonIcon fontSize="small" color="action" />
-            <Typography variant="body2" color="text.secondary">
-              {item.owner?.name || 'غير محدد'}
-            </Typography>
-          </Box>
+        <Typography
+          variant="subtitle1"
+          fontWeight={600}
+          sx={{ mb: 1, lineHeight: 1.4 }}
+        >
+          {item.title}
+        </Typography>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <TimeIcon fontSize="small" color="action" />
-            <Typography variant="body2" color="text.secondary">
-              {formatDate(item.createdAt)}
+        {item.description && (
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{
+              mb: 1,
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+            }}
+          >
+            {item.description}
+          </Typography>
+        )}
+
+        {item.metadata?.location && (
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 1 }}>
+            <LocationOn sx={{ fontSize: 14, color: "text.secondary" }} />
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {item.metadata.location}
             </Typography>
           </Box>
+        )}
+
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mt: 1.5,
+            pt: 1,
+          }}
+        >
+          <Typography variant="caption" color="text.secondary">
+            {new Date(item.createdAt).toLocaleDateString("ar-SA")}
+          </Typography>
+          {onView && <ChevronRight sx={{ fontSize: 16, color: "grey.500" }} />}
         </Box>
       </CardContent>
     </Card>

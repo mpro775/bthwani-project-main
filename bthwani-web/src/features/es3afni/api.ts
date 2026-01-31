@@ -1,51 +1,48 @@
-// src/features/es3afni/api.ts
-import axiosInstance from '../../api/axios-instance';
+// مطابق لـ app-user
+import axiosInstance from "../../api/axios-instance";
 import type {
   Es3afniItem,
   CreateEs3afniPayload,
   UpdateEs3afniPayload,
-  Es3afniFilters,
-  Es3afniListResponse
-} from './types';
+  Es3afniListResponse,
+} from "./types";
 
-/**
- * إنشاء بلاغ تبرع بالدم جديد
- */
-export async function createEs3afni(payload: CreateEs3afniPayload): Promise<Es3afniItem> {
-  const response = await axiosInstance.post('/es3afni', payload);
-  return response.data;
+export async function createEs3afni(
+  payload: CreateEs3afniPayload
+): Promise<Es3afniItem> {
+  const response = await axiosInstance.post("/es3afni", payload);
+  const data = response.data;
+  return data?.data ?? data;
 }
 
-/**
- * استرجاع قائمة البلاغات
- */
 export async function getEs3afniList(params?: {
   cursor?: string;
   limit?: number;
-} & Es3afniFilters): Promise<Es3afniListResponse> {
-  const response = await axiosInstance.get('/es3afni', { params });
-  return response.data;
+}): Promise<Es3afniListResponse> {
+  const response = await axiosInstance.get("/es3afni", { params });
+  const data = response.data;
+  const payload = data?.data ?? data;
+  return {
+    items: payload?.items ?? [],
+    nextCursor: payload?.nextCursor,
+  };
 }
 
-/**
- * استرجاع بلاغ واحد
- */
 export async function getEs3afni(id: string): Promise<Es3afniItem> {
   const response = await axiosInstance.get(`/es3afni/${id}`);
-  return response.data;
+  const data = response.data;
+  return data?.data ?? data;
 }
 
-/**
- * تحديث بلاغ
- */
-export async function updateEs3afni(id: string, payload: UpdateEs3afniPayload): Promise<Es3afniItem> {
+export async function updateEs3afni(
+  id: string,
+  payload: UpdateEs3afniPayload
+): Promise<Es3afniItem> {
   const response = await axiosInstance.patch(`/es3afni/${id}`, payload);
-  return response.data;
+  const data = response.data;
+  return data?.data ?? data;
 }
 
-/**
- * حذف بلاغ
- */
 export async function deleteEs3afni(id: string): Promise<void> {
   await axiosInstance.delete(`/es3afni/${id}`);
 }

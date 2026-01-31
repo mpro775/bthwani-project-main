@@ -1,5 +1,5 @@
-// src/features/sanad/components/SanadForm.tsx
-import React, { useState, useEffect } from 'react';
+// مطابق لـ app-user SanadCreateScreen / SanadEditScreen
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -10,31 +10,54 @@ import {
   Grid,
   Alert,
   CircularProgress,
-  FormControl,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
-} from '@mui/material';
+} from "@mui/material";
+import { ArrowBack, Save as SaveIcon } from "@mui/icons-material";
 import {
-  ArrowBack as ArrowBackIcon,
-  Add as AddIcon,
-  Delete as DeleteIcon,
-  Save as SaveIcon,
-  Help as HelpIcon,
-  Emergency as EmergencyIcon,
-  VolunteerActivism as CharityIcon,
-} from '@mui/icons-material';
-import { SanadKindLabels, SanadKindValues } from '../types';
-import type { SanadItem, CreateSanadPayload, UpdateSanadPayload, SanadKind } from '../types';
+  WorkOutline,
+  Warning,
+  Favorite,
+  HelpOutline,
+} from "@mui/icons-material";
+import type { SanadItem, SanadKind } from "../types";
+import type { CreateSanadPayload, UpdateSanadPayload } from "../types";
 
 interface SanadFormProps {
   item?: SanadItem;
   loading?: boolean;
   saving?: boolean;
-  onSubmit: (data: CreateSanadPayload | UpdateSanadPayload) => Promise<void>;
+  onSubmit: (
+    data: CreateSanadPayload | UpdateSanadPayload
+  ) => Promise<void>;
   onCancel?: () => void;
-  mode: 'create' | 'edit';
+  mode: "create" | "edit";
+  ownerId?: string;
 }
+
+const getKindIcon = (kind: SanadKind) => {
+  switch (kind) {
+    case "specialist":
+      return <WorkOutline />;
+    case "emergency":
+      return <Warning />;
+    case "charity":
+      return <Favorite />;
+    default:
+      return <HelpOutline />;
+  }
+};
+
+const getKindDescription = (kind: SanadKind) => {
+  switch (kind) {
+    case "specialist":
+      return "طلب خدمة متخصصة أو استشارة";
+    case "emergency":
+      return "حالة طارئة تحتاج مساعدة فورية";
+    case "charity":
+      return "طلب مساعدة خيرية أو تبرع";
+    default:
+      return "";
+  }
+};
 
 const SanadForm: React.FC<SanadFormProps> = ({
   item,
@@ -43,317 +66,238 @@ const SanadForm: React.FC<SanadFormProps> = ({
   onSubmit,
   onCancel,
   mode,
+  ownerId = "",
 }) => {
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    kind: 'specialist' as SanadKind,
-    metadata: {} as Record<string, any>,
+    title: "",
+    description: "",
+    kind: undefined as SanadKind | undefined,
+    metadata: {
+      location: "",
+      contact: "",
+    } as Record<string, string>,
+    status: "pending" as string,
   });
-
-  const [metadataKey, setMetadataKey] = useState('');
-  const [metadataValue, setMetadataValue] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (item && mode === 'edit') {
+    if (item && mode === "edit") {
       setFormData({
         title: item.title,
-        description: item.description || '',
+        description: item.description || "",
         kind: item.kind,
-        metadata: item.metadata || {},
+        metadata: {
+          location: item.metadata?.location || "",
+          contact: item.metadata?.contact || "",
+        },
+        status: item.status,
       });
     }
   }, [item, mode]);
 
   const handleInputChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleKindChange = (kind: SanadKind) => {
-    setFormData(prev => ({ ...prev, kind }));
-  };
-
-  const handleAddMetadata = () => {
-    if (metadataKey.trim() && metadataValue.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        metadata: {
-          ...prev.metadata,
-          [metadataKey.trim()]: metadataValue.trim()
-        }
-      }));
-      setMetadataKey('');
-      setMetadataValue('');
-    }
-  };
-
-  const handleRemoveMetadata = (key: string) => {
-    setFormData(prev => {
-      const newMetadata = { ...prev.metadata };
-      delete newMetadata[key];
-      return { ...prev, metadata: newMetadata };
-    });
+  const handleMetadataChange = (field: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      metadata: { ...prev.metadata, [field]: value },
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!formData.title.trim()) {
-      setError('يرجى إدخال عنوان الطلب');
+      setError("يرجى إدخال عنوان الطلب");
+      return;
+    }
+    if (mode === "create" && !ownerId) {
+      setError("يجب تسجيل الدخول أولاً");
       return;
     }
 
-    if (!formData.kind) {
-      setError('يرجى اختيار نوع الطلب');
-      return;
-    }
+    const metadata: Record<string, string> = {};
+    if (formData.metadata.location?.trim()) metadata.location = formData.metadata.location.trim();
+    if (formData.metadata.contact?.trim()) metadata.contact = formData.metadata.contact.trim();
 
     try {
       setError(null);
-
-      const submitData = {
-        ...formData,
+      const payload: CreateSanadPayload | UpdateSanadPayload = {
+        title: formData.title.trim(),
         description: formData.description.trim() || undefined,
-        metadata: Object.keys(formData.metadata).length > 0 ? formData.metadata : undefined,
+        kind: formData.kind,
+        metadata: Object.keys(metadata).length ? metadata : undefined,
       };
-
-      await onSubmit(submitData);
+      if (mode === "create") {
+        (payload as CreateSanadPayload).ownerId = ownerId;
+        (payload as CreateSanadPayload).status = formData.status as any;
+      } else if (mode === "edit") {
+        (payload as UpdateSanadPayload).status = formData.status as any;
+      }
+      await onSubmit(payload);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'حدث خطأ أثناء حفظ الطلب');
-    }
-  };
-
-  const getKindIcon = (kind: SanadKind) => {
-    switch (kind) {
-      case 'emergency':
-        return <EmergencyIcon sx={{ mr: 1, color: '#f44336' }} />;
-      case 'charity':
-        return <CharityIcon sx={{ mr: 1, color: '#4caf50' }} />;
-      default:
-        return <HelpIcon sx={{ mr: 1, color: '#3f51b5' }} />;
-    }
-  };
-
-  const getKindDescription = (kind: SanadKind) => {
-    switch (kind) {
-      case 'specialist':
-        return 'خدمات متخصصة مثل صيانة، إصلاح، استشارات فنية';
-      case 'emergency':
-        return 'حالات طارئة تحتاج تدخل فوري ومساعدة عاجلة';
-      case 'charity':
-        return 'أعمال خيرية ومساعدات إنسانية وتبرعات';
-      default:
-        return '';
+      setError(
+        err instanceof Error ? err.message : "حدث خطأ أثناء حفظ الطلب"
+      );
     }
   };
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-        <CircularProgress />
+      <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+        <CircularProgress color="primary" />
       </Box>
     );
   }
 
+  const kinds: SanadKind[] = ["specialist", "emergency", "charity"];
+
   return (
-    <Box sx={{ maxWidth: 800, mx: 'auto', py: 4 }}>
-      {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+    <Box sx={{ maxWidth: 800, mx: "auto", py: 4, pb: 6 }}>
+      <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
         {onCancel && (
-          <IconButton onClick={onCancel} sx={{ mr: 2 }}>
-            <ArrowBackIcon />
+          <IconButton onClick={onCancel} sx={{ mr: 1 }}>
+            <ArrowBack />
           </IconButton>
         )}
-
-        <Box sx={{ flex: 1 }}>
-          <Typography variant="h4" component="h1" gutterBottom>
-            {mode === 'create' ? 'طلب سند جديد' : 'تعديل طلب السند'}
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            {mode === 'create'
-              ? 'اختر نوع الخدمة وأدخل تفاصيل الطلب'
-              : 'قم بتعديل تفاصيل طلب السند'
-            }
-          </Typography>
-        </Box>
+        <Typography variant="h5" fontWeight={700}>
+          {mode === "create" ? "إضافة طلب جديد" : "تعديل الطلب"}
+        </Typography>
       </Box>
-
-      {/* Emergency Warning */}
-      {formData.kind === 'emergency' && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          <Typography variant="body2">
-            <strong>تحذير:</strong> هذا طلب فزعة طارئة. تأكد من أن الحالة تستحق التدخل الطارئ قبل الإرسال.
-          </Typography>
-        </Alert>
-      )}
 
       <Paper sx={{ p: 3 }}>
         <form onSubmit={handleSubmit}>
-          {/* Error Message */}
           {error && (
-            <Alert severity="error" sx={{ mb: 3 }}>
+            <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
               {error}
             </Alert>
           )}
 
           <Grid container spacing={3}>
-            {/* Kind Selection */}
-            {/* @ts-expect-error - MUI v7 Grid type issue with item prop */}
-            <Grid item xs={12}>
-              <Typography variant="h6" gutterBottom>
-                اختر نوع الطلب
+            <Grid size={{ xs: 12 }}>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                نوع الطلب *
               </Typography>
-              <FormControl component="fieldset">
-                <RadioGroup
-                  value={formData.kind}
-                  onChange={(e) => handleKindChange(e.target.value as SanadKind)}
-                >
-                  {SanadKindValues.map((kind) => (
-                    <Paper
-                      key={kind}
-                      variant="outlined"
-                      sx={{
-                        p: 2,
-                        mb: 1,
-                        borderColor: formData.kind === kind ? '#9c27b0' : 'divider',
-                        backgroundColor: formData.kind === kind ? '#f3e5f5' : 'transparent',
-                      }}
-                    >
-                      <FormControlLabel
-                        value={kind}
-                        control={<Radio />}
-                        label={
-                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            {getKindIcon(kind)}
-                            <Box>
-                              <Typography variant="subtitle1">
-                                {SanadKindLabels[kind]}
-                              </Typography>
-                              <Typography variant="body2" color="text.secondary">
-                                {getKindDescription(kind)}
-                              </Typography>
-                            </Box>
-                          </Box>
-                        }
-                        sx={{ width: '100%', m: 0 }}
-                      />
-                    </Paper>
-                  ))}
-                </RadioGroup>
-              </FormControl>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                {kinds.map((kind) => (
+                  <Paper
+                    key={kind}
+                    variant="outlined"
+                    sx={{
+                      p: 2,
+                      cursor: "pointer",
+                      borderWidth: 2,
+                      borderColor: formData.kind === kind ? "primary.main" : "divider",
+                      backgroundColor: formData.kind === kind ? "action.hover" : "transparent",
+                    }}
+                    onClick={() => handleInputChange("kind", kind)}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                      {getKindIcon(kind)}
+                      <Box>
+                        <Typography variant="subtitle1" fontWeight={600}>
+                          {kind === "specialist" ? "متخصص" : kind === "emergency" ? "فزعة" : "خيري"}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {getKindDescription(kind)}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Paper>
+                ))}
+              </Box>
             </Grid>
 
-            {/* Title */}
-            {/* @ts-expect-error - MUI v7 Grid type issue with item prop */}
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
-                label="عنوان الطلب"
+                label="عنوان الطلب *"
                 value={formData.title}
-                onChange={(e) => handleInputChange('title', e.target.value)}
-                required
-                placeholder={
-                  formData.kind === 'emergency'
-                    ? 'مثال: فزعة طبية عاجلة'
-                    : formData.kind === 'charity'
-                    ? 'مثال: مساعدة عائلة محتاجة'
-                    : 'مثال: إصلاح جهاز كهربائي'
-                }
+                onChange={(e) => handleInputChange("title", e.target.value)}
+                placeholder="مثال: طلب فزعة لإسعاف عاجل"
+                maxLength={100}
               />
             </Grid>
 
-            {/* Description */}
-            {/* @ts-expect-error - MUI v7 Grid type issue with item prop */}
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
-                label="الوصف"
+                label="تفاصيل الطلب"
                 value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
+                onChange={(e) => handleInputChange("description", e.target.value)}
+                placeholder="وصف تفصيلي لطلبك..."
                 multiline
                 rows={4}
-                placeholder={
-                  formData.kind === 'emergency'
-                    ? 'اوصف الحالة الطارئة بالتفصيل والإجراءات المطلوبة...'
-                    : formData.kind === 'charity'
-                    ? 'اوصف نوع المساعدة المطلوبة والظروف...'
-                    : 'اوصف الخدمة المطلوبة والتفاصيل الفنية...'
-                }
+                maxLength={500}
               />
             </Grid>
 
-            {/* Metadata */}
-            {/* @ts-expect-error - MUI v7 Grid type issue with item prop */}
-            <Grid item xs={12}>
-              <Typography variant="h6" gutterBottom>
-                معلومات إضافية (اختيارية)
+            <Grid size={{ xs: 12 }}>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                بيانات إضافية
               </Typography>
-              <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                <TextField
-                  placeholder="المفتاح (مثل: الموقع)"
-                  value={metadataKey}
-                  onChange={(e) => setMetadataKey(e.target.value)}
-                  sx={{ flex: 1 }}
-                />
-                <TextField
-                  placeholder="القيمة (مثل: الرياض)"
-                  value={metadataValue}
-                  onChange={(e) => setMetadataValue(e.target.value)}
-                  sx={{ flex: 1 }}
-                />
-                <Button
-                  variant="outlined"
-                  onClick={handleAddMetadata}
-                  disabled={!metadataKey.trim() || !metadataValue.trim()}
-                >
-                  <AddIcon />
-                </Button>
-              </Box>
-              {Object.keys(formData.metadata).length > 0 && (
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                  {Object.entries(formData.metadata).map(([key, value]) => (
-                    <Box key={key} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <TextField
-                        fullWidth
-                        value={`${key}: ${value}`}
-                        InputProps={{
-                          readOnly: true,
-                        }}
-                        size="small"
-                      />
-                      <IconButton
-                        onClick={() => handleRemoveMetadata(key)}
-                        color="error"
-                        size="small"
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Box>
+              <TextField
+                fullWidth
+                label="الموقع"
+                value={formData.metadata.location}
+                onChange={(e) => handleMetadataChange("location", e.target.value)}
+                placeholder="مثال: الرياض، النرجس"
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                fullWidth
+                label="معلومات التواصل"
+                value={formData.metadata.contact}
+                onChange={(e) => handleMetadataChange("contact", e.target.value)}
+                placeholder="رقم هاتف أو بريد إلكتروني"
+              />
+            </Grid>
+
+            {mode === "edit" && (
+              <Grid size={{ xs: 12 }}>
+                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                  حالة الطلب
+                </Typography>
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                  {[
+                    { key: "draft", label: "مسودة" },
+                    { key: "pending", label: "في الانتظار" },
+                    { key: "confirmed", label: "مؤكد" },
+                    { key: "completed", label: "مكتمل" },
+                    { key: "cancelled", label: "ملغي" },
+                  ].map((opt) => (
+                    <Button
+                      key={opt.key}
+                      variant={formData.status === opt.key ? "contained" : "outlined"}
+                      size="small"
+                      onClick={() => handleInputChange("status", opt.key)}
+                    >
+                      {opt.label}
+                    </Button>
                   ))}
                 </Box>
-              )}
-            </Grid>
+              </Grid>
+            )}
           </Grid>
 
-          {/* Actions */}
-          <Box sx={{ display: 'flex', gap: 2, mt: 4 }}>
+          <Box sx={{ display: "flex", gap: 2, mt: 4 }}>
             <Button
               type="submit"
               variant="contained"
-              startIcon={saving ? <CircularProgress size={16} /> : <SaveIcon />}
               disabled={saving}
-              sx={{ backgroundColor: '#9c27b0', '&:hover': { backgroundColor: '#7b1fa2' } }}
+              startIcon={
+                saving ? (
+                  <CircularProgress size={16} color="inherit" />
+                ) : (
+                  <SaveIcon />
+                )
+              }
             >
-              {saving ? 'جاري الحفظ...' : (mode === 'create' ? 'إرسال طلب السند' : 'حفظ التغييرات')}
+              {mode === "create" ? "إنشاء الطلب" : "حفظ التغييرات"}
             </Button>
-
             {onCancel && (
-              <Button
-                variant="outlined"
-                onClick={onCancel}
-                disabled={saving}
-              >
+              <Button variant="outlined" onClick={onCancel} disabled={saving}>
                 إلغاء
               </Button>
             )}

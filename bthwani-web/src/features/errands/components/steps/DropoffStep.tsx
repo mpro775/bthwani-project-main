@@ -57,7 +57,7 @@ export const DropoffStep: React.FC<{
           <Button
               variant="contained"
               onClick={() =>
-                navigate(`/select-location?storageKey=akhdimni_dropoff&step=${currentStep}`)
+                navigate(`/select-location?storageKey=akhdimni_dropoff&step=${currentStep}&returnTo=${encodeURIComponent(`/akhdimni/errand`)}`)
               }
             >
               اختيار من الخريطة

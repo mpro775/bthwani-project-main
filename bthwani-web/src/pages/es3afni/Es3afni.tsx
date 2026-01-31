@@ -1,6 +1,7 @@
-// src/pages/es3afni/Es3afni.tsx
-import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+// src/pages/es3afni/Es3afni.tsx - مطابق لـ app-user
+import React, { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 import {
   Snackbar,
   Alert,
@@ -18,7 +19,9 @@ import {
 
 const Es3afniPage: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { id, action } = useParams<{ id?: string; action?: string }>();
+  const currentUserId = user?._id ?? user?.id ?? null;
 
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
@@ -39,9 +42,13 @@ const Es3afniPage: React.FC = () => {
     navigate(`/es3afni/${item._id}`);
   };
 
-  // Handle create item
+  // Handle create item - يتطلب تسجيل الدخول (مطابق لـ app-user)
   const handleCreateItem = () => {
-    navigate('/es3afni/new');
+    if (!currentUserId) {
+      navigate("/login", { state: { from: "/es3afni/new" } });
+      return;
+    }
+    navigate("/es3afni/new");
   };
 
   // Handle edit item
@@ -51,20 +58,20 @@ const Es3afniPage: React.FC = () => {
 
   // Handle delete item
   const handleDeleteItem = async (item: Es3afniItem) => {
-    if (window.confirm(`هل أنت متأكد من حذف بلاغ "${item.title}"؟`)) {
+    if (window.confirm(`هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.`)) {
       try {
         await deleteItem();
         removeListItem(item._id);
         setSnackbar({
           open: true,
-          message: 'تم حذف البلاغ بنجاح',
+          message: "تم حذف طلب التبرع بنجاح",
           severity: 'success',
         });
         navigate('/es3afni');
       } catch (error) {
         setSnackbar({
           open: true,
-          message: 'فشل في حذف البلاغ',
+          message: "فشل في حذف الطلب",
           severity: 'error',
         });
       }
@@ -80,7 +87,7 @@ const Es3afniPage: React.FC = () => {
         addListItem(newItem);
         setSnackbar({
           open: true,
-          message: 'تم نشر البلاغ العاجل بنجاح',
+          message: "تم إنشاء طلب التبرع بنجاح",
           severity: 'success',
         });
         navigate(`/es3afni/${newItem._id}`);
@@ -89,15 +96,15 @@ const Es3afniPage: React.FC = () => {
         updateListItem(updatedItem);
         setSnackbar({
           open: true,
-          message: 'تم تحديث البلاغ بنجاح',
+          message: "تم تحديث طلب التبرع بنجاح",
           severity: 'success',
         });
         navigate(`/es3afni/${updatedItem._id}`);
       }
     } catch (error) {
-      setSnackbar({
-        open: true,
-        message: 'فشل في حفظ البلاغ',
+        setSnackbar({
+          open: true,
+          message: "فشل في حفظ الطلب",
         severity: 'error',
       });
     }
@@ -112,6 +119,17 @@ const Es3afniPage: React.FC = () => {
   const renderContent = () => {
     // Show details page
     if (id && !action) {
+      const ownerIdStr =
+        currentItem &&
+        (typeof currentItem.ownerId === "object" &&
+        (currentItem.ownerId as { _id?: string })?._id
+          ? String((currentItem.ownerId as { _id: string })._id)
+          : String(currentItem.ownerId || ""));
+      const isOwner = !!(
+        currentUserId &&
+        currentItem &&
+        ownerIdStr === currentUserId
+      );
       return (
         <Es3afniDetails
           item={currentItem!}
@@ -119,20 +137,23 @@ const Es3afniPage: React.FC = () => {
           onBack={handleBack}
           onEdit={handleEditItem}
           onDelete={handleDeleteItem}
+          isOwner={isOwner}
         />
       );
     }
 
     // Show form (create/edit)
-    if ((id === 'new') || (id && action === 'edit')) {
-      const isEdit = id !== 'new' && action === 'edit';
+    if (id === "new" || (id && action === "edit")) {
+      const isEdit = id !== "new" && action === "edit";
+      const ownerId = String(currentUserId ?? "");
       return (
         <Es3afniForm
           item={isEdit ? (currentItem ?? undefined) : undefined}
           loading={itemLoading}
-          mode={isEdit ? 'edit' : 'create'}
+          mode={isEdit ? "edit" : "create"}
           onSubmit={handleFormSubmit}
           onCancel={handleBack}
+          ownerId={ownerId}
         />
       );
     }

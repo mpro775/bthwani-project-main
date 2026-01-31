@@ -1,30 +1,31 @@
-// src/features/sanad/components/SanadDetails.tsx
-import React from 'react';
+// مطابق لـ app-user SanadDetailsScreen
+import React from "react";
 import {
   Box,
   Typography,
-  Paper,
-  Chip,
-  Divider,
-  CircularProgress,
-  Alert,
   IconButton,
-  Tooltip,
-  Grid,
-} from '@mui/material';
+  Button,
+  CircularProgress,
+} from "@mui/material";
 import {
-  ArrowBack as ArrowBackIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Person as PersonIcon,
-  AccessTime as TimeIcon,
-  Help as HelpIcon,
-  Emergency as EmergencyIcon,
-  VolunteerActivism as CharityIcon,
-  Phone as PhoneIcon,
-  Email as EmailIcon,
-} from '@mui/icons-material';
-import { type SanadItem, SanadStatusLabels, SanadStatusColors, SanadKindLabels, SanadKindColors } from '../types';
+  ArrowBack,
+  Share,
+  Edit,
+  Delete,
+  WorkOutline,
+  Warning,
+  Favorite,
+  HelpOutline,
+  LocationOn,
+  Phone,
+} from "@mui/icons-material";
+import type { SanadItem, SanadStatus } from "../types";
+import {
+  SanadKindLabels,
+  SanadStatusLabels,
+  SanadStatusColors,
+  SanadKindColors,
+} from "../types";
 
 interface SanadDetailsProps {
   item: SanadItem;
@@ -32,16 +33,20 @@ interface SanadDetailsProps {
   onBack?: () => void;
   onEdit?: (item: SanadItem) => void;
   onDelete?: (item: SanadItem) => void;
+  isOwner?: boolean;
+  onStatusChange?: (item: SanadItem, newStatus: SanadStatus) => Promise<void>;
 }
 
-const getKindIcon = (kind: string) => {
+const getKindIcon = (kind?: string) => {
   switch (kind) {
-    case 'emergency':
-      return <EmergencyIcon sx={{ fontSize: 40, color: SanadKindColors[kind as keyof typeof SanadKindColors] }} />;
-    case 'charity':
-      return <CharityIcon sx={{ fontSize: 40, color: SanadKindColors[kind as keyof typeof SanadKindColors] }} />;
+    case "specialist":
+      return <WorkOutline />;
+    case "emergency":
+      return <Warning />;
+    case "charity":
+      return <Favorite />;
     default:
-      return <HelpIcon sx={{ fontSize: 40, color: SanadKindColors[kind as keyof typeof SanadKindColors] }} />;
+      return <HelpOutline />;
   }
 };
 
@@ -51,217 +56,286 @@ const SanadDetails: React.FC<SanadDetailsProps> = ({
   onBack,
   onEdit,
   onDelete,
+  isOwner = false,
+  onStatusChange,
 }) => {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-SA', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+  const [updatingStatus, setUpdatingStatus] = React.useState(false);
+
+  const formatDate = (dateInput?: string | Date) => {
+    if (!dateInput) return "غير محدد";
+    try {
+      const d =
+        dateInput instanceof Date ? dateInput : new Date(dateInput);
+      return d.toLocaleDateString("ar-SA", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return String(dateInput);
+    }
   };
 
-  const handleEdit = () => {
-    onEdit?.(item);
+  const kindColor =
+    item.kind && item.kind in SanadKindColors
+      ? SanadKindColors[item.kind]
+      : "#9e9e9e";
+
+  const handleShare = async () => {
+    if (!item) return;
+    const text = `${item.kind ? SanadKindLabels[item.kind] : "طلب"}: ${item.title}\n\n${item.description || ""}\n\nالموقع: ${item.metadata?.location || "غير محدد"}\n\nمعلومات التواصل: ${item.metadata?.contact || "غير محدد"}\n\nتاريخ النشر: ${formatDate(item.createdAt)}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: item.title, text });
+      } else {
+        await navigator.clipboard.writeText(text);
+      }
+    } catch (e) {
+      console.error("Share failed:", e);
+    }
   };
 
-  const handleDelete = () => {
-    onDelete?.(item);
+  const handleStatusChange = async (newStatus: SanadStatus) => {
+    if (!item || item.status === newStatus || !onStatusChange) return;
+    setUpdatingStatus(true);
+    try {
+      await onStatusChange(item, newStatus);
+    } finally {
+      setUpdatingStatus(false);
+    }
   };
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-        <CircularProgress />
+      <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+        <CircularProgress color="primary" />
       </Box>
     );
   }
 
   return (
-    <Box sx={{ maxWidth: 800, mx: 'auto', py: 4 }}>
-      {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+    <Box sx={{ maxWidth: 800, mx: "auto", pb: 4 }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          px: 2,
+          py: 1.5,
+          backgroundColor: "background.paper",
+          borderBottom: 1,
+          borderColor: "divider",
+        }}
+      >
         {onBack && (
-          <IconButton onClick={onBack} sx={{ mr: 2 }}>
-            <ArrowBackIcon />
+          <IconButton onClick={onBack} sx={{ mr: 1 }}>
+            <ArrowBack />
           </IconButton>
         )}
-
-        <Box sx={{ flex: 1 }}>
-          <Typography variant="h4" component="h1" gutterBottom>
-            تفاصيل طلب السند
-          </Typography>
-        </Box>
-
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          {onEdit && (
-            <Tooltip title="تعديل الطلب">
-              <IconButton onClick={handleEdit} color="primary">
-                <EditIcon />
+        <Typography variant="h6" sx={{ flex: 1, textAlign: "center" }}>
+          تفاصيل الطلب
+        </Typography>
+        <IconButton onClick={handleShare}>
+          <Share />
+        </IconButton>
+        {isOwner && (
+          <>
+            {onEdit && (
+              <IconButton onClick={() => onEdit(item)}>
+                <Edit />
               </IconButton>
-            </Tooltip>
-          )}
-          {onDelete && (
-            <Tooltip title="حذف الطلب">
-              <IconButton onClick={handleDelete} color="error">
-                <DeleteIcon />
+            )}
+            {onDelete && (
+              <IconButton onClick={() => onDelete(item)} color="error">
+                <Delete />
               </IconButton>
-            </Tooltip>
-          )}
-        </Box>
+            )}
+          </>
+        )}
       </Box>
 
-      {/* Emergency Alert for Emergency Requests */}
-      {item.kind === 'emergency' && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          <Typography variant="body2">
-            <strong>فزعة طوارئ:</strong> هذا طلب فزعة طارئة. يرجى التعامل معها بأولوية عالية والاتصال بالجهات المعنية فوراً.
-          </Typography>
-        </Alert>
-      )}
-
-      {/* Charity Alert for Charity Requests */}
-      {item.kind === 'charity' && (
-        <Alert severity="success" sx={{ mb: 3 }}>
-          <Typography variant="body2">
-            <strong>عمل خيري:</strong> هذا طلب خدمة خيرية. دعونا نساعد في نشر الخير والعطاء.
-          </Typography>
-        </Alert>
-      )}
-
-      <Paper sx={{ p: 3 }}>
-        {/* Kind and Status */}
-        <Box sx={{ textAlign: 'center', mb: 3 }}>
-          {getKindIcon(item.kind)}
-          <Typography variant="h5" gutterBottom>
-            {SanadKindLabels[item.kind]}
-          </Typography>
-
-          <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Chip
-              label={SanadStatusLabels[item.status]}
-              sx={{
-                backgroundColor: SanadStatusColors[item.status],
-                color: 'white',
-              }}
-            />
+      <Box sx={{ px: 2, py: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 2,
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              backgroundColor: "grey.200",
+              px: 2,
+              py: 1,
+              borderRadius: 1,
+            }}
+          >
+            <Box sx={{ color: kindColor }}>{getKindIcon(item.kind)}</Box>
+            <Typography variant="body2" fontWeight={600} sx={{ color: kindColor }}>
+              {item.kind ? SanadKindLabels[item.kind] : "غير محدد"}
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              px: 2,
+              py: 1,
+              borderRadius: 1,
+              backgroundColor: SanadStatusColors[item.status],
+            }}
+          >
+            <Typography variant="body2" sx={{ color: "white", fontWeight: 600 }}>
+              {SanadStatusLabels[item.status]}
+            </Typography>
           </Box>
         </Box>
 
-        <Divider sx={{ my: 3 }} />
+        <Typography variant="h5" fontWeight={700} sx={{ mb: 2 }}>
+          {item.title}
+        </Typography>
 
-        {/* Title and Description */}
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="h6" gutterBottom>
-            {item.title}
+        {item.description && (
+          <Typography variant="body1" sx={{ mb: 3, whiteSpace: "pre-line" }}>
+            {item.description}
           </Typography>
-          {item.description && (
-            <Typography variant="body1" sx={{ whiteSpace: 'pre-line' }}>
-              {item.description}
-            </Typography>
-          )}
-        </Box>
+        )}
 
-        {/* Metadata */}
-        {item.metadata && Object.keys(item.metadata).length > 0 && (
+        {(item.metadata?.location || item.metadata?.contact) && (
           <Box sx={{ mb: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              معلومات إضافية
+            <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
+              بيانات إضافية
             </Typography>
-            <Grid container spacing={2}>
-              {Object.entries(item.metadata).map(([key, value]) => (
-                <Grid size={{xs: 12, sm: 6}} key={key}>
-                  <Paper variant="outlined" sx={{ p: 2 }}>
-                    <Typography variant="subtitle2" color="text.secondary">
-                      {key}
-                    </Typography>
-                    <Typography variant="body2">
-                      {String(value)}
-                    </Typography>
-                  </Paper>
-                </Grid>
-              ))}
-            </Grid>
+            {item.metadata.location && (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  mb: 1,
+                  p: 1,
+                  backgroundColor: "grey.50",
+                  borderRadius: 1,
+                }}
+              >
+                <LocationOn fontSize="small" color="action" />
+                <Typography variant="body2">{item.metadata.location}</Typography>
+              </Box>
+            )}
+            {item.metadata.contact && (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  p: 1,
+                  backgroundColor: "grey.50",
+                  borderRadius: 1,
+                }}
+              >
+                <Phone fontSize="small" color="action" />
+                <Typography variant="body2">{item.metadata.contact}</Typography>
+              </Box>
+            )}
           </Box>
         )}
 
-        <Divider sx={{ my: 3 }} />
-
-        {/* Owner Information */}
-        {item.owner && (
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
-              <PersonIcon sx={{ mr: 1 }} />
-              معلومات الطالب
+        {isOwner && (
+          <Box
+            sx={{
+              mb: 3,
+              p: 2,
+              backgroundColor: "background.paper",
+              borderRadius: 2,
+              border: 1,
+              borderColor: "divider",
+            }}
+          >
+            <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
+              إدارة الطلب
             </Typography>
-
-            <Paper variant="outlined" sx={{ p: 2 }}>
-              <Grid container spacing={2}>
-                <Grid size={{xs: 12, sm: 6}}>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    الاسم
-                  </Typography>
-                  <Typography variant="body1">
-                    {item.owner.name}
-                  </Typography>
-                </Grid>
-
-                {item.owner.email && (
-                  <Grid size={{xs: 12, sm: 6}}>
-                    <Typography variant="subtitle2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
-                      <EmailIcon sx={{ mr: 0.5, fontSize: 16 }} />
-                      البريد الإلكتروني
-                    </Typography>
-                    <Typography variant="body1">
-                      {item.owner.email}
-                    </Typography>
-                  </Grid>
-                )}
-
-                {item.owner.phone && (
-                  <Grid size={{xs: 12, sm: 6}}>
-                    <Typography variant="subtitle2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
-                      <PhoneIcon sx={{ mr: 0.5, fontSize: 16 }} />
-                      رقم الهاتف
-                    </Typography>
-                    <Typography variant="body1" sx={{ direction: 'ltr', textAlign: 'left' }}>
-                      {item.owner.phone}
-                    </Typography>
-                  </Grid>
-                )}
-              </Grid>
-            </Paper>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              هذا الطلب خاص بك. يمكنك تغيير الحالة أو تعديل التفاصيل أو حذفه.
+            </Typography>
+            <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>
+              تغيير الحالة
+            </Typography>
+            {updatingStatus ? (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <CircularProgress size={20} color="primary" />
+                <Typography variant="body2" color="text.secondary">
+                  جاري التحديث...
+                </Typography>
+              </Box>
+            ) : (
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>
+                {(
+                  [
+                    "draft",
+                    "pending",
+                    "confirmed",
+                    "completed",
+                    "cancelled",
+                  ] as SanadStatus[]
+                ).map((status) => (
+                  <Button
+                    key={status}
+                    variant={item.status === status ? "contained" : "outlined"}
+                    size="small"
+                    onClick={() => handleStatusChange(status)}
+                    sx={{
+                      borderColor: SanadStatusColors[status],
+                      ...(item.status === status && {
+                        backgroundColor: SanadStatusColors[status],
+                        color: "white",
+                      }),
+                    }}
+                  >
+                    {SanadStatusLabels[status]}
+                  </Button>
+                ))}
+              </Box>
+            )}
+            <Box sx={{ display: "flex", gap: 1 }}>
+              {onEdit && (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  startIcon={<Edit />}
+                  onClick={() => onEdit(item)}
+                >
+                  تعديل التفاصيل
+                </Button>
+              )}
+              {onDelete && (
+                <Button
+                  variant="contained"
+                  color="error"
+                  startIcon={<Delete />}
+                  onClick={() => onDelete(item)}
+                >
+                  حذف الطلب
+                </Button>
+              )}
+            </Box>
           </Box>
         )}
 
-        {/* Dates */}
-        <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <TimeIcon fontSize="small" color="action" />
-            <Box>
-              <Typography variant="caption" color="text.secondary">
-                تاريخ الطلب
-              </Typography>
-              <Typography variant="body2">
-                {formatDate(item.createdAt)}
-              </Typography>
-            </Box>
-          </Box>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <TimeIcon fontSize="small" color="action" />
-            <Box>
-              <Typography variant="caption" color="text.secondary">
-                آخر تحديث
-              </Typography>
-              <Typography variant="body2">
-                {formatDate(item.updatedAt)}
-              </Typography>
-            </Box>
-          </Box>
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
+            تواريخ مهمة
+          </Typography>
+          <Typography variant="body2">
+            تاريخ النشر: {formatDate(item.createdAt)}
+          </Typography>
+          <Typography variant="body2">
+            آخر تحديث: {formatDate(item.updatedAt)}
+          </Typography>
         </Box>
-      </Paper>
+      </Box>
     </Box>
   );
 };

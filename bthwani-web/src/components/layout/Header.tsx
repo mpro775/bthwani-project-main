@@ -58,7 +58,7 @@ const Header: React.FC = () => {
 
           <Box sx={{ flexGrow: 1 }} />
 
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation - مطابق لـ app-user */}
           <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 3 }}>
             <Button
               component={Link}
@@ -69,7 +69,18 @@ const Header: React.FC = () => {
                 transition: 'color 0.2s',
               }}
             >
-              الرئيسية
+              الخدمات
+            </Button>
+            <Button
+              component={Link}
+              to="/delivery"
+              sx={{
+                color: 'text.primary',
+                '&:hover': { color: 'primary.main' },
+                transition: 'color 0.2s',
+              }}
+            >
+              الديلفري
             </Button>
             <Button
               component={Link}

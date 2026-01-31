@@ -1,5 +1,5 @@
-// src/features/kawader/components/KawaderForm.tsx
-import React, { useState, useEffect } from 'react';
+// مطابق لـ app-user KawaderCreateScreen / KawaderEditScreen
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -10,25 +10,25 @@ import {
   Grid,
   Alert,
   CircularProgress,
-} from '@mui/material';
-import {
-  ArrowBack as ArrowBackIcon,
-  Add as AddIcon,
-  Delete as DeleteIcon,
-  Save as SaveIcon,
-  AttachMoney as MoneyIcon,
-  WorkOutline as WorkIcon,
-} from '@mui/icons-material';
-import type { KawaderItem } from '../types';
-import type { CreateKawaderPayload, UpdateKawaderPayload } from '../types';
+  Chip,
+  FormControlLabel,
+  Checkbox,
+} from "@mui/material";
+import { ArrowBack, Save as SaveIcon } from "@mui/icons-material";
+import type { KawaderItem } from "../types";
+import type { CreateKawaderPayload, UpdateKawaderPayload } from "../types";
+import { WORK_SCOPES } from "../types";
 
 interface KawaderFormProps {
   item?: KawaderItem;
   loading?: boolean;
   saving?: boolean;
-  onSubmit: (data: CreateKawaderPayload | UpdateKawaderPayload) => Promise<void>;
+  onSubmit: (
+    data: CreateKawaderPayload | UpdateKawaderPayload
+  ) => Promise<void>;
   onCancel?: () => void;
-  mode: 'create' | 'edit';
+  mode: "create" | "edit";
+  ownerId?: string;
 }
 
 const KawaderForm: React.FC<KawaderFormProps> = ({
@@ -38,254 +38,292 @@ const KawaderForm: React.FC<KawaderFormProps> = ({
   onSubmit,
   onCancel,
   mode,
+  ownerId = "",
 }) => {
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    scope: '',
-    budget: '',
-    metadata: {} as Record<string, any>,
+    title: "",
+    description: "",
+    scope: "",
+    budget: "" as string | number,
+    metadata: {
+      experience: "",
+      skills: [] as string[],
+      location: "",
+      contact: "",
+      remote: false,
+    },
+    status: "draft" as string,
   });
-
-  const [metadataKey, setMetadataKey] = useState('');
-  const [metadataValue, setMetadataValue] = useState('');
+  const [skillsInput, setSkillsInput] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (item && mode === 'edit') {
+    if (item && mode === "edit") {
       setFormData({
         title: item.title,
-        description: item.description || '',
-        scope: item.scope || '',
-        budget: item.budget ? String(item.budget) : '',
-        metadata: item.metadata || {},
+        description: item.description || "",
+        scope: item.scope || "",
+        budget: item.budget ?? "",
+        metadata: {
+          experience: item.metadata?.experience || "",
+          skills: item.metadata?.skills || [],
+          location: item.metadata?.location || "",
+          contact: item.metadata?.contact || "",
+          remote: item.metadata?.remote ?? false,
+        },
+        status: item.status,
       });
+      setSkillsInput((item.metadata?.skills || []).join(", "));
     }
   }, [item, mode]);
 
   const handleInputChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleAddMetadata = () => {
-    if (metadataKey.trim() && metadataValue.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        metadata: {
-          ...prev.metadata,
-          [metadataKey.trim()]: metadataValue.trim()
-        }
-      }));
-      setMetadataKey('');
-      setMetadataValue('');
-    }
-  };
-
-  const handleRemoveMetadata = (key: string) => {
-    setFormData(prev => {
-      const newMetadata = { ...prev.metadata };
-      delete newMetadata[key];
-      return { ...prev, metadata: newMetadata };
-    });
+  const handleMetadataChange = (field: string, value: any) => {
+    setFormData((prev) => ({
+      ...prev,
+      metadata: { ...prev.metadata, [field]: value },
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!formData.title.trim()) {
-      setError('يرجى إدخال عنوان العرض الوظيفي');
+      setError("يرجى إدخال عنوان العرض الوظيفي");
+      return;
+    }
+    if (mode === "create" && !ownerId) {
+      setError("يجب تسجيل الدخول أولاً");
       return;
     }
 
-    if (!formData.budget || parseFloat(formData.budget) <= 0) {
-      setError('يرجى إدخال ميزانية صحيحة');
-      return;
-    }
+    const processedSkills = skillsInput
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
 
     try {
       setError(null);
-
-      const submitData = {
-        ...formData,
-        budget: parseFloat(formData.budget),
+      const payload: CreateKawaderPayload | UpdateKawaderPayload = {
+        title: formData.title.trim(),
         description: formData.description.trim() || undefined,
         scope: formData.scope.trim() || undefined,
-        metadata: Object.keys(formData.metadata).length > 0 ? formData.metadata : undefined,
+        budget: formData.budget ? parseFloat(String(formData.budget)) : undefined,
+        metadata: {
+          experience: formData.metadata.experience.trim() || undefined,
+          skills: processedSkills.length ? processedSkills : undefined,
+          location: formData.metadata.location.trim() || undefined,
+          contact: formData.metadata.contact.trim() || undefined,
+          remote: formData.metadata.remote,
+        },
       };
-
-      await onSubmit(submitData);
+      if (mode === "create") {
+        (payload as CreateKawaderPayload).ownerId = ownerId;
+        (payload as CreateKawaderPayload).status = formData.status as any;
+      } else if (mode === "edit") {
+        (payload as UpdateKawaderPayload).status = formData.status as any;
+      }
+      await onSubmit(payload);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'حدث خطأ أثناء حفظ العرض الوظيفي');
+      setError(
+        err instanceof Error ? err.message : "حدث خطأ أثناء حفظ العرض الوظيفي"
+      );
     }
   };
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-        <CircularProgress />
+      <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+        <CircularProgress color="primary" />
       </Box>
     );
   }
 
   return (
-    <Box sx={{ maxWidth: 800, mx: 'auto', py: 4 }}>
-      {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+    <Box sx={{ maxWidth: 800, mx: "auto", py: 4, pb: 6 }}>
+      <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
         {onCancel && (
-          <IconButton onClick={onCancel} sx={{ mr: 2 }}>
-            <ArrowBackIcon />
+          <IconButton onClick={onCancel} sx={{ mr: 1 }}>
+            <ArrowBack />
           </IconButton>
         )}
-
-        <Box sx={{ flex: 1 }}>
-          <Typography variant="h4" component="h1" gutterBottom>
-            {mode === 'create' ? 'عرض وظيفي جديد' : 'تعديل العرض الوظيفي'}
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            {mode === 'create'
-              ? 'أدخل تفاصيل العرض الوظيفي الجديد'
-              : 'قم بتعديل تفاصيل العرض الوظيفي'
-            }
-          </Typography>
-        </Box>
+        <Typography variant="h5" fontWeight={700}>
+          {mode === "create" ? "إضافة عرض وظيفي جديد" : "تعديل العرض الوظيفي"}
+        </Typography>
       </Box>
 
       <Paper sx={{ p: 3 }}>
         <form onSubmit={handleSubmit}>
-          {/* Error Message */}
           {error && (
-            <Alert severity="error" sx={{ mb: 3 }}>
+            <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
               {error}
             </Alert>
           )}
 
           <Grid container spacing={3}>
-            {/* Title */}
-            <Grid size={{xs: 12}}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
-                label="عنوان العرض الوظيفي"
+                label="عنوان العرض الوظيفي *"
                 value={formData.title}
-                onChange={(e) => handleInputChange('title', e.target.value)}
-                required
+                onChange={(e) => handleInputChange("title", e.target.value)}
                 placeholder="مثال: مطور Full Stack مطلوب لمشروع تقني"
+                maxLength={100}
               />
             </Grid>
 
-            {/* Budget */}
-            <Grid size={{xs: 12, sm: 6}}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
-                label="الميزانية"
-                type="number"
-                value={formData.budget}
-                onChange={(e) => handleInputChange('budget', e.target.value)}
-                required
-                InputProps={{
-                  startAdornment: <MoneyIcon sx={{ mr: 1, color: 'action' }} />,
-                  endAdornment: <Typography variant="body2" color="text.secondary">ريال</Typography>,
-                }}
-                placeholder="0.00"
-                inputProps={{ min: 0, step: 0.01 }}
-              />
-            </Grid>
-
-            {/* Scope */}
-            <Grid size={{xs: 12, sm: 6}}>
-              <TextField
-                fullWidth
-                label="نطاق العمل"
-                value={formData.scope}
-                onChange={(e) => handleInputChange('scope', e.target.value)}
-                InputProps={{
-                  startAdornment: <WorkIcon sx={{ mr: 1, color: 'action' }} />,
-                }}
-                placeholder="مثال: مشروع 6 أشهر"
-              />
-            </Grid>
-
-            {/* Description */}
-            <Grid size={{xs: 12}}>
-              <TextField
-                fullWidth
-                label="الوصف"
+                label="تفاصيل العرض"
                 value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
+                onChange={(e) => handleInputChange("description", e.target.value)}
+                placeholder="وصف تفصيلي للعرض الوظيفي أو الخدمة المهنية..."
                 multiline
                 rows={4}
-                placeholder="اوصف الوظيفة أو الخدمة المهنية بالتفصيل..."
+                maxLength={500}
               />
             </Grid>
 
-            {/* Metadata */}
-              <Grid size={{xs: 12}}>
-              <Typography variant="h6" gutterBottom>
-                معلومات إضافية (اختيارية)
+            <Grid size={{ xs: 12 }}>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                نطاق العمل
               </Typography>
-              <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                <TextField
-                  placeholder="المفتاح (مثل: الخبرة المطلوبة)"
-                  value={metadataKey}
-                  onChange={(e) => setMetadataKey(e.target.value)}
-                  sx={{ flex: 1 }}
-                />
-                <TextField
-                  placeholder="القيمة (مثل: 3+ سنوات)"
-                  value={metadataValue}
-                  onChange={(e) => setMetadataValue(e.target.value)}
-                  sx={{ flex: 1 }}
-                />
-                <Button
-                  variant="outlined"
-                  onClick={handleAddMetadata}
-                  disabled={!metadataKey.trim() || !metadataValue.trim()}
-                >
-                  <AddIcon />
-                </Button>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                {WORK_SCOPES.map((scope) => (
+                  <Chip
+                    key={scope}
+                    label={scope}
+                    onClick={() => handleInputChange("scope", scope)}
+                    color={formData.scope === scope ? "primary" : "default"}
+                    variant={formData.scope === scope ? "filled" : "outlined"}
+                  />
+                ))}
               </Box>
-              {Object.keys(formData.metadata).length > 0 && (
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                  {Object.entries(formData.metadata).map(([key, value]) => (
-                    <Box key={key} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <TextField
-                        fullWidth
-                        value={`${key}: ${value}`}
-                        InputProps={{
-                          readOnly: true,
-                        }}
-                        size="small"
-                      />
-                      <IconButton
-                        onClick={() => handleRemoveMetadata(key)}
-                        color="error"
-                        size="small"
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Box>
-                  ))}
-                </Box>
-              )}
+            </Grid>
+
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                label="الميزانية (ريال)"
+                type="number"
+                value={formData.budget}
+                onChange={(e) =>
+                  handleInputChange(
+                    "budget",
+                    e.target.value ? parseFloat(e.target.value) : ""
+                  )
+                }
+                placeholder="مثال: 15000"
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12 }}>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                بيانات إضافية
+              </Typography>
+              <TextField
+                fullWidth
+                label="الخبرة المطلوبة"
+                value={formData.metadata.experience}
+                onChange={(e) =>
+                  handleMetadataChange("experience", e.target.value)
+                }
+                placeholder="مثال: 3+ سنوات"
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                fullWidth
+                label="المهارات المطلوبة (مفصولة بفاصلة)"
+                value={skillsInput}
+                onChange={(e) => setSkillsInput(e.target.value)}
+                placeholder="مثال: React, Node.js, MongoDB"
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                fullWidth
+                label="الموقع"
+                value={formData.metadata.location}
+                onChange={(e) =>
+                  handleMetadataChange("location", e.target.value)
+                }
+                placeholder="مثال: الرياض، جدة"
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                fullWidth
+                label="رقم التواصل (اختياري)"
+                value={formData.metadata.contact}
+                onChange={(e) =>
+                  handleMetadataChange("contact", e.target.value)
+                }
+                placeholder="+966512345678"
+                sx={{ mb: 2 }}
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={formData.metadata.remote}
+                    onChange={(e) =>
+                      handleMetadataChange("remote", e.target.checked)
+                    }
+                  />
+                }
+                label="متاح العمل عن بعد"
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12 }}>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                {mode === "create" ? "الحالة الأولية" : "حالة العرض"}
+              </Typography>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                {(mode === "create"
+                  ? [
+                      { key: "draft", label: "مسودة" },
+                      { key: "pending", label: "في الانتظار" },
+                    ]
+                  : [
+                      { key: "draft", label: "مسودة" },
+                      { key: "pending", label: "في الانتظار" },
+                      { key: "confirmed", label: "مؤكد" },
+                      { key: "completed", label: "مكتمل" },
+                      { key: "cancelled", label: "ملغي" },
+                    ]
+                ).map((opt) => (
+                  <Chip
+                    key={opt.key}
+                    label={opt.label}
+                    onClick={() => handleInputChange("status", opt.key)}
+                    color={formData.status === opt.key ? "primary" : "default"}
+                    variant={formData.status === opt.key ? "filled" : "outlined"}
+                  />
+                ))}
+              </Box>
             </Grid>
           </Grid>
 
-          {/* Actions */}
-          <Box sx={{ display: 'flex', gap: 2, mt: 4 }}>
+          <Box sx={{ display: "flex", gap: 2, mt: 4 }}>
             <Button
               type="submit"
               variant="contained"
-              startIcon={saving ? <CircularProgress size={16} /> : <SaveIcon />}
               disabled={saving}
+              startIcon={
+                saving ? (
+                  <CircularProgress size={16} color="inherit" />
+                ) : (
+                  <SaveIcon />
+                )
+              }
             >
-              {saving ? 'جاري الحفظ...' : (mode === 'create' ? 'إنشاء العرض الوظيفي' : 'حفظ التغييرات')}
+              {mode === "create"
+                ? "إنشاء العرض الوظيفي"
+                : "حفظ التغييرات"}
             </Button>
-
             {onCancel && (
-              <Button
-                variant="outlined"
-                onClick={onCancel}
-                disabled={saving}
-              >
+              <Button variant="outlined" onClick={onCancel} disabled={saving}>
                 إلغاء
               </Button>
             )}

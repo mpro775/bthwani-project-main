@@ -1,15 +1,16 @@
-// src/features/kenz/hooks/useKenzList.ts
-import { useState, useEffect, useCallback } from 'react';
-import { getKenzList } from '../api';
-import type { KenzItem, KenzFilters } from '../types';
+// مطابق لـ app-user - دعم الفلترة حسب الفئة والمدينة
+import { useState, useEffect, useCallback } from "react";
+import { getKenzList } from "../api";
+import type { KenzItem, KenzListResponse } from "../types";
 
 interface UseKenzListOptions {
-  initialFilters?: KenzFilters;
+  initialCategory?: string | undefined;
+  initialCity?: string | undefined;
   limit?: number;
 }
 
 export function useKenzList(options: UseKenzListOptions = {}) {
-  const { initialFilters = {}, limit = 20 } = options;
+  const { initialCategory, initialCity, limit = 20 } = options;
 
   const [items, setItems] = useState<KenzItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -17,98 +18,113 @@ export function useKenzList(options: UseKenzListOptions = {}) {
   const [nextCursor, setNextCursor] = useState<string | undefined>();
   const [hasMore, setHasMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [filters, setFilters] = useState<KenzFilters>(initialFilters);
+  const [selectedCategory, setSelectedCategory] = useState<string | undefined>(
+    initialCategory
+  );
+  const [selectedCity, setSelectedCity] = useState<string | undefined>(
+    initialCity
+  );
 
-  const loadItems = useCallback(async (loadMore = false) => {
-    try {
-      if (loadMore) {
-        setLoadingMore(true);
-      } else {
-        setLoading(true);
-        setError(null);
+  const loadItems = useCallback(
+    async (cursor?: string, isLoadMore = false) => {
+      try {
+        if (isLoadMore) {
+          setLoadingMore(true);
+        } else {
+          setLoading(true);
+          setError(null);
+        }
+
+        const response: KenzListResponse = await getKenzList({
+          cursor,
+          limit,
+          category: selectedCategory,
+          city: selectedCity,
+        });
+        const list = response?.items ?? [];
+
+        if (isLoadMore) {
+          setItems((prev) => [...prev, ...list]);
+        } else {
+          setItems(list);
+        }
+
+        setNextCursor(response.nextCursor);
+        setHasMore(!!response.nextCursor);
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "فشل في تحميل الإعلانات";
+        setError(errorMessage);
+        console.error("خطأ في تحميل كنز:", err);
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
       }
+    },
+    [selectedCategory, selectedCity, limit]
+  );
 
-      const params: any = { limit };
+  const updateFilters = useCallback(
+    (updates: { category?: string | undefined; city?: string | undefined }) => {
+      if (updates.category !== undefined) setSelectedCategory(updates.category);
+      if (updates.city !== undefined) setSelectedCity(updates.city);
+    },
+    []
+  );
 
-      // تطبيق الفلاتر
-      if (filters.search) params.search = filters.search;
-      if (filters.status) params.status = filters.status;
-      if (filters.category) params.category = filters.category;
-      if (filters.priceMin !== undefined) params.priceMin = filters.priceMin;
-      if (filters.priceMax !== undefined) params.priceMax = filters.priceMax;
-
-      if (loadMore && nextCursor) {
-        params.cursor = nextCursor;
-      }
-
-      const response = await getKenzList(params);
-
-      if (loadMore) {
-        setItems(prev => [...prev, ...response.items]);
-      } else {
-        setItems(response.items);
-      }
-
-      setNextCursor(response.nextCursor);
-      setHasMore(!!response.nextCursor && response.items.length === limit);
-
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'فشل في تحميل الإعلانات';
-      setError(errorMessage);
-      console.error('خطأ في تحميل كنز:', err);
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  }, [filters, limit, nextCursor]);
-
-  // تحديث الفلاتر
-  const updateFilters = useCallback((newFilters: Partial<KenzFilters>) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
+  const handleCategoryChange = useCallback((category: string | undefined) => {
+    setSelectedCategory(category);
+    setItems([]);
+    setNextCursor(undefined);
+    setHasMore(true);
   }, []);
 
-  // إعادة تعيين الفلاتر
+  const handleCityChange = useCallback((city: string | undefined) => {
+    setSelectedCity(city);
+    setItems([]);
+    setNextCursor(undefined);
+    setHasMore(true);
+  }, []);
+
   const resetFilters = useCallback(() => {
-    setFilters({});
+    setSelectedCategory(undefined);
+    setSelectedCity(undefined);
     setItems([]);
     setNextCursor(undefined);
     setHasMore(false);
   }, []);
 
-  // تحميل المزيد
   const loadMore = useCallback(() => {
-    if (!loadingMore && hasMore) {
-      loadItems(true);
+    if (!loadingMore && hasMore && nextCursor) {
+      loadItems(nextCursor, true);
     }
-  }, [loadingMore, hasMore, loadItems]);
+  }, [loadingMore, hasMore, nextCursor, loadItems]);
 
-  // إعادة تحميل
   const refresh = useCallback(() => {
     setItems([]);
     setNextCursor(undefined);
-    setHasMore(false);
-    loadItems(false);
+    setHasMore(true);
+    loadItems(undefined, false);
   }, [loadItems]);
 
-  // تحديث عنصر في القائمة
   const updateItem = useCallback((updatedItem: KenzItem) => {
-    setItems(prev => prev.map(item =>
-      item._id === updatedItem._id ? updatedItem : item
-    ));
+    setItems((prev) =>
+      prev.map((item) =>
+        item._id === updatedItem._id ? updatedItem : item
+      )
+    );
   }, []);
 
-  // حذف عنصر من القائمة
   const removeItem = useCallback((itemId: string) => {
-    setItems(prev => prev.filter(item => item._id !== itemId));
+    setItems((prev) => prev.filter((item) => item._id !== itemId));
   }, []);
 
-  // إضافة عنصر جديد للقائمة
   const addItem = useCallback((newItem: KenzItem) => {
-    setItems(prev => [newItem, ...prev]);
+    setItems((prev) => [newItem, ...prev]);
   }, []);
 
   useEffect(() => {
-    loadItems();
+    loadItems(undefined, false);
   }, [loadItems]);
 
   return {
@@ -117,8 +133,11 @@ export function useKenzList(options: UseKenzListOptions = {}) {
     loadingMore,
     hasMore,
     error,
-    filters,
+    selectedCategory,
+    selectedCity,
     updateFilters,
+    handleCategoryChange,
+    handleCityChange,
     resetFilters,
     loadMore,
     refresh,

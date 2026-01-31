@@ -1,7 +1,18 @@
-// src/features/arabon/types.ts
-export type ArabonStatus = 'draft' | 'pending' | 'confirmed' | 'completed' | 'cancelled';
+// مطابق لـ app-user
+export type ArabonStatus =
+  | "draft"
+  | "pending"
+  | "confirmed"
+  | "completed"
+  | "cancelled";
 
-export type ArabonBookingPeriod = 'hour' | 'day' | 'week';
+export type ArabonBookingPeriod = "hour" | "day" | "week";
+
+export interface ArabonMetadata {
+  guests?: number;
+  notes?: string;
+  [key: string]: any;
+}
 
 export interface ArabonSocialLinks {
   whatsapp?: string;
@@ -11,12 +22,12 @@ export interface ArabonSocialLinks {
 
 export interface ArabonItem {
   _id: string;
-  ownerId: string;
+  ownerId: string | { _id: string };
   title: string;
   description?: string;
   depositAmount?: number;
   scheduleAt?: string;
-  metadata?: Record<string, any>;
+  metadata?: ArabonMetadata;
   status: ArabonStatus;
   images?: string[];
   contactPhone?: string;
@@ -25,23 +36,24 @@ export interface ArabonItem {
   bookingPrice?: number;
   bookingPeriod?: ArabonBookingPeriod;
   pricePerPeriod?: number;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: string | Date;
+  updatedAt: string | Date;
   owner?: {
     _id: string;
     name: string;
-    email: string;
+    email?: string;
     phone?: string;
   };
 }
 
 export interface CreateArabonPayload {
-  ownerId?: string;
+  ownerId: string;
   title: string;
   description?: string;
   depositAmount?: number;
   scheduleAt?: string;
-  metadata?: Record<string, any>;
+  metadata?: ArabonMetadata;
+  status?: ArabonStatus;
   images?: string[];
   contactPhone?: string;
   socialLinks?: ArabonSocialLinks;
@@ -56,7 +68,7 @@ export interface UpdateArabonPayload {
   description?: string;
   depositAmount?: number;
   scheduleAt?: string;
-  metadata?: Record<string, any>;
+  metadata?: ArabonMetadata;
   status?: ArabonStatus;
   images?: string[];
   contactPhone?: string;
@@ -70,13 +82,32 @@ export interface UpdateArabonPayload {
 export interface ArabonFilters {
   status?: ArabonStatus;
   search?: string;
-  dateFrom?: string;
-  dateTo?: string;
 }
 
 export interface ArabonListResponse {
   items: ArabonItem[];
+  data?: ArabonItem[];
   nextCursor?: string;
+  hasMore?: boolean;
+}
+
+export interface ArabonStats {
+  total: number;
+  draft: number;
+  pending: number;
+  confirmed: number;
+  completed: number;
+  cancelled: number;
+  totalDepositAmount: number;
+}
+
+export interface ArabonActivityItem {
+  _id: string;
+  arabonId: string;
+  oldStatus?: string;
+  newStatus: string;
+  userId?: string;
+  createdAt: string;
 }
 
 // ترجمة حالات العربون للعربية

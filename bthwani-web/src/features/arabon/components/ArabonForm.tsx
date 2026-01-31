@@ -14,6 +14,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Chip,
 } from '@mui/material';
 import {
   ArrowBack as ArrowBackIcon,
@@ -38,6 +39,7 @@ interface ArabonFormProps {
   onSubmit: (data: CreateArabonPayload | UpdateArabonPayload) => Promise<void>;
   onCancel?: () => void;
   mode: 'create' | 'edit';
+  ownerId?: string;
 }
 
 const ArabonForm: React.FC<ArabonFormProps> = ({
@@ -47,13 +49,14 @@ const ArabonForm: React.FC<ArabonFormProps> = ({
   onSubmit,
   onCancel,
   mode,
+  ownerId = '',
 }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     depositAmount: '',
     scheduleAt: '',
-    metadata: {} as Record<string, any>,
+    metadata: { guests: undefined as number | undefined, notes: '' } as { guests?: number; notes?: string },
     contactPhone: '',
     whatsapp: '',
     facebook: '',
@@ -62,13 +65,12 @@ const ArabonForm: React.FC<ArabonFormProps> = ({
     bookingPrice: '',
     bookingPeriod: 'day' as 'hour' | 'day' | 'week',
     pricePerPeriod: '',
+    status: 'draft' as string,
   });
 
   const [images, setImages] = useState<string[]>([]);
   const [uploadingImages, setUploadingImages] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [metadataKey, setMetadataKey] = useState('');
-  const [metadataValue, setMetadataValue] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -78,7 +80,7 @@ const ArabonForm: React.FC<ArabonFormProps> = ({
         description: item.description || '',
         depositAmount: item.depositAmount ? String(item.depositAmount) : '',
         scheduleAt: item.scheduleAt ? new Date(item.scheduleAt).toISOString().slice(0, 16) : '',
-        metadata: item.metadata || {},
+        metadata: { guests: item.metadata?.guests, notes: item.metadata?.notes || '' },
         contactPhone: item.contactPhone || '',
         whatsapp: item.socialLinks?.whatsapp || '',
         facebook: item.socialLinks?.facebook || '',
@@ -87,6 +89,7 @@ const ArabonForm: React.FC<ArabonFormProps> = ({
         bookingPrice: item.bookingPrice ? String(item.bookingPrice) : '',
         bookingPeriod: (item.bookingPeriod as 'hour' | 'day' | 'week') || 'day',
         pricePerPeriod: item.pricePerPeriod ? String(item.pricePerPeriod) : '',
+        status: item.status,
       });
       setImages(item.images || []);
     }
@@ -94,28 +97,6 @@ const ArabonForm: React.FC<ArabonFormProps> = ({
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleAddMetadata = () => {
-    if (metadataKey.trim() && metadataValue.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        metadata: {
-          ...prev.metadata,
-          [metadataKey.trim()]: metadataValue.trim()
-        }
-      }));
-      setMetadataKey('');
-      setMetadataValue('');
-    }
-  };
-
-  const handleRemoveMetadata = (key: string) => {
-    setFormData(prev => {
-      const newMetadata = { ...prev.metadata };
-      delete newMetadata[key];
-      return { ...prev, metadata: newMetadata };
-    });
   };
 
   const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -146,6 +127,10 @@ const ArabonForm: React.FC<ArabonFormProps> = ({
       setError('يرجى إدخال عنوان العربون');
       return;
     }
+    if (mode === 'create' && !ownerId) {
+      setError('يجب تسجيل الدخول أولاً');
+      return;
+    }
 
     try {
       setError(null);
@@ -154,7 +139,10 @@ const ArabonForm: React.FC<ArabonFormProps> = ({
         title: formData.title.trim(),
         description: formData.description.trim() || undefined,
         scheduleAt: formData.scheduleAt || undefined,
-        metadata: Object.keys(formData.metadata).length > 0 ? formData.metadata : undefined,
+        metadata: {
+          guests: formData.metadata?.guests,
+          notes: formData.metadata?.notes?.trim() || undefined,
+        },
         depositAmount: formData.depositAmount ? parseFloat(formData.depositAmount) : undefined,
         images: images.length ? images : undefined,
         contactPhone: formData.contactPhone.trim() || undefined,
@@ -171,8 +159,11 @@ const ArabonForm: React.FC<ArabonFormProps> = ({
         pricePerPeriod: formData.pricePerPeriod ? parseFloat(formData.pricePerPeriod) : undefined,
       };
 
-      if (mode === 'edit') {
-        (submitData as UpdateArabonPayload).status = undefined;
+      if (mode === 'create') {
+        (submitData as CreateArabonPayload).ownerId = ownerId;
+        (submitData as CreateArabonPayload).status = formData.status;
+      } else if (mode === 'edit') {
+        (submitData as UpdateArabonPayload).status = formData.status as any;
       }
 
       await onSubmit(submitData);
@@ -201,7 +192,7 @@ const ArabonForm: React.FC<ArabonFormProps> = ({
 
         <Box sx={{ flex: 1 }}>
           <Typography variant="h4" component="h1" gutterBottom>
-            {mode === 'create' ? 'عربون جديد' : 'تعديل العربون'}
+            {mode === 'create' ? 'إضافة إعلان استئجار' : 'تعديل العربون'}
           </Typography>
           <Typography variant="body1" color="text.secondary">
             {mode === 'create'
@@ -393,55 +384,49 @@ const ArabonForm: React.FC<ArabonFormProps> = ({
               />
             </Grid>
 
-            {/* Metadata */}
+            {/* Metadata - عدد الأشخاص وملاحظات */}
             <Grid size={{xs: 12}}>
-              <Typography variant="h6" gutterBottom>
-                معلومات إضافية (اختيارية)
+              <Typography variant="subtitle1" gutterBottom>بيانات إضافية</Typography>
+              <TextField
+                fullWidth
+                label="عدد الأشخاص"
+                type="number"
+                value={formData.metadata?.guests ?? ''}
+                onChange={(e) => handleInputChange('metadata', { ...formData.metadata, guests: e.target.value ? parseInt(e.target.value, 10) : undefined })}
+                placeholder="اختياري"
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                fullWidth
+                label="ملاحظات"
+                multiline
+                rows={2}
+                value={formData.metadata?.notes ?? ''}
+                onChange={(e) => handleInputChange('metadata', { ...formData.metadata, notes: e.target.value })}
+                placeholder="ملاحظات"
+                maxLength={200}
+              />
+            </Grid>
+
+            {/* الحالة - Create: مسودة/في الانتظار، Edit: الكل */}
+            <Grid size={{xs: 12}}>
+              <Typography variant="subtitle1" gutterBottom>
+                {mode === 'create' ? 'الحالة الأولية' : 'حالة العربون'}
               </Typography>
-              <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                <TextField
-                  placeholder="المفتاح (مثل: عدد الأشخاص)"
-                  value={metadataKey}
-                  onChange={(e) => setMetadataKey(e.target.value)}
-                  sx={{ flex: 1 }}
-                />
-                <TextField
-                  placeholder="القيمة (مثل: 4)"
-                  value={metadataValue}
-                  onChange={(e) => setMetadataValue(e.target.value)}
-                  sx={{ flex: 1 }}
-                />
-                <Button
-                  variant="outlined"
-                  onClick={handleAddMetadata}
-                  disabled={!metadataKey.trim() || !metadataValue.trim()}
-                >
-                  <AddIcon />
-                </Button>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                {(mode === 'create' ? [{ key: 'draft', label: 'مسودة' }, { key: 'pending', label: 'في الانتظار' }] : [
+                  { key: 'draft', label: 'مسودة' }, { key: 'pending', label: 'في الانتظار' },
+                  { key: 'confirmed', label: 'مؤكد' }, { key: 'completed', label: 'مكتمل' }, { key: 'cancelled', label: 'ملغي' }
+                ]).map((opt: { key: string; label: string }) => (
+                  <Chip
+                    key={opt.key}
+                    label={opt.label}
+                    onClick={() => handleInputChange('status', opt.key)}
+                    color={formData.status === opt.key ? 'primary' : 'default'}
+                    variant={formData.status === opt.key ? 'filled' : 'outlined'}
+                  />
+                ))}
               </Box>
-              {Object.keys(formData.metadata).length > 0 && (
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                  {Object.entries(formData.metadata).map(([key, value]) => (
-                    <Box key={key} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <TextField
-                        fullWidth
-                        value={`${key}: ${value}`}
-                        InputProps={{
-                          readOnly: true,
-                        }}
-                        size="small"
-                      />
-                      <IconButton
-                        onClick={() => handleRemoveMetadata(key)}
-                        color="error"
-                        size="small"
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Box>
-                  ))}
-                </Box>
-              )}
             </Grid>
           </Grid>
 
@@ -453,7 +438,7 @@ const ArabonForm: React.FC<ArabonFormProps> = ({
               startIcon={saving ? <CircularProgress size={16} /> : <SaveIcon />}
               disabled={saving}
             >
-              {saving ? 'جاري الحفظ...' : (mode === 'create' ? 'إنشاء العربون' : 'حفظ التغييرات')}
+              {saving ? 'جاري الحفظ...' : (mode === 'create' ? 'إنشاء الإعلان' : 'حفظ التغييرات')}
             </Button>
 
             {onCancel && (

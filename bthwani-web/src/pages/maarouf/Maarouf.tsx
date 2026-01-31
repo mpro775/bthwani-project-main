@@ -1,116 +1,132 @@
-// src/pages/maarouf/Maarouf.tsx
-import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import {
-  Snackbar,
-  Alert,
-} from '@mui/material';
+// مطابق لـ app-user
+import React, { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Snackbar, Alert } from "@mui/material";
 import {
   MaaroufList,
   MaaroufDetails,
   MaaroufForm,
   useMaarouf,
-  useMaaroufList,
   type MaaroufItem,
   type CreateMaaroufPayload,
   type UpdateMaaroufPayload,
-} from '../../features/maarouf';
+} from "../../features/maarouf";
+import { useAuth } from "../../hooks/useAuth";
 
 const MaaroufPage: React.FC = () => {
   const navigate = useNavigate();
   const { id, action } = useParams<{ id?: string; action?: string }>();
+  const { user } = useAuth();
+
+  const currentUserId = user?._id ?? user?.id ?? null;
 
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
-    severity: 'success' | 'error';
+    severity: "success" | "error" | "info";
   }>({
     open: false,
-    message: '',
-    severity: 'success',
+    message: "",
+    severity: "success",
   });
 
-  // Hooks for data management
-  const { item: currentItem, createItem, updateItem, deleteItem, loading: itemLoading } = useMaarouf(id);
-  const { updateItem: updateListItem, removeItem: removeListItem, addItem: addListItem } = useMaaroufList();
+  const { item: currentItem, createItem, updateItem, deleteItem, loading: itemLoading } =
+    useMaarouf(id);
 
-  // Handle view item
   const handleViewItem = (item: MaaroufItem) => {
     navigate(`/maarouf/${item._id}`);
   };
 
-  // Handle create item
   const handleCreateItem = () => {
-    navigate('/maarouf/new');
+    if (!currentUserId) {
+      navigate("/login", { state: { from: "/maarouf/new" } });
+      return;
+    }
+    navigate("/maarouf/new");
   };
 
-  // Handle edit item
   const handleEditItem = (item: MaaroufItem) => {
     navigate(`/maarouf/${item._id}/edit`);
   };
 
-  // Handle delete item
   const handleDeleteItem = async (item: MaaroufItem) => {
-    if (window.confirm(`هل أنت متأكد من حذف إعلان "${item.title}"؟`)) {
+    if (
+      window.confirm(
+        "هل أنت متأكد من حذف هذا الإعلان؟ لا يمكن التراجع عن هذا الإجراء."
+      )
+    ) {
       try {
         await deleteItem();
-        removeListItem(item._id);
         setSnackbar({
           open: true,
-          message: 'تم حذف الإعلان بنجاح',
-          severity: 'success',
+          message: "تم حذف الإعلان بنجاح",
+          severity: "success",
         });
-        navigate('/maarouf');
+        navigate("/maarouf");
       } catch (error) {
         setSnackbar({
           open: true,
-          message: 'فشل في حذف الإعلان',
-          severity: 'error',
+          message: "فشل في حذف الإعلان",
+          severity: "error",
         });
       }
     }
   };
 
-  // Handle form submit
-  const handleFormSubmit = async (data: CreateMaaroufPayload | UpdateMaaroufPayload) => {
+  const handleChat = (item: MaaroufItem) => {
+    setSnackbar({
+      open: true,
+      message: "محادثات المعروف قريباً على الويب",
+      severity: "info",
+    });
+  };
+
+  const handleFormSubmit = async (
+    data: CreateMaaroufPayload | UpdateMaaroufPayload
+  ) => {
     try {
-      const isCreate = id === 'new';
+      const isCreate = id === "new";
       if (isCreate) {
-        const newItem = await createItem(data as CreateMaaroufPayload);
-        addListItem(newItem);
+        const payload = data as CreateMaaroufPayload;
+        payload.ownerId = String(currentUserId ?? "");
+        const newItem = await createItem(payload);
         setSnackbar({
           open: true,
-          message: 'تم إنشاء الإعلان بنجاح',
-          severity: 'success',
+          message: "تم إنشاء الإعلان بنجاح",
+          severity: "success",
         });
         navigate(`/maarouf/${newItem._id}`);
-      } else if (id && action === 'edit' && currentItem) {
-        const updatedItem = await updateItem(data as UpdateMaaroufPayload);
-        updateListItem(updatedItem);
+      } else if (id && action === "edit" && currentItem) {
+        await updateItem(data as UpdateMaaroufPayload);
         setSnackbar({
           open: true,
-          message: 'تم تحديث الإعلان بنجاح',
-          severity: 'success',
+          message: "تم تحديث الإعلان بنجاح",
+          severity: "success",
         });
-        navigate(`/maarouf/${updatedItem._id}`);
+        navigate(`/maarouf/${currentItem._id}`);
       }
     } catch (error) {
       setSnackbar({
         open: true,
-        message: 'فشل في حفظ الإعلان',
-        severity: 'error',
+        message: "فشل في حفظ الإعلان",
+        severity: "error",
       });
     }
   };
 
-  // Handle back navigation
   const handleBack = () => {
-    navigate('/maarouf');
+    navigate("/maarouf");
   };
 
-  // Determine what to render based on route
+  const ownerIdStr =
+    currentItem &&
+    (typeof currentItem.ownerId === "object" &&
+    (currentItem.ownerId as { _id?: string })?._id
+      ? String((currentItem.ownerId as { _id: string })._id)
+      : String(currentItem.ownerId || "");
+  const isOwner = !!(currentUserId && currentItem && ownerIdStr === currentUserId);
+
   const renderContent = () => {
-    // Show details page
     if (id && !action) {
       return (
         <MaaroufDetails
@@ -119,25 +135,24 @@ const MaaroufPage: React.FC = () => {
           onBack={handleBack}
           onEdit={handleEditItem}
           onDelete={handleDeleteItem}
+          isOwner={isOwner}
+          onChat={handleChat}
         />
       );
     }
-
-    // Show form (create/edit)
-    if ((id === 'new') || (id && action === 'edit')) {
-      const isEdit = id !== 'new' && action === 'edit';
+    if (id === "new" || (id && action === "edit")) {
+      const isEdit = id !== "new" && action === "edit";
       return (
         <MaaroufForm
           item={isEdit ? (currentItem ?? undefined) : undefined}
           loading={itemLoading}
-          mode={isEdit ? 'edit' : 'create'}
+          mode={isEdit ? "edit" : "create"}
           onSubmit={handleFormSubmit}
           onCancel={handleBack}
+          ownerId={String(currentUserId ?? "")}
         />
       );
     }
-
-    // Show list page (default)
     return (
       <MaaroufList
         onViewItem={handleViewItem}
@@ -149,8 +164,6 @@ const MaaroufPage: React.FC = () => {
   return (
     <>
       {renderContent()}
-
-      {/* Snackbar for notifications */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}
@@ -159,7 +172,7 @@ const MaaroufPage: React.FC = () => {
         <Alert
           onClose={() => setSnackbar({ ...snackbar, open: false })}
           severity={snackbar.severity}
-          sx={{ width: '100%' }}
+          sx={{ width: "100%" }}
         >
           {snackbar.message}
         </Alert>

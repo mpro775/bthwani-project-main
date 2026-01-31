@@ -1,10 +1,11 @@
-// مطابق لـ app-user - بدون فلاتر، cursor فقط
+// مطابق لـ app-user ArabonMyListScreen
 import { useState, useEffect, useCallback } from "react";
-import { getSanadList } from "../api";
-import type { SanadItem, SanadListResponse } from "../types";
+import { getMyArabon, getArabonStats } from "../api";
+import type { ArabonItem, ArabonStats } from "../types";
 
-export function useSanadList(limit = 25) {
-  const [items, setItems] = useState<SanadItem[]>([]);
+export function useArabonMyList(limit = 25) {
+  const [items, setItems] = useState<ArabonItem[]>([]);
+  const [stats, setStats] = useState<ArabonStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [nextCursor, setNextCursor] = useState<string | undefined>();
@@ -20,26 +21,26 @@ export function useSanadList(limit = 25) {
         setError(null);
       }
 
-      const response: SanadListResponse = await getSanadList({
-        cursor,
-        limit,
-      });
-      const list =
-        Array.isArray(response?.items) ? response.items : response?.data ?? [];
+      const [listRes, statsRes] = await Promise.all([
+        getMyArabon({ cursor, limit }),
+        getArabonStats("my"),
+      ]);
+
+      const list = listRes?.items ?? listRes?.data ?? [];
 
       if (isLoadMore) {
         setItems((prev) => [...prev, ...list]);
       } else {
         setItems(list);
       }
-
-      setNextCursor(response.nextCursor);
-      setHasMore(response.hasMore ?? !!response.nextCursor);
+      setStats(statsRes);
+      setNextCursor(listRes.nextCursor);
+      setHasMore(listRes.hasMore ?? !!listRes.nextCursor);
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : "فشل في تحميل الطلبات";
+        err instanceof Error ? err.message : "فشل في تحميل عربوناتك";
       setError(errorMessage);
-      console.error("خطأ في تحميل السند:", err);
+      console.error("خطأ في تحميل عربوناتي:", err);
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -65,6 +66,7 @@ export function useSanadList(limit = 25) {
 
   return {
     items,
+    stats,
     loading,
     loadingMore,
     hasMore,

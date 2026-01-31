@@ -16,7 +16,8 @@ import ForgotPassword from './pages/auth/ForgotPassword';
 import OTPVerification from './pages/auth/OTPVerification';
 import ResetNewPassword from './pages/auth/ResetNewPassword';
 import ResetVerify from './pages/auth/ResetVerify';
-import Home from './pages/delivery/Home';
+import ServicesHome from './pages/ServicesHome';
+import DeliveryHome from './pages/delivery/Home';
 import Stores from './pages/delivery/Stores';
 import StoreDetails from './pages/delivery/StoreDetails';
 import ProductDetails from './pages/delivery/ProductDetails';
@@ -37,6 +38,7 @@ import AddAddress from './pages/profile/AddAddress';
 import EditAddress from './pages/profile/EditAddress';
 import Search from './pages/search/Search';
 import SelectLocation from './pages/map/SelectLocation';
+import AkhdimniOptions from './pages/akhdimni/AkhdimniOptions';
 import Akhdimni from './pages/akhdimni/Akhdimni';
 import MyErrandsPage from './pages/orders/MyErrandsPage';
 import ErrandDetailsPage from './pages/orders/ErrandDetailsPage';
@@ -87,12 +89,21 @@ const AppContent: React.FC = () => {
       <Route path="/reset-password" element={<ResetNewPassword />} />
       <Route path="/reset-verify" element={<ResetVerify />} />
 
-      {/* Main Routes */}
+      {/* Main Routes - الرئيسية مطابقة لـ app-user */}
       <Route
         path="/"
         element={
           <AppLayout>
-            <Home />
+            <ServicesHome />
+          </AppLayout>
+        }
+      />
+
+      <Route
+        path="/delivery"
+        element={
+          <AppLayout>
+            <DeliveryHome />
           </AppLayout>
         }
       />
@@ -206,9 +217,17 @@ const AppContent: React.FC = () => {
         }
       />
 
-      {/* أخدمني Service */}
+      {/* أخدمني Service - خيارات (اخدمني، غاز، وايت ماء) */}
       <Route
         path="/akhdimni"
+        element={
+          <AppLayout>
+            <AkhdimniOptions />
+          </AppLayout>
+        }
+      />
+      <Route
+        path="/akhdimni/errand"
         element={
           <AppLayout>
             <Akhdimni />
@@ -261,6 +280,22 @@ const AppContent: React.FC = () => {
       />
       <Route
         path="/arabon/new"
+        element={
+          <AppLayout>
+            <Arabon />
+          </AppLayout>
+        }
+      />
+      <Route
+        path="/arabon/my"
+        element={
+          <AppLayout>
+            <Arabon />
+          </AppLayout>
+        }
+      />
+      <Route
+        path="/arabon/search"
         element={
           <AppLayout>
             <Arabon />

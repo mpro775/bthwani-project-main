@@ -7,4 +7,3 @@ export { default as KenzCard } from './components/KenzCard';
 export { default as KenzList } from './components/KenzList';
 export { default as KenzDetails } from './components/KenzDetails';
 export { default as KenzForm } from './components/KenzForm';
-export { default as KenzFilters } from './components/KenzFilters';

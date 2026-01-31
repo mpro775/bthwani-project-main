@@ -1,5 +1,5 @@
-// src/features/kenz/components/KenzList.tsx
-import React from 'react';
+// مطابق لـ app-user KenzListScreen
+import React from "react";
 import {
   Box,
   Typography,
@@ -7,28 +7,23 @@ import {
   CircularProgress,
   Alert,
   Container,
-} from '@mui/material';
-import {
-  Add as AddIcon,
-  Refresh as RefreshIcon,
-} from '@mui/icons-material';
-import KenzCard from './KenzCard';
-import KenzFilters from './KenzFilters';
-import { useKenzList } from '../hooks/useKenzList';
-import type { KenzItem } from '../types';
+  Chip,
+  Grid,
+} from "@mui/material";
+import { Add as AddIcon, Storefront as StoreIcon } from "@mui/icons-material";
+import KenzCard from "./KenzCard";
+import { useKenzList } from "../hooks/useKenzList";
+import { KENZ_CATEGORIES, KENZ_YEMEN_CITIES } from "../types";
+import type { KenzItem } from "../types";
 
 interface KenzListProps {
   onViewItem?: (item: KenzItem) => void;
   onCreateItem?: () => void;
-  showFilters?: boolean;
-  showCreateButton?: boolean;
 }
 
 const KenzList: React.FC<KenzListProps> = ({
   onViewItem,
   onCreateItem,
-  showFilters = true,
-  showCreateButton = true,
 }) => {
   const {
     items,
@@ -36,130 +31,217 @@ const KenzList: React.FC<KenzListProps> = ({
     loadingMore,
     hasMore,
     error,
-    filters,
-    updateFilters,
-    resetFilters,
+    selectedCategory,
+    selectedCity,
+    handleCategoryChange,
+    handleCityChange,
     loadMore,
     refresh,
   } = useKenzList();
 
-  const handleViewItem = (item: KenzItem) => {
-    onViewItem?.(item);
-  };
-
-  const handleCreateItem = () => {
-    onCreateItem?.();
-  };
-
   return (
-    <Container maxWidth="md">
-      <Box sx={{ py: 4 }}>
-        {/* Header */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Box>
-            <Typography variant="h4" component="h1" gutterBottom>
-              السوق المفتوح
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              اشترِ وبِع في سوق كنز المفتوح
-            </Typography>
-          </Box>
-
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <Button
-              variant="outlined"
-              startIcon={<RefreshIcon />}
-              onClick={refresh}
-              disabled={loading}
-            >
-              تحديث
-            </Button>
-
-            {showCreateButton && (
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={handleCreateItem}
-              >
-                إعلان جديد
-              </Button>
-            )}
-          </Box>
+    <Box sx={{ minHeight: "100vh", backgroundColor: "background.default", pb: 10 }}>
+      {/* Header - مطابق لـ app-user */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          px: 2.5,
+          py: 2,
+          backgroundColor: "background.paper",
+          borderBottom: 1,
+          borderColor: "divider",
+        }}
+      >
+        <Box>
+          <Typography
+            variant="h5"
+            sx={{
+              fontWeight: 700,
+              color: "primary.main",
+              fontFamily: "Cairo, sans-serif",
+              mb: 0.5,
+            }}
+          >
+            كنز
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            السوق المفتوح
+          </Typography>
         </Box>
+        <Button
+          variant="text"
+          onClick={onCreateItem}
+          sx={{ p: 0.5, minWidth: 0 }}
+        >
+          <AddIcon sx={{ fontSize: 28, color: "primary.main" }} />
+        </Button>
+      </Box>
 
-        {/* Filters */}
-        {showFilters && (
-          <KenzFilters
-            filters={filters}
-            onFiltersChange={updateFilters}
-            onReset={resetFilters}
-            loading={loading}
+      {/* Category Filter - مطابق لـ app-user */}
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 1,
+          px: 2,
+          py: 1.5,
+          backgroundColor: "background.paper",
+          borderBottom: 1,
+          borderColor: "divider",
+        }}
+      >
+        <Chip
+          label="الكل"
+          onClick={() => handleCategoryChange(undefined)}
+          sx={{
+            backgroundColor: !selectedCategory ? "primary.main" : "transparent",
+            color: !selectedCategory ? "white" : "text.secondary",
+            borderColor: "divider",
+            border: 1,
+          }}
+        />
+        {KENZ_CATEGORIES.slice(0, 4).map((category) => (
+          <Chip
+            key={category}
+            label={category}
+            onClick={() => handleCategoryChange(category)}
+            sx={{
+              backgroundColor:
+                selectedCategory === category ? "primary.main" : "transparent",
+              color:
+                selectedCategory === category ? "white" : "text.secondary",
+              borderColor: "divider",
+              border: 1,
+            }}
           />
-        )}
+        ))}
+      </Box>
 
-        {/* Error Message */}
+      {/* City Filter - مطابق لـ app-user */}
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 1,
+          px: 2,
+          py: 1.25,
+          backgroundColor: "background.paper",
+          borderBottom: 1,
+          borderColor: "divider",
+        }}
+      >
+        <Chip
+          label="كل المدن"
+          onClick={() => handleCityChange(undefined)}
+          sx={{
+            backgroundColor: !selectedCity ? "primary.main" : "transparent",
+            color: !selectedCity ? "white" : "text.secondary",
+            borderColor: "divider",
+            border: 1,
+          }}
+        />
+        {KENZ_YEMEN_CITIES.slice(0, 5).map((city) => (
+          <Chip
+            key={city}
+            label={city}
+            onClick={() => handleCityChange(city)}
+            sx={{
+              backgroundColor: selectedCity === city ? "primary.main" : "transparent",
+              color: selectedCity === city ? "white" : "text.secondary",
+              borderColor: "divider",
+              border: 1,
+            }}
+          />
+        ))}
+      </Box>
+
+      <Container maxWidth="md" sx={{ py: 2 }}>
         {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
+          <Alert severity="error" sx={{ mb: 2 }}>
             {error}
           </Alert>
         )}
 
-        {/* Loading State */}
-        {loading && items.length === 0 && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-            <CircularProgress />
+        {loading && items.length === 0 ? (
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              py: 8,
+            }}
+          >
+            <CircularProgress sx={{ color: "primary.main" }} />
+            <Typography sx={{ mt: 2, color: "text.secondary" }}>
+              جاري تحميل الإعلانات...
+            </Typography>
           </Box>
-        )}
-
-        {/* Items List */}
-        {!loading && items.length === 0 && !error && (
-          <Box sx={{ textAlign: 'center', py: 8 }}>
-            <Typography variant="h6" color="text.secondary" gutterBottom>
+        ) : !loading && items.length === 0 ? (
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              py: 6,
+            }}
+          >
+            <StoreIcon sx={{ fontSize: 64, color: "grey.400" }} />
+            <Typography variant="h6" sx={{ mt: 2, fontWeight: 600 }}>
               لا توجد إعلانات
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              كن أول من ينشر إعلاناً في السوق المفتوح
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ mb: 3, textAlign: "center" }}
+            >
+              لا توجد إعلانات في هذه الفئة حالياً
             </Typography>
-            {showCreateButton && (
+            {onCreateItem && (
               <Button
                 variant="contained"
-                startIcon={<AddIcon />}
-                onClick={handleCreateItem}
+                onClick={onCreateItem}
+                sx={{ backgroundColor: "primary.main" }}
               >
-                إنشاء إعلان جديد
+                إضافة إعلان جديد
               </Button>
             )}
           </Box>
-        )}
+        ) : (
+          <>
+            <Grid container spacing={2}>
+              {items.map((item) => (
+                <Grid key={item._id} size={{ xs: 12, sm: 6 }}>
+                  <KenzCard
+                    item={item}
+                    onView={onViewItem ? () => onViewItem(item) : undefined}
+                  />
+                </Grid>
+              ))}
+            </Grid>
 
-        {/* Items */}
-        {items.length > 0 && (
-          <Box>
-            {items.map((item) => (
-              <KenzCard
-                key={item._id}
-                item={item}
-                onView={onViewItem ? handleViewItem : undefined}
-              />
-            ))}
-          </Box>
+            {hasMore && (
+              <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+                <Button
+                  variant="outlined"
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  startIcon={
+                    loadingMore ? (
+                      <CircularProgress size={16} color="inherit" />
+                    ) : null
+                  }
+                >
+                  {loadingMore ? "جاري التحميل..." : "تحميل المزيد"}
+                </Button>
+              </Box>
+            )}
+          </>
         )}
-
-        {/* Load More */}
-        {hasMore && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-            <Button
-              variant="outlined"
-              onClick={loadMore}
-              disabled={loadingMore}
-              startIcon={loadingMore ? <CircularProgress size={16} /> : null}
-            >
-              {loadingMore ? 'جاري التحميل...' : 'تحميل المزيد'}
-            </Button>
-          </Box>
-        )}
-      </Box>
-    </Container>
+      </Container>
+    </Box>
   );
 };
 

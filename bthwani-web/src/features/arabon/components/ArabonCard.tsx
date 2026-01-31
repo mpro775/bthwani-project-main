@@ -1,29 +1,21 @@
-// src/features/arabon/components/ArabonCard.tsx
-import React from 'react';
+// مطابق لـ app-user ArabonCard
+import React from "react";
+import { Card, CardContent, Typography, Box } from "@mui/material";
 import {
-  Card,
-  CardContent,
-  Typography,
-  Chip,
-  Box,
-  IconButton,
-  Tooltip,
-} from '@mui/material';
-import {
-  AccessTime as TimeIcon,
-  Person as PersonIcon,
-  AttachMoney as MoneyIcon,
-  Visibility as ViewIcon,
-  Event as EventIcon,
-  Call as CallIcon,
-} from '@mui/icons-material';
-import type { ArabonItem } from '../types';
-import { ArabonStatusLabels, ArabonStatusColors } from '../types';
+  Phone,
+  CalendarToday,
+  CheckCircle,
+  People,
+  ChevronRight,
+  Image as ImageIcon,
+} from "@mui/icons-material";
+import type { ArabonItem } from "../types";
+import { ArabonStatusLabels, ArabonStatusColors } from "../types";
 
-const BOOKING_LABELS: Record<string, string> = {
-  hour: 'ريال/ساعة',
-  day: 'ريال/يوم',
-  week: 'ريال/أسبوع',
+const BOOKING_PERIOD_LABELS: Record<string, string> = {
+  hour: "ريال/ساعة",
+  day: "ريال/يوم",
+  week: "ريال/أسبوع",
 };
 
 interface ArabonCardProps {
@@ -32,124 +24,201 @@ interface ArabonCardProps {
 }
 
 const ArabonCard: React.FC<ArabonCardProps> = ({ item, onView }) => {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-SA', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+  const formatCurrency = (amount?: number) => {
+    if (!amount) return "غير محدد";
+    return `${amount.toFixed(0)} ريال`;
   };
 
-  const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-SA', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
-  const priceLabel = item.pricePerPeriod
-    ? `${item.pricePerPeriod} ${BOOKING_LABELS[item.bookingPeriod || 'day'] || ''}`
-    : item.bookingPrice
-      ? `${item.bookingPrice} ريال`
-      : item.depositAmount
-        ? `${item.depositAmount} ريال عربون`
-        : null;
-
-  const handleView = () => {
-    onView?.(item);
+  const formatDate = (dateString?: string | Date) => {
+    if (!dateString) return "غير محدد";
+    try {
+      const d = dateString instanceof Date ? dateString : new Date(dateString);
+      return d.toLocaleDateString("ar-SA", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return String(dateString);
+    }
   };
 
   const primaryImage = item.images?.[0];
+  const priceLabel = item.pricePerPeriod
+    ? `${formatCurrency(item.pricePerPeriod)} ${BOOKING_PERIOD_LABELS[item.bookingPeriod || "day"] || ""}`
+    : item.bookingPrice
+      ? formatCurrency(item.bookingPrice)
+      : formatCurrency(item.depositAmount);
+
+  const isUpcoming = () => {
+    if (!item.scheduleAt) return false;
+    const scheduleDate = new Date(item.scheduleAt);
+    const now = new Date();
+    return (
+      scheduleDate > now &&
+      item.status !== "completed" &&
+      item.status !== "cancelled"
+    );
+  };
 
   return (
-    <Card sx={{ mb: 2, cursor: onView ? 'pointer' : 'default', overflow: 'hidden' }} onClick={onView ? handleView : undefined}>
-      {primaryImage && (
+    <Card
+      sx={{
+        mb: 2,
+        cursor: onView ? "pointer" : "default",
+        borderRadius: 2,
+        overflow: "hidden",
+        boxShadow: 1,
+        "&:hover": onView ? { boxShadow: 3 } : {},
+      }}
+      onClick={onView ? () => onView(item) : undefined}
+    >
+      {primaryImage ? (
         <Box
           component="img"
           src={primaryImage}
           alt=""
-          sx={{ width: '100%', height: 160, objectFit: 'cover' }}
+          sx={{ width: "100%", height: 140, objectFit: "cover" }}
         />
-      )}
-      <CardContent>
-        {item.category && (
-          <Chip label={item.category} size="small" sx={{ mb: 1 }} />
-        )}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-          <Box sx={{ flex: 1 }}>
-            <Typography variant="h6" gutterBottom>
-              {item.title}
-            </Typography>
-            {item.description && (
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                {item.description.length > 100
-                  ? `${item.description.substring(0, 100)}...`
-                  : item.description
-                }
-              </Typography>
-            )}
-          </Box>
-          {onView && (
-            <Tooltip title="عرض التفاصيل">
-              <IconButton onClick={(e) => { e.stopPropagation(); handleView(); }}>
-                <ViewIcon />
-              </IconButton>
-            </Tooltip>
-          )}
+      ) : (
+        <Box
+          sx={{
+            width: "100%",
+            height: 140,
+            backgroundColor: "grey.200",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <ImageIcon sx={{ fontSize: 40, color: "grey.400" }} />
         </Box>
+      )}
+      <CardContent sx={{ p: 2 }}>
+        {item.category && (
+          <Box
+            sx={{
+              alignSelf: "flex-start",
+              backgroundColor: "primary.light",
+              px: 1,
+              py: 0.5,
+              borderRadius: 1,
+              mb: 1,
+            }}
+          >
+            <Typography variant="caption" fontWeight={600} color="primary.main">
+              {item.category}
+            </Typography>
+          </Box>
+        )}
 
-        {priceLabel && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-            <MoneyIcon fontSize="small" color="action" />
-            <Typography variant="body2" fontWeight="medium">
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 1,
+          }}
+        >
+          <Box
+            sx={{
+              backgroundColor: "success.main",
+              px: 1.5,
+              py: 0.75,
+              borderRadius: 1,
+            }}
+          >
+            <Typography variant="body2" fontWeight={700} sx={{ color: "white" }}>
               {priceLabel}
             </Typography>
           </Box>
+          <Box
+            sx={{
+              px: 1,
+              py: 0.5,
+              borderRadius: 1,
+              backgroundColor: ArabonStatusColors[item.status],
+            }}
+          >
+            <Typography variant="caption" sx={{ color: "white", fontWeight: 600 }}>
+              {ArabonStatusLabels[item.status]}
+            </Typography>
+          </Box>
+        </Box>
+
+        <Typography
+          variant="subtitle1"
+          fontWeight={600}
+          sx={{ mb: 1, lineHeight: 1.4 }}
+        >
+          {item.title}
+        </Typography>
+
+        {item.description && (
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{
+              mb: 1,
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+            }}
+          >
+            {item.description}
+          </Typography>
         )}
 
         {item.contactPhone && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-            <CallIcon fontSize="small" color="primary" />
-            <Typography variant="body2">{item.contactPhone}</Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 1 }}>
+            <Phone sx={{ fontSize: 14, color: "primary.main" }} />
+            <Typography variant="caption" color="primary.main" fontWeight={600}>
+              {item.contactPhone}
+            </Typography>
           </Box>
         )}
 
         {item.scheduleAt && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-            <EventIcon fontSize="small" color="action" />
-            <Typography variant="body2">
-              {formatDateTime(item.scheduleAt)}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 1 }}>
+            {isUpcoming() ? (
+              <CalendarToday sx={{ fontSize: 16, color: "primary.main" }} />
+            ) : (
+              <CheckCircle sx={{ fontSize: 16, color: "success.main" }} />
+            )}
+            <Typography
+              variant="caption"
+              sx={{ color: isUpcoming() ? "primary.main" : "success.main" }}
+            >
+              {formatDate(item.scheduleAt)}
             </Typography>
           </Box>
         )}
 
-        <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
-          <Chip
-            label={ArabonStatusLabels[item.status]}
-            size="small"
-            sx={{
-              backgroundColor: ArabonStatusColors[item.status],
-              color: 'white',
-            }}
-          />
-        </Box>
+        {item.metadata?.guests && (
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 1 }}>
+            <People sx={{ fontSize: 14, color: "text.secondary" }} />
+            <Typography variant="caption" color="text.secondary">
+              {item.metadata.guests} شخص
+            </Typography>
+          </Box>
+        )}
 
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <PersonIcon fontSize="small" color="action" />
-            <Typography variant="body2" color="text.secondary">
-              {item.owner?.name || 'غير محدد'}
-            </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <TimeIcon fontSize="small" color="action" />
-            <Typography variant="body2" color="text.secondary">
-              {formatDate(item.createdAt)}
-            </Typography>
-          </Box>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            pt: 0.5,
+          }}
+        >
+          <Typography variant="caption" color="text.secondary">
+            إنشاء:{" "}
+            {new Date(item.createdAt).toLocaleDateString("ar-SA")}
+          </Typography>
+          {onView && <ChevronRight sx={{ fontSize: 16, color: "grey.500" }} />}
         </Box>
       </CardContent>
     </Card>

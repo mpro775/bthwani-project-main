@@ -1,92 +1,85 @@
-// src/features/sanad/types.ts
-export type SanadStatus = 'draft' | 'pending' | 'confirmed' | 'completed' | 'cancelled';
+// مطابق لـ app-user
+export type SanadStatus =
+  | "draft"
+  | "pending"
+  | "confirmed"
+  | "completed"
+  | "cancelled";
 
-export type SanadKind = 'specialist' | 'emergency' | 'charity';
+export type SanadKind = "specialist" | "emergency" | "charity";
+
+export interface SanadMetadata {
+  location?: string;
+  contact?: string;
+  [key: string]: any;
+}
 
 export interface SanadItem {
   _id: string;
-  ownerId: string;
+  ownerId: string | { _id: string };
   title: string;
   description?: string;
-  kind: SanadKind;
-  metadata?: Record<string, any>;
+  kind?: SanadKind;
+  metadata?: SanadMetadata;
   status: SanadStatus;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: string | Date;
+  updatedAt: string | Date;
   owner?: {
     _id: string;
     name: string;
-    email: string;
+    email?: string;
     phone?: string;
   };
 }
 
 export interface CreateSanadPayload {
+  ownerId: string;
   title: string;
   description?: string;
-  kind: SanadKind;
-  metadata?: Record<string, any>;
+  kind?: SanadKind;
+  metadata?: SanadMetadata;
+  status?: SanadStatus;
 }
 
 export interface UpdateSanadPayload {
   title?: string;
   description?: string;
   kind?: SanadKind;
-  metadata?: Record<string, any>;
+  metadata?: SanadMetadata;
   status?: SanadStatus;
-}
-
-export interface SanadFilters {
-  status?: SanadStatus;
-  kind?: SanadKind;
-  search?: string;
 }
 
 export interface SanadListResponse {
   items: SanadItem[];
+  data?: SanadItem[];
   nextCursor?: string;
+  hasMore?: boolean;
 }
 
-export interface SanadSearchParams {
-  q: string;
-  kind?: SanadKind;
-  cursor?: string;
-}
-
-// ترجمة حالات السند للعربية
-export const SanadStatusLabels: Record<SanadStatus, string> = {
-  draft: 'مسودة',
-  pending: 'في الانتظار',
-  confirmed: 'مؤكد',
-  completed: 'مكتمل',
-  cancelled: 'ملغي'
-};
-
-// ترجمة أنواع السند للعربية
 export const SanadKindLabels: Record<SanadKind, string> = {
-  specialist: 'خدمات متخصصة',
-  emergency: 'فزعة',
-  charity: 'خيري'
+  specialist: "خدمة متخصصة",
+  emergency: "فزعة",
+  charity: "خيري",
 };
 
-// ألوان حالات السند
+export const SanadStatusLabels: Record<SanadStatus, string> = {
+  draft: "مسودة",
+  pending: "في الانتظار",
+  confirmed: "مؤكد",
+  completed: "مكتمل",
+  cancelled: "ملغي",
+};
+
 export const SanadStatusColors: Record<SanadStatus, string> = {
-  draft: '#9e9e9e',
-  pending: '#ff9800',
-  confirmed: '#2196f3',
-  completed: '#4caf50',
-  cancelled: '#f44336'
+  draft: "#9e9e9e",
+  pending: "#ff9800",
+  confirmed: "#ff500d",
+  completed: "#4caf50",
+  cancelled: "#f44336",
 };
 
-// ألوان أنواع السند
 export const SanadKindColors: Record<SanadKind, string> = {
-  specialist: '#3f51b5',
-  emergency: '#f44336',
-  charity: '#4caf50'
+  specialist: "#3f51b5",
+  emergency: "#f44336",
+  charity: "#4caf50",
 };
-
-// Array of all SanadKind values for iteration
-export const SanadKindValues: SanadKind[] = ['specialist', 'emergency', 'charity'];
-
-// Array of all SanadStatus values for iteration
-export const SanadStatusValues: SanadStatus[] = ['draft', 'pending', 'confirmed', 'completed', 'cancelled'];
