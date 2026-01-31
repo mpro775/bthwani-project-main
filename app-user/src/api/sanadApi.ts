@@ -14,6 +14,10 @@ const getAuthHeaders = async () => {
   }
 };
 
+/** استخراج data من استجابة الباكند الموحدة { success, data, meta } (مثل كنز والكوادر ومعروف) */
+const unwrap = <T>(res: { data?: T } & Record<string, unknown>): T =>
+  (res?.data !== undefined ? res.data : res) as T;
+
 // ==================== Types ====================
 
 export type SanadStatus = 'draft' | 'pending' | 'confirmed' | 'completed' | 'cancelled';
@@ -72,11 +76,12 @@ export const createSanad = async (
   const response = await axiosInstance.post("/sanad", payload, {
     headers,
   });
-  return response.data;
+  return unwrap(response.data);
 };
 
 /**
  * جلب قائمة الطلبات مع دعم cursor pagination
+ * الباكند يغلّف الاستجابة بـ { success, data: { items, nextCursor } } — نستخرج بـ unwrap
  */
 export const getSanadList = async (
   cursor?: string
@@ -87,7 +92,11 @@ export const getSanadList = async (
     headers,
     params,
   });
-  return response.data;
+  const raw = unwrap(response.data) as { items?: SanadItem[]; nextCursor?: string };
+  return {
+    items: Array.isArray(raw?.items) ? raw.items : [],
+    nextCursor: raw?.nextCursor,
+  };
 };
 
 /**
@@ -98,7 +107,7 @@ export const getSanadDetails = async (id: string): Promise<SanadItem> => {
   const response = await axiosInstance.get(`/sanad/${id}`, {
     headers,
   });
-  return response.data;
+  return unwrap(response.data);
 };
 
 /**
@@ -112,7 +121,7 @@ export const updateSanad = async (
   const response = await axiosInstance.patch(`/sanad/${id}`, payload, {
     headers,
   });
-  return response.data;
+  return unwrap(response.data);
 };
 
 /**
@@ -137,7 +146,11 @@ export const getMySanad = async (
     headers,
     params,
   });
-  return response.data;
+  const raw = unwrap(response.data) as { items?: SanadItem[]; nextCursor?: string };
+  return {
+    items: Array.isArray(raw?.items) ? raw.items : [],
+    nextCursor: raw?.nextCursor,
+  };
 };
 
 /**
@@ -157,5 +170,9 @@ export const searchSanad = async (
     headers,
     params,
   });
-  return response.data;
+  const raw = unwrap(response.data) as { items?: SanadItem[]; nextCursor?: string };
+  return {
+    items: Array.isArray(raw?.items) ? raw.items : [],
+    nextCursor: raw?.nextCursor,
+  };
 };

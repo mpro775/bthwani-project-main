@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   RefreshControl,
   ActivityIndicator,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -40,15 +40,16 @@ const MaaroufListScreen = () => {
       }
 
       const response: MaaroufListResponse = await getMaaroufList(cursor);
+      const list = Array.isArray(response?.data) ? response.data : [];
 
       if (isLoadMore) {
-        setItems(prev => [...prev, ...response.data]);
+        setItems(prev => [...(Array.isArray(prev) ? prev : []), ...list]);
       } else {
-        setItems(response.data);
+        setItems(list);
       }
 
-      setNextCursor(response.nextCursor);
-      setHasMore(response.hasMore);
+      setNextCursor(response?.nextCursor);
+      setHasMore(response?.hasMore ?? !!response?.nextCursor);
     } catch (error) {
       console.error("خطأ في تحميل المعروف:", error);
     } finally {
@@ -58,9 +59,12 @@ const MaaroufListScreen = () => {
     }
   }, []);
 
-  useEffect(() => {
-    loadItems();
-  }, [loadItems]);
+  // إعادة جلب القائمة عند كل تركيز على الشاشة (مثلاً بعد العودة من إضافة إعلان جديد)
+  useFocusEffect(
+    useCallback(() => {
+      loadItems();
+    }, [loadItems])
+  );
 
   const handleRefresh = useCallback(() => {
     setRefreshing(true);
@@ -159,6 +163,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 16,
     fontSize: 16,
+    fontFamily: 'Cairo-Regular',
     color: COLORS.textLight,
   },
   header: {
@@ -170,11 +175,13 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
+    fontFamily: 'Cairo-Bold',
     color: COLORS.text,
     textAlign: 'center',
   },
   headerSubtitle: {
     fontSize: 14,
+    fontFamily: 'Cairo-Regular',
     color: COLORS.textLight,
     textAlign: 'center',
     marginTop: 4,
@@ -193,6 +200,7 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontSize: 16,
     fontWeight: '600',
+    fontFamily: 'Cairo-SemiBold',
     marginLeft: 8,
   },
   listContainer: {
@@ -207,11 +215,13 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: '600',
+    fontFamily: 'Cairo-SemiBold',
     color: COLORS.text,
     marginTop: 16,
   },
   emptySubtitle: {
     fontSize: 14,
+    fontFamily: 'Cairo-Regular',
     color: COLORS.textLight,
     textAlign: 'center',
     marginTop: 8,
@@ -223,6 +233,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 14,
+    fontFamily: 'Cairo-Regular',
     color: COLORS.textLight,
     marginTop: 8,
   },

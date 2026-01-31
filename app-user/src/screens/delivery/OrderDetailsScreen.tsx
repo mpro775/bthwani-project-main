@@ -97,6 +97,59 @@ function safeText(v: unknown) {
   return s ? s : "—";
 }
 
+// استخراج عنوان من نقطة أخدمني (إما label جاهز أو من كائن pickup/dropoff الخام من الباكند)
+function getErrandPointLabel(
+  labelOrPoint: string | undefined,
+  point: { label?: string; city?: string; street?: string } | undefined
+): string {
+  if (labelOrPoint && String(labelOrPoint).trim()) return String(labelOrPoint).trim();
+  if (!point) return "—";
+  if (point.label && String(point.label).trim()) return String(point.label).trim();
+  if (point.city || point.street)
+    return [point.city, point.street].filter(Boolean).join("، ") || "—";
+  return "—";
+}
+
+// ترجمة طريقة الدفع للعرض
+function getPaymentMethodLabel(method: string | undefined): string {
+  if (!method) return "—";
+  const m = String(method).toLowerCase();
+  if (m === "cash") return "نقداً";
+  if (m === "wallet") return "محفظة";
+  if (m === "card") return "بطاقة";
+  if (m === "mixed") return "مختلط";
+  return method;
+}
+
+// ترجمة حالة طلب أخدمني من الباكند للعرض والتايملاين
+const ERRAND_STATUS_MAP: Record<string, string> = {
+  created: "في انتظار التأكيد",
+  assigned: "تم الإسناد",
+  driver_enroute_pickup: "في الطريق",
+  picked_up: "في الطريق",
+  driver_enroute_dropoff: "في الطريق",
+  delivered: "تم التوصيل",
+  cancelled: "ملغي",
+};
+const ERRAND_STAGE_INDEX: Record<string, number> = {
+  created: 0,
+  assigned: 1,
+  driver_enroute_pickup: 1,
+  picked_up: 2,
+  driver_enroute_dropoff: 2,
+  delivered: 3,
+  cancelled: -1,
+};
+function getErrandStatusDisplay(rawStatus: string | undefined): string {
+  if (!rawStatus) return "—";
+  return ERRAND_STATUS_MAP[String(rawStatus).toLowerCase()] ?? rawStatus;
+}
+function getErrandStageIndex(rawStatus: string | undefined): number {
+  if (!rawStatus) return 0;
+  const idx = ERRAND_STAGE_INDEX[String(rawStatus).toLowerCase()];
+  return idx === undefined ? 0 : Math.max(0, idx);
+}
+
 // مراحل التتبع حسب النوع (تايملاين)
 const STAGES_BY_KIND: Record<OrderKind, readonly string[]> = {
   marketplace: [
@@ -170,9 +223,17 @@ const OrderDetailsScreen = () => {
     order.store ?? (isErrand ? "اخدمني" : isUtility ? serviceName : "—")
   );
 
-  // العنوان: لأخدمني استعمل dropoff
+  // العنوان: لأخدمني استعمل dropoff (يدعم شكل الباكند الخام pickup/dropoff أو المُحوّل pickupLabel/dropoffLabel)
+  const errandPickupDisplay = getErrandPointLabel(
+    o.errand?.pickupLabel,
+    o.errand?.pickup
+  );
+  const errandDropoffDisplay = getErrandPointLabel(
+    o.errand?.dropoffLabel,
+    o.errand?.dropoff
+  );
   const addressSafe = isErrand
-    ? safeText(o.errand?.dropoffLabel ?? o.address)
+    ? errandDropoffDisplay
     : safeText(order.address);
 
   // قائمة المنتجات بحسب النوع
@@ -239,9 +300,9 @@ const OrderDetailsScreen = () => {
     return { subtotal, subtotalOriginal, promoSavings };
   }, [basket]);
 
-  // الإجمالي النهائي الآمن
+  // الإجمالي النهائي الآمن (يدعم totalPrice من طلبات أخدمني)
   const totalSafe = Number(
-    o.total ?? o.price ?? subtotal + deliveryFeeSafe - discountSafe + tipSafe
+    o.total ?? o.price ?? o.totalPrice ?? subtotal + deliveryFeeSafe - discountSafe + tipSafe
   );
 
   /** 🧭 جلب تقييم المتجر الحقيقي من الـ backend */
@@ -357,7 +418,16 @@ const OrderDetailsScreen = () => {
     }
   };
 
-  const activeIndex = Math.max(0, STAGES.indexOf(order.status as any));
+  // عرض الحالة ومرحلة التايملاين (يدعم حالة الباكند الخام لطلبات أخدمني)
+  const displayStatus = isErrand
+    ? getErrandStatusDisplay((o as any).status ?? order.status)
+    : order.status;
+  const activeIndex = isErrand
+    ? getErrandStageIndex((o as any).status ?? order.status)
+    : Math.max(0, STAGES.indexOf(order.status as any));
+  const orderIdDisplay = String(
+    order.id ?? (o as any)._id ?? (o as any).orderNumber ?? "—"
+  );
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -368,10 +438,10 @@ const OrderDetailsScreen = () => {
         start={{ x: 0, y: 0.5 }}
         end={{ x: 1, y: 0.5 }}
       >
-        <Text style={styles.orderNumber}>الطلب #{order.id}</Text>
+        <Text style={styles.orderNumber}>الطلب #{orderIdDisplay}</Text>
         <View style={styles.statusPill}>
           <Ionicons name="timer" size={18} color="#fff" />
-          <Text style={styles.statusText}>{order.status}</Text>
+          <Text style={styles.statusText}>{displayStatus}</Text>
         </View>
       </LinearGradient>
 
@@ -381,12 +451,13 @@ const OrderDetailsScreen = () => {
         <View style={styles.timelineContainer}>
           {STAGES.map((stage, index) => {
             const isDone = index <= activeIndex;
+            const isActive = displayStatus === stage;
             return (
               <View key={index} style={styles.timelineStep}>
                 <View
                   style={[
                     styles.timelineDot,
-                    order.status === stage && styles.activeDot,
+                    isActive && styles.activeDot,
                     isDone && styles.completedDot,
                   ]}
                 >
@@ -397,7 +468,7 @@ const OrderDetailsScreen = () => {
                 <Text
                   style={[
                     styles.timelineLabel,
-                    order.status === stage && styles.activeLabel,
+                    isActive && styles.activeLabel,
                   ]}
                 >
                   {stage}
@@ -454,12 +525,12 @@ const OrderDetailsScreen = () => {
               <DetailItem
                 icon="location"
                 title="من"
-                value={safeText(o.errand?.pickupLabel)}
+                value={errandPickupDisplay}
               />
               <DetailItem
                 icon="location"
                 title="إلى"
-                value={safeText(o.errand?.dropoffLabel)}
+                value={errandDropoffDisplay}
               />
             </>
           ) : (
@@ -484,7 +555,7 @@ const OrderDetailsScreen = () => {
           <DetailItem
             icon="wallet"
             title="طريقة الدفع"
-            value={order.paymentMethod}
+            value={getPaymentMethodLabel(order.paymentMethod ?? (o as any).paymentMethod)}
           />
         </View>
 

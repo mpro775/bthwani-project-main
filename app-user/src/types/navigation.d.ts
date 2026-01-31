@@ -7,6 +7,7 @@ export type RootStackParamList = {
   PaymentStack: undefined;
   AbsherForm: { category: string };
   AkhdimniScreen: undefined;
+  AkhdimniOptionsScreen: undefined; // اخدمني: اختيار بين اخدمني / غاز / وايت ماء
   OrderDetails: { orderId: string };
   SheinScreen: undefined;
   Subscriptions: undefined;

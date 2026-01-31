@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   RefreshControl,
   ActivityIndicator,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -40,15 +40,16 @@ const SanadListScreen = () => {
       }
 
       const response: SanadListResponse = await getSanadList(cursor);
+      const list = Array.isArray(response?.items) ? response.items : [];
 
       if (isLoadMore) {
-        setItems(prev => [...prev, ...response.items]);
+        setItems(prev => [...(Array.isArray(prev) ? prev : []), ...list]);
       } else {
-        setItems(response.items);
+        setItems(list);
       }
 
-      setNextCursor(response.nextCursor);
-      setHasMore(!!response.nextCursor);
+      setNextCursor(response?.nextCursor);
+      setHasMore(!!response?.nextCursor);
     } catch (error) {
       console.error("خطأ في تحميل الطلبات:", error);
     } finally {
@@ -58,9 +59,12 @@ const SanadListScreen = () => {
     }
   }, []);
 
-  useEffect(() => {
-    loadItems();
-  }, [loadItems]);
+  // إعادة جلب القائمة عند كل تركيز على الشاشة (مثلاً بعد العودة من إضافة طلب جديد)
+  useFocusEffect(
+    useCallback(() => {
+      loadItems();
+    }, [loadItems])
+  );
 
   const handleRefresh = useCallback(() => {
     setRefreshing(true);

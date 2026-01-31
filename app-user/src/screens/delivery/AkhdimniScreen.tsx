@@ -2,6 +2,7 @@ import { fetchUserProfile } from "@/api/userApi";
 import { calculateErrandFee, createErrand } from "@/api/akhdimniApi";
 import { useAuth } from "@/auth/AuthContext";
 import { getAuthBanner } from "@/guards/bannerGateway";
+import { mapOrder } from "@/utils/orderUtils";
 
 import COLORS from "@/constants/colors";
 import { RootStackParamList } from "@/types/navigation";
@@ -604,13 +605,27 @@ const AkhdimniScreen: React.FC<ScreenProps> = ({ navigation }) => {
     if (!requireAuth()) return;
     try {
       const user = await fetchUserProfile().catch(() => null);
+      if (!user) return Alert.alert("تنبيه", "لم يتم تحميل بيانات المستخدم.");
+      // الباكند يرسل defaultAddress جاهزًا؛ وإلا نبحث في addresses بمقارنة آمنة للمعرف
       const defId = user?.defaultAddressId;
-      const addr = user?.addresses?.find((a: any) => a._id === defId) || null;
-      if (!addr) return Alert.alert("تنبيه", "لا يوجد عنوان افتراضي");
-      handlePoint("dropoff", "label", addr.label);
-      handlePoint("dropoff", "city", addr.city);
-      handlePoint("dropoff", "street", addr.street);
-      if (addr.location)
+      let addr: any =
+        user?.defaultAddress ||
+        (user?.addresses && defId
+          ? user.addresses.find(
+              (a: any) =>
+                String(a?._id ?? "") === String(defId ?? "") ||
+                (a?._id?.toString?.() ?? "") === String(defId ?? "")
+            )
+          : null) ||
+        (Array.isArray(user?.addresses) && user.addresses.length > 0
+          ? user.addresses[0]
+          : null);
+      if (!addr || (!addr.label && !addr.city && !addr.location))
+        return Alert.alert("تنبيه", "لا يوجد عنوان افتراضي");
+      handlePoint("dropoff", "label", addr.label ?? "");
+      handlePoint("dropoff", "city", addr.city ?? "");
+      handlePoint("dropoff", "street", addr.street ?? "");
+      if (addr.location && typeof addr.location.lat === "number" && typeof addr.location.lng === "number")
         handlePoint("dropoff", "location", {
           lat: addr.location.lat,
           lng: addr.location.lng,
@@ -727,8 +742,11 @@ const AkhdimniScreen: React.FC<ScreenProps> = ({ navigation }) => {
         notes: form.notes?.trim() || undefined,
       };
       const order = await createErrand(payload);
-      Alert.alert("تم إنشاء الطلب", `رقم الطلب: ${order.orderNumber || order._id}`);
-      navigation.navigate("OrderDetailsScreen" as any, { order });
+      const orderId = order?.orderNumber ?? order?._id ?? "—";
+      Alert.alert("تم إنشاء الطلب", `رقم الطلب: ${orderId}`);
+      navigation.navigate("OrderDetailsScreen" as any, {
+        order: mapOrder(order as any),
+      });
     } catch (err: any) {
       const msg =
         err?.response?.data?.message || err?.message || "حدث خطأ غير متوقع";

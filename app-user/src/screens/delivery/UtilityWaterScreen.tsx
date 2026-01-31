@@ -207,11 +207,14 @@ const UtilityWaterScreen: React.FC = () => {
   // 2) Fetch options
   useEffect(() => {
     (async () => {
+      if (!selectedAddress?.city) {
+        setLoading(false);
+        setOptions(null);
+        return;
+      }
       try {
-        if (!selectedAddress?.city) return;
         setLoading(true);
 
-        // ✅ بدال fetch
         const { data } = await axiosInstance.get<UtilityOptionsResp>(
           "/utility/options",
           { params: { city: selectedAddress.city } }
@@ -232,6 +235,7 @@ const UtilityWaterScreen: React.FC = () => {
         if (!data?.water?.allowHalf) setHalf(false);
       } catch (e) {
         console.error(e);
+        setOptions(null);
         Alert.alert("التسعير", "لا توجد إعدادات تسعير لهذه المدينة.");
       } finally {
         setLoading(false);

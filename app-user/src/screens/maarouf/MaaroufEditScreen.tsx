@@ -386,10 +386,12 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 16,
     fontSize: 16,
+    fontFamily: 'Cairo-Regular',
     color: COLORS.textLight,
   },
   errorText: {
     fontSize: 16,
+    fontFamily: 'Cairo-Regular',
     color: COLORS.danger,
     textAlign: 'center',
     marginTop: 16,
@@ -410,6 +412,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 18,
     fontWeight: '600',
+    fontFamily: 'Cairo-SemiBold',
     color: COLORS.text,
     textAlign: 'center',
   },
@@ -428,6 +431,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
+    fontFamily: 'Cairo-SemiBold',
     color: COLORS.text,
     marginBottom: 12,
   },
@@ -453,11 +457,13 @@ const styles = StyleSheet.create({
   kindOptionText: {
     fontSize: 16,
     fontWeight: '600',
+    fontFamily: 'Cairo-SemiBold',
     color: COLORS.primary,
     marginLeft: 8,
   },
   kindOptionTextSelected: {
     color: COLORS.white,
+    fontFamily: 'Cairo-SemiBold',
   },
   statusSelector: {
     flexDirection: 'row',
@@ -478,10 +484,12 @@ const styles = StyleSheet.create({
   statusOptionText: {
     fontSize: 14,
     fontWeight: '500',
+    fontFamily: 'Cairo-Regular',
     color: COLORS.text,
   },
   statusOptionTextSelected: {
     fontWeight: '600',
+    fontFamily: 'Cairo-SemiBold',
   },
   textInput: {
     borderWidth: 1,
@@ -490,6 +498,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
+    fontFamily: 'Cairo-Regular',
     color: COLORS.text,
     backgroundColor: COLORS.white,
     marginBottom: 8,
@@ -500,6 +509,7 @@ const styles = StyleSheet.create({
   },
   helperText: {
     fontSize: 12,
+    fontFamily: 'Cairo-Regular',
     color: COLORS.textLight,
     marginTop: 4,
   },
@@ -524,6 +534,7 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontSize: 18,
     fontWeight: '600',
+    fontFamily: 'Cairo-SemiBold',
     marginLeft: 8,
   },
 });

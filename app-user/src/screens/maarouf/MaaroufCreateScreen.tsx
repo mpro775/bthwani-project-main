@@ -287,6 +287,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 18,
     fontWeight: '600',
+    fontFamily: 'Cairo-SemiBold',
     color: COLORS.text,
     textAlign: 'center',
   },
@@ -305,6 +306,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
+    fontFamily: 'Cairo-SemiBold',
     color: COLORS.text,
     marginBottom: 12,
   },
@@ -330,11 +332,13 @@ const styles = StyleSheet.create({
   kindOptionText: {
     fontSize: 16,
     fontWeight: '600',
+    fontFamily: 'Cairo-SemiBold',
     color: COLORS.primary,
     marginLeft: 8,
   },
   kindOptionTextSelected: {
     color: COLORS.white,
+    fontFamily: 'Cairo-SemiBold',
   },
   textInput: {
     borderWidth: 1,
@@ -343,6 +347,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
+    fontFamily: 'Cairo-Regular',
     color: COLORS.text,
     backgroundColor: COLORS.white,
   },
@@ -352,6 +357,7 @@ const styles = StyleSheet.create({
   },
   helperText: {
     fontSize: 12,
+    fontFamily: 'Cairo-Regular',
     color: COLORS.textLight,
     marginTop: 4,
   },
@@ -376,6 +382,7 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontSize: 18,
     fontWeight: '600',
+    fontFamily: 'Cairo-SemiBold',
     marginLeft: 8,
   },
 });

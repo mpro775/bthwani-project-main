@@ -14,6 +14,10 @@ const getAuthHeaders = async () => {
   }
 };
 
+/** استخراج data من استجابة الباكند الموحدة { success, data, meta } */
+const unwrap = <T>(res: { data?: T } & Record<string, unknown>): T =>
+  (res?.data !== undefined ? res.data : res) as T;
+
 // ==================== Types ====================
 
 export interface Location {
@@ -112,11 +116,12 @@ export const calculateErrandFee = async (
     payload,
     { headers }
   );
-  return response.data;
+  return unwrap(response.data);
 };
 
 /**
  * إنشاء طلب مهمة جديد
+ * الباكند يغلّف الاستجابة بـ { success, data: <الطلب> } — نستخرج الطلب بـ unwrap لقراءة orderNumber و _id
  */
 export const createErrand = async (
   payload: CreateErrandPayload
@@ -125,7 +130,7 @@ export const createErrand = async (
   const response = await axiosInstance.post("/akhdimni/errands", payload, {
     headers,
   });
-  return response.data;
+  return unwrap(response.data);
 };
 
 /**
@@ -140,7 +145,8 @@ export const getMyErrands = async (
     headers,
     params,
   });
-  return response.data;
+  const raw = unwrap(response.data);
+  return Array.isArray(raw) ? raw : [];
 };
 
 /**
@@ -151,7 +157,7 @@ export const getErrandDetails = async (id: string): Promise<ErrandOrder> => {
   const response = await axiosInstance.get(`/akhdimni/errands/${id}`, {
     headers,
   });
-  return response.data;
+  return unwrap(response.data);
 };
 
 /**
@@ -167,7 +173,7 @@ export const cancelErrand = async (
     { reason },
     { headers }
   );
-  return response.data;
+  return unwrap(response.data);
 };
 
 /**
@@ -187,6 +193,6 @@ export const rateErrand = async (
     rating,
     { headers }
   );
-  return response.data;
+  return unwrap(response.data);
 };
 
