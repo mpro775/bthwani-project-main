@@ -51,6 +51,7 @@ import RefundRequestScreen from "@/screens/wallet/RefundRequestScreen";
 import TransactionDetailsScreen from "@/screens/wallet/TransactionDetailsScreen";
 
 import AkhdimniScreen from "@/screens/delivery/AkhdimniScreen";
+import AkhdimniOptionsScreen from "@/screens/delivery/AkhdimniOptionsScreen";
 import BusinessDetailsScreen from "@/screens/delivery/BusinessDetailsScreen";
 import CartScreen from "@/screens/delivery/CartScreen";
 import CategoryDetailsScreen from "@/screens/delivery/CategoryDetailsScreen";
@@ -809,6 +810,10 @@ function AppStackNavigator() {
       <AppStack.Screen
         name="GroceryMainScreen"
         component={GroceryMainScreen as any}
+      />
+      <AppStack.Screen
+        name="AkhdimniOptionsScreen"
+        component={AkhdimniOptionsScreen}
       />
       <AppStack.Screen
         name="AkhdimniScreen"

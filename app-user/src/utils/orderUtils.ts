@@ -46,6 +46,7 @@ type Order = {
 // ترجمات الحالة (موسّعة)
 const translateStatus = (status: string) => {
   switch (status) {
+    case "created":
     case "pending_confirmation":
       return "في انتظار التأكيد";
     case "under_review":
@@ -218,7 +219,7 @@ export const mapOrder = (o: any): Order => {
         }))
       : [],
 
-    total: Number(o.price ?? o.total ?? 0), // اخدمني يضع السعر في price
+    total: Number(o.price ?? o.total ?? o.totalPrice ?? 0), // اخدمني يضع السعر في price أو totalPrice
     deliveryFee: Number(o.deliveryFee ?? o.errand?.deliveryFee ?? 0),
     discount: Number(o.coupon?.discountOnItems ?? 0),
     paymentMethod: o.paymentMethod || "cash",

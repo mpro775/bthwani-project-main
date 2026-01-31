@@ -32,7 +32,7 @@ const SanadCreateScreen = () => {
     description: '',
     kind: undefined,
     metadata: {},
-    status: 'draft',
+    status: 'pending',
   });
 
   const handleSubmit = async () => {

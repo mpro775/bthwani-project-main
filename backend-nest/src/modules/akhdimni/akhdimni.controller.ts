@@ -7,6 +7,7 @@ import {
   Param,
   Query,
   SetMetadata,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOperation , ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
 import {
@@ -21,13 +22,15 @@ import {
 } from './dto/create-errand.dto';
 import { CalculateFeeDto } from './dto/calculate-fee.dto';
 import { Auth, CurrentUser } from '../../common/decorators/auth.decorator';
-import { AuthType } from '../../common/guards/unified-auth.guard';
+import { AuthType, UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
 
 const Roles = (...roles: string[]) => SetMetadata('roles', roles);
 
 @ApiTags('Akhdimni')
 @Controller({ path: 'akhdimni', version: '1' })
 @ApiBearerAuth()
+@UseGuards(UnifiedAuthGuard, RolesGuard)
 export class AkhdimniController {
   constructor(private readonly akhdimniService: AkhdimniService) {}
 

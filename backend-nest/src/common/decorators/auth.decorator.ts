@@ -23,8 +23,9 @@ export const Roles = (...roles: string[]) => SetMetadata('roles', roles);
 // Current User Decorator
 export const CurrentUser = createParamDecorator(
   (data: keyof User | undefined, ctx: ExecutionContext): unknown => {
-    const request = ctx.switchToHttp().getRequest<{ user: User }>();
+    const request = ctx.switchToHttp().getRequest<{ user?: User }>();
     const user = request.user;
+    if (!user) return undefined;
     return data ? user[data] : user;
   },
 );

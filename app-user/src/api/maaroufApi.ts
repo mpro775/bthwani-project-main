@@ -14,6 +14,10 @@ const getAuthHeaders = async () => {
   }
 };
 
+/** استخراج data من استجابة الباكند الموحدة { success, data, meta } (مثل كنز والكوادر) */
+const unwrap = <T>(res: { data?: T } & Record<string, unknown>): T =>
+  (res?.data !== undefined ? res.data : res) as T;
+
 // ==================== Types ====================
 
 export type MaaroufStatus = 'draft' | 'pending' | 'confirmed' | 'completed' | 'cancelled';
@@ -78,11 +82,12 @@ export const createMaarouf = async (
   const response = await axiosInstance.post("/maarouf", payload, {
     headers,
   });
-  return response.data;
+  return unwrap(response.data);
 };
 
 /**
  * جلب قائمة الإعلانات
+ * الباكند يغلّف الاستجابة بـ { success, data: { items, nextCursor } } — نستخرج بـ unwrap ثم نُوحّد إلى { data, nextCursor, hasMore }
  */
 export const getMaaroufList = async (
   cursor?: string
@@ -93,7 +98,11 @@ export const getMaaroufList = async (
     headers,
     params,
   });
-  return response.data;
+  const raw = unwrap(response.data) as { items?: MaaroufItem[]; data?: MaaroufItem[]; nextCursor?: string; hasMore?: boolean };
+  const list = Array.isArray(raw?.data) ? raw.data : Array.isArray(raw?.items) ? raw.items : [];
+  const nextCursor = raw?.nextCursor ?? undefined;
+  const hasMore = typeof raw?.hasMore === "boolean" ? raw.hasMore : !!nextCursor;
+  return { data: list, nextCursor, hasMore };
 };
 
 /**
@@ -104,7 +113,7 @@ export const getMaaroufDetails = async (id: string): Promise<MaaroufItem> => {
   const response = await axiosInstance.get(`/maarouf/${id}`, {
     headers,
   });
-  return response.data;
+  return unwrap(response.data);
 };
 
 /**
@@ -118,7 +127,7 @@ export const updateMaarouf = async (
   const response = await axiosInstance.patch(`/maarouf/${id}`, payload, {
     headers,
   });
-  return response.data;
+  return unwrap(response.data);
 };
 
 /**
@@ -143,7 +152,11 @@ export const getMyMaarouf = async (
     headers,
     params,
   });
-  return response.data;
+  const raw = unwrap(response.data) as { items?: MaaroufItem[]; data?: MaaroufItem[]; nextCursor?: string; hasMore?: boolean };
+  const list = Array.isArray(raw?.data) ? raw.data : Array.isArray(raw?.items) ? raw.items : [];
+  const nextCursor = raw?.nextCursor ?? undefined;
+  const hasMore = typeof raw?.hasMore === "boolean" ? raw.hasMore : !!nextCursor;
+  return { data: list, nextCursor, hasMore };
 };
 
 /**
@@ -163,5 +176,9 @@ export const searchMaarouf = async (
     headers,
     params,
   });
-  return response.data;
+  const raw = unwrap(response.data) as { items?: MaaroufItem[]; data?: MaaroufItem[]; nextCursor?: string; hasMore?: boolean };
+  const list = Array.isArray(raw?.data) ? raw.data : Array.isArray(raw?.items) ? raw.items : [];
+  const nextCursor = raw?.nextCursor ?? undefined;
+  const hasMore = typeof raw?.hasMore === "boolean" ? raw.hasMore : !!nextCursor;
+  return { data: list, nextCursor, hasMore };
 };

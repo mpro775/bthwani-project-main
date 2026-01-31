@@ -14,6 +14,10 @@ const getAuthHeaders = async () => {
   }
 };
 
+/** استخراج data من استجابة الباكند الموحدة { success, data, meta } (مثل كنز) */
+const unwrap = <T>(res: { data?: T } & Record<string, unknown>): T =>
+  (res?.data !== undefined ? res.data : res) as T;
+
 // ==================== Types ====================
 
 export type KawaderStatus = 'draft' | 'pending' | 'confirmed' | 'completed' | 'cancelled';
@@ -76,12 +80,12 @@ export const createKawader = async (
   const response = await axiosInstance.post("/kawader", payload, {
     headers,
   });
-  return response.data;
+  return unwrap(response.data);
 };
 
 /**
  * جلب قائمة الكوادر
- * الـ backend يُرجع { items, nextCursor } — نُوحّد إلى { data, nextCursor, hasMore }
+ * الباكند يغلّف الاستجابة بـ { success, data: { items, nextCursor } } — نستخرج بـ unwrap ثم نُوحّد إلى { data, nextCursor, hasMore }
  */
 export const getKawaderList = async (
   cursor?: string
@@ -92,11 +96,11 @@ export const getKawaderList = async (
     headers,
     params,
   });
-  const body = response.data ?? {};
-  const data = Array.isArray(body.data) ? body.data : Array.isArray(body.items) ? body.items : [];
-  const nextCursor = body.nextCursor ?? undefined;
-  const hasMore = typeof body.hasMore === "boolean" ? body.hasMore : !!nextCursor;
-  return { data, nextCursor, hasMore };
+  const raw = unwrap(response.data) as { items?: KawaderItem[]; data?: KawaderItem[]; nextCursor?: string; hasMore?: boolean };
+  const list = Array.isArray(raw?.data) ? raw.data : Array.isArray(raw?.items) ? raw.items : [];
+  const nextCursor = raw?.nextCursor ?? undefined;
+  const hasMore = typeof raw?.hasMore === "boolean" ? raw.hasMore : !!nextCursor;
+  return { data: list, nextCursor, hasMore };
 };
 
 /**
@@ -107,7 +111,7 @@ export const getKawaderDetails = async (id: string): Promise<KawaderItem> => {
   const response = await axiosInstance.get(`/kawader/${id}`, {
     headers,
   });
-  return response.data;
+  return unwrap(response.data);
 };
 
 /**
@@ -121,7 +125,7 @@ export const updateKawader = async (
   const response = await axiosInstance.patch(`/kawader/${id}`, payload, {
     headers,
   });
-  return response.data;
+  return unwrap(response.data);
 };
 
 /**
@@ -146,7 +150,11 @@ export const getMyKawader = async (
     headers,
     params,
   });
-  return response.data;
+  const raw = unwrap(response.data) as { items?: KawaderItem[]; data?: KawaderItem[]; nextCursor?: string; hasMore?: boolean };
+  const list = Array.isArray(raw?.data) ? raw.data : Array.isArray(raw?.items) ? raw.items : [];
+  const nextCursor = raw?.nextCursor ?? undefined;
+  const hasMore = typeof raw?.hasMore === "boolean" ? raw.hasMore : !!nextCursor;
+  return { data: list, nextCursor, hasMore };
 };
 
 /**
@@ -166,5 +174,9 @@ export const searchKawader = async (
     headers,
     params,
   });
-  return response.data;
+  const raw = unwrap(response.data) as { items?: KawaderItem[]; data?: KawaderItem[]; nextCursor?: string; hasMore?: boolean };
+  const list = Array.isArray(raw?.data) ? raw.data : Array.isArray(raw?.items) ? raw.items : [];
+  const nextCursor = raw?.nextCursor ?? undefined;
+  const hasMore = typeof raw?.hasMore === "boolean" ? raw.hasMore : !!nextCursor;
+  return { data: list, nextCursor, hasMore };
 };

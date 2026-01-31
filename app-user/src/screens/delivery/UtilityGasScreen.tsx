@@ -5,7 +5,6 @@ import COLORS from "@/constants/colors";
 import { getAuthBanner } from "@/guards/bannerGateway";
 import { RootStackParamList } from "@/types/navigation";
 import axiosInstance from "@/utils/api/axiosInstance";
-import { API_URL } from "@/utils/api/config";
 import { MaterialIcons as Icon } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -179,15 +178,17 @@ const UtilityGasScreen: React.FC = () => {
   // 2) Fetch utility options by city
   useEffect(() => {
     (async () => {
+      if (!selectedAddress?.city) {
+        setLoading(false);
+        setOptions(null);
+        return;
+      }
       try {
-        if (!selectedAddress?.city) return;
         setLoading(true);
-        const resp = await fetch(
-          `${API_URL}/utility/options?city=${encodeURIComponent(
-            selectedAddress.city
-          )}`
+        const { data } = await axiosInstance.get<UtilityOptionsResp>(
+          "/utility/options",
+          { params: { city: selectedAddress.city } }
         );
-        const data = (await resp.json()) as UtilityOptionsResp;
         setOptions(data);
         // اضبط الحد الأدنى للكمية
         if (data?.gas?.minQty && qty < data.gas.minQty) {
@@ -195,6 +196,7 @@ const UtilityGasScreen: React.FC = () => {
         }
       } catch (e) {
         console.error(e);
+        setOptions(null);
         Alert.alert("التسعير", "لا توجد إعدادات تسعير لهذه المدينة.");
       } finally {
         setLoading(false);

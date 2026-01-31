@@ -158,7 +158,8 @@ const SanadEditScreen = () => {
     );
   }
 
-  const isOwner = user && originalItem && originalItem.ownerId === user.uid;
+  const ownerIdStr = originalItem && (typeof originalItem.ownerId === "object" ? (originalItem.ownerId as any)?._id : originalItem.ownerId);
+  const isOwner = !!(user && originalItem && ownerIdStr === user.uid);
 
   if (!isOwner) {
     return (

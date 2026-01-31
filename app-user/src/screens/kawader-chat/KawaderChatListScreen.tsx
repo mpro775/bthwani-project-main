@@ -40,15 +40,16 @@ const KawaderChatListScreen = () => {
       }
 
       const response: KawaderChatListResponse = await getConversations(cursor, 25);
+      const list = Array.isArray(response?.items) ? response.items : [];
 
       if (isLoadMore) {
-        setConversations(prev => [...prev, ...response.items]);
+        setConversations(prev => [...(Array.isArray(prev) ? prev : []), ...list]);
       } else {
-        setConversations(response.items);
+        setConversations(list);
       }
 
-      setNextCursor(response.nextCursor);
-      setHasMore(!!response.nextCursor);
+      setNextCursor(response?.nextCursor);
+      setHasMore(!!response?.nextCursor);
 
     } catch (error) {
       console.error("خطأ في تحميل المحادثات:", error);
@@ -82,13 +83,13 @@ const KawaderChatListScreen = () => {
     loadConversations();
   }, [loadConversations]);
 
-  const filteredConversations = conversations.filter((conv) => {
+  const filteredConversations = (Array.isArray(conversations) ? conversations : []).filter((conv) => {
     if (filter === "all") return true;
     if (filter === "as-owner") {
-      return conv.ownerId._id === user?.uid;
+      return conv.ownerId?._id === user?.uid;
     }
     if (filter === "as-interested") {
-      return conv.interestedUserId._id === user?.uid;
+      return conv.interestedUserId?._id === user?.uid;
     }
     return true;
   });
@@ -111,18 +112,18 @@ const KawaderChatListScreen = () => {
 
   const getUnreadCount = (conversation: KawaderConversation) => {
     if (!user) return 0;
-    if (conversation.ownerId._id === user.uid) {
-      return conversation.unreadCountOwner;
+    if (conversation.ownerId?._id === user.uid) {
+      return conversation.unreadCountOwner ?? 0;
     }
-    return conversation.unreadCountInterested;
+    return conversation.unreadCountInterested ?? 0;
   };
 
   const getOtherUser = (conversation: KawaderConversation) => {
     if (!user) return null;
-    if (conversation.ownerId._id === user.uid) {
-      return conversation.interestedUserId;
+    if (conversation.ownerId?._id === user.uid) {
+      return conversation.interestedUserId ?? null;
     }
-    return conversation.ownerId;
+    return conversation.ownerId ?? null;
   };
 
   const renderFilterTabs = () => (
@@ -157,7 +158,7 @@ const KawaderChatListScreen = () => {
   const renderConversationItem = ({ item }: { item: KawaderConversation }) => {
     const otherUser = getOtherUser(item);
     const unreadCount = getUnreadCount(item);
-    const isOwner = item.ownerId._id === user?.uid;
+    const isOwner = item.ownerId?._id === user?.uid;
 
     return (
       <TouchableOpacity

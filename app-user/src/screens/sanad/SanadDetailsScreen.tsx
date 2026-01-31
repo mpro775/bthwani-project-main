@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   View,
   Text,
@@ -9,13 +9,14 @@ import {
   ActivityIndicator,
   Share,
 } from "react-native";
-import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
+import { useNavigation, useRoute, useFocusEffect, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 
 import { RootStackParamList } from "@/types/navigation";
 import { SanadItem } from "@/types/types";
-import { getSanadDetails, deleteSanad } from "@/api/sanadApi";
+import { getSanadDetails, deleteSanad, updateSanad } from "@/api/sanadApi";
+import type { SanadStatus } from "@/api/sanadApi";
 import { useAuth } from "@/auth/AuthContext";
 import COLORS from "@/constants/colors";
 
@@ -31,6 +32,7 @@ const SanadDetailsScreen = () => {
   const [item, setItem] = useState<SanadItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
 
   const loadItem = useCallback(async () => {
     try {
@@ -46,9 +48,11 @@ const SanadDetailsScreen = () => {
     }
   }, [itemId, navigation]);
 
-  useEffect(() => {
-    loadItem();
-  }, [loadItem]);
+  useFocusEffect(
+    useCallback(() => {
+      if (itemId) loadItem();
+    }, [loadItem, itemId])
+  );
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -153,7 +157,23 @@ const SanadDetailsScreen = () => {
     }
   };
 
-  const isOwner = user && item && item.ownerId === user.uid;
+  const ownerIdStr = item && (typeof item.ownerId === "object" ? (item.ownerId as any)?._id : item.ownerId);
+  const isOwner = !!(user && item && ownerIdStr === user.uid);
+
+  const handleStatusChange = async (newStatus: SanadStatus) => {
+    if (!item || item.status === newStatus) return;
+    setUpdatingStatus(true);
+    try {
+      const updated = await updateSanad(item._id, { status: newStatus });
+      setItem(updated);
+      Alert.alert("تم", `تم تحديث الحالة إلى: ${getStatusText(newStatus)}`);
+    } catch (error) {
+      console.error("خطأ في تحديث الحالة:", error);
+      Alert.alert("خطأ", "لم يتم تحديث الحالة. يرجى المحاولة مرة أخرى.");
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -250,6 +270,68 @@ const SanadDetailsScreen = () => {
                   <Text style={styles.metadataValue}>{item.metadata.contact}</Text>
                 </View>
               )}
+            </View>
+          )}
+
+          {/* إدارة الطلب — للمالك فقط */}
+          {isOwner && (
+            <View style={styles.manageSection}>
+              <Text style={styles.sectionTitle}>إدارة الطلب</Text>
+              <Text style={styles.manageHint}>هذا الطلب خاص بك. يمكنك تغيير الحالة أو تعديل التفاصيل أو حذفه.</Text>
+
+              <Text style={styles.statusLabel}>تغيير الحالة</Text>
+              {updatingStatus ? (
+                <View style={styles.statusRow}>
+                  <ActivityIndicator size="small" color={COLORS.primary} />
+                  <Text style={styles.statusUpdatingText}>جاري التحديث...</Text>
+                </View>
+              ) : (
+                <View style={styles.statusOptionsRow}>
+                  {(['draft', 'pending', 'confirmed', 'completed', 'cancelled'] as SanadStatus[]).map((status) => (
+                    <TouchableOpacity
+                      key={status}
+                      style={[
+                        styles.statusOption,
+                        item.status === status && styles.statusOptionActive,
+                        { borderColor: getStatusColor(status) },
+                        item.status === status && { backgroundColor: getStatusColor(status) },
+                      ]}
+                      onPress={() => handleStatusChange(status)}
+                    >
+                      <Text
+                        style={[
+                          styles.statusOptionText,
+                          item.status === status && styles.statusOptionTextActive,
+                          item.status === status && { color: COLORS.white },
+                        ]}
+                      >
+                        {getStatusText(status)}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+
+              <View style={styles.manageActions}>
+                <TouchableOpacity style={styles.editDetailButton} onPress={handleEdit}>
+                  <Ionicons name="pencil" size={20} color={COLORS.white} />
+                  <Text style={styles.manageButtonText}>تعديل التفاصيل</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.deleteDetailButton}
+                  onPress={handleDelete}
+                  disabled={deleting}
+                >
+                  {deleting ? (
+                    <ActivityIndicator size="small" color={COLORS.white} />
+                  ) : (
+                    <>
+                      <Ionicons name="trash-outline" size={20} color={COLORS.white} />
+                      <Text style={styles.manageButtonText}>حذف الطلب</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              </View>
             </View>
           )}
 
@@ -386,6 +468,93 @@ const styles = StyleSheet.create({
   },
   metadataSection: {
     marginBottom: 24,
+  },
+  manageSection: {
+    marginBottom: 24,
+    padding: 16,
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  manageHint: {
+    fontSize: 14,
+    fontFamily: 'Cairo-Regular',
+    color: COLORS.textLight,
+    marginBottom: 16,
+    lineHeight: 22,
+  },
+  statusLabel: {
+    fontSize: 14,
+    fontFamily: 'Cairo-SemiBold',
+    color: COLORS.text,
+    marginBottom: 8,
+  },
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+  },
+  statusUpdatingText: {
+    fontSize: 14,
+    fontFamily: 'Cairo-Regular',
+    color: COLORS.textLight,
+  },
+  statusOptionsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 16,
+  },
+  statusOption: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    borderWidth: 2,
+    backgroundColor: COLORS.white,
+  },
+  statusOptionActive: {
+    borderWidth: 2,
+  },
+  statusOptionText: {
+    fontSize: 13,
+    fontFamily: 'Cairo-SemiBold',
+    color: COLORS.text,
+  },
+  statusOptionTextActive: {
+    fontFamily: 'Cairo-SemiBold',
+  },
+  manageActions: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  editDetailButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.primary,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    gap: 8,
+  },
+  deleteDetailButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.danger,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    gap: 8,
+  },
+  manageButtonText: {
+    fontSize: 14,
+    fontFamily: 'Cairo-SemiBold',
+    color: COLORS.white,
   },
   sectionTitle: {
     fontSize: 18,

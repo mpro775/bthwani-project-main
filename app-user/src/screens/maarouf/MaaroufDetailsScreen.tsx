@@ -372,10 +372,12 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 16,
     fontSize: 16,
+    fontFamily: 'Cairo-Regular',
     color: COLORS.textLight,
   },
   errorText: {
     fontSize: 16,
+    fontFamily: 'Cairo-Regular',
     color: COLORS.danger,
   },
   header: {
@@ -394,6 +396,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 18,
     fontWeight: '600',
+    fontFamily: 'Cairo-SemiBold',
     color: COLORS.text,
     textAlign: 'center',
   },
@@ -425,6 +428,7 @@ const styles = StyleSheet.create({
   kindText: {
     fontSize: 14,
     fontWeight: '600',
+    fontFamily: 'Cairo-SemiBold',
     color: COLORS.text,
   },
   statusBadge: {
@@ -435,17 +439,20 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 14,
     fontWeight: '600',
+    fontFamily: 'Cairo-SemiBold',
     color: COLORS.white,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+    fontFamily: 'Cairo-Bold',
     color: COLORS.text,
     marginBottom: 16,
     lineHeight: 32,
   },
   description: {
     fontSize: 16,
+    fontFamily: 'Cairo-Regular',
     color: COLORS.text,
     lineHeight: 24,
     marginBottom: 24,
@@ -456,6 +463,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
+    fontFamily: 'Cairo-SemiBold',
     color: COLORS.text,
     marginBottom: 12,
   },
@@ -465,6 +473,7 @@ const styles = StyleSheet.create({
   },
   tag: {
     fontSize: 14,
+    fontFamily: 'Cairo-Regular',
     color: COLORS.primary,
     backgroundColor: COLORS.lightBlue,
     paddingHorizontal: 12,
@@ -483,11 +492,13 @@ const styles = StyleSheet.create({
   metadataLabel: {
     fontSize: 14,
     fontWeight: '600',
+    fontFamily: 'Cairo-SemiBold',
     color: COLORS.text,
     width: 100,
   },
   metadataValue: {
     fontSize: 14,
+    fontFamily: 'Cairo-Regular',
     color: COLORS.textLight,
     flex: 1,
   },
@@ -501,11 +512,13 @@ const styles = StyleSheet.create({
   dateLabel: {
     fontSize: 14,
     fontWeight: '600',
+    fontFamily: 'Cairo-SemiBold',
     color: COLORS.text,
     width: 100,
   },
   dateValue: {
     fontSize: 14,
+    fontFamily: 'Cairo-Regular',
     color: COLORS.textLight,
     flex: 1,
   },
@@ -541,16 +554,19 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontSize: 14,
     fontWeight: "600",
+    fontFamily: 'Cairo-SemiBold',
     marginLeft: 8,
   },
   phoneDisplay: {
     fontSize: 14,
+    fontFamily: 'Cairo-Regular',
     color: COLORS.textLight,
     marginTop: 12,
     textAlign: "center",
   },
   noContactHint: {
     fontSize: 12,
+    fontFamily: 'Cairo-Regular',
     color: COLORS.gray,
     marginTop: 12,
     textAlign: "center",

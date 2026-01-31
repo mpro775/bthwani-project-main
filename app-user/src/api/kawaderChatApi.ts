@@ -14,6 +14,10 @@ const getAuthHeaders = async () => {
   }
 };
 
+/** استخراج data من استجابة الباكند الموحدة { success, data, meta } */
+const unwrap = <T>(res: { data?: T } & Record<string, unknown>): T =>
+  (res?.data !== undefined ? res.data : res) as T;
+
 // ==================== Types ====================
 
 export interface KawaderConversation {
@@ -85,7 +89,7 @@ export const createConversation = async (
     { kawaderId },
     { headers }
   );
-  return response.data;
+  return unwrap(response.data);
 };
 
 /**
@@ -104,7 +108,11 @@ export const getConversations = async (
     headers,
     params,
   });
-  return response.data;
+  const raw = unwrap(response.data) as KawaderChatListResponse;
+  return {
+    items: Array.isArray(raw?.items) ? raw.items : [],
+    nextCursor: raw?.nextCursor,
+  };
 };
 
 /**
@@ -118,7 +126,7 @@ export const getConversation = async (
     `/kawader-chat/conversations/${conversationId}`,
     { headers }
   );
-  return response.data;
+  return unwrap(response.data);
 };
 
 /**
