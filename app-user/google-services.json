@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "242766871221",
+    "project_id": "bthwani-b13cd",
+    "storage_bucket": "bthwani-b13cd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:242766871221:android:4c052f02500cd80ba05cfc",
+        "android_client_info": {
+          "package_name": "com.bthwani.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDcj9GF6Jsi7aIWHoOmH9OKwdOs2pRswS0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

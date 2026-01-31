@@ -1,8 +1,4 @@
 # secrets
-app-user/*.json
-rider-app/*.json
-vendor-app/*.json
-field-marketers/*.json
 .env
 .env.local
 .env.development.local
@@ -11,5 +7,4 @@ field-marketers/*.json
 node_modules
 *.secret.json
 
-app-user/*.json
 *.secret.json

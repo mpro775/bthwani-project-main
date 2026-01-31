@@ -1,0 +1,97 @@
+{
+  "expo": {
+    "name": "bThwani Vendor",
+    "slug": "vendor-app",
+    "scheme": "bthwani-vendor",
+    "version": "1.0.1",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "userInterfaceStyle": "light",
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "newArchEnabled": true
+          },
+          "ios": {
+            "newArchEnabled": true
+          }
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#e8402f",
+          "androidMode": "default",
+          "androidCollapsedTitle": "بثواني"
+        }
+      ],
+      "expo-localization",
+      "expo-router",
+      "expo-font",
+      "expo-web-browser"
+    ],
+    "splash": {
+      "image": "./assets/images/splash-1242x2436.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "ios": {
+      "bundleIdentifier": "com.bthwani.vendorapp",
+      "buildNumber": "2",
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "نحتاج إلى موقعك لتحديد مكانك وعرض المتاجر والموصلين القريبين منك."
+      }
+    },
+    "android": {
+      "package": "com.bthwani.vendorapp",
+      "versionCode": 2,
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE",
+        "ACCESS_WIFI_STATE",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "POST_NOTIFICATIONS"
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyCoIo_MvZY0h5r1ipzg6fvn6S_iTF3VslA"
+        }
+      },
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-foreground-1024.png",
+        "backgroundColor": "#ffffff"
+      }
+        },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "owner": "bthwani",
+    "updates": {
+      "url": "https://u.expo.dev/<VENDOR-PROJECT-ID>"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "af7327b9-c1c2-4482-92e8-39b191d6fee5"
+      },
+      "apiUrl": {
+        "development": "http://localhost:3000/api/v1",
+        "production": "https://bthwani-backend-9u4r.onrender.com/api/v1"
+      }
+    }
+  }
+}

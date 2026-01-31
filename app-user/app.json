@@ -1,0 +1,114 @@
+{
+  "expo": {
+    "name": "bThwani Yemen",
+    "slug": "bThwaniApp",
+    "scheme": "bthwani",
+    "version": "1.0.1",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "newArchEnabled": true
+          },
+          "ios": {
+            "newArchEnabled": true
+          }
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#e8402f",
+          "androidMode": "default",
+          "androidCollapsedTitle": "بثواني"
+        }
+      ],
+      "expo-localization",
+      "expo-router",
+      "sentry-expo"
+    ],
+    "splash": {
+      "image": "./assets/splash_icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "ios": {
+      "bundleIdentifier": "com.bthwani.app",
+      "buildNumber": "2",
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "نحتاج إلى موقعك لتحديد مكانك وعرض المتاجر والموصلين القريبين منك."
+      }
+    },
+    "android": {
+      "package": "com.bthwani.app",
+      "versionCode": 2,
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyCoIo_MvZY0h5r1ipzg6fvn6S_iTF3VslA"
+        }
+      },
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE",
+        "ACCESS_WIFI_STATE",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "POST_NOTIFICATIONS"
+      ],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "googleServicesFile": "./google-services.json"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/favicon.png",
+      "name": "بثواني - تطبيق التوصيل",
+      "shortName": "بثواني",
+      "lang": "ar",
+      "scope": "/",
+      "themeColor": "#FF500D",
+      "backgroundColor": "#FFFFFF",
+      "display": "standalone",
+      "orientation": "portrait-primary",
+      "description": "تطبيق بثواني للتوصيل والتسوق في اليمن",
+      "icons": [
+        {
+          "src": "./assets/icon.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        },
+        {
+          "src": "./assets/icon.png",
+          "sizes": "512x512",
+          "type": "image/png"
+        }
+      ]
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "owner": "bthwani",
+    "updates": {
+      "url": "https://u.expo.dev/54ecf7af-be84-496e-871c-a2050d2f2621"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "eeb79d9d-d3ea-437f-9f48-d87ae78c93b9"
+      },
+      "sentryDsn": "your_sentry_dsn_here"
+    }
+  }
+}

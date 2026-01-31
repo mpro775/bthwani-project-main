@@ -1,0 +1,27 @@
+{
+  "workspaces": {
+    ".": {
+      "entry": ["App.tsx"],
+      "project": ["src/**/*.{ts,tsx,js,jsx}", "scripts/**/*.{ts,js}"],
+      "ignore": [
+        "**/__tests__/**",
+        "**/*.test.*",
+        "src/e2e/**",
+        "detox.config.ts",
+        "jest*.js",
+        "jest*.ts",
+        "scripts/coverage-badge.js"
+      ],
+      "filesWithSideEffects": ["src/localization/i18n.ts"]
+    },
+    "ignoreBinaries": [
+      "maestro",
+      "eas",
+      "license-checker",
+      "ISC",
+      "Apache-2.0",
+      "BSD-2-Clause",
+      "BSD-3-Clause"
+    ]
+  }
+}

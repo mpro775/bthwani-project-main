@@ -1,0 +1,58 @@
+{
+  "expo": {
+    "name": "bThwani Marketers",
+    "slug": "field-marketers",
+    "scheme": "bthwani-marketers",
+    "version": "1.0.1",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": { "fallbackToCacheTimeout": 0 },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.bthwani.marketers",
+      "buildNumber": "3",            
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "نستخدم موقعك لتحديد مكان المتجر بدقة.",
+        "NSUserTrackingUsageDescription": "قد نستخدم المعرّف لتحسين الإشعارات.",
+        "NSCameraUsageDescription": "نحتاج الكاميرا لالتقاط صور المتجر والمستندات."
+      }
+    },
+    "android": {
+      "package": "com.bthwani.marketers",
+      "versionCode": 3,             
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "config": {
+        "googleMaps": { "apiKey": "AIzaSyCoIo_MvZY0h5r1ipzg6fvn6S_iTF3VslA" }
+      },
+      "googleServicesFile": "./google-services.json",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "NOTIFICATIONS"
+      ]
+    },
+    "plugins": [
+      ["expo-notifications", { "icon": "./assets/icon.png", "color": "#0066ff" }],
+      "expo-secure-store",
+      "expo-dev-client"
+    ],
+    "extra": {
+      "eas": { "projectId": "ae537f4b-00d3-46ef-a605-c38185eaf24b" },
+      "apiBaseUrl": "https://api.bthwani.com/api/v1"
+    },
+    "owner": "bthwani"
+  }
+}

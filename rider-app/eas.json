@@ -1,0 +1,27 @@
+{
+  "build": {
+    "production": {
+      "android": {
+        "buildType": "apk"
+      },
+      "releaseChannel": "production"
+    },
+    "aab": {
+      "android": {
+        "buildType": "app-bundle"
+      }
+    },
+    "preview": {
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      }
+    }
+  }
+}
