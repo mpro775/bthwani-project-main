@@ -45,7 +45,6 @@ const ArabonList: React.FC<ArabonListProps> = ({
     hasMore,
     error,
     loadMore,
-    refresh,
   } = useArabonList({ statusFilter });
 
   const stats = {

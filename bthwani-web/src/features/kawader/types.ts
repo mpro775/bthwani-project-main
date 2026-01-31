@@ -53,6 +53,13 @@ export interface UpdateKawaderPayload {
   status?: KawaderStatus;
 }
 
+export interface KawaderFilters {
+  status?: KawaderStatus;
+  search?: string;
+  budgetMin?: number;
+  budgetMax?: number;
+}
+
 export interface KawaderListResponse {
   items: KawaderItem[];
   data?: KawaderItem[];
@@ -86,3 +93,5 @@ export const KawaderStatusColors: Record<KawaderStatus, string> = {
   completed: "#4caf50",
   cancelled: "#f44336",
 };
+
+export const KawaderStatusValues: KawaderStatus[] = ["draft", "pending", "confirmed", "completed", "cancelled"];

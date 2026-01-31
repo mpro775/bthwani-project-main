@@ -54,6 +54,13 @@ export interface UpdateMaaroufPayload {
   status?: MaaroufStatus;
 }
 
+export interface MaaroufFilters {
+  status?: MaaroufStatus;
+  kind?: MaaroufKind;
+  search?: string;
+  tags?: string[];
+}
+
 export interface MaaroufListResponse {
   items: MaaroufItem[];
   data?: MaaroufItem[];
@@ -81,3 +88,6 @@ export const MaaroufStatusColors: Record<MaaroufStatus, string> = {
   completed: "#4caf50",
   cancelled: "#f44336",
 };
+
+export const MaaroufKindValues: MaaroufKind[] = ["lost", "found"];
+export const MaaroufStatusValues: MaaroufStatus[] = ["draft", "pending", "confirmed", "completed", "cancelled"];

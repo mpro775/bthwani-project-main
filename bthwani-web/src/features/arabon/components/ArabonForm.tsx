@@ -18,7 +18,6 @@ import {
 } from '@mui/material';
 import {
   ArrowBack as ArrowBackIcon,
-  Add as AddIcon,
   Delete as DeleteIcon,
   Save as SaveIcon,
   AttachMoney as MoneyIcon,
@@ -26,7 +25,7 @@ import {
   Image as ImageIcon,
 } from '@mui/icons-material';
 import { uploadArabonImageToBunny } from '../../../utils/uploadToBunny';
-import type { ArabonItem } from '../types';
+import type { ArabonItem, ArabonStatus } from '../types';
 import type { CreateArabonPayload, UpdateArabonPayload } from '../types';
 
 const MAX_IMAGES = 8;
@@ -161,7 +160,7 @@ const ArabonForm: React.FC<ArabonFormProps> = ({
 
       if (mode === 'create') {
         (submitData as CreateArabonPayload).ownerId = ownerId;
-        (submitData as CreateArabonPayload).status = formData.status;
+        (submitData as CreateArabonPayload).status = formData.status as ArabonStatus;
       } else if (mode === 'edit') {
         (submitData as UpdateArabonPayload).status = formData.status as any;
       }
@@ -404,7 +403,7 @@ const ArabonForm: React.FC<ArabonFormProps> = ({
                 value={formData.metadata?.notes ?? ''}
                 onChange={(e) => handleInputChange('metadata', { ...formData.metadata, notes: e.target.value })}
                 placeholder="ملاحظات"
-                maxLength={200}
+                inputProps={{ maxLength: 200 }}
               />
             </Grid>
 

@@ -51,11 +51,11 @@ const SanadPage: React.FC = () => {
     navigate("/sanad/new");
   };
 
-  const handleEditItem = (item: SanadItem) => {
-    navigate(`/sanad/${item._id}/edit`);
+  const handleEditItem = (it: SanadItem) => {
+    navigate(`/sanad/${it._id}/edit`);
   };
 
-  const handleDeleteItem = async (item: SanadItem) => {
+  const handleDeleteItem = async (_item: SanadItem) => {
     if (
       window.confirm(
         "هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء."
@@ -79,7 +79,7 @@ const SanadPage: React.FC = () => {
     }
   };
 
-  const handleStatusChange = async (item: SanadItem, newStatus: SanadStatus) => {
+  const handleStatusChange = async (_item: SanadItem, newStatus: SanadStatus) => {
     try {
       await updateItem({ status: newStatus });
       setSnackbar({
@@ -149,7 +149,7 @@ const SanadPage: React.FC = () => {
     (typeof currentItem.ownerId === "object" &&
     (currentItem.ownerId as { _id?: string })?._id
       ? String((currentItem.ownerId as { _id: string })._id)
-      : String(currentItem.ownerId || "");
+      : String(currentItem.ownerId || ""));
   const isOwner = !!(currentUserId && currentItem && ownerIdStr === currentUserId);
 
   const renderContent = () => {

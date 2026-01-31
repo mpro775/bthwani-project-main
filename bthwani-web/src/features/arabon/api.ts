@@ -36,6 +36,7 @@ export async function getArabonList(params?: {
 export async function getMyArabon(params?: {
   cursor?: string;
   status?: string;
+  limit?: number;
 }): Promise<ArabonListResponse> {
   const response = await axiosInstance.get("/arabon/my", { params });
   const d = response.data;

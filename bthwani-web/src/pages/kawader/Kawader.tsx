@@ -45,11 +45,11 @@ const KawaderPage: React.FC = () => {
     navigate("/kawader/new");
   };
 
-  const handleEditItem = (item: KawaderItem) => {
-    navigate(`/kawader/${item._id}/edit`);
+  const handleEditItem = (it: KawaderItem) => {
+    navigate(`/kawader/${it._id}/edit`);
   };
 
-  const handleDeleteItem = async (item: KawaderItem) => {
+  const handleDeleteItem = async (_item: KawaderItem) => {
     if (
       window.confirm(
         "هل أنت متأكد من حذف هذا العرض الوظيفي؟ لا يمكن التراجع عن هذا الإجراء."
@@ -73,7 +73,7 @@ const KawaderPage: React.FC = () => {
     }
   };
 
-  const handleChat = (item: KawaderItem) => {
+  const handleChat = (_item: KawaderItem) => {
     setSnackbar({
       open: true,
       message: "محادثات الكوادر قريباً على الويب",
@@ -123,7 +123,7 @@ const KawaderPage: React.FC = () => {
     (typeof currentItem.ownerId === "object" &&
     (currentItem.ownerId as { _id?: string })?._id
       ? String((currentItem.ownerId as { _id: string })._id)
-      : String(currentItem.ownerId || "");
+      : String(currentItem.ownerId || ""));
   const isOwner = !!(currentUserId && currentItem && ownerIdStr === currentUserId);
 
   const renderContent = () => {

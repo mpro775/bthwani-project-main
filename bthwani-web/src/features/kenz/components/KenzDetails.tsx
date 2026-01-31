@@ -17,7 +17,6 @@ import {
   Delete,
   LocationOn,
   Visibility,
-  AttachMoney,
   Storefront,
   ChatBubbleOutline,
   Phone,

@@ -4,7 +4,6 @@ import { Card, CardContent, Typography, Box } from "@mui/material";
 import { ChevronRight } from "@mui/icons-material";
 import type { MaaroufItem } from "../types";
 import {
-  MaaroufKindLabels,
   MaaroufStatusLabels,
   MaaroufStatusColors,
 } from "../types";

@@ -72,6 +72,15 @@ export interface Es3afniListResponse {
 
 export const BLOOD_TYPES = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"] as const;
 
+export const BloodTypeLabels: Record<BloodType, string> = {
+  "A+": "A+", "A-": "A-", "B+": "B+", "B-": "B-",
+  "AB+": "AB+", "AB-": "AB-", "O+": "O+", "O-": "O-",
+};
+
+export const BloodTypeValues: BloodType[] = [...BLOOD_TYPES];
+
+export const Es3afniStatusValues: Es3afniStatus[] = ["draft", "pending", "confirmed", "completed", "cancelled"];
+
 export const Es3afniStatusLabels: Record<Es3afniStatus, string> = {
   draft: "مسودة",
   pending: "في الانتظار",

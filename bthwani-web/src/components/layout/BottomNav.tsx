@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import {
   GridView as ServicesIcon,
-  ClipboardList as OrdersIcon,
+  ListAlt as OrdersIcon,
   Favorite as FavoriteIcon,
   Person as PersonIcon,
 } from "@mui/icons-material";

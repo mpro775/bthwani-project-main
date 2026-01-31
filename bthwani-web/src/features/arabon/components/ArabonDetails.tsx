@@ -17,7 +17,6 @@ import {
   Phone,
   Event,
   People,
-  Description,
   CheckCircle,
   Cancel,
   DoneAll,

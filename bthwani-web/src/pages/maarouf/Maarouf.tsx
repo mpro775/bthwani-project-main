@@ -45,11 +45,11 @@ const MaaroufPage: React.FC = () => {
     navigate("/maarouf/new");
   };
 
-  const handleEditItem = (item: MaaroufItem) => {
-    navigate(`/maarouf/${item._id}/edit`);
+  const handleEditItem = (it: MaaroufItem) => {
+    navigate(`/maarouf/${it._id}/edit`);
   };
 
-  const handleDeleteItem = async (item: MaaroufItem) => {
+  const handleDeleteItem = async (_item: MaaroufItem) => {
     if (
       window.confirm(
         "هل أنت متأكد من حذف هذا الإعلان؟ لا يمكن التراجع عن هذا الإجراء."
@@ -73,7 +73,7 @@ const MaaroufPage: React.FC = () => {
     }
   };
 
-  const handleChat = (item: MaaroufItem) => {
+  const handleChat = (_item: MaaroufItem) => {
     setSnackbar({
       open: true,
       message: "محادثات المعروف قريباً على الويب",
@@ -123,7 +123,7 @@ const MaaroufPage: React.FC = () => {
     (typeof currentItem.ownerId === "object" &&
     (currentItem.ownerId as { _id?: string })?._id
       ? String((currentItem.ownerId as { _id: string })._id)
-      : String(currentItem.ownerId || "");
+      : String(currentItem.ownerId || ""));
   const isOwner = !!(currentUserId && currentItem && ownerIdStr === currentUserId);
 
   const renderContent = () => {

@@ -49,6 +49,12 @@ export interface UpdateSanadPayload {
   status?: SanadStatus;
 }
 
+export interface SanadFilters {
+  status?: SanadStatus;
+  kind?: SanadKind;
+  search?: string;
+}
+
 export interface SanadListResponse {
   items: SanadItem[];
   data?: SanadItem[];
@@ -83,3 +89,6 @@ export const SanadKindColors: Record<SanadKind, string> = {
   emergency: "#f44336",
   charity: "#4caf50",
 };
+
+export const SanadKindValues: SanadKind[] = ["specialist", "emergency", "charity"];
+export const SanadStatusValues: SanadStatus[] = ["draft", "pending", "confirmed", "completed", "cancelled"];
