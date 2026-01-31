@@ -16,7 +16,11 @@ import {
   UpdatePromotionDto,
   GetPromotionsByPlacementDto,
 } from './dto/create-promotion.dto';
-import { Auth, CurrentUser } from '../../common/decorators/auth.decorator';
+import {
+  Auth,
+  CurrentUser,
+  Public,
+} from '../../common/decorators/auth.decorator';
 import { AuthType } from '../../common/guards/unified-auth.guard';
 
 const Roles = (...roles: string[]) => SetMetadata('roles', roles);
@@ -28,6 +32,7 @@ export class PromotionController {
 
   // ==================== Public Endpoints ====================
 
+  @Public()
   @Get('by-placement')
   @ApiQuery({ name: 'placement', required: true, type: String, enum: ['home_hero', 'home_strip', 'category_header', 'category_feed', 'store_header', 'search_banner', 'cart', 'checkout', 'onboarding'] })
   @ApiQuery({ name: 'city', required: false, type: String })

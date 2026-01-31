@@ -67,12 +67,14 @@ const DeliveryDeals: React.FC<Props> = ({
       try {
         setLoading(true);
 
-        // 1) اجلب المتاجر (اختياري: حصر بفئة)
+        // 1) اجلب المتاجر (الاستجابة: { data, pagination })
         const params = categoryId
           ? `?categoryId=${encodeURIComponent(categoryId)}`
           : "";
-        const { data } = await axiosInstance.get(`/delivery/stores${params}`);
-        const arr: any[] = Array.isArray(data) ? data : [];
+        const res = await axiosInstance.get(`/delivery/stores${params}`);
+        const payload = res.data;
+        const list = payload?.data ?? (Array.isArray(payload) ? payload : []);
+        const arr: any[] = Array.isArray(list) ? list : [];
 
         // إزالة تكرارات
         const unique = new Map<string, any>();
@@ -90,11 +92,13 @@ const DeliveryDeals: React.FC<Props> = ({
 
         // 2) اجلب العروض لكل المتاجر
         const idsCsv = base.map((s) => s._id).join(",");
-        const { data: promoMap } = await axiosInstance.get(
+        const promoRes = await axiosInstance.get(
           `/delivery/promotions/by-stores?ids=${encodeURIComponent(
             idsCsv
           )}&channel=app`
         );
+        const promoPayload = promoRes.data;
+        const promoMap = promoPayload?.data ?? promoPayload;
         const getStorePromos = (sid: string) =>
           Array.isArray(promoMap)
             ? promoMap.filter((p: any) => p.store === sid)

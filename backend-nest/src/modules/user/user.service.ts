@@ -66,9 +66,11 @@ export class UserService {
           defaultAddress = user.addresses[0];
         }
 
+        const u = user as { emailVerified?: boolean; isVerified?: boolean };
         return {
           ...user,
           defaultAddress,
+          verified: Boolean(u?.emailVerified || u?.isVerified),
         } as unknown;
       },
     );

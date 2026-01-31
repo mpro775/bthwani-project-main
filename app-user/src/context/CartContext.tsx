@@ -103,8 +103,9 @@ export const CartProvider = ({ children }: CartProviderProps) => {
 
   const loadCart = async (userId?: string) => {
     const cartId = await getOrCreateCartId();
+    const effectiveUserId = userId?.trim() || undefined;
     const getUserCart = () =>
-      axiosInstance.get(`/delivery/cart/user/${userId}`, {
+      axiosInstance.get(`/delivery/cart/user/${effectiveUserId}`, {
         headers: { "x-silent-401": "1" },
       });
     const getGuestCart = () =>
@@ -114,16 +115,20 @@ export const CartProvider = ({ children }: CartProviderProps) => {
 
     try {
       let res;
-      if (userId) {
+      if (effectiveUserId) {
         try {
           res = await getUserCart();
         } catch (e) {
           if (
             axios.isAxiosError(e) &&
-            (e.response?.status === 401 || e.response?.status === 404)
+            (e.response?.status === 401 ||
+              e.response?.status === 404 ||
+              e.response?.status === 500)
           ) {
-            res = await getGuestCart();
-          } else throw e;
+            setItems([]);
+            return;
+          }
+          throw e;
         }
       } else {
         res = await getGuestCart();
@@ -133,8 +138,8 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     } catch (e) {
       if (axios.isAxiosError(e)) {
         const st = e.response?.status;
-        if (st === 401 || st === 404) {
-          setItems([]); // ضيف/لا توجد سلة
+        if (st === 401 || st === 404 || st === 500) {
+          setItems([]);
           return;
         }
       }

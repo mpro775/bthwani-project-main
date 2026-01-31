@@ -159,7 +159,8 @@ export default function BusinessDetailsScreen() {
           `${API_URL}/delivery/stores/${businessId}`
         );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const store = res;
+        const json = await res.json();
+        const store = json?.data ?? json;
         setBusiness(store);
       } catch (e) {
         console.warn("Failed to load store", e);
@@ -183,13 +184,19 @@ export default function BusinessDetailsScreen() {
           const sectionRes = await fetchWithAuth(
             `${API_URL}/delivery/sections?store=${business._id}`
           );
-          const sections: StoreSection[] = await sectionRes.json();
+          const sectionJson = await sectionRes.json();
+          const sections: StoreSection[] = Array.isArray(sectionJson?.data)
+            ? sectionJson.data
+            : Array.isArray(sectionJson) ? sectionJson : [];
           tabs = sections.map((s) => s.name);
 
           const prodsRes = await fetchWithAuth(
             `${API_URL}/groceries/merchant-products?store=${business._id}`
           );
-          const allProds: MerchantProduct[] = await prodsRes.json();
+          const prodsJson = await prodsRes.json();
+          const allProds: MerchantProduct[] = Array.isArray(prodsJson?.data)
+            ? prodsJson.data
+            : Array.isArray(prodsJson) ? prodsJson : [];
 
           // اجمع كل IDs للمنتجات
           const productIds = Array.from(new Set(allProds.map((p) => p._id)));
@@ -207,13 +214,25 @@ export default function BusinessDetailsScreen() {
             ),
           ]);
 
-          const productPromoMap: Record<string, any[]> = prodPromRes.ok
-            ? await prodPromRes.json()
-            : {};
-          const storePromoMap: Record<string, any[]> = storePromRes.ok
-            ? await storePromRes.json()
-            : {};
-          const storePromos = storePromoMap[business._id] || [];
+          const prodPromJson = prodPromRes.ok ? await prodPromRes.json() : null;
+          const storePromJson = storePromRes.ok ? await storePromRes.json() : null;
+          const prodPromList = Array.isArray(prodPromJson?.data)
+            ? prodPromJson.data
+            : Array.isArray(prodPromJson) ? prodPromJson : [];
+          const storePromList = Array.isArray(storePromJson?.data)
+            ? storePromJson.data
+            : Array.isArray(storePromJson) ? storePromJson : [];
+          const productPromoMap: Record<string, any[]> = {};
+          prodPromList.forEach((p: any) => {
+            const pid = p.product?.toString?.() ?? p.product ?? p.productId ?? p._id;
+            if (pid) {
+              if (!productPromoMap[pid]) productPromoMap[pid] = [];
+              productPromoMap[pid].push(p);
+            }
+          });
+          const storePromos = storePromList.filter(
+            (p: any) => (p.store?.toString?.() ?? p.store) === business._id
+          );
 
           sections.forEach((sec) => {
             grouped[sec.name] = allProds
@@ -242,17 +261,24 @@ export default function BusinessDetailsScreen() {
               });
           });
         } else {
-          // === المطاعم ===
+          // === المطاعم ===: الفئات الداخلية = GET /delivery/subcategories?storeId=xxx
           const subRes = await fetchWithAuth(
-            `${API_URL}/delivery/subcategories/store/${business._id}`
+            `${API_URL}/delivery/subcategories?storeId=${business._id}`
           );
-          const subs: SubCategory[] = await subRes.json();
+          const subJson = await subRes.json();
+          const subs: SubCategory[] = Array.isArray(subJson?.data)
+            ? subJson.data
+            : Array.isArray(subJson) ? subJson : [];
           tabs = subs.map((s) => s.name);
 
+          // منتجات المتجر = GET /delivery/stores/:id/products
           const prodRes = await fetchWithAuth(
-            `${API_URL}/delivery/products?storeId=${business._id}`
+            `${API_URL}/delivery/stores/${business._id}/products`
           );
-          const prods: StoreProduct[] = await prodRes.json();
+          const prodJson = await prodRes.json();
+          const payload = prodJson?.data ?? prodJson;
+          const prodsList = Array.isArray(payload?.data) ? payload.data : (Array.isArray(payload) ? payload : []);
+          const prods: StoreProduct[] = prodsList;
 
           const productIds = Array.from(new Set(prods.map((p) => p._id)));
           const idsParam = encodeURIComponent(productIds.join(","));
@@ -268,17 +294,34 @@ export default function BusinessDetailsScreen() {
             ),
           ]);
 
-          const productPromoMap: Record<string, any[]> = prodPromRes.ok
-            ? await prodPromRes.json()
-            : {};
-          const storePromoMap: Record<string, any[]> = storePromRes.ok
-            ? await storePromRes.json()
-            : {};
-          const storePromos = storePromoMap[business._id] || [];
+          const prodPromJsonR = prodPromRes.ok ? await prodPromRes.json() : null;
+          const storePromJsonR = storePromRes.ok ? await storePromRes.json() : null;
+          const prodPromListR = Array.isArray(prodPromJsonR?.data)
+            ? prodPromJsonR.data
+            : Array.isArray(prodPromJsonR) ? prodPromJsonR : [];
+          const storePromListR = Array.isArray(storePromJsonR?.data)
+            ? storePromJsonR.data
+            : Array.isArray(storePromJsonR) ? storePromJsonR : [];
+          const productPromoMap: Record<string, any[]> = {};
+          prodPromListR.forEach((p: any) => {
+            const pid = p.product?.toString?.() ?? p.product ?? p.productId ?? p._id;
+            if (pid) {
+              if (!productPromoMap[pid]) productPromoMap[pid] = [];
+              productPromoMap[pid].push(p);
+            }
+          });
+          const storePromos = storePromListR.filter(
+            (p: any) => (p.store?.toString?.() ?? p.store) === business._id
+          );
 
           subs.forEach((sub) => {
+            const subId = typeof sub._id === "string" ? sub._id : (sub as any)._id?.toString?.();
             grouped[sub.name] = prods
-              .filter((p) => p.subCategoryId === sub._id)
+              .filter((p) => {
+                const pSub = (p as any).subCategoryId ?? (p as any).subCategory?._id ?? (p as any).subCategory;
+                const pSubStr = typeof pSub === "string" ? pSub : pSub?.toString?.();
+                return pSubStr === subId;
+              })
               .map((p) => {
                 const basePrice = p.price;
                 const mergedPromos = [

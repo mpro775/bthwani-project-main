@@ -29,6 +29,7 @@ axiosInstance.interceptors.request.use(
       "/delivery/banners",
       "/delivery/stores",
       "/delivery/promotions",
+      "/promotions",
       "/delivery/products/daily-offers",
       "/delivery/products/nearby/new",
       "/utility/options",

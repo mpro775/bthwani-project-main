@@ -97,8 +97,9 @@ const CategoryDetailsScreen = () => {
       try {
         setLoading(true);
         const res = await axiosInstance.get(`/delivery/stores?categoryId=${categoryId}`);
-        // data already available from axiosInstance
-        const arr: DeliveryStore[] = Array.isArray(res.data) ? res.data : [];
+        const payload = res.data;
+        const list = payload?.data ?? (Array.isArray(payload) ? payload : []);
+        const arr: DeliveryStore[] = Array.isArray(list) ? list : [];
 
         const unique = new Map<string, DeliveryStore>();
         arr.forEach((s) => {
@@ -116,14 +117,22 @@ const CategoryDetailsScreen = () => {
           tags: store.tags || [],
         }));
 
-        // ⭐ جديد: اجلب عروض المتاجر دفعة واحدة
+        // ⭐ اجلب عروض المتاجر (الاستجابة: { data: [...] })
         if (final.length) {
           const idsParam = encodeURIComponent(
             final.map((s) => s._id).join(",")
           );
-          // مرّر القناة/المدينة لو متوفرة عندك
           const promosRes = await axiosInstance.get(`/delivery/promotions/by-stores?ids=${idsParam}&channel=app`);
-          const promoMap: Record<string, any[]> = promosRes.data;
+          const promoPayload = promosRes.data;
+          const promoList = Array.isArray(promoPayload?.data) ? promoPayload.data : (Array.isArray(promoPayload) ? promoPayload : []);
+          const promoMap: Record<string, any[]> = {};
+          promoList.forEach((p: any) => {
+            const sid = (typeof p.store === "string" ? p.store : p.store?.toString?.()) ?? p.storeId;
+            if (sid) {
+              if (!promoMap[sid]) promoMap[sid] = [];
+              promoMap[sid].push(p);
+            }
+          });
 
           // دمج أفضل عرض في بيانات المتاجر
           final.forEach((s) => {

@@ -33,7 +33,7 @@ const DeliveryHomeScreen = () => {
   const navigation = useNavigation<NavigationProp>();
   const { width: screenWidth } = Dimensions.get("window");
   const ensure = useEnsureAuthAndVerified({
-    requireVerified: true,
+    requireVerified: false,
     cooldownMs: 1200,
   });
   const { authReady } = useAuth();

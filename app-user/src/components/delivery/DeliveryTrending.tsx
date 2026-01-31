@@ -66,11 +66,13 @@ const DeliveryTrending: React.FC<Props> = ({
       try {
         setLoading(true);
 
-        // 1) اجلب المتاجر الرائجة
-        const { data } = await axiosInstance.get(`/delivery/stores`);
+        // 1) اجلب المتاجر الرائجة (الاستجابة: { data, pagination })
+        const res = await axiosInstance.get(`/delivery/stores`);
+        const payload = res.data;
+        const list = payload?.data ?? (Array.isArray(payload) ? payload : []);
 
-        const trending = Array.isArray(data)
-          ? data.filter((s: any) => s?.isTrending === true)
+        const trending = Array.isArray(list)
+          ? list.filter((s: any) => s?.isTrending === true)
           : [];
 
         // إزالة التكرار
@@ -86,11 +88,13 @@ const DeliveryTrending: React.FC<Props> = ({
         // 2) اجلب العروض وادمجها (لا نفلتر شيئًا)
         if (enriched.length) {
           const idsCsv = enriched.map((s) => s._id).join(",");
-          const { data: promoMap } = await axiosInstance.get(
+          const promoRes = await axiosInstance.get(
             `/delivery/promotions/by-stores?ids=${encodeURIComponent(
               idsCsv
             )}&channel=app`
           );
+          const promoPayload = promoRes.data;
+          const promoMap = promoPayload?.data ?? promoPayload;
 
           const getStorePromos = (sid: string) =>
             Array.isArray(promoMap)

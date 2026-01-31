@@ -5,16 +5,16 @@ import { useCallback, useEffect, useState } from "react";
 export function useVerificationState() {
   const [verified, setVerified] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [authFailed, setAuthFailed] = useState<boolean>(false);
 
   const refresh = useCallback(async () => {
     try {
       setLoading(true);
+      setAuthFailed(false);
 
       // ✅ اجعل الاستعلام صامتًا عند 401 كي لا يفتح مودال أثناء الإقلاع/الأون بوردنج
       const { data } = await api.get("/users/me", {
         headers: { "x-silent-401": "1" },
-        // أو يمكن استخدام فلاغ داخلي:
-        // __silent401: true as any,
       });
 
       // ✅ اعتبره موثّقًا لو أي من الحقول التالية true
@@ -24,8 +24,12 @@ export function useVerificationState() {
         Boolean(data?.isVerified);
 
       setVerified(v);
-    } catch {
+    } catch (err: any) {
       setVerified(false);
+      const status = err?.response?.status;
+      if (status === 401) {
+        setAuthFailed(true);
+      }
     } finally {
       setLoading(false);
     }
@@ -35,5 +39,5 @@ export function useVerificationState() {
     refresh();
   }, [refresh]);
 
-  return { verified, loading, refresh, setVerified };
+  return { verified, loading, refresh, setVerified, authFailed };
 }

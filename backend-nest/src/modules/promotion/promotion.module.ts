@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule } from '@nestjs/jwt';
 import { PromotionController } from './promotion.controller';
+import { PromotionsByStoresController } from './promotions-by-stores.controller';
 import { PromotionService } from './services/promotion.service';
 import { Promotion, PromotionSchema } from './entities/promotion.entity';
 
@@ -12,7 +13,7 @@ import { Promotion, PromotionSchema } from './entities/promotion.entity';
     ]),
     JwtModule.register({}),
   ],
-  controllers: [PromotionController],
+  controllers: [PromotionController, PromotionsByStoresController],
   providers: [PromotionService],
   exports: [PromotionService],
 })

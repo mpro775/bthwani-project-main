@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Cart, CartItem } from '../entities/cart.entity';
@@ -15,10 +19,14 @@ export class CartService {
    * الحصول على سلة المستخدم أو إنشاء واحدة جديدة
    */
   async getOrCreateCart(userId: string): Promise<Cart> {
-    let cart = await this.cartModel.findOne({ user: userId });
+    if (!userId || typeof userId !== 'string' || !String(userId).trim()) {
+      throw new BadRequestException('user is required');
+    }
+    const uid = String(userId).trim();
+    let cart = await this.cartModel.findOne({ user: uid });
     if (!cart) {
       cart = new this.cartModel({
-        user: userId,
+        user: uid,
         items: [],
         total: 0,
       });

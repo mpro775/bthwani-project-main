@@ -63,10 +63,9 @@ const DeliveryCategories: React.FC<Props> = ({}) => {
         }).toString();
 
         const { data: rawData } = await axiosInstance.get(`/delivery/categories?${qs}`);
-        let data = rawData;
-
-        data = Array.isArray(data)
-          ? data
+        const list = rawData?.data ?? rawData;
+        const data = Array.isArray(list)
+          ? list
               .filter((cat: any) => !cat.parent || cat.parent === null)
               .sort(
                 (a: any, b: any) =>
@@ -88,11 +87,12 @@ const DeliveryCategories: React.FC<Props> = ({}) => {
 
   const fetchSubCategories = async (parentId: string) => {
     try {
-      const { data } = await axiosInstance.get(
+      const { data: raw } = await axiosInstance.get(
         `/delivery/categories/children/${parentId}?withNumbers=1`
       );
-      return Array.isArray(data)
-        ? data.sort(
+      const list = raw?.data ?? raw;
+      return Array.isArray(list)
+        ? list.sort(
             (a: any, b: any) =>
               (a.sortOrder ?? 9999) - (b.sortOrder ?? 9999) ||
               a.name.localeCompare(b.name, "ar")

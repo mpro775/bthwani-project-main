@@ -9,6 +9,7 @@ import {
 import { ApiTags, ApiOperation , ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { StoreService } from './store.service';
 import { CursorPaginationDto } from '../../common/dto/pagination.dto';
+import { FindStoresQueryDto } from './dto/find-stores-query.dto';
 import { Public } from '../../common/decorators/auth.decorator';
 
 @ApiTags('Delivery - Stores')
@@ -21,18 +22,16 @@ export class DeliveryStoreController {
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiOperation({ summary: 'جلب المتاجر - عام' })
-  async findStores(
-    @Query() pagination: CursorPaginationDto,
-    @Query('categoryId') categoryId?: string,
-    @Query('isTrending') isTrending?: boolean,
-    @Query('isFeatured') isFeatured?: boolean,
-    @Query('usageType') usageType?: string,
-  ) {
+  async findStores(@Query() dto: FindStoresQueryDto) {
+    const pagination: CursorPaginationDto = {
+      cursor: dto.cursor,
+      limit: dto.limit ?? 20,
+    };
     return this.storeService.findStores(pagination, {
-      categoryId,
-      isTrending,
-      isFeatured,
-      usageType,
+      categoryId: dto.categoryId,
+      isTrending: dto.isTrending,
+      isFeatured: dto.isFeatured,
+      usageType: dto.usageType,
     });
   }
 

@@ -13,7 +13,7 @@ export function useEnsureAuthAndVerified(opts?: {
   const cooldownMs = opts?.cooldownMs ?? 1200;
 
   const { isLoggedIn, authReady, lastAuthChangeTs } = useAuth();
-  const { verified, loading: verifyLoading } = useVerificationState();
+  const { verified, loading: verifyLoading, authFailed } = useVerificationState();
 
   return useCallback(async () => {
     // انتظر جاهزية حالة الدخول والتحقق
@@ -22,13 +22,12 @@ export function useEnsureAuthAndVerified(opts?: {
     // تبريد لمنع تكرار الإشعار مباشرة بعد تغيّر الحالة
     if (Date.now() - lastAuthChangeTs < cooldownMs) return true;
 
-    // 1) المستخدم غير مسجل دخول
-    if (!isLoggedIn) {
+    // 1) المستخدم غير مسجل دخول أو انتهت الجلسة (401 من /users/me)
+    if (!isLoggedIn || authFailed) {
       const banner = getAuthBanner();
       if (banner) {
         banner.show("login");
       } else {
-        // احتياطي نادر لو لم يُركّب الـAuthBanner
         safeNavigate("Login");
       }
       return false;
@@ -55,5 +54,6 @@ export function useEnsureAuthAndVerified(opts?: {
     requireVerified,
     lastAuthChangeTs,
     cooldownMs,
+    authFailed,
   ]);
 }

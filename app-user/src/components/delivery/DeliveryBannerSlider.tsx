@@ -72,14 +72,29 @@ const DeliveryBannerSlider: React.FC<Props> = ({
   const CARD_W = width - CARD_INSET * 2;
   const CARD_H = Math.round(CARD_W * 0.48); // نسبة الارتفاع, عدّلها كما تحب
 
-  // جلب العروض
+  // جلب العروض من API الموضع (by-placement)
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
-        const { data } = await axiosInstance.get<PromotionBanner[]>("/delivery/promotions");
+        const params: Record<string, string> = {
+          placement,
+          channel,
+        };
+        if (city) params.city = city;
+        const res = await axiosInstance.get(
+          "/promotions/by-placement",
+          { params }
+        );
+        const body = res.data;
+        const list =
+          body?.data != null && Array.isArray(body.data)
+            ? body.data
+            : Array.isArray(body)
+              ? body
+              : [];
 
-        const filtered = data.filter((p) => {
+        const filtered = list.filter((p) => {
           const okPlacement =
             !p.placements?.length || p.placements.includes(placement);
           const okChannel = !p.channels?.length || p.channels.includes(channel);
@@ -207,11 +222,21 @@ const DeliveryBannerSlider: React.FC<Props> = ({
                 elevation: 4,
               }}
             >
-              <Image
-                source={{ uri: b.image }}
-                accessibilityLabel={b.target}
-                style={{ width: CARD_W, height: CARD_H, resizeMode: "cover" }}
-              />
+              {b.image ? (
+                <Image
+                  source={{ uri: encodeURI(b.image.trim()) }}
+                  accessibilityLabel={b.target}
+                  style={{ width: CARD_W, height: CARD_H, resizeMode: "cover" }}
+                />
+              ) : (
+                <View
+                  style={{
+                    width: CARD_W,
+                    height: CARD_H,
+                    backgroundColor: COLORS.background,
+                  }}
+                />
+              )}
             </TouchableOpacity>
           </View>
         ))}

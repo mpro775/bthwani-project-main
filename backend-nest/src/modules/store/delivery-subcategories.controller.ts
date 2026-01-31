@@ -9,6 +9,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { Public } from '../../common/decorators/auth.decorator';
 import { DeliverySubCategoryService } from './delivery-subcategory.service';
 
 @ApiTags('Delivery - Subcategories')
@@ -16,6 +17,7 @@ import { DeliverySubCategoryService } from './delivery-subcategory.service';
 export class DeliverySubCategoriesController {
   constructor(private readonly subCategoryService: DeliverySubCategoryService) {}
 
+  @Public()
   @Get()
   @ApiQuery({ name: 'storeId', required: true, type: String })
   @ApiResponse({ status: 200, description: 'Success' })

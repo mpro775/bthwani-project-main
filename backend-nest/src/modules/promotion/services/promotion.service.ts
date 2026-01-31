@@ -4,13 +4,31 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Promotion } from '../entities/promotion.entity';
 import {
   CreatePromotionDto,
   UpdatePromotionDto,
   GetPromotionsByPlacementDto,
 } from '../dto/create-promotion.dto';
+
+/** توقيت اليمن (Asia/Aden = UTC+3) */
+const YEMEN_TZ = 'Asia/Aden';
+
+/**
+ * يُرجع بداية ونهاية "اليوم" بتوقيت اليمن كـ Date (UTC) للمقارنة مع تواريخ القاعدة
+ */
+function getTodayYemenUtcRange(): {
+  startOfDayUtc: Date;
+  endOfDayUtc: Date;
+} {
+  const todayYemenStr = new Date().toLocaleDateString('en-CA', {
+    timeZone: YEMEN_TZ,
+  });
+  const startOfDayUtc = new Date(`${todayYemenStr}T00:00:00+03:00`);
+  const endOfDayUtc = new Date(`${todayYemenStr}T23:59:59.999+03:00`);
+  return { startOfDayUtc, endOfDayUtc };
+}
 
 @Injectable()
 export class PromotionService {
@@ -58,15 +76,15 @@ export class PromotionService {
   }
 
   /**
-   * الحصول على عروض حسب الموضع
+   * الحصول على عروض حسب الموضع (باستخدام توقيت اليمن لصلاحية العرض)
    */
   async getByPlacement(dto: GetPromotionsByPlacementDto): Promise<Promotion[]> {
-    const now = new Date();
+    const { startOfDayUtc, endOfDayUtc } = getTodayYemenUtcRange();
     const query: Record<string, unknown> = {
       placements: dto.placement,
       isActive: true,
-      startDate: { $lte: now },
-      endDate: { $gte: now },
+      startDate: { $lte: endOfDayUtc },
+      endDate: { $gte: startOfDayUtc },
     };
 
     // تصفية حسب المدينة
@@ -99,6 +117,41 @@ export class PromotionService {
     );
 
     return promotions as unknown as Promotion[];
+  }
+
+  /**
+   * جلب العروض حسب قائمة معرّفات المتاجر (باستخدام توقيت اليمن)
+   */
+  async getByStores(
+    storeIds: string[],
+    channel?: string,
+  ): Promise<Promotion[]> {
+    if (!storeIds?.length) return [];
+    const objectIds = storeIds
+      .filter((id) => id)
+      .map((id) => new Types.ObjectId(id));
+    if (!objectIds.length) return [];
+    const { startOfDayUtc, endOfDayUtc } = getTodayYemenUtcRange();
+    const query: Record<string, unknown> = {
+      target: 'store',
+      store: { $in: objectIds },
+      isActive: true,
+      startDate: { $lte: endOfDayUtc },
+      endDate: { $gte: startOfDayUtc },
+    };
+    if (channel) {
+      query.channels = channel;
+    }
+    const promotions = await this.promotionModel
+      .find(query)
+      .sort({ order: 1, createdAt: -1 })
+      .lean()
+      .exec();
+    // إرجاع العروض مع store كمعرّف نصي ليتطابق فلتر التطبيق (p.store === sid)
+    return (promotions as any[]).map((p) => ({
+      ...p,
+      store: p.store?.toString?.() ?? p.store,
+    })) as unknown as Promotion[];
   }
 
   /**

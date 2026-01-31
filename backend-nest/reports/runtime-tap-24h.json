@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-01-31T21:50:00.015Z",
+  "lastUpdated": "2026-01-31T23:05:00.014Z",
   "endpoints": [
     {
       "endpoint": "GET:/api/v1/utility/options",
@@ -190,6 +190,12 @@
           "statusCode": 200,
           "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
           "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-31T22:27:07.590Z",
+          "statusCode": 200,
+          "userAgent": "PostmanRuntime/7.51.0",
+          "ip": "127.0.0.1"
         }
       ]
     },
@@ -230,6 +236,48 @@
           "timestamp": "2026-01-31T21:36:43.624Z",
           "statusCode": 200,
           "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-31T21:58:57.001Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        },
+        {
+          "timestamp": "2026-01-31T22:12:43.984Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        },
+        {
+          "timestamp": "2026-01-31T22:18:10.812Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        },
+        {
+          "timestamp": "2026-01-31T22:37:13.055Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        },
+        {
+          "timestamp": "2026-01-31T22:50:38.662Z",
+          "statusCode": 200,
+          "userAgent": "PostmanRuntime/7.51.0",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-31T22:51:27.819Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-31T22:51:35.509Z",
+          "statusCode": 200,
+          "userAgent": "PostmanRuntime/7.51.0",
           "ip": "127.0.0.1"
         }
       ]
@@ -296,6 +344,84 @@
           "statusCode": 400,
           "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
           "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-31T21:58:56.800Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        },
+        {
+          "timestamp": "2026-01-31T21:58:56.895Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        },
+        {
+          "timestamp": "2026-01-31T22:12:43.940Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        },
+        {
+          "timestamp": "2026-01-31T22:12:43.996Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        },
+        {
+          "timestamp": "2026-01-31T22:13:50.866Z",
+          "statusCode": 400,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        },
+        {
+          "timestamp": "2026-01-31T22:18:10.775Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        },
+        {
+          "timestamp": "2026-01-31T22:18:10.787Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        },
+        {
+          "timestamp": "2026-01-31T22:37:12.995Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        },
+        {
+          "timestamp": "2026-01-31T22:37:13.059Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        },
+        {
+          "timestamp": "2026-01-31T22:47:41.440Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        },
+        {
+          "timestamp": "2026-01-31T22:51:05.234Z",
+          "statusCode": 200,
+          "userAgent": "PostmanRuntime/7.51.0",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-31T22:52:15.705Z",
+          "statusCode": 200,
+          "userAgent": "PostmanRuntime/7.51.0",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-31T22:56:32.670Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
         }
       ]
     },
@@ -342,6 +468,357 @@
           "statusCode": 400,
           "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
           "ip": "127.0.0.1"
+        }
+      ]
+    },
+    {
+      "endpoint": "GET:/api/v1/delivery/cart/:param",
+      "calls": [
+        {
+          "timestamp": "2026-01-31T21:58:43.203Z",
+          "statusCode": 500,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        }
+      ]
+    },
+    {
+      "endpoint": "GET:/api/v1/delivery/cart/user/:param",
+      "calls": [
+        {
+          "timestamp": "2026-01-31T21:58:43.230Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        }
+      ]
+    },
+    {
+      "endpoint": "GET:/api/v1/users/me",
+      "calls": [
+        {
+          "timestamp": "2026-01-31T21:58:43.303Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101",
+          "userId": "697aa0dd8a5316ed5017aea3"
+        },
+        {
+          "timestamp": "2026-01-31T21:58:43.346Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101",
+          "userId": "697aa0dd8a5316ed5017aea3"
+        },
+        {
+          "timestamp": "2026-01-31T21:58:43.391Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101",
+          "userId": "697aa0dd8a5316ed5017aea3"
+        },
+        {
+          "timestamp": "2026-01-31T21:58:43.628Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101",
+          "userId": "697aa0dd8a5316ed5017aea3"
+        },
+        {
+          "timestamp": "2026-01-31T21:58:47.187Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101",
+          "userId": "697aa0dd8a5316ed5017aea3"
+        },
+        {
+          "timestamp": "2026-01-31T22:12:44.276Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101",
+          "userId": "697aa0dd8a5316ed5017aea3"
+        },
+        {
+          "timestamp": "2026-01-31T22:12:44.605Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101",
+          "userId": "697aa0dd8a5316ed5017aea3"
+        },
+        {
+          "timestamp": "2026-01-31T22:12:44.628Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101",
+          "userId": "697aa0dd8a5316ed5017aea3"
+        },
+        {
+          "timestamp": "2026-01-31T22:12:44.775Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101",
+          "userId": "697aa0dd8a5316ed5017aea3"
+        },
+        {
+          "timestamp": "2026-01-31T22:18:10.977Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101",
+          "userId": "697aa0dd8a5316ed5017aea3"
+        },
+        {
+          "timestamp": "2026-01-31T22:18:10.989Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101",
+          "userId": "697aa0dd8a5316ed5017aea3"
+        },
+        {
+          "timestamp": "2026-01-31T22:18:10.995Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101",
+          "userId": "697aa0dd8a5316ed5017aea3"
+        },
+        {
+          "timestamp": "2026-01-31T22:18:11.240Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101",
+          "userId": "697aa0dd8a5316ed5017aea3"
+        },
+        {
+          "timestamp": "2026-01-31T22:37:13.351Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101",
+          "userId": "697aa0dd8a5316ed5017aea3"
+        },
+        {
+          "timestamp": "2026-01-31T22:37:13.736Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101",
+          "userId": "697aa0dd8a5316ed5017aea3"
+        },
+        {
+          "timestamp": "2026-01-31T22:37:13.801Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101",
+          "userId": "697aa0dd8a5316ed5017aea3"
+        },
+        {
+          "timestamp": "2026-01-31T22:37:13.858Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101",
+          "userId": "697aa0dd8a5316ed5017aea3"
+        },
+        {
+          "timestamp": "2026-01-31T22:47:41.831Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101",
+          "userId": "697aa0dd8a5316ed5017aea3"
+        },
+        {
+          "timestamp": "2026-01-31T22:56:33.466Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101",
+          "userId": "697aa0dd8a5316ed5017aea3"
+        }
+      ]
+    },
+    {
+      "endpoint": "GET:/api/v1/promotions/by-placement",
+      "calls": [
+        {
+          "timestamp": "2026-01-31T22:12:44.234Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        },
+        {
+          "timestamp": "2026-01-31T22:13:51.422Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        },
+        {
+          "timestamp": "2026-01-31T22:18:11.051Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        },
+        {
+          "timestamp": "2026-01-31T22:23:36.200Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        },
+        {
+          "timestamp": "2026-01-31T22:26:47.907Z",
+          "statusCode": 200,
+          "userAgent": "PostmanRuntime/7.51.0",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-31T22:27:51.320Z",
+          "statusCode": 200,
+          "userAgent": "PostmanRuntime/7.51.0",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-31T22:29:54.140Z",
+          "statusCode": 200,
+          "userAgent": "PostmanRuntime/7.51.0",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-31T22:37:13.852Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        },
+        {
+          "timestamp": "2026-01-31T22:37:31.128Z",
+          "statusCode": 200,
+          "userAgent": "PostmanRuntime/7.51.0",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-31T22:39:09.405Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        },
+        {
+          "timestamp": "2026-01-31T22:39:18.953Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        },
+        {
+          "timestamp": "2026-01-31T22:47:42.346Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        },
+        {
+          "timestamp": "2026-01-31T22:56:34.820Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        }
+      ]
+    },
+    {
+      "endpoint": "GET:/api/v1/delivery/promotions/by-stores",
+      "calls": [
+        {
+          "timestamp": "2026-01-31T22:12:45.030Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        },
+        {
+          "timestamp": "2026-01-31T22:18:11.234Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        },
+        {
+          "timestamp": "2026-01-31T22:37:14.117Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        },
+        {
+          "timestamp": "2026-01-31T22:56:33.783Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        }
+      ]
+    },
+    {
+      "endpoint": "GET:/api/v1/delivery/categories/children/:param",
+      "calls": [
+        {
+          "timestamp": "2026-01-31T22:13:50.705Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        },
+        {
+          "timestamp": "2026-01-31T22:47:41.142Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        },
+        {
+          "timestamp": "2026-01-31T22:56:32.013Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
+        }
+      ]
+    },
+    {
+      "endpoint": "GET:/api/v1/favorites/counts",
+      "calls": [
+        {
+          "timestamp": "2026-01-31T22:56:34.096Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101",
+          "userId": "697aa0dd8a5316ed5017aea3"
+        },
+        {
+          "timestamp": "2026-01-31T22:56:34.584Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101",
+          "userId": "697aa0dd8a5316ed5017aea3"
+        }
+      ]
+    },
+    {
+      "endpoint": "GET:/api/v1/favorites/exists/:param/:param",
+      "calls": [
+        {
+          "timestamp": "2026-01-31T22:56:38.416Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101",
+          "userId": "697aa0dd8a5316ed5017aea3"
+        },
+        {
+          "timestamp": "2026-01-31T22:59:49.970Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101",
+          "userId": "697aa0dd8a5316ed5017aea3"
+        },
+        {
+          "timestamp": "2026-01-31T22:59:54.276Z",
+          "statusCode": 200,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101",
+          "userId": "697aa0dd8a5316ed5017aea3"
+        }
+      ]
+    },
+    {
+      "endpoint": "POST:/api/v1/delivery/cart/add",
+      "calls": [
+        {
+          "timestamp": "2026-01-31T23:02:38.834Z",
+          "statusCode": 400,
+          "userAgent": "okhttp/4.12.0",
+          "ip": "192.168.1.101"
         }
       ]
     }

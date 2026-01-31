@@ -30,9 +30,18 @@ export class StoreService {
     },
   ) {
     const query: Record<string, unknown> = { isActive: true };
-    
+
     if (filters?.categoryId) {
-      query.category = new Types.ObjectId(filters.categoryId);
+      const catId = filters.categoryId.trim();
+      try {
+        const asObjectId = new Types.ObjectId(catId);
+        query.$or = [
+          { category: asObjectId },
+          { category: catId },
+        ];
+      } catch {
+        query.category = catId;
+      }
     }
     if (filters?.isTrending !== undefined) {
       query.isTrending = filters.isTrending;
