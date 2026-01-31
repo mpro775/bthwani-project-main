@@ -4,9 +4,8 @@ import type {
   KenzItem,
   CreateKenzPayload,
   UpdateKenzPayload,
-  KenzFilters,
-  KenzListResponse
-} from './types';
+  KenzListResponse,
+} from "./types";
 
 /**
  * إنشاء إعلان سوق جديد
@@ -17,14 +16,19 @@ export async function createKenz(payload: CreateKenzPayload): Promise<KenzItem> 
 }
 
 /**
- * استرجاع قائمة الإعلانات
+ * استرجاع قائمة الإعلانات - مطابق لـ app-user
  */
 export async function getKenzList(params?: {
   cursor?: string;
   limit?: number;
-} & KenzFilters): Promise<KenzListResponse> {
-  const response = await axiosInstance.get('/kenz', { params });
-  return response.data;
+  category?: string;
+  city?: string;
+  status?: string;
+  search?: string;
+}): Promise<KenzListResponse> {
+  const response = await axiosInstance.get("/kenz", { params });
+  const data = response.data;
+  return Array.isArray(data) ? { items: data, nextCursor: undefined } : data;
 }
 
 /**

@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-01-30T23:30:00.032Z",
+  "lastUpdated": "2026-01-31T08:50:00.013Z",
   "endpoints": [
     {
       "endpoint": "GET:/api/v1/users/me",
@@ -1474,6 +1474,85 @@
           "userAgent": "okhttp/4.12.0",
           "ip": "192.168.1.101",
           "userId": "697aa0dd8a5316ed5017aea3"
+        }
+      ]
+    },
+    {
+      "endpoint": "GET:/api/v1/utility/options",
+      "calls": [
+        {
+          "timestamp": "2026-01-31T08:35:22.567Z",
+          "statusCode": 404,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-31T08:35:22.858Z",
+          "statusCode": 404,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-31T08:38:04.315Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-31T08:38:04.580Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        }
+      ]
+    },
+    {
+      "endpoint": "PATCH:/api/v1/utility/options/gas",
+      "calls": [
+        {
+          "timestamp": "2026-01-31T08:36:52.782Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        }
+      ]
+    },
+    {
+      "endpoint": "POST:/api/v1/utility/daily",
+      "calls": [
+        {
+          "timestamp": "2026-01-31T08:36:54.892Z",
+          "statusCode": 201,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        }
+      ]
+    },
+    {
+      "endpoint": "GET:/api/v1/utility/daily",
+      "calls": [
+        {
+          "timestamp": "2026-01-31T08:38:04.606Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        },
+        {
+          "timestamp": "2026-01-31T08:38:04.800Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
+        }
+      ]
+    },
+    {
+      "endpoint": "PATCH:/api/v1/utility/options/water",
+      "calls": [
+        {
+          "timestamp": "2026-01-31T08:38:34.771Z",
+          "statusCode": 200,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+          "ip": "127.0.0.1"
         }
       ]
     }

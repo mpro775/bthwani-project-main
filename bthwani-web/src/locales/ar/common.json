@@ -1,5 +1,15 @@
 {
   "appName": "بثواني",
+  "nav": {
+    "home": "الرئيسية",
+    "services": "الخدمات",
+    "orders": "طلباتي",
+    "favorites": "المفضلة",
+    "profile": "حسابي"
+  },
+  "services": {
+    "chooseSubtitle": "اختر الخدمة التي تريدها"
+  },
   "welcomeBack": "مرحباً بعودتك!",
   "loginToContinue": "سجل دخولك للمتابعة",
   "forgotPassword": "نسيت كلمة المرور",

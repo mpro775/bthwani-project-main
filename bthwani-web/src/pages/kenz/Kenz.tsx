@@ -1,6 +1,8 @@
-// src/pages/kenz/Kenz.tsx
-import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+// src/pages/kenz/Kenz.tsx - مطابق لـ app-user
+import React, { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import toast from "react-hot-toast";
 import {
   Snackbar,
   Alert,
@@ -18,7 +20,9 @@ import {
 
 const KenzPage: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { id, action } = useParams<{ id?: string; action?: string }>();
+  const currentUserId = user?._id ?? user?.id ?? null;
 
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
@@ -39,9 +43,13 @@ const KenzPage: React.FC = () => {
     navigate(`/kenz/${item._id}`);
   };
 
-  // Handle create item
+  // Handle create item - يتطلب تسجيل الدخول (مطابق لـ app-user)
   const handleCreateItem = () => {
-    navigate('/kenz/new');
+    if (!currentUserId) {
+      navigate("/login", { state: { from: "/kenz/new" } });
+      return;
+    }
+    navigate("/kenz/new");
   };
 
   // Handle edit item
@@ -112,6 +120,12 @@ const KenzPage: React.FC = () => {
   const renderContent = () => {
     // Show details page
     if (id && !action) {
+      const ownerIdStr =
+        currentItem &&
+        (typeof currentItem.ownerId === "object" && (currentItem.ownerId as { _id?: string })?._id
+          ? String((currentItem.ownerId as { _id: string })._id)
+          : String(currentItem.ownerId || "");
+      const isOwner = !!(currentUserId && currentItem && ownerIdStr === currentUserId);
       return (
         <KenzDetails
           item={currentItem!}
@@ -119,20 +133,24 @@ const KenzPage: React.FC = () => {
           onBack={handleBack}
           onEdit={handleEditItem}
           onDelete={handleDeleteItem}
+          isOwner={isOwner}
+          onChat={() => toast("محادثات كنز قريباً على الويب", { icon: "💬" })}
         />
       );
     }
 
     // Show form (create/edit)
-    if ((id === 'new') || (id && action === 'edit')) {
-      const isEdit = id !== 'new' && action === 'edit';
+    if ((id === "new") || (id && action === "edit")) {
+      const isEdit = id !== "new" && action === "edit";
+      const ownerId = String(currentUserId ?? "");
       return (
         <KenzForm
           item={isEdit ? (currentItem ?? undefined) : undefined}
           loading={itemLoading}
-          mode={isEdit ? 'edit' : 'create'}
+          mode={isEdit ? "edit" : "create"}
           onSubmit={handleFormSubmit}
           onCancel={handleBack}
+          ownerId={ownerId}
         />
       );
     }

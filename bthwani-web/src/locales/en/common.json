@@ -1,5 +1,15 @@
 {
   "appName": "Bthwani",
+  "nav": {
+    "home": "Home",
+    "services": "Services",
+    "orders": "My Orders",
+    "favorites": "Favorites",
+    "profile": "Profile"
+  },
+  "services": {
+    "chooseSubtitle": "Choose the service you want"
+  },
   "welcomeBack": "Welcome back!",
   "loginToContinue": "Sign in to continue",
   "forgotPassword": "Forgot Password",

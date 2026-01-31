@@ -1,47 +1,64 @@
-// src/features/kenz/types.ts
-export type KenzStatus = 'draft' | 'pending' | 'confirmed' | 'completed' | 'cancelled';
-
-export type KenzCategory = 'electronics' | 'clothing' | 'home' | 'vehicles' | 'books' | 'sports' | 'other';
+// مطابق لـ app-user - كنز (السوق المفتوح)
+export type KenzStatus = "draft" | "pending" | "confirmed" | "completed" | "cancelled";
 
 export interface KenzItem {
   _id: string;
-  ownerId: string;
+  ownerId: string | { _id: string };
   title: string;
   description?: string;
   price?: number;
-  category?: KenzCategory;
+  category?: string;
   metadata?: Record<string, any>;
   status: KenzStatus;
-  createdAt: string;
-  updatedAt: string;
+  images?: string[];
+  city?: string;
+  viewCount?: number;
+  keywords?: string[];
+  currency?: string;
+  quantity?: number;
+  createdAt: Date | string;
+  updatedAt: Date | string;
   owner?: {
     _id: string;
     name: string;
-    email: string;
+    email?: string;
     phone?: string;
   };
 }
 
 export interface CreateKenzPayload {
+  ownerId: string;
   title: string;
   description?: string;
   price?: number;
-  category?: KenzCategory;
+  category?: string;
   metadata?: Record<string, any>;
+  status?: KenzStatus;
+  images?: string[];
+  city?: string;
+  keywords?: string[];
+  currency?: string;
+  quantity?: number;
 }
 
 export interface UpdateKenzPayload {
   title?: string;
   description?: string;
   price?: number;
-  category?: KenzCategory;
+  category?: string;
   metadata?: Record<string, any>;
   status?: KenzStatus;
+  images?: string[];
+  city?: string;
+  keywords?: string[];
+  currency?: string;
+  quantity?: number;
 }
 
 export interface KenzFilters {
   status?: KenzStatus;
-  category?: KenzCategory;
+  category?: string;
+  city?: string;
   search?: string;
   priceMin?: number;
   priceMax?: number;
@@ -52,48 +69,73 @@ export interface KenzListResponse {
   nextCursor?: string;
 }
 
-// ترجمة حالات الكنز للعربية
+// فئات الإعلانات - مطابق لـ app-user
+export const KENZ_CATEGORIES = [
+  "إلكترونيات",
+  "سيارات",
+  "عقارات",
+  "أثاث",
+  "ملابس",
+  "رياضة",
+  "كتب",
+  "خدمات",
+  "وظائف",
+  "حيوانات",
+  "أخرى",
+] as const;
+
+export type KenzCategory = (typeof KENZ_CATEGORIES)[number];
+
+// المدن اليمنية - مطابق لـ app-user
+export const KENZ_YEMEN_CITIES = [
+  "صنعاء",
+  "عدن",
+  "تعز",
+  "الحديدة",
+  "إب",
+  "المكلا",
+  "ذمار",
+  "البيضاء",
+  "عمران",
+  "صعدة",
+  "مارب",
+  "حجة",
+  "لحج",
+  "الضالع",
+  "المحويت",
+  "ريمة",
+  "شبوة",
+  "الجوف",
+  "حضرموت",
+  "سقطرى",
+  "أمانة العاصمة",
+] as const;
+
+export type KenzYemenCity = (typeof KENZ_YEMEN_CITIES)[number];
+
+// العملات - مطابق لـ app-user
+export const KENZ_CURRENCIES = [
+  "ريال يمني",
+  "ريال سعودي",
+  "دولار أمريكي",
+] as const;
+
+export type KenzCurrency = (typeof KENZ_CURRENCIES)[number];
+
+// ترجمة الحالات
 export const KenzStatusLabels: Record<KenzStatus, string> = {
-  draft: 'مسودة',
-  pending: 'في الانتظار',
-  confirmed: 'مؤكد',
-  completed: 'مكتمل',
-  cancelled: 'ملغي'
+  draft: "مسودة",
+  pending: "في الانتظار",
+  confirmed: "متاح",
+  completed: "مباع",
+  cancelled: "ملغي",
 };
 
-// ترجمة فئات الكنز للعربية
-export const KenzCategoryLabels: Record<KenzCategory, string> = {
-  electronics: 'إلكترونيات',
-  clothing: 'ملابس',
-  home: 'منزل',
-  vehicles: 'مركبات',
-  books: 'كتب',
-  sports: 'رياضة',
-  other: 'أخرى'
-};
-
-// ألوان حالات الكنز
+// ألوان الحالات
 export const KenzStatusColors: Record<KenzStatus, string> = {
-  draft: '#9e9e9e',
-  pending: '#ff9800',
-  confirmed: '#2196f3',
-  completed: '#4caf50',
-  cancelled: '#f44336'
+  draft: "#9e9e9e",
+  pending: "#ff9800",
+  confirmed: "#ff500d",
+  completed: "#4caf50",
+  cancelled: "#f44336",
 };
-
-// ألوان فئات الكنز
-export const KenzCategoryColors: Record<KenzCategory, string> = {
-  electronics: '#2196f3',
-  clothing: '#e91e63',
-  home: '#4caf50',
-  vehicles: '#ff9800',
-  books: '#9c27b0',
-  sports: '#00bcd4',
-  other: '#607d8b'
-};
-
-// Array of all KenzStatus values for iteration
-export const KenzStatusValues: KenzStatus[] = ['draft', 'pending', 'confirmed', 'completed', 'cancelled'];
-
-// Array of all KenzCategory values for iteration
-export const KenzCategoryValues: KenzCategory[] = ['electronics', 'clothing', 'home', 'vehicles', 'books', 'sports', 'other'];

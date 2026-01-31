@@ -40,6 +40,7 @@ export default function SelectLocation() {
   const [searchParams] = useSearchParams();
   const storageKey = searchParams.get("storageKey") || "selected_location";
   const returnStep = searchParams.get("step") || "0";
+  const returnTo = searchParams.get("returnTo"); // مسار العودة (مثل /es3afni/new)
 
   // مفاتيح البيئة
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string;
@@ -181,8 +182,11 @@ export default function SelectLocation() {
     // العودة التلقائية بعد حفظ الموقع
     setTimeout(() => {
       successMessage.remove();
-      // العودة إلى صفحة أخدمني مع الخطوة الصحيحة
-      navigate(`/akhdimni?step=${returnStep}`, { replace: true });
+      if (returnTo) {
+        navigate(returnTo, { replace: true });
+      } else {
+        navigate(`/akhdimni?step=${returnStep}`, { replace: true });
+      }
     }, 1500);
   };
 

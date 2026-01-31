@@ -40,3 +40,33 @@ export async function uploadArabonImageToBunny(file: File): Promise<string> {
 
   return `${BUNNY_CDN_BASE}/${storagePath}`;
 }
+
+function getKenzFileName(file: File): string {
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+  const base = file.name.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9._-]/g, "_");
+  return `kenz/${Date.now()}-${base}.${ext}`;
+}
+
+/**
+ * رفع صورة كنز من File إلى Bunny - مطابق لـ app-user
+ */
+export async function uploadKenzImageToBunny(file: File): Promise<string> {
+  const storagePath = getKenzFileName(file);
+  const uploadUrl = `https://storage.bunnycdn.com/${BUNNY_STORAGE_ZONE}/${storagePath}`;
+
+  const resp = await fetch(uploadUrl, {
+    method: "PUT",
+    headers: {
+      AccessKey: BUNNY_ACCESS_KEY,
+      "Content-Type": file.type || "image/jpeg",
+    },
+    body: file,
+  });
+
+  if (!resp.ok) {
+    const txt = await resp.text().catch(() => "<no body>");
+    throw new Error(`فشل رفع الصورة (${resp.status}): ${txt}`);
+  }
+
+  return `${BUNNY_CDN_BASE}/${storagePath}`;
+}
