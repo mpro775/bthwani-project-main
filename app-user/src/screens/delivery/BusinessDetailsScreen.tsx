@@ -187,7 +187,9 @@ export default function BusinessDetailsScreen() {
           const sectionJson = await sectionRes.json();
           const sections: StoreSection[] = Array.isArray(sectionJson?.data)
             ? sectionJson.data
-            : Array.isArray(sectionJson) ? sectionJson : [];
+            : Array.isArray(sectionJson)
+            ? sectionJson
+            : [];
           tabs = sections.map((s) => s.name);
 
           const prodsRes = await fetchWithAuth(
@@ -196,7 +198,9 @@ export default function BusinessDetailsScreen() {
           const prodsJson = await prodsRes.json();
           const allProds: MerchantProduct[] = Array.isArray(prodsJson?.data)
             ? prodsJson.data
-            : Array.isArray(prodsJson) ? prodsJson : [];
+            : Array.isArray(prodsJson)
+            ? prodsJson
+            : [];
 
           // اجمع كل IDs للمنتجات
           const productIds = Array.from(new Set(allProds.map((p) => p._id)));
@@ -215,16 +219,23 @@ export default function BusinessDetailsScreen() {
           ]);
 
           const prodPromJson = prodPromRes.ok ? await prodPromRes.json() : null;
-          const storePromJson = storePromRes.ok ? await storePromRes.json() : null;
+          const storePromJson = storePromRes.ok
+            ? await storePromRes.json()
+            : null;
           const prodPromList = Array.isArray(prodPromJson?.data)
             ? prodPromJson.data
-            : Array.isArray(prodPromJson) ? prodPromJson : [];
+            : Array.isArray(prodPromJson)
+            ? prodPromJson
+            : [];
           const storePromList = Array.isArray(storePromJson?.data)
             ? storePromJson.data
-            : Array.isArray(storePromJson) ? storePromJson : [];
+            : Array.isArray(storePromJson)
+            ? storePromJson
+            : [];
           const productPromoMap: Record<string, any[]> = {};
           prodPromList.forEach((p: any) => {
-            const pid = p.product?.toString?.() ?? p.product ?? p.productId ?? p._id;
+            const pid =
+              p.product?.toString?.() ?? p.product ?? p.productId ?? p._id;
             if (pid) {
               if (!productPromoMap[pid]) productPromoMap[pid] = [];
               productPromoMap[pid].push(p);
@@ -266,10 +277,13 @@ export default function BusinessDetailsScreen() {
             `${API_URL}/delivery/subcategories?storeId=${business._id}`
           );
           const subJson = await subRes.json();
-          const subs: SubCategory[] = Array.isArray(subJson?.data)
-            ? subJson.data
-            : Array.isArray(subJson) ? subJson : [];
-          tabs = subs.map((s) => s.name);
+          const subs: SubCategory[] =
+            (Array.isArray(subJson?.data)
+              ? subJson.data
+              : Array.isArray(subJson)
+              ? subJson
+              : []) ?? [];
+          tabs = (subs ?? []).map((s) => s.name);
 
           // منتجات المتجر = GET /delivery/stores/:id/products
           const prodRes = await fetchWithAuth(
@@ -277,7 +291,11 @@ export default function BusinessDetailsScreen() {
           );
           const prodJson = await prodRes.json();
           const payload = prodJson?.data ?? prodJson;
-          const prodsList = Array.isArray(payload?.data) ? payload.data : (Array.isArray(payload) ? payload : []);
+          const prodsList = Array.isArray(payload?.data)
+            ? payload.data
+            : Array.isArray(payload)
+            ? payload
+            : [];
           const prods: StoreProduct[] = prodsList;
 
           const productIds = Array.from(new Set(prods.map((p) => p._id)));
@@ -294,17 +312,26 @@ export default function BusinessDetailsScreen() {
             ),
           ]);
 
-          const prodPromJsonR = prodPromRes.ok ? await prodPromRes.json() : null;
-          const storePromJsonR = storePromRes.ok ? await storePromRes.json() : null;
+          const prodPromJsonR = prodPromRes.ok
+            ? await prodPromRes.json()
+            : null;
+          const storePromJsonR = storePromRes.ok
+            ? await storePromRes.json()
+            : null;
           const prodPromListR = Array.isArray(prodPromJsonR?.data)
             ? prodPromJsonR.data
-            : Array.isArray(prodPromJsonR) ? prodPromJsonR : [];
+            : Array.isArray(prodPromJsonR)
+            ? prodPromJsonR
+            : [];
           const storePromListR = Array.isArray(storePromJsonR?.data)
             ? storePromJsonR.data
-            : Array.isArray(storePromJsonR) ? storePromJsonR : [];
+            : Array.isArray(storePromJsonR)
+            ? storePromJsonR
+            : [];
           const productPromoMap: Record<string, any[]> = {};
           prodPromListR.forEach((p: any) => {
-            const pid = p.product?.toString?.() ?? p.product ?? p.productId ?? p._id;
+            const pid =
+              p.product?.toString?.() ?? p.product ?? p.productId ?? p._id;
             if (pid) {
               if (!productPromoMap[pid]) productPromoMap[pid] = [];
               productPromoMap[pid].push(p);
@@ -314,12 +341,19 @@ export default function BusinessDetailsScreen() {
             (p: any) => (p.store?.toString?.() ?? p.store) === business._id
           );
 
-          subs.forEach((sub) => {
-            const subId = typeof sub._id === "string" ? sub._id : (sub as any)._id?.toString?.();
+          (subs ?? []).forEach((sub) => {
+            const subId =
+              typeof sub._id === "string"
+                ? sub._id
+                : (sub as any)._id?.toString?.();
             grouped[sub.name] = prods
               .filter((p) => {
-                const pSub = (p as any).subCategoryId ?? (p as any).subCategory?._id ?? (p as any).subCategory;
-                const pSubStr = typeof pSub === "string" ? pSub : pSub?.toString?.();
+                const pSub =
+                  (p as any).subCategoryId ??
+                  (p as any).subCategory?._id ??
+                  (p as any).subCategory;
+                const pSubStr =
+                  typeof pSub === "string" ? pSub : pSub?.toString?.();
                 return pSubStr === subId;
               })
               .map((p) => {

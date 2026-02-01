@@ -467,10 +467,12 @@ const styles = StyleSheet.create({
     marginTop: 16,
     fontSize: 16,
     color: COLORS.textLight,
+    fontFamily: 'Cairo-Regular',
   },
   errorText: {
     fontSize: 16,
     color: COLORS.danger,
+    fontFamily: 'Cairo-Regular',
   },
   header: {
     flexDirection: 'row',
@@ -490,6 +492,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: COLORS.text,
     textAlign: 'center',
+    fontFamily: 'Cairo-SemiBold',
   },
   headerActions: {
     flexDirection: 'row',
@@ -524,6 +527,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: COLORS.white,
+    fontFamily: 'Cairo-SemiBold',
   },
   title: {
     fontSize: 24,
@@ -531,12 +535,14 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     marginBottom: 16,
     lineHeight: 32,
+    fontFamily: 'Cairo-Bold',
   },
   description: {
     fontSize: 16,
     color: COLORS.text,
     lineHeight: 24,
     marginBottom: 24,
+    fontFamily: 'Cairo-Regular',
   },
   routeSection: {
     marginBottom: 24,
@@ -546,6 +552,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: COLORS.text,
     marginBottom: 16,
+    fontFamily: 'Cairo-SemiBold',
   },
   locationItem: {
     flexDirection: 'row',
@@ -571,11 +578,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: COLORS.textLight,
     marginBottom: 2,
+    fontFamily: 'Cairo-SemiBold',
   },
   locationAddress: {
     fontSize: 14,
     color: COLORS.text,
     lineHeight: 18,
+    fontFamily: 'Cairo-Regular',
   },
   routeArrow: {
     alignItems: 'center',
@@ -594,6 +603,7 @@ const styles = StyleSheet.create({
     color: COLORS.textLight,
     marginLeft: 8,
     flex: 1,
+    fontFamily: 'Cairo-Regular',
   },
   datesSection: {
     marginBottom: 24,
@@ -607,11 +617,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: COLORS.text,
     width: 100,
+    fontFamily: 'Cairo-SemiBold',
   },
   dateValue: {
     fontSize: 14,
     color: COLORS.textLight,
     flex: 1,
+    fontFamily: 'Cairo-Regular',
   },
   driverSection: {
     marginBottom: 24,
@@ -635,6 +647,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: COLORS.text,
     marginBottom: 4,
+    fontFamily: 'Cairo-SemiBold',
   },
   phoneButton: {
     flexDirection: 'row',
@@ -645,11 +658,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.primary,
     marginLeft: 4,
+    fontFamily: 'Cairo-Regular',
   },
   assignedDate: {
     fontSize: 12,
     color: COLORS.textLight,
     marginTop: 8,
+    fontFamily: 'Cairo-Regular',
   },
   trackingSection: {
     marginBottom: 24,
@@ -666,6 +681,7 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     marginLeft: 8,
     flex: 1,
+    fontFamily: 'Cairo-Regular',
   },
   socketIndicator: {
     flexDirection: 'row',
@@ -683,6 +699,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: COLORS.success,
     fontWeight: '600',
+    fontFamily: 'Cairo-SemiBold',
   },
   historySection: {
     marginBottom: 24,
@@ -707,16 +724,19 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: COLORS.text,
     marginBottom: 4,
+    fontFamily: 'Cairo-SemiBold',
   },
   historyDate: {
     fontSize: 12,
     color: COLORS.textLight,
     marginBottom: 2,
+    fontFamily: 'Cairo-Regular',
   },
   historyNote: {
     fontSize: 12,
     color: COLORS.textLight,
     fontStyle: 'italic',
+    fontFamily: 'Cairo-Regular',
   },
 });
 

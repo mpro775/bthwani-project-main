@@ -159,6 +159,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     fontSize: 16,
     color: COLORS.textLight,
+    fontFamily: 'Cairo-Regular',
   },
   header: {
     padding: 20,
@@ -171,12 +172,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: COLORS.text,
     textAlign: 'center',
+    fontFamily: 'Cairo-Bold',
   },
   headerSubtitle: {
     fontSize: 14,
     color: COLORS.textLight,
     textAlign: 'center',
     marginTop: 4,
+    fontFamily: 'Cairo-Regular',
   },
   addButton: {
     flexDirection: 'row',
@@ -193,6 +196,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginLeft: 8,
+    fontFamily: 'Cairo-SemiBold',
   },
   listContainer: {
     padding: 16,
@@ -208,6 +212,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: COLORS.text,
     marginTop: 16,
+    fontFamily: 'Cairo-SemiBold',
   },
   emptySubtitle: {
     fontSize: 14,
@@ -215,6 +220,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 8,
     paddingHorizontal: 32,
+    fontFamily: 'Cairo-Regular',
   },
   footerLoader: {
     paddingVertical: 16,
@@ -224,6 +230,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.textLight,
     marginTop: 8,
+    fontFamily: 'Cairo-Regular',
   },
 });
 

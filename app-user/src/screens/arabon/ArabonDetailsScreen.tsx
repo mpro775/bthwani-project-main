@@ -23,8 +23,11 @@ import {
   deleteArabon,
   updateArabonStatus,
   getArabonActivity,
+  submitArabonRequest,
+  getArabonRequests,
   type ArabonStatus,
   type ArabonActivityItem,
+  type ArabonRequestItem,
 } from "@/api/arabonApi";
 import { useAuth } from "@/auth/AuthContext";
 import COLORS from "@/constants/colors";
@@ -43,6 +46,8 @@ const ArabonDetailsScreen = () => {
   const [deleting, setDeleting] = useState(false);
   const [statusUpdating, setStatusUpdating] = useState(false);
   const [activity, setActivity] = useState<ArabonActivityItem[]>([]);
+  const [requests, setRequests] = useState<ArabonRequestItem[]>([]);
+  const [submittingRequest, setSubmittingRequest] = useState(false);
 
   const loadItem = useCallback(async () => {
     try {
@@ -55,6 +60,17 @@ const ArabonDetailsScreen = () => {
       } catch {
         setActivity([]);
       }
+      // صاحب المنشأة فقط: تحميل الطلبات المقدمة
+      if (user && (String(itemData.ownerId) === user.uid || itemData.ownerId === user.uid)) {
+        try {
+          const reqList = await getArabonRequests(itemId);
+          setRequests(reqList ?? []);
+        } catch {
+          setRequests([]);
+        }
+      } else {
+        setRequests([]);
+      }
     } catch (error) {
       console.error("خطأ في تحميل تفاصيل العربون:", error);
       Alert.alert("خطأ", "حدث خطأ في تحميل البيانات");
@@ -62,7 +78,7 @@ const ArabonDetailsScreen = () => {
     } finally {
       setLoading(false);
     }
-  }, [itemId, navigation]);
+  }, [itemId, navigation, user?.uid]);
 
   useEffect(() => {
     loadItem();
@@ -190,6 +206,21 @@ const ArabonDetailsScreen = () => {
   const isOwner = user && item && (String(item.ownerId) === user.uid || item.ownerId === user.uid);
   const canChangeStatus = isOwner && item && item.status !== "completed" && item.status !== "cancelled";
   const isUpcoming = item?.scheduleAt ? new Date(item.scheduleAt) > new Date() : false;
+  const canSubmitRequest = !isOwner && user && item && item.status !== "draft" && item.status !== "cancelled";
+
+  const handleSubmitRequest = async () => {
+    if (!item || !user) return;
+    setSubmittingRequest(true);
+    try {
+      await submitArabonRequest(item._id);
+      Alert.alert("تم", "تم تقديم طلبك بنجاح");
+    } catch (e: any) {
+      const msg = e?.response?.data?.message || e?.message || "تعذر تقديم الطلب";
+      Alert.alert("خطأ", msg);
+    } finally {
+      setSubmittingRequest(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -422,6 +453,26 @@ const ArabonDetailsScreen = () => {
             </View>
           )}
 
+          {/* تقديم طلب (للمستخدمين غير صاحب المنشأة) */}
+          {canSubmitRequest && (
+            <View style={styles.submitRequestSection}>
+              <TouchableOpacity
+                style={[styles.submitRequestBtn, submittingRequest && styles.submitRequestBtnDisabled]}
+                onPress={handleSubmitRequest}
+                disabled={submittingRequest}
+              >
+                {submittingRequest ? (
+                  <ActivityIndicator size="small" color={COLORS.white} />
+                ) : (
+                  <>
+                    <Ionicons name="document-text-outline" size={20} color={COLORS.white} />
+                    <Text style={styles.submitRequestBtnText}>تقديم طلب</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
+          )}
+
           {/* تغيير سريع للحالة */}
           {canChangeStatus && (
             <View style={styles.statusActionsSection}>
@@ -463,6 +514,27 @@ const ArabonDetailsScreen = () => {
                   )}
                 </View>
               )}
+            </View>
+          )}
+
+          {/* الطلبات المقدمة (لصاحب المنشأة فقط) */}
+          {isOwner && requests.length > 0 && (
+            <View style={styles.requestsSection}>
+              <Text style={styles.sectionTitle}>الطلبات المقدمة</Text>
+              {requests.map((req) => (
+                <View key={req._id} style={styles.requestItem}>
+                  <View style={styles.requestRow}>
+                    <Text style={styles.requestStatusBadge}>
+                      {req.status === 'pending' ? 'في الانتظار' : req.status === 'accepted' ? 'مقبول' : 'مرفوض'}
+                    </Text>
+                    <Text style={styles.requestDate}>{formatDate(req.createdAt)}</Text>
+                  </View>
+                  {req.message ? (
+                    <Text style={styles.requestMessage}>{req.message}</Text>
+                  ) : null}
+                  <Text style={styles.requestRequesterId}>معرف مقدم الطلب: {req.requesterId}</Text>
+                </View>
+              ))}
             </View>
           )}
 
@@ -768,6 +840,63 @@ const styles = StyleSheet.create({
     color: COLORS.textLight,
     lineHeight: 20,
     marginLeft: 24,
+  },
+  submitRequestSection: {
+    marginBottom: 24,
+  },
+  submitRequestBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: COLORS.primary,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    gap: 8,
+  },
+  submitRequestBtnDisabled: {
+    opacity: 0.7,
+  },
+  submitRequestBtnText: {
+    fontSize: 16,
+    fontFamily: "Cairo-SemiBold",
+    color: COLORS.white,
+  },
+  requestsSection: {
+    marginBottom: 24,
+  },
+  requestItem: {
+    padding: 12,
+    backgroundColor: COLORS.lightGray,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  requestRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 6,
+  },
+  requestStatusBadge: {
+    fontSize: 14,
+    fontFamily: "Cairo-SemiBold",
+    color: COLORS.primary,
+  },
+  requestDate: {
+    fontSize: 12,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.textLight,
+  },
+  requestMessage: {
+    fontSize: 14,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.text,
+    marginBottom: 4,
+  },
+  requestRequesterId: {
+    fontSize: 12,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.textLight,
   },
   statusActionsSection: {
     marginBottom: 24,

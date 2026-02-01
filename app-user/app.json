@@ -53,7 +53,7 @@
       "versionCode": 2,
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyCoIo_MvZY0h5r1ipzg6fvn6S_iTF3VslA"
+          "apiKey": "AIzaSyAbWSDQBZUWjXU-CjXWHSV1ZC1t9rhceXs"
         }
       },
       "permissions": [
@@ -70,32 +70,6 @@
       },
       "edgeToEdgeEnabled": true,
       "googleServicesFile": "./google-services.json"
-    },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/favicon.png",
-      "name": "بثواني - تطبيق التوصيل",
-      "shortName": "بثواني",
-      "lang": "ar",
-      "scope": "/",
-      "themeColor": "#FF500D",
-      "backgroundColor": "#FFFFFF",
-      "display": "standalone",
-      "orientation": "portrait-primary",
-      "description": "تطبيق بثواني للتوصيل والتسوق في اليمن",
-      "icons": [
-        {
-          "src": "./assets/icon.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        },
-        {
-          "src": "./assets/icon.png",
-          "sizes": "512x512",
-          "type": "image/png"
-        }
-      ]
     },
     "assetBundlePatterns": [
       "**/*"

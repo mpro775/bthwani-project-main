@@ -291,6 +291,7 @@ const RegisterScreen = () => {
       navigation.navigate("OTPVerification", {
         email,
         userId,
+        skipAutoSend: true,
       });
     } catch (err: any) {
       const errorCode = err?.response?.data?.error?.code || err?.code || "";
@@ -329,6 +330,7 @@ const RegisterScreen = () => {
             navigation.navigate("OTPVerification", {
               email,
               userId: String(user._id || user.id),
+              skipAutoSend: true,
             });
             return;
           }

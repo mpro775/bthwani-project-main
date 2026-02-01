@@ -171,7 +171,7 @@ const Es3afniCreateScreen = () => {
               style={styles.textInput}
               value={formData.title}
               onChangeText={(value) => updateFormData('title', value)}
-              placeholder="مثال: حاجة عاجلة لفصيلة O+ في الرياض"
+              placeholder="مثال: حاجة عاجلة لفصيلة O+ في صنعاء"
               placeholderTextColor={COLORS.textLight}
               maxLength={100}
             />
@@ -249,7 +249,7 @@ const Es3afniCreateScreen = () => {
               style={styles.textInput}
               value={formData.metadata?.contact || ''}
               onChangeText={(value) => updateMetadata('contact', value)}
-              placeholder="مثال: +9665XXXXXXXX"
+              placeholder="مثال: +9677XXXXXXXX"
               placeholderTextColor={COLORS.textLight}
               keyboardType="phone-pad"
               maxLength={20}

@@ -163,7 +163,7 @@ const MaaroufCreateScreen = () => {
               style={styles.textInput}
               value={formData.title}
               onChangeText={(value) => updateFormData('title', value)}
-              placeholder="مثال: محفظة سوداء مفقودة في منطقة النرجس"
+              placeholder="مثال: محفظة سوداء مفقودة في منطقة حدة"
               placeholderTextColor={COLORS.textLight}
               maxLength={100}
             />
@@ -191,7 +191,7 @@ const MaaroufCreateScreen = () => {
               style={styles.textInput}
               value={tagsInput}
               onChangeText={setTagsInput}
-              placeholder="مثال: محفظة، سوداء، بطاقات، نرجس"
+              placeholder="مثال: محفظة، سوداء، بطاقات، مفاتيح"
               placeholderTextColor={COLORS.textLight}
             />
             <Text style={styles.helperText}>
@@ -219,7 +219,7 @@ const MaaroufCreateScreen = () => {
               onChangeText={(value) =>
                 updateFormData('metadata', { ...formData.metadata, location: value })
               }
-              placeholder="الموقع (مثال: النرجس، الروضة)"
+              placeholder="الموقع (مثال: صنعاء، حدة)"
               placeholderTextColor={COLORS.textLight}
             />
 

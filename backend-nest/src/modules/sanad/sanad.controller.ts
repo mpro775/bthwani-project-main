@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query, Patch, Delete, HttpStatus, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, Patch, Delete, HttpStatus, Req, UseGuards, UnauthorizedException, ForbiddenException } from '@nestjs/common';
 import { 
   ApiTags,
   ApiOperation,
@@ -10,6 +10,7 @@ import {
   ApiConsumes,
   ApiProduces
 } from '@nestjs/swagger';
+import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';
 import { SanadService } from './sanad.service';
 import CreateSanadDto from './dto/create-sanad.dto';
 import UpdateSanadDto from './dto/update-sanad.dto';
@@ -18,7 +19,8 @@ import UpdateSanadDto from './dto/update-sanad.dto';
 @ApiBearerAuth()
 @ApiConsumes('application/json')
 @ApiProduces('application/json')
-@Controller('sanad')
+@UseGuards(UnifiedAuthGuard)
+@Controller({ path: 'sanad', version: '1' })
 export class SanadController {
   constructor(private readonly service: SanadService) {}
 
@@ -47,22 +49,33 @@ export class SanadController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'قائمة الطلبات', description: 'استرجاع الطلبات مع دعم cursor' })
+  @ApiOperation({ summary: 'قائمة الطلبات', description: 'طلباتي فقط (أو كل الطلبات للأدمن)' })
   @ApiQuery({ name: 'cursor', required: false, description: 'مؤشر الصفحة التالية', example: '507f1f77bcf86cd799439012' })
   @ApiResponse({ status: HttpStatus.OK, description: 'تم الاسترجاع بنجاح' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'غير مخول' })
-  findAll(@Query('cursor') cursor?: string) {
-    return this.service.findAll({ cursor });
+  findAll(@Query('cursor') cursor?: string, @Req() req?: any) {
+    const user = req?.user;
+    if (!user?.id) throw new UnauthorizedException('يجب تسجيل الدخول');
+    const isAdmin = user.role === 'admin' || user.role === 'superadmin';
+    if (isAdmin) return this.service.findAll({ cursor });
+    return this.service.findByOwner(user.id, { cursor });
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'تفاصيل طلب', description: 'استرجاع طلب بواسطة المعرف' })
+  @ApiOperation({ summary: 'تفاصيل طلب', description: 'استرجاع طلب (لصاحبه أو الأدمن فقط)' })
   @ApiParam({ name: 'id', description: 'معرف الطلب', example: '507f1f77bcf86cd799439012' })
   @ApiResponse({ status: HttpStatus.OK, description: 'تم الاسترجاع بنجاح' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'غير موجود' })
+  @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'غير مسموح' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'غير مخول' })
-  findOne(@Param('id') id: string) {
-    return this.service.findOne(id);
+  async findOne(@Param('id') id: string, @Req() req?: any) {
+    const doc = await this.service.findOne(id);
+    const user = req?.user;
+    if (!user?.id) throw new UnauthorizedException('يجب تسجيل الدخول');
+    const isAdmin = user.role === 'admin' || user.role === 'superadmin';
+    const isOwner = doc.ownerId && String(doc.ownerId) === user.id;
+    if (!isAdmin && !isOwner) throw new ForbiddenException('غير مسموح بعرض هذا الطلب');
+    return doc;
   }
 
   @Patch(':id')
@@ -85,7 +98,14 @@ export class SanadController {
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'غير موجود' })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'بيانات غير صحيحة' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'غير مخول' })
-  update(@Param('id') id: string, @Body() dto: UpdateSanadDto) {
+  @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'غير مسموح' })
+  async update(@Param('id') id: string, @Body() dto: UpdateSanadDto, @Req() req?: any) {
+    const doc = await this.service.findOne(id);
+    const user = req?.user;
+    if (!user?.id) throw new UnauthorizedException('يجب تسجيل الدخول');
+    const isAdmin = user.role === 'admin' || user.role === 'superadmin';
+    const isOwner = doc.ownerId && String(doc.ownerId) === user.id;
+    if (!isAdmin && !isOwner) throw new ForbiddenException('غير مسموح بتعديل هذا الطلب');
     return this.service.update(id, dto);
   }
 
@@ -95,7 +115,14 @@ export class SanadController {
   @ApiResponse({ status: HttpStatus.OK, description: 'تم الحذف بنجاح' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'غير موجود' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'غير مخول' })
-  remove(@Param('id') id: string) {
+  @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'غير مسموح' })
+  async remove(@Param('id') id: string, @Req() req?: any) {
+    const doc = await this.service.findOne(id);
+    const user = req?.user;
+    if (!user?.id) throw new UnauthorizedException('يجب تسجيل الدخول');
+    const isAdmin = user.role === 'admin' || user.role === 'superadmin';
+    const isOwner = doc.ownerId && String(doc.ownerId) === user.id;
+    if (!isAdmin && !isOwner) throw new ForbiddenException('غير مسموح بحذف هذا الطلب');
     return this.service.remove(id);
   }
 
@@ -105,12 +132,13 @@ export class SanadController {
   @ApiResponse({ status: HttpStatus.OK, description: 'تم الاسترجاع بنجاح' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'غير مخول' })
   getMy(@Query('cursor') cursor?: string, @Req() req?: any) {
-    const userId = req?.user?.id || 'test-user'; // يجب استخراج من JWT
+    const userId = req?.user?.id;
+    if (!userId) throw new UnauthorizedException('يجب تسجيل الدخول');
     return this.service.findByOwner(userId, { cursor });
   }
 
   @Get('search')
-  @ApiOperation({ summary: 'البحث في الطلبات', description: 'البحث في الطلبات بالعنوان أو الوصف' })
+  @ApiOperation({ summary: 'البحث في الطلبات', description: 'البحث في طلباتي (أو كل الطلبات للأدمن)' })
   @ApiQuery({ name: 'q', required: true, description: 'كلمة البحث', example: 'إسعاف' })
   @ApiQuery({ name: 'kind', required: false, description: 'نوع الطلب', enum: ['specialist','emergency','charity'] })
   @ApiQuery({ name: 'cursor', required: false, description: 'مؤشر الصفحة التالية', example: '507f1f77bcf86cd799439012' })
@@ -119,8 +147,12 @@ export class SanadController {
   search(
     @Query('q') query: string,
     @Query('kind') kind?: string,
-    @Query('cursor') cursor?: string
+    @Query('cursor') cursor?: string,
+    @Req() req?: any
   ) {
-    return this.service.search(query, kind as any, { cursor });
+    const user = req?.user;
+    if (!user?.id) throw new UnauthorizedException('يجب تسجيل الدخول');
+    const isAdmin = user.role === 'admin' || user.role === 'superadmin';
+    return this.service.search(query, kind as any, { cursor, ownerId: isAdmin ? undefined : user.id });
   }
 }

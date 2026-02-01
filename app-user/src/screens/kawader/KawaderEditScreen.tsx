@@ -293,7 +293,7 @@ const KawaderEditScreen = () => {
               style={styles.textInput}
               value={formData.metadata?.location || ''}
               onChangeText={(value) => updateMetadata('location', value)}
-              placeholder="الموقع (مثال: الرياض، جدة)"
+              placeholder="الموقع (مثال: صنعاء، عدن)"
               placeholderTextColor={COLORS.textLight}
             />
 

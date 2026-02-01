@@ -195,6 +195,50 @@ export class ArabonController {
     return toListResponse(result);
   }
 
+  @Post(':id/request')
+  @ApiOperation({
+    summary: 'تقديم طلب على عربون',
+    description: 'تقديم طلب من قبل مستخدم (غير صاحب المنشأة) على عربون',
+  })
+  @ApiParam({ name: 'id', description: 'معرف العربون', example: '507f1f77bcf86cd799439012' })
+  @ApiBody({
+    description: 'الرسالة الاختيارية',
+    schema: { type: 'object', properties: { message: { type: 'string', example: 'أود الحجز لهذا الموعد' } } },
+  })
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'تم تقديم الطلب بنجاح' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'غير موجود' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'طلب مسبق أو صاحب المنشأة' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'غير مخول' })
+  async submitRequest(
+    @Req() req: Request & { user?: { id?: string } },
+    @Param('id') id: string,
+    @Body() body: { message?: string },
+  ) {
+    const uid = req?.user?.id;
+    if (!uid) throw new BadRequestException('يجب تسجيل الدخول لتقديم طلب');
+    return this.service.submitRequest(id, uid, body?.message);
+  }
+
+  @Get(':id/requests')
+  @ApiOperation({
+    summary: 'قائمة طلبات العربون',
+    description: 'عرض الطلبات المقدمة على العربون (لصاحب المنشأة فقط)',
+  })
+  @ApiParam({ name: 'id', description: 'معرف العربون', example: '507f1f77bcf86cd799439012' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'تم الاسترجاع بنجاح' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'غير موجود' })
+  @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'مسموح لصاحب المنشأة فقط' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'غير مخول' })
+  async getRequests(
+    @Req() req: Request & { user?: { id?: string } },
+    @Param('id') id: string,
+  ) {
+    const uid = req?.user?.id;
+    if (!uid) throw new BadRequestException('يجب تسجيل الدخول');
+    const result = await this.service.getRequests(id, uid);
+    return { data: result.items };
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'تفاصيل عربون', description: 'استرجاع عربون بواسطة المعرف' })
   @ApiParam({ name: 'id', description: 'معرف العربون', example: '507f1f77bcf86cd799439012' })

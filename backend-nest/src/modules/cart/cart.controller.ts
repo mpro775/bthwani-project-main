@@ -8,6 +8,7 @@ import {
   Param,
   Query,
   UseGuards,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody } from '@nestjs/swagger';
 import { CartService } from './services/cart.service';
@@ -117,6 +118,14 @@ export class CartController {
     @CurrentUser('id') userId: string,
     @Body() dto: AddToCartDto,
   ) {
+    if (!userId || typeof userId !== 'string' || !String(userId).trim()) {
+      throw new UnauthorizedException({
+        code: 'USER_REQUIRED',
+        message: 'user is required',
+        userMessage: 'البيانات المدخلة غير صحيحة',
+        suggestedAction: 'يرجى التحقق من البيانات المدخلة',
+      });
+    }
     return this.cartService.addItem(userId, dto);
   }
 
@@ -131,6 +140,14 @@ export class CartController {
     @CurrentUser('id') userId: string,
     @Body() body: any,
   ) {
+    if (!userId || typeof userId !== 'string' || !String(userId).trim()) {
+      throw new UnauthorizedException({
+        code: 'USER_REQUIRED',
+        message: 'user is required',
+        userMessage: 'البيانات المدخلة غير صحيحة',
+        suggestedAction: 'يرجى التحقق من البيانات المدخلة',
+      });
+    }
     const dto: AddToCartDto = {
       productType: body.items?.[0]?.productType || 'deliveryProduct',
       productId: body.items?.[0]?.productId,

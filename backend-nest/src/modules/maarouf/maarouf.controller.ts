@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query, Patch, Delete, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, Patch, Delete, HttpStatus, Req, UseGuards } from '@nestjs/common';
 import { 
   ApiTags,
   ApiOperation,
@@ -10,6 +10,7 @@ import {
   ApiConsumes,
   ApiProduces
 } from '@nestjs/swagger';
+import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';
 import { MaaroufService } from './maarouf.service';
 import CreateMaaroufDto from './dto/create-maarouf.dto';
 import UpdateMaaroufDto from './dto/update-maarouf.dto';
@@ -18,6 +19,7 @@ import UpdateMaaroufDto from './dto/update-maarouf.dto';
 @ApiBearerAuth()
 @ApiConsumes('application/json')
 @ApiProduces('application/json')
+@UseGuards(UnifiedAuthGuard)
 @Controller('maarouf')
 export class MaaroufController {
   constructor(private readonly service: MaaroufService) {}
@@ -53,13 +55,14 @@ export class MaaroufController {
   @Get()
   @ApiOperation({ 
     summary: 'قائمة الإعلانات',
-    description: 'استرجاع قائمة إعلانات المفقودات والموجودات مع دعم التنقل بالـ cursor'
+    description: 'استرجاع قائمة إعلانات المفقودات والموجودات؛ المسودة تظهر فقط لصاحب الطلب'
   })
   @ApiQuery({ name: 'cursor', required: false, description: 'مؤشر الصفحة التالية', example: '507f1f77bcf86cd799439012' })
   @ApiResponse({ status: HttpStatus.OK, description: 'تم الاسترجاع بنجاح' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'غير مخول' })
-  findAll(@Query('cursor') cursor?: string) {
-    return this.service.findAll({ cursor });
+  findAll(@Query('cursor') cursor?: string, @Req() req?: { user?: { id: string } }) {
+    const userId = req?.user?.id;
+    return this.service.findAll({ cursor, userId });
   }
 
   @Get(':id')

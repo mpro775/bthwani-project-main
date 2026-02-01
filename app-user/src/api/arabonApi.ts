@@ -303,3 +303,47 @@ export const getArabonActivity = async (
     hasMore: d?.hasMore ?? !!d?.nextCursor,
   };
 };
+
+// ==================== طلبات العربون (تقديم طلب / قائمة الطلبات لصاحب المنشأة) ====================
+
+export type ArabonRequestStatus = 'pending' | 'accepted' | 'rejected';
+
+export interface ArabonRequestItem {
+  _id: string;
+  arabonId: string;
+  requesterId: string;
+  message?: string;
+  status: ArabonRequestStatus;
+  createdAt: string;
+}
+
+/**
+ * تقديم طلب على عربون (من قبل أي مستخدم غير صاحب المنشأة)
+ */
+export const submitArabonRequest = async (
+  arabonId: string,
+  message?: string
+): Promise<ArabonRequestItem> => {
+  const headers = await getAuthHeaders();
+  const response = await axiosInstance.post(
+    `/arabon/${arabonId}/request`,
+    { message: message?.trim() || undefined },
+    { headers }
+  );
+  const raw = response.data;
+  return (raw?.data ?? raw) as ArabonRequestItem;
+};
+
+/**
+ * قائمة الطلبات المقدمة على العربون (لصاحب المنشأة فقط)
+ */
+export const getArabonRequests = async (
+  arabonId: string
+): Promise<ArabonRequestItem[]> => {
+  const headers = await getAuthHeaders();
+  const response = await axiosInstance.get(`/arabon/${arabonId}/requests`, {
+    headers,
+  });
+  const d = response.data;
+  return d?.data ?? [];
+};

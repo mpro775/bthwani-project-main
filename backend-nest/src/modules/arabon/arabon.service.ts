@@ -2,12 +2,14 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
 import { Types } from 'mongoose';
 import { Arabon, ArabonStatus } from './entities/arabon.entity';
 import { ArabonStatusLog } from './entities/arabon-status-log.entity';
+import { ArabonRequest } from './entities/arabon-request.entity';
 import type CreateArabonDto from './dto/create-arabon.dto';
 import type UpdateArabonDto from './dto/update-arabon.dto';
 
@@ -26,6 +28,8 @@ export class ArabonService {
     @InjectModel(Arabon.name) private readonly model: Model<Arabon>,
     @InjectModel(ArabonStatusLog.name)
     private readonly statusLogModel: Model<ArabonStatusLog>,
+    @InjectModel(ArabonRequest.name)
+    private readonly requestModel: Model<ArabonRequest>,
   ) {}
 
   async create(dto: CreateArabonDto) {
@@ -159,9 +163,16 @@ export class ArabonService {
   async update(id: string, dto: UpdateArabonDto, userId?: string) {
     const prev = await this.model
       .findById(id)
-      .lean<{ status?: string }>()
+      .lean<{ status?: string; ownerId?: Types.ObjectId }>()
       .exec();
     if (!prev) throw new NotFoundException('Not found');
+    // تغيير الحالة مسموح فقط لصاحب المنشأة
+    if (dto.status != null && String(prev.status) !== String(dto.status)) {
+      const ownerIdStr = prev.ownerId ? String(prev.ownerId) : '';
+      if (!userId || ownerIdStr !== String(userId)) {
+        throw new ForbiddenException('تغيير الحالة مسموح فقط لصاحب المنشأة');
+      }
+    }
     const doc = await this.model
       .findByIdAndUpdate(id, dto, { new: true })
       .exec();
@@ -178,9 +189,14 @@ export class ArabonService {
     }
     const prev = await this.model
       .findById(id)
-      .lean<{ status?: string }>()
+      .lean<{ status?: string; ownerId?: Types.ObjectId }>()
       .exec();
     if (!prev) throw new NotFoundException('Not found');
+    // تغيير الحالة مسموح فقط لصاحب المنشأة (صاحب العربون)
+    const ownerIdStr = prev.ownerId ? String(prev.ownerId) : '';
+    if (!userId || ownerIdStr !== String(userId)) {
+      throw new ForbiddenException('تغيير الحالة مسموح فقط لصاحب المنشأة');
+    }
     const doc = await this.model
       .findByIdAndUpdate(id, { status }, { new: true })
       .exec();
@@ -290,5 +306,43 @@ export class ArabonService {
 
   async getStatsForOwner(ownerId: string) {
     return this.getStats(ownerId);
+  }
+
+  /** تقديم طلب على عربون (من قبل أي مستخدم غير صاحب المنشأة) */
+  async submitRequest(arabonId: string, requesterId: string, message?: string) {
+    const arabon = await this.model.findById(arabonId).lean<{ ownerId: Types.ObjectId }>().exec();
+    if (!arabon) throw new NotFoundException('Not found');
+    if (String(arabon.ownerId) === String(requesterId)) {
+      throw new BadRequestException('صاحب المنشأة لا يمكنه تقديم طلب على عربونه');
+    }
+    const existing = await this.requestModel
+      .findOne({ arabonId: new Types.ObjectId(arabonId), requesterId: new Types.ObjectId(requesterId) })
+      .exec();
+    if (existing) {
+      throw new BadRequestException('تم تقديم طلب مسبقاً على هذا العربون');
+    }
+    const doc = await this.requestModel.create({
+      arabonId: new Types.ObjectId(arabonId),
+      requesterId: new Types.ObjectId(requesterId),
+      message: message?.trim() || undefined,
+      status: 'pending',
+    });
+    return doc;
+  }
+
+  /** قائمة طلبات العربون (لصاحب المنشأة فقط) */
+  async getRequests(arabonId: string, userId: string) {
+    const arabon = await this.model.findById(arabonId).lean<{ ownerId: Types.ObjectId }>().exec();
+    if (!arabon) throw new NotFoundException('Not found');
+    if (String(arabon.ownerId) !== String(userId)) {
+      throw new ForbiddenException('عرض الطلبات مسموح فقط لصاحب المنشأة');
+    }
+    const items = await this.requestModel
+      .find({ arabonId: new Types.ObjectId(arabonId) })
+      .sort({ createdAt: -1 })
+      .limit(LIST_LIMIT)
+      .lean()
+      .exec();
+    return { items };
   }
 }
