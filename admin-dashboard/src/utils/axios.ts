@@ -3,13 +3,12 @@ import { ERROR_MAP } from "./errorMap";
 import type { ApiResponse } from "../types/api";
 
 // قراءة متغير البيئة أو استخدام قيمة افتراضية
-const getBaseURL = () => {
-  "https://api-bthwani.smartagency-ye.com/api/v1";
-};
+const BASE_URL = "https://api-bthwani.smartagency-ye.com/api/v1";
+
 
 // Axios instance
 const instance = axios.create({
-  baseURL: getBaseURL(),
+  baseURL: BASE_URL,
   timeout: 10000,
   headers: { "Content-Type": "application/json" },
 });

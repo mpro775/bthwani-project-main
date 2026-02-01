@@ -2,8 +2,7 @@ import axios from "axios";
 import { storage } from "../utils/storage";
 import type { ApiResponse } from "../types/api";
 
-const API_URL =
-  import.meta.env.VITE_API_URL || "https://api.bthwani.com/api/v1";
+const API_URL = "https://api-bthwani.smartagency-ye.com/api/v1";
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
