@@ -66,50 +66,6 @@ export class MerchantController {
     return this.merchantService.findAllMerchants(isActive);
   }
 
-  @Get(':id')
-  @ApiParam({ name: 'id', type: String })
-  @ApiResponse({ status: 200, description: 'Success' })
-  @ApiResponse({ status: 404, description: 'Not found' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.JWT)
-  @Roles('admin', 'superadmin', 'vendor')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'الحصول على تاجر محدد' })
-  async getMerchant(@Param('id') id: string) {
-    return this.merchantService.findMerchantById(id);
-  }
-
-  @Patch(':id')
-  @ApiParam({ name: 'id', type: String })
-  @ApiResponse({ status: 200, description: 'Updated' })
-  @ApiResponse({ status: 404, description: 'Not found' })
-  @ApiResponse({ status: 400, description: 'Bad request' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.JWT)
-  @Roles('admin', 'superadmin', 'vendor')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'تحديث تاجر' })
-  async updateMerchant(
-    @Param('id') id: string,
-    @Body() dto: UpdateMerchantDto,
-  ) {
-    return this.merchantService.updateMerchant(id, dto);
-  }
-
-  @Delete(':id')
-  @ApiParam({ name: 'id', type: String })
-  @ApiResponse({ status: 200, description: 'Deleted' })
-  @ApiResponse({ status: 404, description: 'Not found' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Auth(AuthType.JWT)
-  @Roles('admin', 'superadmin')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'حذف تاجر' })
-  async deleteMerchant(@Param('id') id: string) {
-    await this.merchantService.deleteMerchant(id);
-    return { message: 'تم حذف التاجر بنجاح' };
-  }
-
   // ==================== Product Catalog Endpoints ====================
 
   @Post('catalog/products')
@@ -295,8 +251,11 @@ export class MerchantController {
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiOperation({ summary: 'الحصول على الفئات (public)' })
-  async getCategories(@Query('parent') parent?: string) {
-    return this.merchantService.findAllCategories(parent);
+  async getCategories(
+    @Query('parent') parent?: string,
+    @Query('usageType') usageType?: string,
+  ) {
+    return this.merchantService.findAllCategories(parent, usageType);
   }
 
   @Patch('categories/:id')
@@ -381,5 +340,51 @@ export class MerchantController {
   async deleteAttribute(@Param('id') id: string) {
     await this.merchantService.deleteAttribute(id);
     return { message: 'تم حذف الخاصية بنجاح' };
+  }
+
+  // ==================== Merchant by ID (must be last to avoid matching "categories", "products", etc.) ====================
+
+  @Get(':id')
+  @ApiParam({ name: 'id', type: String })
+  @ApiResponse({ status: 200, description: 'Success' })
+  @ApiResponse({ status: 404, description: 'Not found' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @Auth(AuthType.JWT)
+  @Roles('admin', 'superadmin', 'vendor')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'الحصول على تاجر محدد' })
+  async getMerchant(@Param('id') id: string) {
+    return this.merchantService.findMerchantById(id);
+  }
+
+  @Patch(':id')
+  @ApiParam({ name: 'id', type: String })
+  @ApiResponse({ status: 200, description: 'Updated' })
+  @ApiResponse({ status: 404, description: 'Not found' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @Auth(AuthType.JWT)
+  @Roles('admin', 'superadmin', 'vendor')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'تحديث تاجر' })
+  async updateMerchant(
+    @Param('id') id: string,
+    @Body() dto: UpdateMerchantDto,
+  ) {
+    return this.merchantService.updateMerchant(id, dto);
+  }
+
+  @Delete(':id')
+  @ApiParam({ name: 'id', type: String })
+  @ApiResponse({ status: 200, description: 'Deleted' })
+  @ApiResponse({ status: 404, description: 'Not found' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @Auth(AuthType.JWT)
+  @Roles('admin', 'superadmin')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'حذف تاجر' })
+  async deleteMerchant(@Param('id') id: string) {
+    await this.merchantService.deleteMerchant(id);
+    return { message: 'تم حذف التاجر بنجاح' };
   }
 }

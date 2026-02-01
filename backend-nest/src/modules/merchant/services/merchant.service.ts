@@ -274,12 +274,18 @@ export class MerchantService {
     return category.save();
   }
 
-  async findAllCategories(parent?: string): Promise<any[]> {
+  async findAllCategories(
+    parent?: string,
+    usageType?: string,
+  ): Promise<any[]> {
     const query: Record<string, any> = { isActive: true };
-    if (parent) {
+    if (parent !== undefined && parent !== null && parent !== '') {
       query.parent = parent;
     } else {
       query.parent = null; // الفئات الجذر فقط
+    }
+    if (usageType) {
+      query.usageType = usageType;
     }
 
     return this.categoryModel

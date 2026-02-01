@@ -6,10 +6,7 @@ import { ERROR_MESSAGES } from "../../utils/errorMessages";
 // Base schema لإنشاء سائق (يحتوي .pipe على fullName؛ Zod لا يسمح بـ .omit() على مثل هذه الـ schemas)
 export const createDriverSchema = z.object({
   fullName: z
-    .string({
-      required_error: ERROR_MESSAGES.DRIVER.FULL_NAME_REQUIRED,
-      invalid_type_error: ERROR_MESSAGES.DRIVER.FULL_NAME_REQUIRED,
-    })
+    .string({ error: ERROR_MESSAGES.DRIVER.FULL_NAME_REQUIRED })
     .min(1, ERROR_MESSAGES.DRIVER.FULL_NAME_REQUIRED)
     .max(100, ERROR_MESSAGES.DRIVER.FULL_NAME_TOO_LONG),
 

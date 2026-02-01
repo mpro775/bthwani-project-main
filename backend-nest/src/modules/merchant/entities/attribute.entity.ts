@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class Attribute extends Document {
@@ -8,6 +8,9 @@ export class Attribute extends Document {
 
   @Prop()
   nameAr?: string; // الاسم بالعربية
+
+  @Prop()
+  slug?: string;
 
   @Prop({
     required: true,
@@ -43,6 +46,12 @@ export class Attribute extends Document {
     max?: number;
     pattern?: string;
   };
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'MerchantCategory' }], default: [] })
+  categories?: Types.ObjectId[];
+
+  @Prop()
+  usageType?: string;
 }
 
 export const AttributeSchema = SchemaFactory.createForClass(Attribute);

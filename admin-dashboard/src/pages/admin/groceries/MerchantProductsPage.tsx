@@ -117,13 +117,13 @@ export default function GroceriesMerchantProductsPage() {
 
     console.log("🟢 Merchants", merchRes.data);
     console.log("🟢 Stores", storesRes.data);
-    console.log("🟢 Products", prodsRes.data);
+    console.log("🟢 Products", prodsRes);
 
-    setAllMerchantProducts(mpRes.data);
-    setCategories(catsRes.data);
-    setProducts(prodsRes.data);
-    setMerchants(merchRes.data);
-    setStores(storesRes.data);
+    setAllMerchantProducts(Array.isArray(mpRes) ? mpRes : []);
+    setCategories(Array.isArray(catsRes) ? catsRes : []);
+    setProducts(Array.isArray(prodsRes) ? prodsRes : []);
+    setMerchants(merchRes.data ?? []);
+    setStores(storesRes.data ?? []);
   };
 
   console.log("stores in dialog", stores);
@@ -149,7 +149,7 @@ export default function GroceriesMerchantProductsPage() {
     }
 
     const data = await merchantApi.getAttributesByCategory(categoryId);
-    setAttributes(data);
+    setAttributes(Array.isArray(data) ? (data as Attribute[]) : []);
   };
 
   useEffect(() => {

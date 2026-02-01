@@ -6,6 +6,7 @@ import {
   IsOptional,
   IsArray,
   IsObject,
+  IsMongoId,
   Min,
 } from 'class-validator';
 
@@ -16,6 +17,10 @@ export class CreateAttributeDto {
   @IsOptional()
   @IsString()
   nameAr?: string;
+
+  @IsOptional()
+  @IsString()
+  slug?: string;
 
   @IsEnum(['text', 'number', 'select', 'multiselect', 'color', 'boolean'], {
     message: 'نوع الخاصية غير صحيح',
@@ -55,12 +60,29 @@ export class CreateAttributeDto {
     max?: number;
     pattern?: string;
   };
+
+  @IsOptional()
+  @IsArray()
+  @IsMongoId({ each: true, message: 'معرف التصنيف غير صحيح' })
+  categories?: string[];
+
+  @IsOptional()
+  @IsString()
+  usageType?: string;
 }
 
 export class UpdateAttributeDto {
   @IsOptional()
   @IsString()
   name?: string;
+
+  @IsOptional()
+  @IsString()
+  nameAr?: string;
+
+  @IsOptional()
+  @IsString()
+  slug?: string;
 
   @IsOptional()
   @IsBoolean()
@@ -74,4 +96,13 @@ export class UpdateAttributeDto {
   @IsOptional()
   @IsNumber()
   order?: number;
+
+  @IsOptional()
+  @IsArray()
+  @IsMongoId({ each: true, message: 'معرف التصنيف غير صحيح' })
+  categories?: string[];
+
+  @IsOptional()
+  @IsString()
+  usageType?: string;
 }

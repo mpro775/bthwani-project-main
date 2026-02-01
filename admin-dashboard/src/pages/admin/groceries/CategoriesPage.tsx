@@ -45,8 +45,8 @@ export default function GroceriesCategoriesPage() {
   const [editId, setEditId] = useState<string | null>(null);
 
   const fetchCategories = async () => {
-    const data = await merchantApi.getCategories();
-    setCategories(data);
+    const data = await merchantApi.getCategories(undefined, "grocery");
+    setCategories(Array.isArray(data) ? data : []);
   };
 
   useEffect(() => {

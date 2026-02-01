@@ -490,7 +490,7 @@ export default function DeliveryPromotionsPage() {
                   value={form.categoryId}
                   onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
                 >
-                  {categories.map((x) => (
+                  {storeCategories.map((x: Category) => (
                     <MenuItem key={x._id} value={x._id}>
                       {x.name}
                     </MenuItem>
