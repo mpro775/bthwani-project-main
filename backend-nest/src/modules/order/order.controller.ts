@@ -19,6 +19,7 @@ import { ApiTags,
 } from '@nestjs/swagger';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { CreateOrderFromCartDto } from './dto/create-order-from-cart.dto';
 import { CursorPaginationDto } from '../../common/dto/pagination.dto';
 import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -67,6 +68,27 @@ export class OrderController {
     @CurrentUser('id') userId: string,
   ) {
     return this.orderService.create({ ...createOrderDto, user: userId });
+  }
+
+  @Auth(AuthType.JWT)
+  @ApiBearerAuth()
+  @Post('from-cart')
+  @ApiResponse({ status: 201, description: 'Created' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiOperation({
+    summary: 'إنشاء طلب من السلة',
+    description: 'إنشاء طلب من محتويات السلة مع عنوان التوصيل المحدد',
+  })
+  @ApiBody({ type: CreateOrderFromCartDto, description: 'بيانات الطلب من السلة' })
+  @ApiResponse({ status: 201, description: 'تم إنشاء الطلب بنجاح' })
+  @ApiResponse({ status: 400, description: 'السلة فارغة أو العنوان غير موجود' })
+  @ApiResponse({ status: 401, description: 'غير مصرّح' })
+  async createOrderFromCart(
+    @Body() dto: CreateOrderFromCartDto,
+    @CurrentUser('id') userId: string,
+  ) {
+    return this.orderService.createFromCart(userId, dto);
   }
 
   @Auth(AuthType.JWT)

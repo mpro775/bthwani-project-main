@@ -232,7 +232,7 @@ const CommonProductDetailsScreen = () => {
       itemPrice = unitPrice;
     }
 
-    const success = await addToCart({
+    const result = await addToCart({
       id: product.id,
       productId: product.id,
       productType: itemType,
@@ -246,12 +246,19 @@ const CommonProductDetailsScreen = () => {
       storeType,
     });
 
-    Alert.alert(
-      success ? "✅ تمت الإضافة" : "حدث خطأ",
-      success
-        ? `${product.name} تمت إضافته إلى السلة`
-        : "تعذر إضافة المنتج، حاول مجددًا"
-    );
+    if (result.success) {
+      Alert.alert("✅ تمت الإضافة", `${product.name} تمت إضافته إلى السلة`);
+    } else {
+      const msg =
+        result.reason === "auth"
+          ? "يجب تسجيل الدخول لإضافة المنتج إلى السلة"
+          : result.reason === "store_conflict"
+            ? "لا يمكنك خلط منتجات من متاجر مختلفة"
+            : result.reason === "validation"
+              ? "بيانات المنتج أو المتجر ناقصة"
+              : "تحقق من الاتصال وحاول مرة أخرى";
+      Alert.alert("تعذر الإضافة", msg);
+    }
   };
 
   // ========== Price UI ==========

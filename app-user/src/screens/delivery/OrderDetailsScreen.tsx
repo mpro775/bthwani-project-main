@@ -192,13 +192,19 @@ const OrderDetailsScreen = () => {
   const kind = getKind(order);
   const STAGES = STAGES_BY_KIND[kind];
 
+  const isDelivered = useMemo(
+    () =>
+      order.status === "تم التوصيل" ||
+      (order as any).rawStatus === "delivered",
+    [order.status, (order as any).rawStatus]
+  );
   const canRate = useMemo(
     () =>
-      order.status === "تم التوصيل" &&
+      isDelivered &&
       !submitting &&
       !rated &&
-      kind === "marketplace",
-    [order.status, submitting, rated, kind]
+      (kind === "marketplace" || kind === "utility" || kind === "errand"),
+    [isDelivered, submitting, rated, kind]
   );
 
   // قيَم آمنة حسب النوع
@@ -388,7 +394,7 @@ const OrderDetailsScreen = () => {
     };
   }, [order?.id]);
 
-  /** ⬅️ إرسال التقييم */
+  /** ⬅️ إرسال التقييم — مسار الباكند حسب نوع الطلب */
   const handleSubmitRating = async (rating: number, comment: string) => {
     if (!canRate) {
       Alert.alert("لا يمكن التقييم الآن", "يجب أن يكون الطلب (تم التوصيل).");
@@ -396,18 +402,30 @@ const OrderDetailsScreen = () => {
     }
     try {
       setSubmitting(true);
-      const payload = {
-        company: rating,
-        order: rating, // هذا الذي يُحسب للمتجر
-        driver: rating,
-        comments: comment,
-      };
-      const url = `${API_URL}/orders/${order.id}/rate`;
-      await axiosInstance.post(url, payload);
+      const orderId = String(order.id ?? (order as any)._id);
+      if (kind === "marketplace") {
+        await axiosInstance.post(`/delivery/order/${orderId}/rate`, {
+          rating,
+          comment,
+        });
+      } else if (kind === "utility") {
+        await axiosInstance.post(`/utility/order/${orderId}/rate`, {
+          rating,
+          review: comment,
+        });
+      } else if (kind === "errand") {
+        await axiosInstance.post(`/akhdimni/errands/${orderId}/rate`, {
+          driver: rating,
+          service: rating,
+          comments: comment,
+        });
+      } else {
+        throw new Error("نوع الطلب غير مدعوم للتقييم");
+      }
       setRated(true);
       setShowRatingModal(false);
       Alert.alert("تم", "تم حفظ تقييمك بنجاح ✅");
-      await fetchStoreRating();
+      if (kind === "marketplace" && order.storeId) await fetchStoreRating();
     } catch (err: any) {
       const msg =
         err?.response?.data?.message ||

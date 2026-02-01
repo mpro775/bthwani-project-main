@@ -81,8 +81,19 @@ export const calculateUtilityPrice = async (
   return response.data;
 };
 
+/**
+ * جلب طلبات المستخدم (غاز/وايت)
+ */
+export const getUtilityOrders = async (): Promise<any[]> => {
+  const response = await axiosInstance.get("/utility/orders");
+  const raw = response.data;
+  const list = Array.isArray(raw) ? raw : raw?.data ?? raw?.orders ?? [];
+  return Array.isArray(list) ? list : [];
+};
+
 export default {
   getUtilityOptions,
   calculateUtilityPrice,
+  getUtilityOrders,
 };
 
