@@ -111,8 +111,8 @@ export default function DeliveryPromotionsPage() {
   const [stores, setStores] = useState<DeliveryStore[]>([]);
   const [storeCategories, setStoreCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [loadingCategories, setLoadingCategories] = useState(false);
-  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [, setLoadingCategories] = useState(false);
+  const [, setLoadingProducts] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
