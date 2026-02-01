@@ -127,6 +127,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     color: COLORS.background,
+    fontFamily: 'Cairo-SemiBold',
   },
   title: {
     fontSize: 18,
@@ -134,12 +135,14 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     marginBottom: 8,
     lineHeight: 24,
+    fontFamily: 'Cairo-SemiBold',
   },
   description: {
     fontSize: 14,
     color: COLORS.lightText,
     marginBottom: 12,
     lineHeight: 20,
+    fontFamily: 'Cairo-Regular',
   },
   routeContainer: {
     flexDirection: 'row',
@@ -151,6 +154,7 @@ const styles = StyleSheet.create({
     color: COLORS.lightText,
     marginLeft: 6,
     flex: 1,
+    fontFamily: 'Cairo-Regular',
   },
   metadataContainer: {
     flexDirection: 'row',
@@ -167,6 +171,7 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     marginLeft: 4,
     fontWeight: '500',
+    fontFamily: 'Cairo-SemiBold',
   },
   footer: {
     flexDirection: 'row',
@@ -176,6 +181,7 @@ const styles = StyleSheet.create({
   dateText: {
     fontSize: 12,
     color: COLORS.lightText,
+    fontFamily: 'Cairo-Regular',
   },
 });
 

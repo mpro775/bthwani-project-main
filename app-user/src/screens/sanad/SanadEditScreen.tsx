@@ -292,7 +292,7 @@ const SanadEditScreen = () => {
               onChangeText={(value) =>
                 updateFormData('metadata', { ...formData.metadata, location: value })
               }
-              placeholder="الموقع (مثال: الرياض، النرجس)"
+              placeholder="الموقع (مثال: صنعاء، حدة)"
               placeholderTextColor={COLORS.textLight}
             />
 

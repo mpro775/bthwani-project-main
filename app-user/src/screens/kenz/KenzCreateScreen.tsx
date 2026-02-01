@@ -284,7 +284,7 @@ const KenzCreateScreen = () => {
               style={styles.textInput}
               value={formData.metadata?.contact || ''}
               onChangeText={(value) => updateMetadata('contact', value)}
-              placeholder="مثال: +9665XXXXXXXX"
+              placeholder="مثال: +9677XXXXXXXX"
               placeholderTextColor={COLORS.textLight}
               keyboardType="phone-pad"
               maxLength={20}
@@ -298,7 +298,7 @@ const KenzCreateScreen = () => {
               style={styles.textInput}
               value={formData.metadata?.location || ""}
               onChangeText={(value) => updateMetadata("location", value)}
-              placeholder="مثال: الرياض، حي العليا"
+              placeholder="مثال: صنعاء، حدة"
               placeholderTextColor={COLORS.textLight}
               maxLength={100}
             />

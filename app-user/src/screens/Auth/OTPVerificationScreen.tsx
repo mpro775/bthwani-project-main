@@ -39,7 +39,7 @@ export default function OTPVerificationScreen() {
   const slideAnim = useRef(new Animated.Value(50)).current;
   const shakeAnim = useRef(new Animated.Value(0)).current;
 
-  const { email, userId } = route.params || {};
+  const { email, userId, skipAutoSend } = route.params || {};
   const handleSendOtp = async () => {
     try {
       await sendOtp();
@@ -55,15 +55,15 @@ export default function OTPVerificationScreen() {
     }
   };
 
-  // عند أول فتح للشاشة:
+  // عند أول فتح للشاشة: لا ترسل تلقائياً إذا جاء المستخدم من Register/Login (لأنهم أرسلوا OTP مسبقاً)
   const sentRef = useRef(false);
 
-  // عند أول فتح للشاشة:
   useEffect(() => {
     if (sentRef.current) return;
+    if (skipAutoSend) return; // OTP مُرسَل بالفعل من RegisterScreen أو LoginScreen
     sentRef.current = true;
-    handleSendOtp(); // لن تُستدعى إلا مرة واحدة حتى لو رُكّبت الشاشة مرتين
-  }, []);
+    handleSendOtp();
+  }, [skipAutoSend]);
   useEffect(() => {
     // Animation on mount
     Animated.parallel([

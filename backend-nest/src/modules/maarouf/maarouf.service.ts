@@ -15,13 +15,26 @@ export class MaaroufService {
     return await doc.save();
   }
 
-  async findAll(opts: { cursor?: string }) {
+  async findAll(opts: { cursor?: string; userId?: string }) {
     const limit = 25;
-    const query = this.model.find().sort({ _id: -1 }).limit(limit);
-    if (opts?.cursor) {
-      query.where('_id').lt(Number(opts.cursor));
+    const filter: Record<string, unknown> = {};
+    // المسودة تظهر فقط لصاحب الطلب: إما غير مسودة، أو مسودة ومملوكة للمستخدم الحالي
+    if (opts?.userId && Types.ObjectId.isValid(opts.userId)) {
+      filter.$or = [
+        { status: { $ne: 'draft' } },
+        { status: 'draft', ownerId: new Types.ObjectId(opts.userId) },
+      ];
+    } else {
+      filter.status = { $ne: 'draft' };
     }
-    const items = await query.exec();
+    if (opts?.cursor && Types.ObjectId.isValid(opts.cursor)) {
+      filter._id = { $lt: new Types.ObjectId(opts.cursor) };
+    }
+    const items = await this.model
+      .find(filter)
+      .sort({ _id: -1 })
+      .limit(limit)
+      .exec();
     const nextCursor = items.length === limit ? String(items[items.length - 1]._id) : null;
     return { items, nextCursor };
   }

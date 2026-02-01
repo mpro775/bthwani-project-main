@@ -198,21 +198,15 @@ const KenzDetailsScreen = () => {
   };
 
   /**
-   * توحيد رقم الهاتف: دعم +966، 966، 05، 5 (سعودي) و +967، 967 (يمني)
+   * توحيد رقم الهاتف: دعم +967، 967، 7XXXXXXXX (يمني)
    */
   const normalizePhoneNumber = (phone: string): string | null => {
     if (!phone || typeof phone !== "string") return null;
     const digits = phone.replace(/\D/g, "").replace(/^0+/, "");
     if (digits.length < 8) return null;
-    // سعودي: 966 أو 5XXXXXXXX
-    if (/^966\d{9}$/.test(digits)) return `+${digits}`;
-    if (/^5\d{8}$/.test(digits)) return `+966${digits}`;
-    if (/^05\d{8}$/.test(digits)) return `+966${digits.slice(1)}`;
-    // يمني: 967 أو 7XXXXXXXX
     if (/^967\d{8,}$/.test(digits)) return `+${digits}`;
     if (/^7\d{8}$/.test(digits)) return `+967${digits}`;
     if (/^0\d{8,}$/.test(digits)) return `+967${digits.slice(1)}`;
-    // غير ذلك: نعيد كما هو مع +
     if (digits.length >= 9) return `+${digits}`;
     return null;
   };

@@ -325,7 +325,7 @@ const MaaroufEditScreen = () => {
               onChangeText={(value) =>
                 updateFormData('metadata', { ...formData.metadata, location: value })
               }
-              placeholder="الموقع (مثال: النرجس، الروضة)"
+              placeholder="الموقع (مثال: صنعاء، حدة)"
               placeholderTextColor={COLORS.textLight}
             />
 

@@ -9,7 +9,8 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
-import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect, useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -106,6 +107,45 @@ const AmaniEditScreen = () => {
   const setLocation = (type: 'origin' | 'destination', location: AmaniLocation) => {
     updateFormData(type, location);
   };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      let mounted = true;
+      (async () => {
+        try {
+          const originRaw = await AsyncStorage.getItem("amani_origin");
+          if (mounted && originRaw) {
+            const payload = JSON.parse(originRaw) as { lat: number; lng: number; address?: string };
+            setFormData((prev) => ({
+              ...prev,
+              origin: {
+                lat: payload.lat,
+                lng: payload.lng,
+                address: payload.address || `إحداثيات: ${payload.lat.toFixed(5)}, ${payload.lng.toFixed(5)}`,
+              },
+            }));
+            await AsyncStorage.removeItem("amani_origin");
+          }
+          const destRaw = await AsyncStorage.getItem("amani_destination");
+          if (mounted && destRaw) {
+            const payload = JSON.parse(destRaw) as { lat: number; lng: number; address?: string };
+            setFormData((prev) => ({
+              ...prev,
+              destination: {
+                lat: payload.lat,
+                lng: payload.lng,
+                address: payload.address || `إحداثيات: ${payload.lat.toFixed(5)}, ${payload.lng.toFixed(5)}`,
+              },
+            }));
+            await AsyncStorage.removeItem("amani_destination");
+          }
+        } catch {
+          // ignore
+        }
+      })();
+      return () => { mounted = false; };
+    }, [])
+  );
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -236,10 +276,12 @@ const AmaniEditScreen = () => {
                 <Text style={styles.locationText}>{formData.origin.address}</Text>
                 <TouchableOpacity
                   style={styles.editLocationButton}
-                  onPress={() => {
-                    // TODO: Navigate to location picker
-                    Alert.alert('قريباً', 'سيتم إضافة ميزة اختيار الموقع قريباً');
-                  }}
+                  onPress={() =>
+                    navigation.navigate("SelectLocation", {
+                      storageKey: "amani_origin",
+                      title: "موقع الانطلاق",
+                    })
+                  }
                 >
                   <Ionicons name="pencil" size={16} color={COLORS.primary} />
                 </TouchableOpacity>
@@ -247,10 +289,12 @@ const AmaniEditScreen = () => {
             ) : (
               <TouchableOpacity
                 style={styles.locationPicker}
-                onPress={() => {
-                  // TODO: Navigate to location picker
-                  Alert.alert('قريباً', 'سيتم إضافة ميزة اختيار الموقع قريباً');
-                }}
+                onPress={() =>
+                  navigation.navigate("SelectLocation", {
+                    storageKey: "amani_origin",
+                    title: "موقع الانطلاق",
+                  })
+                }
               >
                 <Ionicons name="location-outline" size={24} color={COLORS.primary} />
                 <Text style={styles.locationPickerText}>اختر موقع الانطلاق</Text>
@@ -267,10 +311,12 @@ const AmaniEditScreen = () => {
                 <Text style={styles.locationText}>{formData.destination.address}</Text>
                 <TouchableOpacity
                   style={styles.editLocationButton}
-                  onPress={() => {
-                    // TODO: Navigate to location picker
-                    Alert.alert('قريباً', 'سيتم إضافة ميزة اختيار الموقع قريباً');
-                  }}
+                  onPress={() =>
+                    navigation.navigate("SelectLocation", {
+                      storageKey: "amani_destination",
+                      title: "الوجهة",
+                    })
+                  }
                 >
                   <Ionicons name="pencil" size={16} color={COLORS.primary} />
                 </TouchableOpacity>
@@ -278,10 +324,12 @@ const AmaniEditScreen = () => {
             ) : (
               <TouchableOpacity
                 style={styles.locationPicker}
-                onPress={() => {
-                  // TODO: Navigate to location picker
-                  Alert.alert('قريباً', 'سيتم إضافة ميزة اختيار الموقع قريباً');
-                }}
+                onPress={() =>
+                  navigation.navigate("SelectLocation", {
+                    storageKey: "amani_destination",
+                    title: "الوجهة",
+                  })
+                }
               >
                 <Ionicons name="navigate-outline" size={24} color={COLORS.success} />
                 <Text style={styles.locationPickerText}>اختر الوجهة</Text>
@@ -382,12 +430,14 @@ const styles = StyleSheet.create({
     marginTop: 16,
     fontSize: 16,
     color: COLORS.textLight,
+    fontFamily: 'Cairo-Regular',
   },
   errorText: {
     fontSize: 16,
     color: COLORS.danger,
     textAlign: 'center',
     marginTop: 16,
+    fontFamily: 'Cairo-Regular',
   },
   header: {
     flexDirection: 'row',
@@ -407,6 +457,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: COLORS.text,
     textAlign: 'center',
+    fontFamily: 'Cairo-SemiBold',
   },
   headerSpacer: {
     width: 40,
@@ -425,6 +476,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: COLORS.text,
     marginBottom: 12,
+    fontFamily: 'Cairo-SemiBold',
   },
   statusSelector: {
     flexDirection: 'row',
@@ -446,9 +498,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
     color: COLORS.text,
+    fontFamily: 'Cairo-Regular',
   },
   statusOptionTextSelected: {
     fontWeight: '600',
+    fontFamily: 'Cairo-SemiBold',
   },
   textInput: {
     borderWidth: 1,
@@ -460,6 +514,7 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     backgroundColor: COLORS.white,
     marginBottom: 8,
+    fontFamily: 'Cairo-Regular',
   },
   textArea: {
     height: 80,
@@ -481,6 +536,7 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     marginLeft: 12,
     fontWeight: '500',
+    fontFamily: 'Cairo-SemiBold',
   },
   locationDisplay: {
     flexDirection: 'row',
@@ -494,6 +550,7 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     marginLeft: 8,
     flex: 1,
+    fontFamily: 'Cairo-Regular',
   },
   editLocationButton: {
     padding: 4,
@@ -519,6 +576,7 @@ const styles = StyleSheet.create({
   checkboxText: {
     fontSize: 16,
     color: COLORS.text,
+    fontFamily: 'Cairo-Regular',
   },
   footer: {
     padding: 16,
@@ -542,6 +600,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginLeft: 8,
+    fontFamily: 'Cairo-SemiBold',
   },
 });
 

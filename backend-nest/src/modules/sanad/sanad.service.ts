@@ -128,7 +128,7 @@ export class SanadService {
     return { items, nextCursor };
   }
 
-  async search(query: string, kind?: SanadKind, opts: { cursor?: string } = {}) {
+  async search(query: string, kind?: SanadKind, opts: { cursor?: string; ownerId?: string } = {}) {
     const limit = 25;
     const searchQuery: any = {
       $or: [
@@ -139,6 +139,10 @@ export class SanadService {
 
     if (kind) {
       searchQuery.kind = kind;
+    }
+
+    if (opts?.ownerId) {
+      searchQuery.ownerId = opts.ownerId;
     }
 
     const mongoQuery = this.model.find(searchQuery).sort({ _id: -1 }).limit(limit);

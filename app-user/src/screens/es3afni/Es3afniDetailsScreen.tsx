@@ -143,11 +143,28 @@ const Es3afniDetailsScreen = () => {
     }
   };
 
-  const handleCall = () => {
-    if (!item?.metadata?.contact) return;
+  /**
+   * توحيد رقم الهاتف: دعم +967، 967، 7XXXXXXXX (يمني)
+   */
+  const normalizePhoneNumber = (phone: string): string | null => {
+    if (!phone || typeof phone !== "string") return null;
+    const digits = phone.replace(/\D/g, "").replace(/^0+/, "");
+    if (digits.length < 8) return null;
+    if (/^967\d{8,}$/.test(digits)) return `+${digits}`;
+    if (/^7\d{8}$/.test(digits)) return `+967${digits}`;
+    if (/^0\d{8,}$/.test(digits)) return `+967${digits.slice(1)}`;
+    if (digits.length >= 9) return `+${digits}`;
+    return null;
+  };
 
-    const phoneNumber = item.metadata.contact.replace(/\D/g, '');
-    const url = `tel:+966${phoneNumber}`;
+  const handleCall = () => {
+    const raw = item?.metadata?.contact;
+    if (!raw) return;
+
+    const normalized = normalizePhoneNumber(raw);
+    if (!normalized) return;
+
+    const url = `tel:${normalized}`;
 
     Linking.canOpenURL(url)
       .then((supported) => {

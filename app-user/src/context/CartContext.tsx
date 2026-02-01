@@ -162,8 +162,9 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   }, [authReady, isLoggedIn, lastAuthChangeTs]);
 
   const addToCart = async (item: CartItem, qty = 1): Promise<boolean> => {
-    const cartId = await getOrCreateCartId();
     const userId = await AsyncStorage.getItem("userId");
+    if (!userId?.trim()) return false;
+    const cartId = await getOrCreateCartId();
     if (!item.storeId || !item.id) return false;
 
     // ✅ منع الخلط محليًا بدون ريكوست

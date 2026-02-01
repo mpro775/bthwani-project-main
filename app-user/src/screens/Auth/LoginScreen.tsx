@@ -245,6 +245,7 @@ const LoginScreen = () => {
         navigation.replace("OTPVerification", {
           email: me.email || email,
           userId: String(userId),
+          skipAutoSend: true,
         });
         return;
       }
