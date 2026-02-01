@@ -4,12 +4,7 @@ import type { ApiResponse } from "../types/api";
 
 // قراءة متغير البيئة أو استخدام قيمة افتراضية
 const getBaseURL = () => {
-  // في التطوير: استخدم متغير البيئة أو localhost
-  if (import.meta.env.DEV) {
-    return import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
-  }
-  // في الإنتاج: استخدم متغير البيئة أو قيمة ثابتة آمنة
-  return import.meta.env.VITE_API_URL || "https://api-bthwani.smartagency-ye.com/api/v1";
+  "https://api-bthwani.smartagency-ye.com/api/v1";
 };
 
 // Axios instance
