@@ -68,18 +68,17 @@ export default function GroceriesCatalogPage() {
 
   // لجلب التصنيفات والسمات
   const fetchCategories = async () => {
-    const data = await merchantApi.getCategories();
-    setCategories(data);
+    const data = await merchantApi.getCategories(undefined, "grocery");
+    setCategories(Array.isArray(data) ? data : []);
   };
   const fetchAttributes = async (catId?: string) => {
     if (!catId) return setAttributes([]);
     const data = await merchantApi.getAttributesByCategory(catId);
-    setAttributes(data);
+    setAttributes(Array.isArray(data) ? data : []);
   };
   const fetchProducts = async () => {
-    // في حال دعم الAPI للفلترة
     const data = await merchantApi.getCatalogProducts('grocery');
-    setProducts(data);
+    setProducts(Array.isArray(data) ? data : []);
   };
 
   useEffect(() => {

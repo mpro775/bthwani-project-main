@@ -56,12 +56,12 @@ export default function GroceriesAttributesPage() {
   // جلب التصنيفات (مطلوب لربط السمة بتصنيف)
   const fetchCategories = async () => {
     const data = await merchantApi.getCategories();
-    setCategories(data);
+    setCategories(Array.isArray(data) ? data : []);
   };
 
   const fetchAttributes = async () => {
     const data = await merchantApi.getAttributes();
-    setAttributes(data);
+    setAttributes(Array.isArray(data) ? data : []);
   };
 
   useEffect(() => {

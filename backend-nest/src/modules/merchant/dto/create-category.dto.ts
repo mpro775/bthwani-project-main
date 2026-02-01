@@ -41,6 +41,14 @@ export class CreateMerchantCategoryDto {
   @IsArray()
   @IsString({ each: true })
   tags?: string[];
+
+  @IsOptional()
+  @IsString()
+  slug?: string;
+
+  @IsOptional()
+  @IsString()
+  usageType?: string;
 }
 
 export class UpdateMerchantCategoryDto {
@@ -50,7 +58,23 @@ export class UpdateMerchantCategoryDto {
 
   @IsOptional()
   @IsString()
+  nameAr?: string;
+
+  @IsOptional()
+  @IsString()
   description?: string;
+
+  @IsOptional()
+  @IsString()
+  image?: string;
+
+  @IsOptional()
+  @IsString()
+  slug?: string;
+
+  @IsOptional()
+  @IsString()
+  usageType?: string;
 
   @IsOptional()
   @IsBoolean()

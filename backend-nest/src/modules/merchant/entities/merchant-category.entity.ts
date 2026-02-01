@@ -33,6 +33,12 @@ export class MerchantCategory extends Document {
   @Prop({ type: [String], default: [] })
   tags?: string[];
 
+  @Prop()
+  slug?: string;
+
+  @Prop()
+  usageType?: string; // e.g. grocery, restaurant, retail
+
   @Prop({ default: 0 })
   productsCount?: number; // عدد المنتجات في هذه الفئة
 }
@@ -45,3 +51,4 @@ MerchantCategorySchema.index({ name: 1 });
 MerchantCategorySchema.index({ parent: 1 });
 MerchantCategorySchema.index({ level: 1, order: 1 });
 MerchantCategorySchema.index({ isActive: 1 });
+MerchantCategorySchema.index({ usageType: 1 });
