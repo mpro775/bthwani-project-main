@@ -9,6 +9,8 @@ import { Order, OrderSchema } from './entities/order.entity';
 import { Driver, DriverSchema } from '../driver/entities/driver.entity';
 import { GatewaysModule } from '../../gateways/gateways.module';
 import { WalletModule } from '../wallet/wallet.module';
+import { CartModule } from '../cart/cart.module';
+import { UserModule } from '../user/user.module';
 
 // CQRS - Commands & Queries
 import { OrderCommandHandlers } from './commands/handlers';
@@ -26,6 +28,8 @@ import { OrderOwnerGuard, OrderDriverGuard } from './guards';
     GatewaysModule, // للـ WebSocket events
     JwtModule.register({}),
     forwardRef(() => WalletModule), // ✅ ربط مع WalletModule
+    CartModule,
+    UserModule,
   ],
   controllers: [
     OrderController, // Traditional REST

@@ -61,12 +61,20 @@ const normalizeItems = (raw: any[]): CartItem[] =>
     };
   });
 
+/** نتيجة إضافة للسلة — لاستخدام رسالة مناسبة عند الفشل */
+export type AddToCartResult =
+  | { success: true }
+  | {
+      success: false;
+      reason: "auth" | "store_conflict" | "validation" | "api_error";
+    };
+
 type CartContextType = {
   items: CartItem[];
   totalPrice: number;
   totalQuantity: number;
   activeStoreId: string | null;
-  addToCart: (item: CartItem, qty?: number) => Promise<boolean>;
+  addToCart: (item: CartItem, qty?: number) => Promise<AddToCartResult>;
   updateQuantity: (
     id: string,
     storeId: string,
@@ -161,15 +169,20 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     })();
   }, [authReady, isLoggedIn, lastAuthChangeTs]);
 
-  const addToCart = async (item: CartItem, qty = 1): Promise<boolean> => {
+  const addToCart = async (
+    item: CartItem,
+    qty = 1
+  ): Promise<AddToCartResult> => {
     const userId = await AsyncStorage.getItem("userId");
-    if (!userId?.trim()) return false;
+    if (!userId?.trim())
+      return { success: false, reason: "auth" };
     const cartId = await getOrCreateCartId();
-    if (!item.storeId || !item.id) return false;
+    if (!item.storeId || !item.id)
+      return { success: false, reason: "validation" };
 
     // ✅ منع الخلط محليًا بدون ريكوست
     if (activeStoreId && activeStoreId !== item.storeId) {
-      return false;
+      return { success: false, reason: "store_conflict" };
     }
 
     const quantity = Number.isFinite(qty as any)
@@ -198,22 +211,21 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       });
       const raw = extractItems(res);
       setItems(normalizeItems(raw));
-      return true;
+      return { success: true };
     } catch (err) {
       if (axios.isAxiosError(err)) {
         const st = err.response?.status;
         const code = (err.response?.data as any)?.code;
 
         if (st === 409 && code === "CART_STORE_TOO_FAR") {
-          // المتجر بعيد عن الموجودين بالسلة
-          return false; // خلّي الشاشة تقرر تعرض توست/مودال
+          return { success: false, reason: "store_conflict" };
         }
         if (st === 401 || st === 404) {
-          const userId = await AsyncStorage.getItem("userId");
-          await loadCart(userId || undefined);
+          const uid = await AsyncStorage.getItem("userId");
+          await loadCart(uid || undefined);
         }
       }
-      return false;
+      return { success: false, reason: "api_error" };
     }
   };
 

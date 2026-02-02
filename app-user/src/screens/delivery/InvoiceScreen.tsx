@@ -217,7 +217,7 @@ const InvoiceScreen = () => {
         captainTip, // إذا السيرفر يدعمه مباشرة
       };
 
-      const response = await axiosInstance.post("/delivery/order", payload);
+      const response = await axiosInstance.post("/delivery/order/from-cart", payload);
 
       clearCart();
       await track({

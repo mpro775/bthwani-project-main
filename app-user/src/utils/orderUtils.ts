@@ -63,6 +63,13 @@ const translateStatus = (status: string) => {
       return "مرتجع";
     case "cancelled":
       return "ملغي";
+    // حالات اخدمني (errand)
+    case "driver_enroute_pickup":
+      return "السائق في الطريق للاستلام";
+    case "picked_up":
+      return "تم الاستلام";
+    case "driver_enroute_dropoff":
+      return "في الطريق للتوصيل";
     // حالات الشراء بالإنابة (SHEIN)
     case "awaiting_procurement":
       return "بانتظار الشراء";

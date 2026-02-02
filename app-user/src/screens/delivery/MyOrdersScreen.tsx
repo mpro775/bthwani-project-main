@@ -21,7 +21,7 @@ import {
 } from "react-native";
 import io from "socket.io-client";
 
-import { fetchMyOrders, fetchUserProfile } from "@/api/userApi";
+import { fetchAllMyOrders, fetchUserProfile } from "@/api/userApi";
 import COLORS from "@/constants/colors";
 import { Order, mapOrder } from "@/utils/orderUtils";
 import ScreenStateBoundary from "@/components/ui/ScreenStateBoundary";
@@ -164,8 +164,8 @@ const MyOrdersScreen = () => {
       setError(null);
       const user = await fetchUserProfile();
       setProfileVerified(!!user.isVerified); // تحديث حالة التوثيق
-      const raw = await fetchMyOrders(user._id);
-      setOrders((raw || []).map(mapOrder));
+      const raw = await fetchAllMyOrders(user._id);
+      setOrders(raw || []);
     } catch (e) {
       setError("فشل في تحميل الطلبات");
       console.error("Error loading orders:", e);

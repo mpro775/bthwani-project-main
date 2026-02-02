@@ -598,7 +598,7 @@ export default function BusinessDetailsScreen() {
                   : "restaurant"
               }
               onAdd={async (product: Product, qty: number) => {
-                const success = await addToCart({
+                const result = await addToCart({
                   id: product.id,
                   productId: product.id,
                   name: product.name,
@@ -617,16 +617,21 @@ export default function BusinessDetailsScreen() {
                       ? "deliveryProduct"
                       : "restaurantProduct",
                 });
-                if (success) {
+                if (result.success) {
                   Alert.alert(
                     "✅ تمت الإضافة",
                     "تمت إضافة المنتج إلى السلة بنجاح"
                   );
                 } else {
-                  Alert.alert(
-                    "⚠️ تعارض في السلة",
-                    "لا يمكنك خلط منتجات من متاجر مختلفة"
-                  );
+                  const msg =
+                    result.reason === "auth"
+                      ? { title: "تسجيل الدخول", body: "يجب تسجيل الدخول لإضافة المنتج إلى السلة" }
+                      : result.reason === "store_conflict"
+                        ? { title: "⚠️ تعارض في السلة", body: "لا يمكنك خلط منتجات من متاجر مختلفة" }
+                        : result.reason === "validation"
+                          ? { title: "تنبيه", body: "بيانات المنتج أو المتجر ناقصة" }
+                          : { title: "تعذر الإضافة", body: "تحقق من الاتصال وحاول مرة أخرى" };
+                  Alert.alert(msg.title, msg.body);
                 }
               }}
             />

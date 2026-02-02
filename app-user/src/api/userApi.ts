@@ -1,6 +1,8 @@
 import axiosInstance from "../utils/api/axiosInstance";
 import { mapOrder } from "../utils/orderUtils";
 import { refreshIdToken } from "./authService";
+import { getUtilityOrders } from "./utilityApi";
+import { getMyErrands } from "./akhdimniApi";
 
 const getAuthHeaders = async () => {
   try {
@@ -90,6 +92,50 @@ export const fetchMyOrders = async (userId: string) => {
   });
   const data = res.data?.data || res.data || [];
   return data.map(mapOrder); // mapOrder كما عرفته
+};
+
+/**
+ * جلب كل الطلبات الموحدة: ديلفري + غاز/وايت + اخدمني، مرتبة حسب التاريخ.
+ */
+export const fetchAllMyOrders = async (userId: string) => {
+  const headers = await getAuthHeaders();
+  const [deliveryRes, utilityList, errandList] = await Promise.all([
+    axiosInstance.get(`/delivery/order/user/${userId}`, { headers }).catch(() => ({ data: [] })),
+    getUtilityOrders().catch(() => []),
+    getMyErrands().catch(() => []),
+  ]);
+  const deliveryData = deliveryRes?.data?.data ?? deliveryRes?.data ?? [];
+  const delivery = Array.isArray(deliveryData) ? deliveryData : [];
+  const deliveryOrders = delivery.map((o: any) => ({ ...o, orderType: o.orderType ?? "marketplace" }));
+  const utilityOrders = (Array.isArray(utilityList) ? utilityList : []).map((o: any) => ({
+    ...o,
+    orderType: "utility",
+    utility: {
+      kind: o.kind,
+      variant: o.variant,
+      quantity: o.quantity,
+      city: o.city,
+      unitPrice: o.productPrice,
+      subtotal: o.total != null ? o.total - (o.deliveryFee ?? 0) : undefined,
+    },
+  }));
+  const errandOrders = (Array.isArray(errandList) ? errandList : []).map((o: any) => ({
+    ...o,
+    orderType: "errand",
+    errand: {
+      pickup: o.pickup,
+      dropoff: o.dropoff,
+      deliveryFee: o.deliveryFee,
+    },
+  }));
+  const merged = [...deliveryOrders, ...utilityOrders, ...errandOrders];
+  const byDate = (a: any, b: any) => {
+    const da = new Date(a.createdAt ?? a.date ?? 0).getTime();
+    const db = new Date(b.createdAt ?? b.date ?? 0).getTime();
+    return db - da;
+  };
+  merged.sort(byDate);
+  return merged.map(mapOrder);
 };
 export const updateUserAvatar = async (imageUrl: string) => {
   const headers = await getAuthHeaders();
