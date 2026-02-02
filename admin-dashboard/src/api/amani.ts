@@ -75,3 +75,21 @@ export const deleteAmani = async (id: string): Promise<void> => {
     throw error;
   }
 };
+
+// إعدادات أسعار أماني
+export interface AmaniPricingSettings {
+  baseFee: number;
+  perKm: number;
+}
+
+export const getAmaniPricing = async (): Promise<AmaniPricingSettings> => {
+  const response = await api.get('/admin/amani/pricing');
+  return response.data;
+};
+
+export const updateAmaniPricing = async (
+  settings: AmaniPricingSettings
+): Promise<AmaniPricingSettings> => {
+  const response = await api.patch('/admin/amani/pricing', settings);
+  return response.data;
+};

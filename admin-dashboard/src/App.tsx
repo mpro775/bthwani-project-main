@@ -177,6 +177,7 @@ import ErrandDetailsPage from "./pages/akhdimni/ErrandDetailsPage";
 // ==================== AMANI ====================
 import AmaniListPage from "./pages/admin/amani/AmaniListPage";
 import AmaniDetailsPage from "./pages/admin/amani/AmaniDetailsPage";
+import AmaniPricingPage from "./pages/admin/amani/AmaniPricingPage";
 
 // ==================== ARABON ====================
 import ArabonListPage from "./pages/admin/arabon/ArabonListPage";
@@ -459,6 +460,7 @@ export default function App() {
 
         {/* ==================== AMANI ==================== */}
         <Route path="amani" element={<AmaniListPage />} />
+        <Route path="amani/pricing" element={<AmaniPricingPage />} />
         <Route path="amani/:id" element={<AmaniDetailsPage />} />
 
         {/* ==================== ARABON ==================== */}

@@ -3,6 +3,7 @@ import type { Model } from 'mongoose';
 import { Types } from 'mongoose';
 import { Amani, AmaniStatus } from './entities/amani.entity';
 import { Driver } from '../driver/entities/driver.entity';
+import { AppSettings } from '../admin/entities/app-settings.entity';
 import type CreateAmaniDto from './dto/create-amani.dto';
 import type UpdateAmaniDto from './dto/update-amani.dto';
 import AssignDriverDto from './dto/assign-driver.dto';
@@ -14,23 +15,35 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AmaniDriverAssignedEvent } from './events/amani-driver-assigned.event';
 import { AmaniStatusChangedEvent } from './events/amani-status-changed.event';
 
+const DEFAULT_BASE_FEE = 250;
+const DEFAULT_PER_KM = 120;
+
 @Injectable()
 export class AmaniService {
   constructor(
     @InjectModel(Amani.name) private readonly model: Model<Amani>,
     @InjectModel(Driver.name) private readonly driverModel: Model<Driver>,
+    @InjectModel(AppSettings.name) private readonly settingsModel: Model<AppSettings>,
     private eventEmitter: EventEmitter2,
   ) {} 
 
   async create(dto: CreateAmaniDto) {
-    const doc = new this.model({
+    const payload: Record<string, unknown> = {
       ...dto,
       statusHistory: [{
         status: dto.status || AmaniStatus.DRAFT,
         timestamp: new Date(),
         note: 'تم إنشاء الطلب',
       }],
-    });
+    };
+    if (dto.origin?.lat != null && dto.origin?.lng != null && dto.destination?.lat != null && dto.destination?.lng != null) {
+      const feeResult = await this.calculateFee(
+        { lat: dto.origin.lat, lng: dto.origin.lng },
+        { lat: dto.destination.lat, lng: dto.destination.lng },
+      );
+      payload.estimatedPrice = feeResult.estimatedPrice;
+    }
+    const doc = new this.model(payload);
     return await doc.save();
   }
 
@@ -271,6 +284,77 @@ export class AmaniService {
     });
 
     return await amani.save();
+  }
+
+  /**
+   * الحصول على إعدادات أسعار أماني
+   */
+  async getPricingSettings(): Promise<{ baseFee: number; perKm: number }> {
+    const [baseFeeSetting, perKmSetting] = await Promise.all([
+      this.settingsModel.findOne({ key: 'amani_base_fee' }).lean().exec(),
+      this.settingsModel.findOne({ key: 'amani_per_km' }).lean().exec(),
+    ]);
+    const baseFee = baseFeeSetting?.value != null ? Number(baseFeeSetting.value) : DEFAULT_BASE_FEE;
+    const perKm = perKmSetting?.value != null ? Number(perKmSetting.value) : DEFAULT_PER_KM;
+    return { baseFee, perKm };
+  }
+
+  /**
+   * تحديث إعدادات أسعار أماني
+   */
+  async updatePricingSettings(dto: { baseFee: number; perKm: number }, adminId?: string): Promise<{ baseFee: number; perKm: number }> {
+    const updateBy = adminId ? new Types.ObjectId(adminId) : undefined;
+    await Promise.all([
+      this.settingsModel.findOneAndUpdate(
+        { key: 'amani_base_fee' },
+        {
+          key: 'amani_base_fee',
+          value: dto.baseFee,
+          type: 'number',
+          category: 'amani',
+          description: 'رسوم أماني الأساسية بالريال',
+          isPublic: false,
+          updatedBy: updateBy,
+        },
+        { upsert: true, new: true },
+      ).exec(),
+      this.settingsModel.findOneAndUpdate(
+        { key: 'amani_per_km' },
+        {
+          key: 'amani_per_km',
+          value: dto.perKm,
+          type: 'number',
+          category: 'amani',
+          description: 'سعر الكيلومتر لأماني بالريال',
+          isPublic: false,
+          updatedBy: updateBy,
+        },
+        { upsert: true, new: true },
+      ).exec(),
+    ]);
+    return { baseFee: dto.baseFee, perKm: dto.perKm };
+  }
+
+  /**
+   * حساب رسوم التوصيل بناءً على المسافة
+   */
+  async calculateFee(
+    origin: { lat: number; lng: number },
+    destination: { lat: number; lng: number },
+  ): Promise<{ distanceKm: number; estimatedPrice: number; breakdown: { baseFee: number; distanceFee: number } }> {
+    const { baseFee, perKm } = await this.getPricingSettings();
+    const distanceMeters = getDistance(
+      { latitude: origin.lat, longitude: origin.lng },
+      { latitude: destination.lat, longitude: destination.lng },
+    );
+    const distanceKm = Math.round((distanceMeters / 1000) * 100) / 100;
+    const distanceFee = Math.round(distanceKm * perKm);
+    const estimatedPrice = Math.round(baseFee + distanceFee);
+    return {
+      distanceKm,
+      estimatedPrice,
+      breakdown: { baseFee, distanceFee },
+    };
   }
 
   /**
