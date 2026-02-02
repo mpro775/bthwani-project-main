@@ -1,4 +1,4 @@
-import  { useState } from "react";
+import { useState } from "react";
 import {
   AppBar,
   Toolbar,
@@ -20,7 +20,10 @@ import {
   Logout as LogoutIcon,
   Settings as SettingsIcon,
   Person as PersonIcon,
+  DarkMode as DarkModeIcon,
+  LightMode as LightModeIcon,
 } from "@mui/icons-material";
+import { useThemeMode } from "../context/ThemeModeContext";
 
 type TopBarProps = {
   onToggleDrawer: () => void;
@@ -30,6 +33,7 @@ const Offset = styled("div")(({ theme }) => theme.mixins.toolbar);
 
 export default function TopBar({ onToggleDrawer }: TopBarProps) {
   const theme = useTheme();
+  const { mode, toggleMode } = useThemeMode();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -61,6 +65,14 @@ export default function TopBar({ onToggleDrawer }: TopBarProps) {
           </Box>
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <IconButton
+              size="large"
+              color="inherit"
+              onClick={toggleMode}
+              aria-label={mode === "light" ? "تفعيل الوضع الداكن" : "تفعيل الوضع الفاتح"}
+            >
+              {mode === "light" ? <DarkModeIcon /> : <LightModeIcon />}
+            </IconButton>
             <IconButton size="large" color="inherit">
               <Badge badgeContent={4} color="error">
                 <NotificationsIcon />

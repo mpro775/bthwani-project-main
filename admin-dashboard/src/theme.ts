@@ -1,5 +1,5 @@
 // src/theme.ts
-import { createTheme } from "@mui/material/styles";
+import { createTheme, type PaletteMode } from "@mui/material/styles";
 import { red, grey } from "@mui/material/colors";
 import { prefixer } from "stylis";
 import rtlPlugin from "stylis-plugin-rtl";
@@ -23,70 +23,72 @@ export const COLORS = {
   success: "#4CAF50",
   white: "#FFFFFF",
 };
+
 export const cacheRtl = createCache({
   key: "muirtl",
   stylisPlugins: [prefixer, rtlPlugin],
 });
 
-const theme = createTheme({
-  direction: "rtl",
-
-  palette: {
-    primary: {
-      main: COLORS.primary,
-      dark: COLORS.blue,
+export function createAppTheme(mode: PaletteMode) {
+  const isDark = mode === "dark";
+  return createTheme({
+    direction: "rtl",
+    palette: {
+      mode,
+      primary: {
+        main: COLORS.primary,
+        dark: COLORS.blue,
+      },
+      secondary: {
+        main: COLORS.secondary,
+      },
+      error: {
+        main: red.A400,
+      },
+      warning: {
+        main: COLORS.accent,
+      },
+      info: {
+        main: grey[500],
+      },
+      success: {
+        main: COLORS.success,
+      },
+      background: {
+        default: isDark ? "#121212" : COLORS.background,
+        paper: isDark ? "#1e1e1e" : COLORS.white,
+      },
+      text: {
+        primary: isDark ? "#ffffff" : COLORS.text,
+        secondary: isDark ? "rgba(255, 255, 255, 0.7)" : COLORS.lightText,
+      },
     },
-    secondary: {
-      main: COLORS.secondary,
+    typography: {
+      fontFamily: `"Cairo", sans-serif`,
+      h1: { fontFamily: `"Cairo", sans-serif` },
+      h2: { fontFamily: `"Cairo", sans-serif` },
+      h3: { fontFamily: `"Cairo", sans-serif` },
+      h4: { fontFamily: `"Cairo", sans-serif` },
+      h5: { fontFamily: `"Cairo", sans-serif` },
+      h6: { fontFamily: `"Cairo", sans-serif` },
+      button: { textTransform: "none" }, // لإلغاء تحويل الحروف الكبيرة
     },
-    error: {
-      main: red.A400,
-    },
-    warning: {
-      main: COLORS.accent,
-    },
-    info: {
-      main: grey[500],
-    },
-    success: {
-      main: COLORS.success,
-    },
-    background: {
-      default: COLORS.background,
-      paper: COLORS.white,
-    },
-    text: {
-      primary: COLORS.text,
-      secondary: COLORS.lightText,
-    },
-  },
-  typography: {
-    fontFamily: `"Cairo", sans-serif`,
-    h1: { fontFamily: `"Cairo", sans-serif` },
-    h2: { fontFamily: `"Cairo", sans-serif` },
-    h3: { fontFamily: `"Cairo", sans-serif` },
-    h4: { fontFamily: `"Cairo", sans-serif` },
-    h5: { fontFamily: `"Cairo", sans-serif` },
-    h6: { fontFamily: `"Cairo", sans-serif` },
-    button: { textTransform: "none" }, // لإلغاء تحويل الحروف الكبيرة
-  },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          borderRadius: 8,
+    components: {
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            borderRadius: 8,
+          },
+        },
+      },
+      MuiPaper: {
+        styleOverrides: {
+          root: {},
         },
       },
     },
-    MuiPaper: {
-      styleOverrides: {
-        root: {
-          backgroundColor: COLORS.white,
-        },
-      },
-    },
-    // ... يمكنك إضافة تخصيصات أخرى هنا
-  },
-});
+  });
+}
 
-export default theme;
+// للتوافق مع الاستيراد الافتراضي
+export default createAppTheme("light");
