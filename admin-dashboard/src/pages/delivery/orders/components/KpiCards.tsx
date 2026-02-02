@@ -85,7 +85,7 @@ export default function KpiCards({ rows }: { rows: OrderRow[] }) {
               background: `linear-gradient(135deg, ${alpha(
                 theme.palette[c.color].main,
                 0.06
-              )} 0%, rgba(255,255,255,0.9) 100%)`,
+              )} 0%, ${theme.palette.background.paper} 100%)`,
               display: "flex",
               flexDirection: "column",
               gap: 1,

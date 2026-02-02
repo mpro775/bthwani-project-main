@@ -48,7 +48,7 @@ const SidebarContainer = styled("div")(({ theme }) => ({
   maxWidth: drawerWidth,
 
   height: "100vh",
-  backgroundColor: "#ffffff",
+  backgroundColor: theme.palette.background.paper,
   color: theme.palette.text.primary,
   display: "flex",
   flexDirection: "column",
@@ -181,26 +181,34 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
     group(" لوحة الإدارة العامة", <DashboardIcon />, [
       link("/admin/overview", "لوحة الإدارة العامة", <DashboardIcon />),
       link("/admin/analytics", "التحليلات", <InsightsIcon />),
+      link("/admin/analytics/roas", "ROAS", <InsightsIcon />),
+      link("/admin/analytics/kpis", "KPIs", <AssessmentIcon />),
+      link("/admin/analytics/advanced", "تحليلات متقدمة", <InsightsIcon />),
+      link("/admin/analytics/funnel", "مسار التحويل", <InsightsIcon />),
+      link("/admin/analytics/users", "تحليلات المستخدمين", <UsersIcon />),
+      link("/admin/analytics/revenue", "الإيرادات", <TrendingUpIcon />),
     ]),
 
     // ==================== ADMIN MANAGEMENT ====================
     group(" إدارة المشرفين", <GroupAddIcon />, [
       link("/admin/admins", "قائمة المشرفين", <GroupAddIcon />),
+      link("/admin/admins/new", "إضافة مشرف جديد", <GroupAddIcon />),
     ]),
 
     // ==================== DELIVERY SYSTEM ====================
     group(" نظام التوصيل", <DeliveryStoreIcon />, [
       group("إدارة المتاجر", <DeliveryStoreIcon />, [
         link("/admin/stores", "جميع المتاجر", <DeliveryStoreIcon />),
+        link("/admin/stores/moderation", "مراجعة المتاجر", <PendingActionsIcon />),
         link("/admin/categories", "التصنيفات", <CategoriesIcon />),
       ]),
       group("إدارة الطلبات", <ReceiptLongIcon />, [
         link("/admin/orders", "الطلبات النشطة", <ReceiptLongIcon />),
         link("/admin/carts", "سلات التسوق", <ShoppingCartIcon />),
-        // link("/admin/delivery/stores/:id", "تفاصيل المتجر", <DeliveryStoreIcon />),
       ]),
       group("العروض والتسعير", <LocalOfferIcon />, [
         link("/admin/offers", "إدارة العروض", <LocalOfferIcon />),
+        link("/admin/banners", "البانرات", <LocalOfferIcon />),
         link("/admin/settings/pricing", "إعدادات التسعير", <SettingsIcon />),
       ]),
       group("الخدمات الإضافية", <LocalOfferIcon />, [
@@ -214,14 +222,14 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
       link("/admin/drivers", "قائمة الكباتن", <SportsMotorsportsIcon />),
       group("إدارة الكباتن", <SportsMotorsportsIcon />, [
         link("/admin/drivers/attendance", "الحضور والانصراف", <SportsMotorsportsIcon />),
-        // link("/admin/drivers/shifts", "إدارة الورديات", <SportsMotorsportsIcon />),
-        // link("/admin/drivers/assets", "إدارة الأصول", <SportsMotorsportsIcon />),
+        link("/admin/drivers/shifts", "إدارة الورديات", <SportsMotorsportsIcon />),
+        link("/admin/drivers/assets", "إدارة الأصول", <SportsMotorsportsIcon />),
         link("/admin/drivers/ratings", "التقييمات والمراجعات", <SportsMotorsportsIcon />),
         link("/admin/drivers/leave-requests", "طلبات الإجازات", <SportsMotorsportsIcon />),
       ]),
       group("العمليات", <OperationsIcon />, [
         link("/admin/ops/drivers", "لوحة الكباتن", <DashboardIcon />),
-        // link("/admin/ops/drivers/list", "قائمة الكباتن", <ListIcon />),
+        link("/admin/ops/drivers/list", "قائمة الكباتن", <SportsMotorsportsIcon />),
         link("/admin/ops/drivers/ops", "العمليات اليومية", <OperationsIcon />),
       ]),
     ]),
@@ -230,19 +238,20 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
     group(" إدارة الشركاء", <StorefrontIcon />, [
       link("/admin/vendors", "قائمة الشركاء", <StorefrontIcon />),
       link("/admin/vendors/create", "إضافة شريك جديد", <GroupAddIcon />),
-      // link("/admin/vendors/:id", "تفاصيل الشريك", <StorefrontIcon />),
       link("/admin/vendors/moderation", "مراجعة الشركاء", <PendingActionsIcon />),
-      // link("/admin/vendors/performance", "أداء الشركاء", <AssessmentIcon />),
+      link("/admin/vendors/performance", "أداء الشركاء", <AssessmentIcon />),
     ]),
 
     // ==================== MARKETING ====================
     group(" التسويق والإعلان", <CampaignIcon />, [
       link("/admin/marketing/coupons", "إدارة الكوبونات", <LocalOfferIcon />),
+      link("/admin/marketing/campaigns", "لوحة الحملات", <CampaignIcon />),
       group("التسويق الميداني", <CampaignIcon />, [
         link("/admin/marketing/marketers", "إدارة المسوقين", <GroupAddIcon />),
         link("/admin/ops/activations", "طلبات التفعيل", <PendingActionsIcon />),
         link("/admin/reports/marketers", "تقارير المسوقين", <InsightsIcon />),
-        // link("/admin/commission/plans", "خطط العمولات", <ReceiptLongIcon />),
+        link("/admin/commission/plans", "خطط العمولات", <ReceiptLongIcon />),
+        link("/admin/commission/settings", "إعدادات العمولات", <SettingsIcon />),
       ]),
     ]),
 
@@ -257,25 +266,31 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
     // ==================== USER MANAGEMENT ====================
     group(" إدارة المستخدمين", <UsersIcon />, [
       link("/admin/users", "جميع المستخدمين", <UsersIcon />),
+      link("/admin/users/list", "قائمة المستخدمين", <UsersIcon />),
       link("/admin/users/stats", "إحصائيات المستخدمين", <AssessmentIcon />),
     ]),
 
     // ==================== HR SYSTEM ====================
     group(" الموارد البشرية", <UsersIcon />, [
+      link("/admin/er", "لوحة الموارد البشرية", <DashboardIcon />),
       group("إدارة الموظفين", <UsersIcon />, [
         link("/admin/hr/employees", "قائمة الموظفين", <UsersIcon />),
         link("/admin/hr/attendance", "الحضور والانصراف", <UsersIcon />),
         link("/admin/hr/payroll", "المرتبات والرواتب", <ReceiptLongIcon />),
-        // link("/admin/hr/assets", "أصول الموظفين", <UsersIcon />),
+        link("/admin/hr/assets", "أصول الموظفين", <UsersIcon />),
       ]),
     ]),
 
     // ==================== FINANCE SYSTEM ====================
     group(" النظام المالي", <ReceiptLongIcon />, [
       link("/admin/finance", "لوحة النظام المالي", <DashboardIcon />),
+      link("/admin/finance/new", "لوحة مالية (جديدة)", <DashboardIcon />),
       link("/admin/finance/ledger", "شجرة الحسابات", <ReceiptLongIcon />),
       link("/admin/finance/accounts", "دفتر الأستاذ العام", <ReceiptLongIcon />),
       link("/admin/finance/reports", "التقارير المالية", <AssessmentIcon />),
+      link("/admin/finance/payouts", "دفعات", <ReceiptLongIcon />),
+      link("/admin/finance/reconciliations", "تسويات", <ReceiptLongIcon />),
+      link("/admin/finance/payouts-management", "إدارة الدفعات", <ReceiptLongIcon />),
       group("المحاسبة المتقدمة", <ReceiptLongIcon />, [
         link("/admin/finance/employees", "محاسبة الموظفين", <UsersIcon />),
         link("/admin/finance/attendance", "حضور الموظفين", <UsersIcon />),
@@ -293,6 +308,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
       link("/admin/wallet/withdrawals", "إدارة طلبات السحب", <ReceiptLongIcon />),
       link("/admin/wallet/escrow", "إدارة الحجز", <ReceiptLongIcon />),
       link("/admin/wallet/transactions", "تتبع المعاملات", <AssessmentIcon />),
+      link("/admin/wallet/transactions-tracking", "تتبع المعاملات (إضافي)", <AssessmentIcon />),
       link("/admin/wallet/subscriptions", "إدارة الاشتراكات", <ReceiptLongIcon />),
       link("/admin/wallet/settlements", "التسويات المالية", <ReceiptLongIcon />),
       link("/admin/wallet/coupons", "إدارة الكوبونات", <LocalOfferIcon />),
@@ -301,30 +317,73 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
     // ==================== QUALITY & REVIEWS ====================
     group(" الجودة والتقييمات", <AssessmentIcon />, [
       link("/admin/quality/reviews", "تقييمات العملاء", <AssessmentIcon />),
-      // link("/admin/assets", "إدارة الأصول", <ReceiptLongIcon />),
-      // link("/admin/documents", "إدارة المستندات", <ReceiptLongIcon />),
+      link("/admin/assets", "إدارة الأصول", <ReceiptLongIcon />),
+      link("/admin/documents", "إدارة المستندات", <ReceiptLongIcon />),
     ]),
 
     // ==================== SUPPORT SYSTEM ====================
     group(" خدمة العملاء", <SupportIcon />, [
+      link("/admin/support/dashboard", "لوحة الدعم", <DashboardIcon />),
       link("/admin/support/inbox", "صندوق الوارد", <InboxIcon />),
-      link("/admin/support/ticket/:id", "تذاكر الدعم", <SupportIcon />),
+      link("/admin/support/tickets", "قائمة التذاكر", <SupportIcon />),
       link("/admin/support/reports", "تقارير الدعم", <AssessmentIcon />),
     ]),
 
   
     // ==================== CMS SYSTEM ====================
     group(" نظام إدارة المحتوى", <SettingsIcon />, [
+      link("/admin/content", "لوحة المحتوى", <DashboardIcon />),
       link("/admin/cms/onboarding", "تسجيل المستخدمين الجدد", <SettingsIcon />),
-      link("/admin/cms/pages", "إدارة الصفحات", <SettingsIcon />),
+      link("/admin/content/cms-pages", "إدارة الصفحات", <SettingsIcon />),
+      link("/admin/content/banners", "البانرات", <LocalOfferIcon />),
+      link("/admin/content/app-settings", "إعدادات التطبيق", <SettingsIcon />),
+      link("/admin/content/faqs", "الأسئلة الشائعة", <SettingsIcon />),
       link("/admin/cms/strings", "نصوص متعددة اللغات", <SettingsIcon />),
       link("/admin/cms/home-layout", "تخطيط الصفحة الرئيسية", <SettingsIcon />),
+      link("/admin/settings/appearance", "إعدادات المظهر", <SettingsIcon />),
     ]),
 
-    // // ==================== ONBOARDING ====================
-    // group(" التسجيل والتفعيل", <PendingActionsIcon />, [
-    //   link("/admin/field/onboarding", "طلبات التسجيل", <PendingActionsIcon />),
-    // ]),
+    // ==================== REPORTS & STATS ====================
+    group(" التقارير والإحصائيات", <AssessmentIcon />, [
+      link("/admin/reports", "التقارير", <AssessmentIcon />),
+      link("/admin/reports/dashboard", "لوحة التقارير", <DashboardIcon />),
+      link("/admin/reports/merchants", "تقارير الشركاء", <StorefrontIcon />),
+      link("/admin/reports/unified", "التقارير الموحدة", <AssessmentIcon />),
+    ]),
+
+    // ==================== SYSTEM & LEGAL ====================
+    group(" النظام والصحة القانونية", <SettingsIcon />, [
+      link("/admin/system/health", "صحة النظام", <AssessmentIcon />),
+      link("/admin/system/metrics", "مقاييس النظام", <AssessmentIcon />),
+      link("/admin/system/audit-log", "سجل التدقيق", <ReceiptLongIcon />),
+      link("/admin/legal", "النظام القانوني", <ReceiptLongIcon />),
+    ]),
+
+    // ==================== PARTNERS ====================
+    group(" الشركاء (Partners)", <StorefrontIcon />, [
+      link("/admin/partners", "الشركاء", <StorefrontIcon />),
+    ]),
+
+    // ==================== PAYMENTS & ERAND SERVICES ====================
+    group(" المدفوعات وخدمات الإرسال", <ReceiptLongIcon />, [
+      link("/admin/payments", "المدفوعات", <ReceiptLongIcon />),
+      link("/admin/akhdimni", "أخضمني", <ReceiptLongIcon />),
+      link("/admin/amani", "أماني", <ReceiptLongIcon />),
+      link("/admin/arabon", "أربون", <ReceiptLongIcon />),
+      link("/admin/es3afni", "اسعفني", <ReceiptLongIcon />),
+      link("/admin/kawader", "كوادر", <ReceiptLongIcon />),
+      link("/admin/kenz", "كينز", <ReceiptLongIcon />),
+      link("/admin/maarouf", "معروف", <ReceiptLongIcon />),
+      link("/admin/sanad", "سند", <ReceiptLongIcon />),
+    ]),
+
+    // ==================== ONBOARDING & TOOLS ====================
+    group(" التسجيل والأدوات", <PendingActionsIcon />, [
+      link("/admin/field/onboarding", "طلبات التسجيل", <PendingActionsIcon />),
+      link("/admin/field/onboarding-list", "قائمة طلبات التسجيل", <PendingActionsIcon />),
+      link("/admin/test/api", "اختبار API", <SettingsIcon />),
+      link("/admin/test-otp", "اختبار OTP", <InboxIcon />),
+    ]),
 
     // ==================== NOTIFICATIONS ====================
     group(" الإشعارات والتنبيهات", <InboxIcon />, [
@@ -420,7 +479,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         sx={{
           width: { md: `calc(100% - ${drawerWidth}px)` },
           mr: { md: `${drawerWidth}px` },
-          backgroundColor: "#ffffff",
+          backgroundColor: theme.palette.background.paper,
           boxShadow: `0 1px 3px ${theme.palette.divider}`,
           color: theme.palette.text.primary,
         }}

@@ -211,6 +211,18 @@ const CmsOnboardingPage = React.lazy(() => import("./pages/cms/CmsOnboardingPage
 const CmsStringsPage = React.lazy(() => import("./pages/cms/CmsStringsPage"));
 const HomeLayoutAdminPage = React.lazy(() => import("./pages/cms/CmsHomeLayoutPage"));
 
+// ==================== PAGES WITHOUT ROUTE (NEW) ====================
+import AppearanceSettingsPage from "./pages/admin/AppearanceSettingsPage";
+import AuditLogPage from "./pages/admin/system/AuditLogPage";
+import MerchantReportsPage from "./pages/admin/reports/MerchantReportsPage";
+import SupportTicketsPage from "./pages/admin/support/SupportTicketsPage";
+import OnboardingListPage from "./pages/admin/onboarding/OnboardingListPage";
+import UnifiedReportsPage from "./pages/admin/UnifiedReportsPage";
+import TransactionTrackingPage from "./pages/admin/TransactionTrackingPage";
+import PayoutsManagementPage from "./pages/admin/PayoutsManagementPage";
+import CommissionSettingsPage from "./pages/admin/finance/CommissionSettingsPage";
+import AdminCampaignsPanel from "./pages/admin/AdminCampaignsPanel";
+
 // ==================== UTILITIES ====================
 import "leaflet/dist/leaflet.css";
 import OverviewPage from "./pages/admin/OverviewPage";
@@ -313,9 +325,11 @@ export default function App() {
         {/* ==================== MARKETING ==================== */}
         <Route path="marketing/marketers" element={<MarketersPage />} />
         <Route path="marketing/coupons" element={<AdminCouponsPage />} />
+        <Route path="marketing/campaigns" element={<AdminCampaignsPanel />} />
 
         {/* ==================== ONBOARDING ==================== */}
         <Route path="field/onboarding" element={<OnboardingQueuePage />} />
+        <Route path="field/onboarding-list" element={<OnboardingListPage />} />
 
         {/* ==================== GROCERIES ==================== */}
         <Route path="groceries/categories" element={<GroceriesCategoriesPage />} />
@@ -355,6 +369,7 @@ export default function App() {
 
         {/* ==================== METRICS ==================== */}
         <Route path="system/metrics" element={<MetricsPage />} />
+        <Route path="system/audit-log" element={<AuditLogPage />} />
 
         {/* ==================== LEGAL SYSTEM ==================== */}
         <Route path="legal" element={<LegalDashboard />} />
@@ -381,6 +396,7 @@ export default function App() {
         <Route path="finance/vouchers" element={<JournalVoucherPage />} />
         <Route path="finance/accounts" element={<GeneralLedger />} />
         <Route path="finance/reports" element={<ReportsPage />} />
+        <Route path="finance/payouts-management" element={<PayoutsManagementPage />} />
 
         {/* ==================== HR SYSTEM ==================== */}
         <Route path="hr/employees" element={<EmployeesPage />} />
@@ -395,6 +411,7 @@ export default function App() {
         <Route path="wallet/withdrawals" element={<WithdrawalManagementPage />} />
         <Route path="wallet/escrow" element={<EscrowManagementPage />} />
         <Route path="wallet/transactions" element={<TransactionsPage />} />
+        <Route path="wallet/transactions-tracking" element={<TransactionTrackingPage />} />
         <Route path="wallet/subscriptions" element={<SubscriptionsManagementPage />} />
         <Route path="wallet/settlements" element={<SettlementsManagementPage />} />
         <Route path="wallet/coupons" element={<CouponsManagementPage />} />
@@ -408,11 +425,13 @@ export default function App() {
 
         {/* ==================== SUPPORT SYSTEM ==================== */}
         <Route path="support/inbox" element={<Inbox />} />
+        <Route path="support/tickets" element={<SupportTicketsPage />} />
         <Route path="support/ticket/:id" element={<TicketView />} />
         <Route path="support/reports" element={<Reports />} />
 
         {/* ==================== MARKETING - Additional Routes ==================== */}
         <Route path="commission/plans" element={<CommissionPlansPage />} />
+        <Route path="commission/settings" element={<CommissionSettingsPage />} />
         <Route path="reports/marketers" element={<MarketersOverviewPage />} />
         <Route path="reports/marketers/:uid" element={<MarketerReportPage />} />
 
@@ -423,6 +442,8 @@ export default function App() {
         {/* ==================== REPORTS ==================== */}
         <Route path="reports" element={<AdminReportsPage />} />
         <Route path="reports/dashboard" element={<ReportsDashboardPage />} />
+        <Route path="reports/merchants" element={<MerchantReportsPage />} />
+        <Route path="reports/unified" element={<UnifiedReportsPage />} />
 
         {/* ==================== NOTIFICATIONS ==================== */}
         <Route path="notifications/inbox" element={<NotificationsListPage />} />
@@ -430,6 +451,7 @@ export default function App() {
 
         {/* ==================== SETTINGS ==================== */}
         <Route path="settings/pricing" element={<PricingSettingsPage />} />
+        <Route path="settings/appearance" element={<AppearanceSettingsPage />} />
 
         {/* ==================== AKHDIMNI ==================== */}
         <Route path="akhdimni" element={<ErrandsListPage />} />
