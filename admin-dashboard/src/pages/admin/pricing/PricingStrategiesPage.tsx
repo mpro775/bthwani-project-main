@@ -283,20 +283,20 @@ export default function PricingStrategiesPage() {
 
   const queryClient = useQueryClient();
 
-  // Fetch pricing strategies
+  // Fetch pricing strategies (API returns { success, data: [...], meta })
   const { data: strategies = [], isLoading, error } = useQuery({
     queryKey: ['pricingStrategies'],
     queryFn: async () => {
-      const { data } = await axios.get('/pricing-strategies');
-      return data;
+      const { data } = await axios.get<{ success?: boolean; data?: PricingStrategy[] }>('/pricing-strategies');
+      return Array.isArray(data?.data) ? data.data : (data as unknown as PricingStrategy[]) ?? [];
     },
   });
 
-  // Mutations
+  // Mutations (API returns { success, data, meta })
   const createMutation = useMutation({
     mutationFn: async (strategyData: Omit<PricingStrategy, '_id' | 'createdAt' | 'updatedAt'>) => {
-      const { data } = await axios.post('/pricing-strategies', strategyData);
-      return data;
+      const { data } = await axios.post<{ success?: boolean; data?: PricingStrategy }>('/pricing-strategies', strategyData);
+      return data?.data ?? data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pricingStrategies'] });
@@ -307,8 +307,10 @@ export default function PricingStrategiesPage() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ strategy }: { strategy: Partial<PricingStrategy> }) => {
-      const { data } = await axios.put(`/pricing-strategies`, strategy);
-      return data;
+      const id = strategy._id;
+      if (!id) throw new Error('استراتيجية التسعير تحتاج معرّف للتحديث');
+      const { data } = await axios.put<{ success?: boolean; data?: PricingStrategy }>(`/pricing-strategies/${id}`, strategy);
+      return data?.data ?? data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pricingStrategies'] });
@@ -337,8 +339,10 @@ export default function PricingStrategiesPage() {
   };
 
   const handleFormSubmit = (formData: Omit<PricingStrategy, '_id' | 'createdAt' | 'updatedAt'>) => {
-    if (editingStrategy) {
-      updateMutation.mutate({ strategy: formData });
+    if (editingStrategy?._id) {
+      updateMutation.mutate({
+        strategy: { ...formData, _id: editingStrategy._id },
+      });
     } else {
       createMutation.mutate(formData);
     }

@@ -42,27 +42,36 @@ export default function ProductDialog({
   onChange, onClose, onSave
 }: Props) {
   const theme = useTheme();
+  const subtleBg =
+    theme.palette.mode === "dark"
+      ? theme.palette.grey[800]
+      : theme.palette.grey[100];
 
   return (
-    <Dialog 
-      open={open} 
-      onClose={onClose} 
-      maxWidth="sm" 
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: '16px'
-        }
+          borderRadius: "16px",
+          bgcolor: "background.paper",
+          color: "text.primary",
+        },
       }}
     >
-      <DialogTitle sx={{ 
-        borderBottom: `1px solid ${theme.palette.divider}`,
-        pb: 2
-      }}>
+      <DialogTitle
+        sx={{
+          borderBottom: `1px solid ${theme.palette.divider}`,
+          pb: 2,
+          color: "text.primary",
+        }}
+      >
         {editing ? "تعديل المنتج" : "إضافة منتج"}
       </DialogTitle>
-      <DialogContent sx={{ py: 3 }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <DialogContent sx={{ py: 3, color: "text.primary" }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           <TextField
             label="اسم المنتج" 
             value={form.name}
@@ -117,17 +126,17 @@ export default function ProductDialog({
               onChange={(e) => onChange({ image: e.target.files?.[0] || null })}
             />
           </Button>
-          <Box 
-            display="flex" 
-            alignItems="center" 
+          <Box
+            display="flex"
+            alignItems="center"
             justifyContent="space-between"
             p={2}
             sx={{
-              borderRadius: '8px',
-              backgroundColor: theme.palette.grey[100]
+              borderRadius: "8px",
+              backgroundColor: subtleBg,
             }}
           >
-            <Typography>متوفر للطلب</Typography>
+            <Typography color="inherit">متوفر للطلب</Typography>
             <Switch
               checked={form.isAvailable}
               onChange={(e) => onChange({ isAvailable: e.target.checked })}

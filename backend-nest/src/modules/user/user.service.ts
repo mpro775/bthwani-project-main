@@ -331,6 +331,36 @@ export class UserService {
     };
   }
 
+  /**
+   * الحصول على عنوان معين بالمستخدم (لحساب رسوم التوصيل)
+   */
+  async getAddressById(
+    userId: string,
+    addressId: string,
+  ): Promise<{ street: string; city: string; location?: { lat: number; lng: number } } | null> {
+    await this.ensureAddressIds(userId);
+    const user = await this.userModel
+      .findById(userId)
+      .select('addresses')
+      .lean()
+      .exec();
+    if (!user?.addresses?.length) return null;
+
+    const resolved = this.resolveAddress(user, addressId);
+    if (!resolved) return null;
+
+    const addr = resolved.address as {
+      street?: string;
+      city?: string;
+      location?: { lat: number; lng: number };
+    };
+    return {
+      street: addr.street ?? '',
+      city: addr.city ?? '',
+      location: addr.location,
+    };
+  }
+
   // إلغاء تفعيل الحساب
   async deactivateAccount(userId: string) {
     const user = await this.userModel.findByIdAndUpdate(

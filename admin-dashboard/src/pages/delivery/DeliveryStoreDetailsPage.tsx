@@ -439,12 +439,12 @@ export default function DeliveryStoreDetailsPage() {
   }
 
   return (
-    <Box p={3}>
+    <Box p={3} sx={{ color: "text.primary" }}>
       <Typography
         variant="h4"
         fontWeight="bold"
         mb={4}
-        sx={{ color: theme.palette.primary.main }}
+        sx={{ color: "primary.main" }}
       >
         {pageTitle}
       </Typography>
@@ -459,7 +459,7 @@ export default function DeliveryStoreDetailsPage() {
         mb={3}
         sx={{ borderBottom: `1px solid ${theme.palette.divider}`, pb: 2 }}
       >
-        <Typography variant="h5">الفئات الداخلية</Typography>
+        <Typography variant="h5" color="inherit">الفئات الداخلية</Typography>
         <Button
           startIcon={<Add />}
           onClick={() => openSubCatDialog()}
@@ -477,8 +477,8 @@ export default function DeliveryStoreDetailsPage() {
       </Box>
 
       {noSubs ? (
-        <Stack alignItems="center" p={4} sx={{ opacity: 0.8 }}>
-          <Typography>لا توجد فئات داخلية بعد لهذا المتجر.</Typography>
+        <Stack alignItems="center" p={4} sx={{ opacity: 0.8, color: "text.primary" }}>
+          <Typography color="inherit">لا توجد فئات داخلية بعد لهذا المتجر.</Typography>
           <Button
             sx={{ mt: 2 }}
             onClick={() => openSubCatDialog()}
@@ -505,7 +505,7 @@ export default function DeliveryStoreDetailsPage() {
         mt={6}
         sx={{ borderBottom: `1px solid ${theme.palette.divider}`, pb: 2 }}
       >
-        <Typography variant="h5">المنتجات</Typography>
+        <Typography variant="h5" color="inherit">المنتجات</Typography>
         <Button
           startIcon={<Add />}
           onClick={() => openProductDialog()}
@@ -522,8 +522,8 @@ export default function DeliveryStoreDetailsPage() {
       </Box>
 
       {noProds ? (
-        <Stack alignItems="center" p={4} sx={{ opacity: 0.8 }}>
-          <Typography>لا توجد منتجات بعد لهذا المتجر.</Typography>
+        <Stack alignItems="center" p={4} sx={{ opacity: 0.8, color: "text.primary" }}>
+          <Typography color="inherit">لا توجد منتجات بعد لهذا المتجر.</Typography>
           <Button
             sx={{ mt: 2 }}
             onClick={() => openProductDialog()}

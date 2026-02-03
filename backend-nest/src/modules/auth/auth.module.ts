@@ -64,6 +64,7 @@ import { EmailService } from '../../common/services/email.service';
     ConsentService,
     EmailService,
     JwtStrategy,
+    JwtModule,
     UnifiedAuthGuard,
     ConsentGuard,
     PrivacyPolicyConsentGuard,

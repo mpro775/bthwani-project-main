@@ -207,7 +207,6 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
       ]),
       group("العروض والتسعير", <LocalOfferIcon />, [
         link("/admin/offers", "إدارة العروض", <LocalOfferIcon />),
-        link("/admin/banners", "البانرات", <LocalOfferIcon />),
         link("/admin/settings/pricing", "إعدادات التسعير", <SettingsIcon />),
       ]),
       group("الخدمات الإضافية", <LocalOfferIcon />, [
@@ -334,7 +333,6 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
       link("/admin/content", "لوحة المحتوى", <DashboardIcon />),
       link("/admin/cms/onboarding", "تسجيل المستخدمين الجدد", <SettingsIcon />),
       link("/admin/content/cms-pages", "إدارة الصفحات", <SettingsIcon />),
-      link("/admin/content/banners", "البانرات", <LocalOfferIcon />),
       link("/admin/content/app-settings", "إعدادات التطبيق", <SettingsIcon />),
       link("/admin/content/faqs", "الأسئلة الشائعة", <SettingsIcon />),
       link("/admin/cms/strings", "نصوص متعددة اللغات", <SettingsIcon />),

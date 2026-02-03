@@ -33,22 +33,29 @@ export default function ProductTable({
   const findName = (id: string) =>
     subCategories.find((s) => s._id === id)?.name || "—";
 
+  const headerBg =
+    theme.palette.mode === "dark"
+      ? theme.palette.grey[800]
+      : theme.palette.grey[100];
+
   return (
-    <Paper 
-      sx={{ 
-        borderRadius: '12px',
-        overflow: 'hidden',
-        border: `1px solid ${theme.palette.divider}`
+    <Paper
+      sx={{
+        borderRadius: "12px",
+        overflow: "hidden",
+        border: `1px solid ${theme.palette.divider}`,
+        bgcolor: "background.paper",
+        color: "text.primary",
       }}
     >
       <Table>
-        <TableHead sx={{ backgroundColor: theme.palette.grey[100] }}>
+        <TableHead sx={{ backgroundColor: headerBg, color: "text.primary" }}>
           <TableRow>
-            {["الصورة","الاسم","السعر","الفئة","الوصف","متاح","إجراءات"].map((h) => (
-              <TableCell 
-                key={h} 
+            {["الصورة", "الاسم", "السعر", "الفئة", "الوصف", "متاح", "إجراءات"].map((h) => (
+              <TableCell
+                key={h}
                 align={h === "إجراءات" ? "right" : "center"}
-                sx={{ fontWeight: 'bold' }}
+                sx={{ fontWeight: "bold", color: "inherit" }}
               >
                 {h}
               </TableCell>
@@ -59,23 +66,23 @@ export default function ProductTable({
           {products.map((prod) => (
             <TableRow key={prod._id} hover>
               <TableCell align="center">
-                {prod.image && <Avatar src={prod.image} sx={{ margin: '0 auto' }} />}
+                {prod.image && <Avatar src={prod.image} sx={{ margin: "0 auto" }} />}
               </TableCell>
               <TableCell>{prod.name}</TableCell>
               <TableCell align="center">{prod.price} ﷼</TableCell>
-              <TableCell align="center">{findName(prod.subCategoryId ||"")}</TableCell>
+              <TableCell align="center">{findName(prod.subCategoryId || "")}</TableCell>
               <TableCell>{prod.description || "—"}</TableCell>
               <TableCell align="center">
-                <Box 
-                  sx={{ 
-                    display: 'inline-flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    width: '24px',
-                    height: '24px',
-                    borderRadius: '50%',
-                    backgroundColor: prod.isAvailable ? theme.palette.success.light : theme.palette.error.light,
-                    color: prod.isAvailable ? theme.palette.success.dark : theme.palette.error.dark
+                <Box
+                  sx={{
+                    display: "inline-flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    width: "24px",
+                    height: "24px",
+                    borderRadius: "50%",
+                    bgcolor: prod.isAvailable ? "success.main" : "error.main",
+                    color: prod.isAvailable ? "success.contrastText" : "error.contrastText",
                   }}
                 >
                   {prod.isAvailable ? "✓" : "✕"}

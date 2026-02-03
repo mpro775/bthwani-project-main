@@ -31,10 +31,18 @@ export default function UserStatsSimple() {
         if (!token) {
           throw new Error("المستخدم غير مسجل دخول");
         }
-        const res = await axios.get<Stats>("/admin/stats", {
+        const res = await axios.get<Stats | { data?: Stats }>("/admin/stats", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setStats(res.data);
+        const raw = res.data as Stats | { data?: Stats };
+        const data = raw && typeof raw === "object" && "data" in raw ? (raw as { data: Stats }).data : (raw as Stats);
+        setStats({
+          total: Number(data?.total) || 0,
+          admins: Number(data?.admins) || 0,
+          users: Number(data?.users) || 0,
+          active: Number(data?.active) || 0,
+          blocked: Number(data?.blocked) || 0,
+        });
       } catch (err) {
         console.error(err);
         setError("فشل في تحميل الإحصائيات");
@@ -60,23 +68,23 @@ export default function UserStatsSimple() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
         <div className="p-4 border rounded bg-gray-50">
           <b>الإجمالي</b>
-          <p>{stats.total.toLocaleString()}</p>
+          <p>{(stats?.total ?? 0).toLocaleString()}</p>
         </div>
         <div className="p-4 border rounded bg-gray-50">
           <b>مستخدمين</b>
-          <p>{stats.users.toLocaleString()}</p>
+          <p>{(stats?.users ?? 0).toLocaleString()}</p>
         </div>
         <div className="p-4 border rounded bg-gray-50">
           <b>أدمن</b>
-          <p>{stats.admins.toLocaleString()}</p>
+          <p>{(stats?.admins ?? 0).toLocaleString()}</p>
         </div>
         <div className="p-4 border rounded bg-gray-50">
           <b>نشطين</b>
-          <p>{stats.active.toLocaleString()}</p>
+          <p>{(stats?.active ?? 0).toLocaleString()}</p>
         </div>
         <div className="p-4 border rounded bg-gray-50">
           <b>معطلين</b>
-          <p>{stats.blocked.toLocaleString()}</p>
+          <p>{(stats?.blocked ?? 0).toLocaleString()}</p>
         </div>
       </div>
     </div>

@@ -283,8 +283,17 @@ export default function DeliveryCategoriesPage() {
     setError(null);
   };
 
+  const headerBg =
+    theme.palette.mode === "dark"
+      ? theme.palette.grey[800]
+      : theme.palette.grey[100];
+  const subtleBg =
+    theme.palette.mode === "dark"
+      ? theme.palette.grey[800]
+      : theme.palette.grey[100];
+
   return (
-    <Box p={3}>
+    <Box p={3} sx={{ color: "text.primary" }}>
       {/* Header Section */}
       <Box
         display="flex"
@@ -297,7 +306,7 @@ export default function DeliveryCategoriesPage() {
           variant="h4"
           fontWeight="bold"
           sx={{
-            color: theme.palette.primary.main,
+            color: "primary.main",
             background: `linear-gradient(to right, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
@@ -341,7 +350,6 @@ export default function DeliveryCategoriesPage() {
             sx={{
               "& .MuiOutlinedInput-root": {
                 borderRadius: "8px",
-                backgroundColor: theme.palette.background.paper,
               },
             }}
           />
@@ -419,21 +427,26 @@ export default function DeliveryCategoriesPage() {
 
       {/* Categories Table with Drag & Drop */}
       {!loading && (
-        <Paper>
+        <Paper sx={{ bgcolor: "background.paper", color: "text.primary" }}>
           <DragDropContext onDragEnd={onDragEnd}>
             <Table>
-              <TableHead sx={{ backgroundColor: theme.palette.grey[100] }}>
+              <TableHead
+                sx={{
+                  backgroundColor: headerBg,
+                  color: "text.primary",
+                }}
+              >
                 <TableRow>
-                  <TableCell sx={{ fontWeight: "bold", width: 120 }}>
+                  <TableCell sx={{ fontWeight: "bold", width: 120, color: "inherit" }}>
                     الترتيب
                   </TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>الصورة</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>الاسم</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>الحالة</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>
+                  <TableCell sx={{ fontWeight: "bold", color: "inherit" }}>الصورة</TableCell>
+                  <TableCell sx={{ fontWeight: "bold", color: "inherit" }}>الاسم</TableCell>
+                  <TableCell sx={{ fontWeight: "bold", color: "inherit" }}>الحالة</TableCell>
+                  <TableCell sx={{ fontWeight: "bold", color: "inherit" }}>
                     تاريخ الإنشاء
                   </TableCell>
-                  <TableCell sx={{ fontWeight: "bold", textAlign: "center" }}>
+                  <TableCell sx={{ fontWeight: "bold", textAlign: "center", color: "inherit" }}>
                     إجراءات
                   </TableCell>
                 </TableRow>
@@ -484,7 +497,7 @@ export default function DeliveryCategoriesPage() {
                                 sx={{
                                   width: 56,
                                   height: 56,
-                                  border: `2px solid ${theme.palette.grey[300]}`,
+                                  border: `2px solid ${theme.palette.mode === "dark" ? theme.palette.grey[600] : theme.palette.grey[300]}`,
                                 }}
                               />
                             </TableCell>
@@ -621,7 +634,8 @@ export default function DeliveryCategoriesPage() {
         PaperProps={{
           sx: {
             borderRadius: "16px",
-            background: theme.palette.background.paper,
+            bgcolor: "background.paper",
+            color: "text.primary",
           },
         }}
       >
@@ -630,12 +644,13 @@ export default function DeliveryCategoriesPage() {
             borderBottom: `1px solid ${theme.palette.divider}`,
             pb: 2,
             fontWeight: "bold",
+            color: "text.primary",
           }}
         >
           {editing ? "تعديل الفئة" : "إضافة فئة جديدة"}
         </DialogTitle>
 
-        <DialogContent sx={{ py: 3 }}>
+        <DialogContent sx={{ py: 3, color: "text.primary" }}>
           <Box display="flex" flexDirection="column" gap={3}>
             <TextField
               fullWidth
@@ -737,10 +752,10 @@ export default function DeliveryCategoriesPage() {
               p={2}
               sx={{
                 borderRadius: "8px",
-                backgroundColor: theme.palette.grey[100],
+                backgroundColor: subtleBg,
               }}
             >
-              <Typography>حالة الفئة</Typography>
+              <Typography color="inherit">حالة الفئة</Typography>
               <Switch
                 checked={form.isActive}
                 onChange={(e) =>

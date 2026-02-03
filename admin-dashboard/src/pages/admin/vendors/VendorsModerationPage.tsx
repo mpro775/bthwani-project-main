@@ -85,7 +85,7 @@ export default function VendorsModerationPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows.map((r) => (
+              {(Array.isArray(rows) ? rows : []).map((r) => (
                 <TableRow key={r._id} hover>
                   <TableCell>{r.fullName}</TableCell>
                   <TableCell>{r.phone}</TableCell>

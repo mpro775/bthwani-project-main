@@ -25,23 +25,28 @@ export default function SubCategoryDialog({
   const theme = useTheme();
 
   return (
-    <Dialog 
-      open={open} 
+    <Dialog
+      open={open}
       onClose={onClose}
       PaperProps={{
         sx: {
-          borderRadius: '16px',
-          minWidth: '400px'
-        }
+          borderRadius: "16px",
+          minWidth: "400px",
+          bgcolor: "background.paper",
+          color: "text.primary",
+        },
       }}
     >
-      <DialogTitle sx={{ 
-        borderBottom: `1px solid ${theme.palette.divider}`,
-        pb: 2
-      }}>
+      <DialogTitle
+        sx={{
+          borderBottom: `1px solid ${theme.palette.divider}`,
+          pb: 2,
+          color: "text.primary",
+        }}
+      >
         {editing ? "تعديل الفئة" : "إضافة فئة"}
       </DialogTitle>
-      <DialogContent sx={{ py: 3 }}>
+      <DialogContent sx={{ py: 3, color: "text.primary" }}>
         <TextField
           fullWidth
           label="اسم الفئة"

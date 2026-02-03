@@ -38,12 +38,12 @@ export default function PricingSettingsPage() {
     defaultPricePerKm: 0,
   });
 
-  // جلب الاستراتيجية عند التحميل
+  // جلب الاستراتيجية عند التحميل (API returns { success, data: [...], meta })
   useEffect(() => {
     (async () => {
       try {
-        const res = await axios.get<Strategy[]>("/pricing-strategies"); // <-- مصفوفة + مع سلاش
-        const list = Array.isArray(res.data) ? res.data : [res.data as unknown as Strategy];
+        const res = await axios.get<{ success?: boolean; data?: Strategy[] }>("/pricing-strategies");
+        const list = Array.isArray(res.data?.data) ? res.data.data : (Array.isArray(res.data) ? res.data : []);
         const first = list[0];
         if (first) {
           setStrategy(first);
@@ -115,15 +115,14 @@ export default function PricingSettingsPage() {
   
       let res;
       if (form._id) {
-        res = await axios.put<Strategy>(`/pricing-strategies/${form._id}`, payload);
+        res = await axios.put<{ success?: boolean; data?: Strategy }>(`/pricing-strategies/${form._id}`, payload);
       } else if (strategy?._id) {
-        res = await axios.put<Strategy>(`/pricing-strategies/${strategy._id}`, payload);
+        res = await axios.put<{ success?: boolean; data?: Strategy }>(`/pricing-strategies/${strategy._id}`, payload);
       } else {
-        // لا توجد استراتيجية محفوظة من قبل؟ أنشئ واحدة
-        res = await axios.post<Strategy>("/pricing-strategies", payload);
+        res = await axios.post<{ success?: boolean; data?: Strategy }>("/pricing-strategies", payload);
       }
   
-      const s = res.data;
+      const s = res.data?.data ?? res.data;
       setStrategy(s);
       setForm({
         _id: s._id,

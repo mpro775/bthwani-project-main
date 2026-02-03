@@ -18,8 +18,22 @@ export function useVendorsModeration() {
   async function list(params?: Record<string, string>) {
     setLoading(true);
     try {
-      const res = await api.get<VendorRow[]>("/admin/vendors", { params });
-      setRows(res.data);
+      const res = await api.get<{ vendors?: Array<{ id: string; fullName: string; phone: string; email?: string; status?: string; store?: { _id: string; name: string; address: string }; createdAt: string }> }>(
+        "/admin/vendors",
+        { params }
+      );
+      const list = Array.isArray(res.data?.vendors) ? res.data.vendors : [];
+      setRows(
+        list.map((v) => ({
+          _id: v.id,
+          fullName: v.fullName,
+          phone: v.phone,
+          email: v.email,
+          isActive: v.status === "active",
+          store: v.store,
+          createdAt: v.createdAt,
+        }))
+      );
     } finally {
       setLoading(false);
     }
