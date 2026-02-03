@@ -13,6 +13,34 @@ export interface AdminProfile {
   lastLogin?: string | null;
 }
 
+/** الباك يرجع البروفايل داخل data (TransformInterceptor) وبشكل role مفرد، نطبّعها لشكل الفرونت */
+function normalizeProfile(raw: unknown): AdminProfile | null {
+  if (!raw || typeof raw !== "object") return null;
+  const r = raw as Record<string, unknown>;
+  const id = String(r.id ?? r._id ?? "");
+  const role = r.role ?? r.roles;
+  const roles: string[] = Array.isArray(role)
+    ? role.map(String)
+    : role != null
+      ? [String(role)]
+      : [];
+  const perms = r.permissions;
+  const permissions: Record<string, Record<string, boolean>> =
+    perms && typeof perms === "object" && !Array.isArray(perms)
+      ? (perms as Record<string, Record<string, boolean>>)
+      : {};
+  return {
+    _id: id,
+    email: String(r.email ?? ""),
+    username: r.fullName != null ? String(r.fullName) : r.username != null ? String(r.username) : undefined,
+    roles,
+    permissions,
+    isActive: r.isActive as boolean | undefined,
+    createdAt: r.createdAt as string | undefined,
+    lastLogin: (r.lastLogin as string | null) ?? undefined,
+  };
+}
+
 export function useAdminUser() {
   const [user, setUser] = useState<AdminProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -25,11 +53,12 @@ export function useAdminUser() {
       return;
     }
 
-    // حاول نجيب بروفايل الأدمن من السيرفر
+    // الباك يرجع { success, data: { id, email, fullName, role, permissions, ... }, meta }
     (async () => {
       try {
-        const { data } = await axios.get("/admin/me"); // Endpoint يرد roles & permissions
-        setUser(data?.admin ?? null);
+        const { data } = await axios.get("/admin/me");
+        const profile = (data as { data?: unknown })?.data ?? (data as { admin?: unknown })?.admin;
+        setUser(normalizeProfile(profile) ?? null);
       } catch (e: unknown) {
         // ✅ فُل باك آمن للتطوير: لو 404، اعتبره سوبر أدمن مؤقتًا
         const error = e as { response?: { status?: number } };

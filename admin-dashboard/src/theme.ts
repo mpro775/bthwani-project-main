@@ -55,12 +55,13 @@ export function createAppTheme(mode: PaletteMode) {
         main: COLORS.success,
       },
       background: {
-        default: isDark ? "#121212" : COLORS.background,
-        paper: isDark ? "#1e1e1e" : COLORS.white,
+        // دارك هادئ واحترافي (رمادي–أزرق) بدل الأسود القاسي
+        default: isDark ? "#1e293b" : COLORS.background,
+        paper: isDark ? "#334155" : COLORS.white,
       },
       text: {
-        primary: isDark ? "#ffffff" : COLORS.text,
-        secondary: isDark ? "rgba(255, 255, 255, 0.7)" : COLORS.lightText,
+        primary: isDark ? "#f1f5f9" : COLORS.text,
+        secondary: isDark ? "rgba(241, 245, 249, 0.75)" : COLORS.lightText,
       },
     },
     typography: {

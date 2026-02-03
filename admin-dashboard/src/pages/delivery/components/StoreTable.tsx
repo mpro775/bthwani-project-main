@@ -38,19 +38,27 @@ export default function StoreTable({
   const [statsDialogOpen, setStatsDialogOpen] = useState(false);
   const [statsStoreId, setStatsStoreId] = useState<string>("");
   return (
-    <Paper>
+    <Paper sx={{ bgcolor: "background.paper" }}>
       <Table>
-        {/* Header */}
-        <TableHead sx={{ backgroundColor: theme.palette.grey[100] }}>
+        {/* Header — لون يتوافق مع الدارك والوضع الفاتح */}
+        <TableHead
+          sx={{
+            backgroundColor:
+              theme.palette.mode === "dark"
+                ? theme.palette.grey[800]
+                : theme.palette.grey[100],
+            color: theme.palette.text.primary,
+          }}
+        >
           <TableRow>
-            <TableCell sx={{ fontWeight: "bold" }}>الشعار</TableCell>
-            <TableCell sx={{ fontWeight: "bold" }}>الاسم</TableCell>
-            <TableCell sx={{ fontWeight: "bold" }}>القسم</TableCell>
-            <TableCell sx={{ fontWeight: "bold" }}>العنوان</TableCell>
-            <TableCell sx={{ fontWeight: "bold" }}>الحالة</TableCell>
-            <TableCell sx={{ fontWeight: "bold" }}>التفاصيل</TableCell>
-            <TableCell sx={{ fontWeight: "bold" }}>إجراءات</TableCell>
-            <TableCell sx={{ fontWeight: "bold" }}>تقرير</TableCell>
+            <TableCell sx={{ fontWeight: "bold", color: "inherit" }}>الشعار</TableCell>
+            <TableCell sx={{ fontWeight: "bold", color: "inherit" }}>الاسم</TableCell>
+            <TableCell sx={{ fontWeight: "bold", color: "inherit" }}>القسم</TableCell>
+            <TableCell sx={{ fontWeight: "bold", color: "inherit" }}>العنوان</TableCell>
+            <TableCell sx={{ fontWeight: "bold", color: "inherit" }}>الحالة</TableCell>
+            <TableCell sx={{ fontWeight: "bold", color: "inherit" }}>التفاصيل</TableCell>
+            <TableCell sx={{ fontWeight: "bold", color: "inherit" }}>إجراءات</TableCell>
+            <TableCell sx={{ fontWeight: "bold", color: "inherit" }}>تقرير</TableCell>
           </TableRow>
         </TableHead>
 
@@ -64,7 +72,7 @@ export default function StoreTable({
                   sx={{
                     width: 56,
                     height: 56,
-                    border: `2px solid ${theme.palette.grey[300]}`,
+                    border: `2px solid ${theme.palette.mode === "dark" ? theme.palette.grey[600] : theme.palette.grey[300]}`,
                   }}
                 />
               </TableCell>
@@ -73,13 +81,10 @@ export default function StoreTable({
               </TableCell>
               <TableCell>
                 <Chip
-              label={store.category?.name || "غير محددة"}
+                  label={store.category?.name || "غير محددة"}
                   size="small"
-                  sx={{
-                    bgcolor: theme.palette.primary.light,
-                    color: theme.palette.primary.contrastText,
-                    fontWeight: "bold",
-                  }}
+                  color="primary"
+                  sx={{ fontWeight: "bold" }}
                 />
               </TableCell>
               <TableCell>
