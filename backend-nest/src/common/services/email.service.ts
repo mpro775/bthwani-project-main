@@ -13,11 +13,10 @@ export class EmailService {
   }
 
   private initializeTransporter() {
-    const smtpHost = this.configService.get<string>('SMTP_HOST');
-    const smtpPort = this.configService.get<number>('SMTP_PORT', 587);
-    const smtpUser = this.configService.get<string>('SMTP_USER');
-    const smtpPassword = this.configService.get<string>('SMTP_PASSWORD');
-    const emailFrom = this.configService.get<string>('EMAIL_FROM', 'noreply@bthwani.com');
+    const smtpHost = 'smtp.hostinger.com';
+    const smtpPort = 465;
+    const smtpUser = 'ceo@bthwani.com';
+    const smtpPassword = 'Ju[UVV>WCrNY4dJ';
 
     if (!smtpHost || !smtpUser || !smtpPassword) {
       this.logger.warn(
@@ -46,13 +45,22 @@ export class EmailService {
   /**
    * إرسال رمز OTP عبر البريد الإلكتروني
    */
-  async sendOtpEmail(email: string, code: string, fullName?: string): Promise<void> {
+  async sendOtpEmail(
+    email: string,
+    code: string,
+    fullName?: string,
+  ): Promise<void> {
     if (!this.transporter) {
-      this.logger.error('Email transporter is not initialized. Cannot send OTP email.');
+      this.logger.error(
+        'Email transporter is not initialized. Cannot send OTP email.',
+      );
       throw new Error('Email service is not configured');
     }
 
-    const emailFrom = this.configService.get<string>('EMAIL_FROM', 'noreply@bthwani.com');
+    const emailFrom = this.configService.get<string>(
+      'EMAIL_FROM',
+      'noreply@bthwani.com',
+    );
     const name = fullName || 'مستخدم';
 
     const htmlContent = `
@@ -161,7 +169,9 @@ export class EmailService {
         html: htmlContent,
       });
 
-      this.logger.log(`OTP email sent successfully to ${email}. MessageId: ${info.messageId}`);
+      this.logger.log(
+        `OTP email sent successfully to ${email}. MessageId: ${info.messageId}`,
+      );
     } catch (error) {
       this.logger.error(`Failed to send OTP email to ${email}`, error);
       throw new Error('Failed to send OTP email');
