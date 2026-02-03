@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
-import { Transporter } from 'nodemailer';
+import type { Transporter } from 'nodemailer';
 
 @Injectable()
 export class EmailService {
@@ -13,30 +13,42 @@ export class EmailService {
   }
 
   private initializeTransporter() {
-    const smtpHost = 'smtp.hostinger.com';
-    const smtpPort = 587;
-    const smtpUser = 'ceo@bthwani.com';
-    const smtpPassword = 'Ju[UVV>WCrNY4dJ';
+    // المنفذ 587 (STARTTLS) يعمل على Hetzner وغيرها؛ 465 غالباً محظور
+    const smtpHost =
+      this.configService.get<string>('SMTP_HOST') || 'smtp.hostinger.com';
+    const smtpPort =
+      parseInt(this.configService.get<string>('SMTP_PORT') || '587', 10) || 587;
 
-    if (!smtpHost || !smtpUser || !smtpPassword) {
+    const smtpUser =
+      this.configService.get<string>('SMTP_USER') || 'ceo@bthwani.com';
+    const smtpPassword = this.configService.get<string>('SMTP_PASSWORD');
+
+    if (!smtpUser || !smtpPassword) {
       this.logger.warn(
-        'SMTP configuration is missing. Email service will not work. Please set SMTP_HOST, SMTP_USER, and SMTP_PASSWORD in .env file',
+        'SMTP configuration is missing. Set SMTP_USER and SMTP_PASSWORD in .env',
       );
       return;
     }
 
     try {
-      this.transporter = nodemailer.createTransport({
+      const opts = {
         host: smtpHost,
         port: smtpPort,
-        secure: smtpPort === 587, // true for 465, false for other ports
-        auth: {
-          user: smtpUser,
-          pass: smtpPassword,
-        },
-      });
+        secure: smtpPort === 465,
+        auth: { user: smtpUser, pass: smtpPassword },
+        family: 4 as const,
+        connectionTimeout: 10000,
+        greetingTimeout: 5000,
+        socketTimeout: 10000,
+      };
+      // family: 4 مدعوم في التشغيل (IPv4 فقط) وقد لا يكون في تعريف الأنواع
+      this.transporter = nodemailer.createTransport(
+        opts as Parameters<typeof nodemailer.createTransport>[0],
+      );
 
-      this.logger.log('Email service initialized successfully');
+      this.logger.log(
+        `Email service initialized on port ${smtpPort} (IPv4 only)`,
+      );
     } catch (error) {
       this.logger.error('Failed to initialize email service', error);
     }
