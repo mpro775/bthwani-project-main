@@ -329,36 +329,96 @@ export class UserService {
   }
 
   /**
-   * الحصول على عنوان معين بالمستخدم (لحساب رسوم التوصيل)
+   * الحصول على عنوان بواسطة المعرف (للاستخدام في الطلبات وغيرها)
    */
   async getAddressById(
     userId: string,
     addressId: string,
   ): Promise<{
-    street: string;
-    city: string;
+    label?: string;
+    street?: string;
+    city?: string;
     location?: { lat: number; lng: number };
-  } | null> {
+  }> {
     await this.ensureAddressIds(userId);
     const user = await this.userModel
       .findById(userId)
       .select('addresses')
-      .lean()
       .exec();
-    if (!user?.addresses?.length) return null;
 
-    const resolved = this.resolveAddress(user, addressId);
-    if (!resolved) return null;
+    if (!user?.addresses?.length) {
+      throw new NotFoundException({
+        code: 'ADDRESS_NOT_FOUND',
+        message: 'Address not found',
+        userMessage: 'العنوان غير موجود',
+      });
+    }
 
-    const addr = resolved.address as {
+    const id = String(addressId || '').trim();
+    const addrList = (user.addresses || []) as Array<{
+      _id?: Types.ObjectId | { toString: () => string };
+      id?: string;
+      label?: string;
       street?: string;
       city?: string;
       location?: { lat: number; lng: number };
-    };
+    }>;
+
+    // ترحيل: إضافة _id لأي عنوان لا يملكه
+    let needsSave = false;
+    for (let i = 0; i < addrList.length; i++) {
+      if (!addrList[i]._id) {
+        (user.addresses[i] as { _id: Types.ObjectId })._id =
+          new Types.ObjectId();
+        needsSave = true;
+      }
+    }
+    if (needsSave) {
+      user.markModified('addresses');
+      await user.save();
+    }
+
+    // 🔍 لوج للتصحيح: العناوين المتاحة vs المطلوب
+    const availableIds = addrList.map((a, i) => ({
+      index: i,
+      _id: a._id?.toString?.() ?? String(a._id),
+      id: (a as { id?: string }).id,
+    }));
+    this.logger.log(
+      `[getAddressById] userId=${userId}, addressId received="${id}", available addresses: ${JSON.stringify(availableIds)}`,
+    );
+
+    let address = addrList.find(
+      (a) =>
+        a._id?.toString() === id ||
+        (a as { id?: string }).id === id ||
+        String(a._id) === id,
+    );
+    if (!address) {
+      const index = parseInt(id, 10);
+      if (!isNaN(index) && index >= 0 && index < addrList.length) {
+        address = addrList[index];
+      }
+    }
+    // ترحيل: عند وجود عنوان واحد فقط والعناوين القديمة بدون _id، استخدمه
+    if (!address && addrList.length === 1) {
+      address = addrList[0];
+      this.logger.log(
+        `[getAddressById] Fallback: using single address (addressId "${id}" didn't match _id)`,
+      );
+    }
+    if (!address) {
+      throw new NotFoundException({
+        code: 'ADDRESS_NOT_FOUND',
+        message: 'Address not found',
+        userMessage: 'العنوان غير موجود',
+      });
+    }
     return {
-      street: addr.street ?? '',
-      city: addr.city ?? '',
-      location: addr.location,
+      label: address.label,
+      street: address.street,
+      city: address.city,
+      location: address.location,
     };
   }
 
@@ -663,11 +723,7 @@ export class UserService {
 
   // حذف حساب المستخدم الحالي
   async deleteCurrentUser(userId: string) {
-    const user = await EntityHelper.findByIdOrFail(
-      this.userModel,
-      userId,
-      'User',
-    );
+    await EntityHelper.findByIdOrFail(this.userModel, userId, 'User');
 
     // حذف المستخدم من قاعدة البيانات
     await this.userModel.findByIdAndDelete(userId);

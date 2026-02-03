@@ -110,10 +110,25 @@ export class OrderService {
 
     const addressId = String(dto.addressId || '').trim();
     const address = await this.userService.getAddressById(userId, addressId);
-    const label = address.label ?? (address.street && address.city ? `${address.street}, ${address.city}` : 'العنوان');
-    const street = address.street ?? '';
-    const city = address.city ?? '';
-    const location = address.location ?? { lat: 0, lng: 0 };
+    if (!address) {
+      throw new BadRequestException({
+        code: 'ADDRESS_NOT_FOUND',
+        message: 'Address not found',
+        userMessage: 'العنوان غير موجود',
+      });
+    }
+    const addr = address as {
+      label?: string;
+      street?: string;
+      city?: string;
+      location?: { lat: number; lng: number };
+    };
+    const label =
+      addr.label ??
+      (addr.street && addr.city ? `${addr.street}, ${addr.city}` : 'العنوان');
+    const street = addr.street ?? '';
+    const city = addr.city ?? '';
+    const location = addr.location ?? { lat: 0, lng: 0 };
 
     const { deliveryFee } = await this.cartService.calculateDeliveryFee(
       userId,
