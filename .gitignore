@@ -7,3 +7,6 @@
 .env.production.local
 node_modules
 *.secret.json
+
+# runtime/reports (generated, do not commit)
+backend-nest/reports/runtime-tap-24h.json
