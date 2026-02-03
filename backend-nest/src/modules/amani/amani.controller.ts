@@ -106,6 +106,59 @@ export class AmaniController {
     return this.service.create(dto);
   }
 
+  @Post('calculate-fee')
+  @ApiOperation({
+    summary: 'حساب رسوم التوصيل التقديرية',
+    description: 'حساب التكلفة التقديرية بناءً على نقطة الانطلاق والوصول',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['origin', 'destination'],
+      properties: {
+        origin: {
+          type: 'object',
+          required: ['lat', 'lng'],
+          properties: {
+            lat: { type: 'number', example: 24.71 },
+            lng: { type: 'number', example: 46.67 },
+          },
+        },
+        destination: {
+          type: 'object',
+          required: ['lat', 'lng'],
+          properties: {
+            lat: { type: 'number', example: 21.48 },
+            lng: { type: 'number', example: 39.19 },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'تم حساب الرسوم بنجاح',
+    schema: {
+      type: 'object',
+      properties: {
+        distanceKm: { type: 'number' },
+        estimatedPrice: { type: 'number' },
+        breakdown: {
+          type: 'object',
+          properties: {
+            baseFee: { type: 'number' },
+            distanceFee: { type: 'number' },
+          },
+        },
+      },
+    },
+  })
+  async calculateFee(
+    @Body() body: { origin: { lat: number; lng: number }; destination: { lat: number; lng: number } },
+  ) {
+    return this.service.calculateFee(body.origin, body.destination);
+  }
+
   @Get()
   @ApiOperation({ 
     summary: 'الحصول على قائمة طلبات النقل النسائي',

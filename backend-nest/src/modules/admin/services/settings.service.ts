@@ -188,6 +188,22 @@ export class SettingsService {
         description: 'أقصى مسافة توصيل بالكيلومتر',
         isPublic: true,
       },
+      {
+        key: 'amani_base_fee',
+        value: 250,
+        type: 'number',
+        category: 'amani',
+        description: 'رسوم أماني الأساسية بالريال',
+        isPublic: false,
+      },
+      {
+        key: 'amani_per_km',
+        value: 120,
+        type: 'number',
+        category: 'amani',
+        description: 'سعر الكيلومتر لأماني بالريال',
+        isPublic: false,
+      },
     ];
 
     for (const setting of defaults) {

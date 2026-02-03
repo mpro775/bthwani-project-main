@@ -8,7 +8,7 @@ import {
   UseGuards,
   Body,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import {
@@ -33,6 +33,31 @@ export class AdminAmaniController {
   @ApiOperation({ summary: 'إدارة العناصر' })
   list(@Query() q: CursorPaginationDto) {
     return this.service.findAll({ cursor: q.cursor });
+  }
+
+  @Get('pricing')
+  @ApiOperation({ summary: 'الحصول على إعدادات أسعار أماني' })
+  getPricing() {
+    return this.service.getPricingSettings();
+  }
+
+  @Patch('pricing')
+  @ApiOperation({ summary: 'تحديث إعدادات أسعار أماني' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['baseFee', 'perKm'],
+      properties: {
+        baseFee: { type: 'number', description: 'الرسوم الأساسية بالريال' },
+        perKm: { type: 'number', description: 'سعر الكيلومتر بالريال' },
+      },
+    },
+  })
+  updatePricing(
+    @Body() body: { baseFee: number; perKm: number },
+    @CurrentUser('id') adminId?: string,
+  ) {
+    return this.service.updatePricingSettings(body, adminId);
   }
 
   @Patch(':id/status')
