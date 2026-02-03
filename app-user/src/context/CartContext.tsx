@@ -38,25 +38,30 @@ const imgOf = (x: any): { uri: string } | string | null => {
   return null;
 };
 
-// 🧩 توحيد العناصر القادمة من الـ API
+// تحويل قيمة قد تكون ObjectId أو كائن إلى نص
+const toStr = (v: any): string =>
+  v == null ? "" : typeof v === "string" ? v : String(v?.toString?.() ?? v);
+
+// 🧩 توحيد العناصر القادمة من الـ API (Backend Nest يُرجع items مع productId, store كـ ObjectId)
 const normalizeItems = (raw: any[]): CartItem[] =>
   (raw || []).map((i: any) => {
-    const id = i.productId ?? i.id ?? i._id;
+    const id = toStr(i.productId ?? i.id ?? i._id);
     const q = Number(i.quantity);
-    const storeId =
-      i.storeId ?? i.store?._id ?? i.store ?? i.product?.storeId ?? "";
+    const storeVal = i.storeId ?? i.store?._id ?? i.store ?? i.product?.storeId;
+    const storeId = toStr(storeVal);
 
     return {
       id,
       productId: id,
-      name: i.name ?? i.title ?? i.product?.name ?? "",
+      name: String(i.name ?? i.title ?? i.product?.name ?? "").trim() || "منتج",
       price: Number(i.price) || 0,
       quantity: Number.isFinite(q) && q > 0 ? q : 1,
       image: imgOf(i.image) ?? imgOf(i.product?.image) ?? null,
-      originalPrice: i.originalPrice,
+      originalPrice:
+        i.originalPrice != null ? Number(i.originalPrice) : undefined,
       storeId,
       store: storeId,
-      storeType: i.storeType ?? i.store?.type ?? "",
+      storeType: String(i.storeType ?? i.store?.type ?? ""),
       productType: (i.productType as any) ?? "deliveryProduct",
     };
   });
@@ -102,7 +107,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   const { authReady, isLoggedIn, lastAuthChangeTs } = useAuth();
 
   const extractItems = (res: any) =>
-    res?.data?.items ?? res?.data?.cart?.items ?? [];
+    res?.data?.items ?? res?.data?.cart?.items ?? res?.data?.data?.items ?? [];
 
   const activeStoreId = useMemo(
     () => (items.length ? items[0].storeId || null : null),
@@ -141,6 +146,20 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       } else {
         res = await getGuestCart();
       }
+      // 🔍 لوج لفحص شكل استجابة السلة من الباك إند (فقط في التطوير)
+      if (__DEV__) {
+        console.log(
+          "[Cart DEBUG] استجابة API الكاملة:",
+          JSON.stringify(res?.data, null, 2)
+        );
+        console.log("[Cart DEBUG] res.data.items:", res?.data?.items);
+        console.log("[Cart DEBUG] res.data.data:", res?.data?.data);
+        console.log(
+          "[Cart DEBUG] res.data.data?.items:",
+          res?.data?.data?.items
+        );
+        console.log("[Cart DEBUG] العناصر المستخرجة:", extractItems(res));
+      }
       const raw = extractItems(res);
       setItems(normalizeItems(raw));
     } catch (e) {
@@ -174,8 +193,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     qty = 1
   ): Promise<AddToCartResult> => {
     const userId = await AsyncStorage.getItem("userId");
-    if (!userId?.trim())
-      return { success: false, reason: "auth" };
+    if (!userId?.trim()) return { success: false, reason: "auth" };
     const cartId = await getOrCreateCartId();
     if (!item.storeId || !item.id)
       return { success: false, reason: "validation" };
@@ -267,11 +285,11 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     storeId: string,
     productType: string
   ) => {
-    const cartId = await getOrCreateCartId();
     const userId = await AsyncStorage.getItem("userId");
+    // الباك إند يستخدم DELETE /delivery/cart/items/:id (مع JWT للمستخدم)
     const url = userId
-      ? `/delivery/cart/user/${userId}/items/${id}?storeId=${storeId}&productType=${productType}`
-      : `/delivery/cart/${cartId}/items/${id}?storeId=${storeId}&productType=${productType}`;
+      ? `/delivery/cart/items/${id}`
+      : `/delivery/cart/${await getOrCreateCartId()}`;
 
     try {
       await axiosInstance.delete(url, { headers: { "x-silent-401": "1" } });
@@ -285,9 +303,8 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   const clearCart = async () => {
     const cartId = await getOrCreateCartId();
     const userId = await AsyncStorage.getItem("userId");
-    const url = userId
-      ? `/delivery/cart/user/${userId}`
-      : `/delivery/cart/${cartId}`;
+    // الباك إند: DELETE /delivery/cart للمستخدم، أو DELETE /delivery/cart/:cartId للضيف
+    const url = userId ? `/delivery/cart` : `/delivery/cart/${cartId}`;
 
     try {
       await axiosInstance.delete(url, { headers: { "x-silent-401": "1" } });

@@ -94,6 +94,16 @@ export interface AmaniListResponse {
 // ==================== API Functions ====================
 
 /**
+ * استخراج العنصر من استجابة الباكند المغلفة بـ { success, data }
+ */
+const unwrapData = <T>(raw: any): T => {
+  if (raw && typeof raw === "object" && "data" in raw && raw.data !== undefined) {
+    return raw.data as T;
+  }
+  return raw as T;
+};
+
+/**
  * إنشاء طلب أماني جديد
  */
 export const createAmani = async (
@@ -103,7 +113,27 @@ export const createAmani = async (
   const response = await axiosInstance.post("/amani", payload, {
     headers,
   });
-  return response.data;
+  return unwrapData<AmaniItem>(response.data);
+};
+
+/**
+ * توحيد استجابة التغليف من الباكند (items/nextCursor) إلى (data/nextCursor/hasMore).
+ * الباكند يغلّف الاستجابة بـ TransformInterceptor في { success, data } فالقائمة قد تكون في response.data.data.items
+ */
+const normalizeListResponse = (raw: any): AmaniListResponse => {
+  const payload = raw?.data ?? raw;
+  const data = Array.isArray(payload?.data)
+    ? payload.data
+    : Array.isArray(payload?.items)
+      ? payload.items
+      : Array.isArray(raw?.data)
+        ? raw.data
+        : Array.isArray(raw?.items)
+          ? raw.items
+          : [];
+  const nextCursor = payload?.nextCursor ?? payload?.next_cursor ?? raw?.nextCursor ?? raw?.next_cursor;
+  const hasMore = payload?.hasMore ?? raw?.hasMore ?? !!nextCursor;
+  return { data, nextCursor, hasMore };
 };
 
 /**
@@ -118,7 +148,7 @@ export const getAmaniList = async (
     headers,
     params,
   });
-  return response.data;
+  return normalizeListResponse(response.data);
 };
 
 /**
@@ -129,7 +159,7 @@ export const getAmaniDetails = async (id: string): Promise<AmaniItem> => {
   const response = await axiosInstance.get(`/amani/${id}`, {
     headers,
   });
-  return response.data;
+  return unwrapData<AmaniItem>(response.data);
 };
 
 /**
@@ -143,7 +173,7 @@ export const updateAmani = async (
   const response = await axiosInstance.patch(`/amani/${id}`, payload, {
     headers,
   });
-  return response.data;
+  return unwrapData<AmaniItem>(response.data);
 };
 
 /**
@@ -168,7 +198,7 @@ export const getMyAmani = async (
     headers,
     params,
   });
-  return response.data;
+  return normalizeListResponse(response.data);
 };
 
 /**
@@ -186,5 +216,5 @@ export const searchAmani = async (
     headers,
     params,
   });
-  return response.data;
+  return normalizeListResponse(response.data);
 };

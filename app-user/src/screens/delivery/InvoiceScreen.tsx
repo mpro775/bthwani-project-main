@@ -39,11 +39,15 @@ const InvoiceScreen = () => {
   const { clearCart, totalPrice } = useCart();
   const route = useRoute();
   const insets = useSafeAreaInsets();
-  const { items, scheduledDate, deliveryMode } = route.params as {
-    items: any[];
-    scheduledDate: string | null; // عدّل هنا!
-    deliveryMode: "unified" | "split";
+  const params = (route.params || {}) as {
+    items?: any[];
+    scheduledDate?: string | null;
+    deliveryMode?: "unified" | "split";
+    notes?: string;
   };
+  const items = params.items ?? [];
+  const scheduledDate = params.scheduledDate ?? null;
+  const deliveryMode = params.deliveryMode ?? "split";
 
   const currency = "YER"; // Currency for formatting
 
@@ -56,7 +60,7 @@ const InvoiceScreen = () => {
   const [validatingCoupon, setValidatingCoupon] = useState(false);
   const [captainTip, setCaptainTip] = useState<number>(0);
   const [coupon, setCoupon] = useState<string>("");
-  const [notes, setNotes] = useState<string>("");
+  const [notes, setNotes] = useState<string>(params.notes ?? "");
   const [paymentMethod, setPaymentMethod] = useState<"wallet" | "cash">("cash");
   const [loading, setLoading] = useState<boolean>(false);
   const [couponValid, setCouponValid] = useState<boolean | null>(null);
@@ -80,7 +84,12 @@ const InvoiceScreen = () => {
     return { subtotal, subtotalOriginal, promoSavings };
   }, [items]);
 
-  const discount = couponValid && couponInfo ? (couponInfo.type === "percentage" ? subtotal * (couponInfo.value / 100) : couponInfo.value) : 0;
+  const discount =
+    couponValid && couponInfo
+      ? couponInfo.type === "percentage"
+        ? subtotal * (couponInfo.value / 100)
+        : couponInfo.value
+      : 0;
   const baseTotal = serverGrandTotal ?? subtotal + deliveryFee;
   const total = baseTotal + captainTip - discount;
 
@@ -93,9 +102,10 @@ const InvoiceScreen = () => {
         const res = await axiosInstance.get("/delivery/cart/fee", {
           params: { addressId: selectedAddressId, deliveryMode, cartId },
         });
-        setDeliveryFee(res.data.deliveryFee ?? 0);
-        setServerCartTotal(res.data.cartTotal ?? null);
-        setServerGrandTotal(res.data.grandTotal ?? null);
+        const feeData = res?.data?.data ?? res?.data ?? {};
+        setDeliveryFee(feeData.deliveryFee ?? 0);
+        setServerCartTotal(feeData.cartTotal ?? null);
+        setServerGrandTotal(feeData.grandTotal ?? feeData.total ?? null);
       } catch {
         setDeliveryFee(0);
         setServerCartTotal(null);
@@ -119,13 +129,18 @@ const InvoiceScreen = () => {
     (async () => {
       try {
         const res = await axiosInstance.get("/users/address");
-        const { addresses: userAddresses, defaultAddressId } = res.data;
-        setAddresses(userAddresses);
+        const raw = res?.data?.data ?? res?.data;
+        const userAddresses = raw?.addresses ?? [];
+        const defaultAddressId = raw?.defaultAddressId ?? raw?.defaultAddress;
+        setAddresses(Array.isArray(userAddresses) ? userAddresses : []);
 
+        const toId = (v: any) =>
+          v != null ? String(v?.toString?.() ?? v) : null;
         if (defaultAddressId) {
-          setSelectedAddressId(defaultAddressId);
-        } else if (userAddresses.length) {
-          setSelectedAddressId(userAddresses[0]._id);
+          setSelectedAddressId(toId(defaultAddressId));
+        } else if (Array.isArray(userAddresses) && userAddresses.length > 0) {
+          const first = userAddresses[0];
+          setSelectedAddressId(toId(first?._id ?? first?.id));
         }
       } catch (err: any) {
         Alert.alert(
@@ -185,13 +200,15 @@ const InvoiceScreen = () => {
     try {
       // الخطوة 1: تجميع المنتجات حسب المتجر
       const grouped = items.reduce((acc, item) => {
-        if (!acc[item.storeId]) acc[item.storeId] = [];
-        acc[item.storeId].push({
+        const storeId = item.storeId ?? item.store;
+        if (!storeId) return acc;
+        if (!acc[storeId]) acc[storeId] = [];
+        acc[storeId].push({
           productId: item.productId || item.id,
           name: item.name,
           quantity: item.quantity,
           price: item.price,
-          store: item.storeId,
+          store: item.storeId ?? item.store,
           productType: item.productType || undefined,
         });
         return acc;
@@ -208,7 +225,7 @@ const InvoiceScreen = () => {
       // الخطوة 3: إرسال الطلب الرئيسي
       const payload = {
         scheduledFor: scheduledDate || null,
-        addressId: selectedAddressId,
+        addressId: String(selectedAddressId ?? "").trim(),
         notes: notes + (captainTip > 0 ? ` | بقشيش: ${captainTip} ريال` : ""),
         paymentMethod,
         couponCode: couponInfo ? couponCode.trim() : undefined,
@@ -217,7 +234,10 @@ const InvoiceScreen = () => {
         captainTip, // إذا السيرفر يدعمه مباشرة
       };
 
-      const response = await axiosInstance.post("/delivery/order/from-cart", payload);
+      const response = await axiosInstance.post(
+        "/delivery/order/from-cart",
+        payload
+      );
 
       clearCart();
       await track({
@@ -359,7 +379,9 @@ const InvoiceScreen = () => {
                     styles.addressCard,
                     selectedAddressId === addr._id && styles.selectedCard,
                   ]}
-                  onPress={() => setSelectedAddressId(addr._id)}
+                  onPress={() =>
+                    setSelectedAddressId(String(addr._id ?? addr.id ?? ""))
+                  }
                 >
                   <View style={styles.addressHeader}>
                     <Text style={styles.addressLabel}>{addr.label}</Text>
@@ -421,7 +443,11 @@ const InvoiceScreen = () => {
                 color={COLORS.success}
               />
               <Text style={styles.couponSuccessText}>
-                تم تطبيق {couponInfo.type === "percentage" ? `${couponInfo.value}%` : `${couponInfo.value} ريال`} خصم على الطلب
+                تم تطبيق{" "}
+                {couponInfo.type === "percentage"
+                  ? `${couponInfo.value}%`
+                  : `${couponInfo.value} ريال`}{" "}
+                خصم على الطلب
               </Text>
             </View>
           )}

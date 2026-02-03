@@ -4,6 +4,7 @@ import {
   BadRequestException,
   Inject,
   forwardRef,
+  Logger,
 } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
@@ -30,6 +31,8 @@ import { CreateOrderFromCartDto } from './dto/create-order-from-cart.dto';
 
 @Injectable()
 export class OrderService {
+  private readonly logger = new Logger(OrderService.name);
+
   // Cache TTL (Time To Live)
   private readonly ORDER_CACHE_TTL = 300; // 5 دقائق
   private readonly ORDERS_LIST_CACHE_TTL = 60; // 1 دقيقة
@@ -88,6 +91,14 @@ export class OrderService {
    * إنشاء طلب من السلة: يجلب السلة والعنوان ويبني CreateOrderDto ثم ينشئ الطلب ويفرّغ السلة.
    */
   async createFromCart(userId: string, dto: CreateOrderFromCartDto) {
+    // 🔍 لوج للتصحيح: ماذا يرسل التطبيق فعلاً
+    this.logger.log(
+      `[createFromCart] Request body: ${JSON.stringify({ userId, dto }, null, 2)}`,
+    );
+    this.logger.log(
+      `[createFromCart] addressId: type=${typeof dto?.addressId}, value="${dto?.addressId}", length=${String(dto?.addressId ?? '').length}`,
+    );
+
     const cart = await this.cartService.getOrCreateCart(userId);
     if (!cart?.items?.length) {
       throw new BadRequestException({
@@ -97,23 +108,8 @@ export class OrderService {
       });
     }
 
-    const { addresses } = await this.userService.getAddresses(userId);
-    const addressId = dto.addressId;
-    const addrList = (addresses as Array<{ _id?: { toString: () => string }; label?: string; street?: string; city?: string; location?: { lat: number; lng: number } }>) ?? [];
-    let address = addrList.find((a) => a._id?.toString() === addressId);
-    if (!address) {
-      const index = parseInt(addressId, 10);
-      if (!isNaN(index) && index >= 0 && index < addrList.length) {
-        address = addrList[index];
-      }
-    }
-    if (!address) {
-      throw new BadRequestException({
-        code: 'ADDRESS_NOT_FOUND',
-        message: 'Address not found',
-        userMessage: 'العنوان غير موجود',
-      });
-    }
+    const addressId = String(dto.addressId || '').trim();
+    const address = await this.userService.getAddressById(userId, addressId);
     const label = address.label ?? (address.street && address.city ? `${address.street}, ${address.city}` : 'العنوان');
     const street = address.street ?? '';
     const city = address.city ?? '';

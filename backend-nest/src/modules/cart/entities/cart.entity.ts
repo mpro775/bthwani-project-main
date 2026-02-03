@@ -1,36 +1,35 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Document, Schema as MongooseSchema, Types } from 'mongoose';
+
+// تعريف صريح لـ subdocument لتجنّب مشكلة حفظ _id فقط مع NestJS SchemaFactory
+export const CartItemSchema = new MongooseSchema(
+  {
+    productType: {
+      type: String,
+      required: true,
+      enum: ['merchantProduct', 'deliveryProduct', 'restaurantProduct'],
+    },
+    productId: { type: MongooseSchema.Types.ObjectId, required: true },
+    name: { type: String, required: true },
+    price: { type: Number, required: true },
+    quantity: { type: Number, required: true, min: 1 },
+    store: { type: MongooseSchema.Types.ObjectId, required: true, ref: 'Store' },
+    image: { type: String },
+    options: { type: MongooseSchema.Types.Mixed },
+  },
+  { _id: true },
+);
 
 export class CartItem {
-  @Prop({
-    required: true,
-    enum: ['merchantProduct', 'deliveryProduct', 'restaurantProduct'],
-  })
   productType: string;
-
-  @Prop({ required: true, type: Types.ObjectId })
   productId: Types.ObjectId;
-
-  @Prop({ required: true })
   name: string;
-
-  @Prop({ required: true })
   price: number;
-
-  @Prop({ required: true, min: 1 })
   quantity: number;
-
-  @Prop({ required: true, type: Types.ObjectId, ref: 'Store' })
   store: Types.ObjectId;
-
-  @Prop()
   image?: string;
-
-  @Prop({ type: Object })
-  options?: Record<string, any>; // خيارات المنتج (حجم، لون، إلخ)
+  options?: Record<string, any>;
 }
-
-const CartItemSchema = SchemaFactory.createForClass(CartItem);
 
 @Schema({ timestamps: true })
 export class Cart extends Document {

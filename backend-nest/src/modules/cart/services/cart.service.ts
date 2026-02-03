@@ -4,8 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Cart, CartItem } from '../entities/cart.entity';
+import { Model, Types } from 'mongoose';
+import { Cart } from '../entities/cart.entity';
 import { AddToCartDto, UpdateCartItemDto } from '../dto/add-to-cart.dto';
 
 @Injectable()
@@ -56,8 +56,17 @@ export class CartService {
       // زيادة الكمية إذا كان موجوداً
       cart.items[existingItemIndex].quantity += dto.quantity;
     } else {
-      // إضافة منتج جديد
-      cart.items.push(dto as unknown as CartItem);
+      // إضافة منتج جديد — بناء الكائن يدويًا لضمان حفظ كل الحقول
+      cart.items.push({
+        productType: dto.productType,
+        productId: new Types.ObjectId(dto.productId),
+        name: dto.name,
+        price: dto.price,
+        quantity: dto.quantity,
+        store: new Types.ObjectId(dto.store),
+        image: dto.image,
+        options: dto.options,
+      } as any);
     }
 
     return cart.save();
@@ -87,13 +96,18 @@ export class CartService {
 
   /**
    * حذف منتج من السلة
+   * يدعم الحذف بـ productId أو بـ _id العنصر (للعناصر التالفة التي تحتوي _id فقط)
    */
-  async removeItem(userId: string, productId: string): Promise<Cart> {
+  async removeItem(userId: string, productIdOrItemId: string): Promise<Cart> {
     const cart = await this.getOrCreateCart(userId);
 
-    cart.items = cart.items.filter(
-      (item) => item.productId.toString() !== productId,
-    );
+    cart.items = cart.items.filter((item: any) => {
+      const matchProductId =
+        item.productId && String(item.productId) === productIdOrItemId;
+      const matchItemId =
+        item._id && String(item._id) === productIdOrItemId;
+      return !matchProductId && !matchItemId;
+    });
 
     return cart.save();
   }

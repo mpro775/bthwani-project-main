@@ -7,6 +7,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_URL } from "./config";
 import type { ApiResponse } from "../../types/api";
 
+/**
+ * عنوان أساس لاتصال WebSocket (Socket.IO) — يُستمد من API_URL بعد إزالة /api/v1
+ * مستخدم في أماني، كوادر شات، إلخ.
+ */
+export function getSocketBaseUrl(): string {
+  const base = API_URL.replace(/\/api\/v1\/?$/, "").trim();
+  return base || "http://localhost:3000";
+}
+
 const axiosInstance = axios.create({
   baseURL: API_URL,
   timeout: 10000,
@@ -42,8 +51,10 @@ axiosInstance.interceptors.request.use(
     const mustAuth = SECURE_ALWAYS.some((p) => url.startsWith(p));
     const isPublic =
       !mustAuth && publicEndpoints.some((p) => url.startsWith(p));
+    // طلبات Google (Places/Geocode) تستخدم X-Goog-Api-Key فقط — لا نضيف JWT
+    const isGoogleRequest = url.includes("googleapis.com");
 
-    if (!isPublic) {
+    if (!isPublic && !isGoogleRequest) {
       const token = await getStoredJwtToken(); // قد ترجع null
       if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;

@@ -51,11 +51,15 @@ export class AmaniService {
     const limit = 25;
     const query = this.model.find().sort({ _id: -1 }).limit(limit);
     if (opts?.cursor) {
-      query.where('_id').lt(Number(opts.cursor));
+      try {
+        query.where('_id').lt(new Types.ObjectId(opts.cursor) as any);
+      } catch {
+        // تجاهل cursor غير صالح
+      }
     }
     const items = await query.exec();
     const nextCursor = items.length === limit ? String(items[items.length - 1]._id) : null;
-    return { items, nextCursor };
+    return { items, nextCursor, hasMore: !!nextCursor };
   }
 
   async findOne(id: string) {

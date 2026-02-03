@@ -22,7 +22,10 @@ import COLORS from "@/constants/colors";
 import { useAmaniSocket } from "@/hooks/useAmaniSocket";
 
 type RouteProps = RouteProp<RootStackParamList, "AmaniDetails">;
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, "AmaniDetails">;
+type NavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "AmaniDetails"
+>;
 
 const AmaniDetailsScreen = () => {
   const navigation = useNavigation<NavigationProp>();
@@ -33,7 +36,10 @@ const AmaniDetailsScreen = () => {
   const [item, setItem] = useState<AmaniItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
-  const [driverLocation, setDriverLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [driverLocation, setDriverLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
 
   // WebSocket connection for real-time updates
   const { connected: socketConnected } = useAmaniSocket(item?._id, {
@@ -74,31 +80,45 @@ const AmaniDetailsScreen = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'draft': return COLORS.gray;
-      case 'pending': return COLORS.orangeDark;
-      case 'confirmed': return COLORS.primary;
-      case 'in_progress': return COLORS.info;
-      case 'completed': return COLORS.success;
-      case 'cancelled': return COLORS.danger;
-      default: return COLORS.gray;
+      case "draft":
+        return COLORS.gray;
+      case "pending":
+        return COLORS.orangeDark;
+      case "confirmed":
+        return COLORS.primary;
+      case "in_progress":
+        return COLORS.info;
+      case "completed":
+        return COLORS.success;
+      case "cancelled":
+        return COLORS.danger;
+      default:
+        return COLORS.gray;
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'draft': return 'مسودة';
-      case 'pending': return 'في الانتظار';
-      case 'confirmed': return 'مؤكد';
-      case 'in_progress': return 'قيد التنفيذ';
-      case 'completed': return 'مكتمل';
-      case 'cancelled': return 'ملغي';
-      default: return status;
+      case "draft":
+        return "مسودة";
+      case "pending":
+        return "في الانتظار";
+      case "confirmed":
+        return "مؤكد";
+      case "in_progress":
+        return "قيد التنفيذ";
+      case "completed":
+        return "مكتمل";
+      case "cancelled":
+        return "ملغي";
+      default:
+        return status;
     }
   };
 
   const handleEdit = () => {
     if (item) {
-      navigation.navigate('AmaniEdit', { itemId: item._id });
+      navigation.navigate("AmaniEdit", { itemId: item._id });
     }
   };
 
@@ -139,12 +159,20 @@ const AmaniDetailsScreen = () => {
     if (!item) return;
 
     try {
-      const originText = item.origin ? item.origin.address : 'غير محدد';
-      const destinationText = item.destination ? item.destination.address : 'غير محدد';
-      const passengersText = item.metadata?.passengers ? `${item.metadata.passengers} أشخاص` : '';
-      const luggageText = item.metadata?.luggage ? 'مع أمتعة' : '';
+      const originText = item.origin ? item.origin.address : "غير محدد";
+      const destinationText = item.destination
+        ? item.destination.address
+        : "غير محدد";
+      const passengersText = item.metadata?.passengers
+        ? `${item.metadata.passengers} أشخاص`
+        : "";
+      const luggageText = item.metadata?.luggage ? "مع أمتعة" : "";
 
-      const message = `طلب نقل نسائي: ${item.title}\n\n${item.description || ''}\n\nمن: ${originText}\nإلى: ${destinationText}\n${passengersText} ${luggageText}\n\nتاريخ النشر: ${new Date(item.createdAt).toLocaleDateString('ar-SA')}`;
+      const message = `طلب نقل نسائي: ${item.title}\n\n${
+        item.description || ""
+      }\n\nمن: ${originText}\nإلى: ${destinationText}\n${passengersText} ${luggageText}\n\nتاريخ النشر: ${new Date(
+        item.createdAt
+      ).toLocaleDateString("ar-SA")}`;
 
       await Share.share({
         message,
@@ -155,7 +183,13 @@ const AmaniDetailsScreen = () => {
     }
   };
 
-  const isOwner = user && item && item.ownerId === user.uid;
+  const ownerIdStr =
+    item?.ownerId && typeof item.ownerId === "object" && item.ownerId !== null
+      ? (item.ownerId as any)._id?.toString?.() ??
+        (item.ownerId as any).toString?.()
+      : (item?.ownerId as string | undefined);
+  const isOwner =
+    user && item && (ownerIdStr === user.uid || item.ownerId === user.uid);
 
   if (loading) {
     return (
@@ -190,7 +224,10 @@ const AmaniDetailsScreen = () => {
           </TouchableOpacity>
           {isOwner && (
             <>
-              <TouchableOpacity style={styles.actionButton} onPress={handleEdit}>
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={handleEdit}
+              >
                 <Ionicons name="pencil" size={20} color={COLORS.text} />
               </TouchableOpacity>
               <TouchableOpacity
@@ -201,7 +238,11 @@ const AmaniDetailsScreen = () => {
                 {deleting ? (
                   <ActivityIndicator size="small" color={COLORS.danger} />
                 ) : (
-                  <Ionicons name="trash-outline" size={20} color={COLORS.danger} />
+                  <Ionicons
+                    name="trash-outline"
+                    size={20}
+                    color={COLORS.danger}
+                  />
                 )}
               </TouchableOpacity>
             </>
@@ -209,15 +250,25 @@ const AmaniDetailsScreen = () => {
         </View>
       </View>
 
-      <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.content}>
           {/* Header Info */}
           <View style={styles.infoHeader}>
             <View style={styles.carIcon}>
               <Ionicons name="car" size={24} color={COLORS.primary} />
             </View>
-            <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
-              <Text style={styles.statusText}>{getStatusText(item.status)}</Text>
+            <View
+              style={[
+                styles.statusBadge,
+                { backgroundColor: getStatusColor(item.status) },
+              ]}
+            >
+              <Text style={styles.statusText}>
+                {getStatusText(item.status)}
+              </Text>
             </View>
           </View>
 
@@ -236,12 +287,19 @@ const AmaniDetailsScreen = () => {
 
               {item.origin && (
                 <View style={styles.locationItem}>
-                  <View style={[styles.locationIcon, { backgroundColor: COLORS.primary }]}>
+                  <View
+                    style={[
+                      styles.locationIcon,
+                      { backgroundColor: COLORS.primary },
+                    ]}
+                  >
                     <Ionicons name="location" size={16} color={COLORS.white} />
                   </View>
                   <View style={styles.locationInfo}>
                     <Text style={styles.locationLabel}>من</Text>
-                    <Text style={styles.locationAddress}>{item.origin.address}</Text>
+                    <Text style={styles.locationAddress}>
+                      {item.origin.address}
+                    </Text>
                   </View>
                 </View>
               )}
@@ -252,12 +310,19 @@ const AmaniDetailsScreen = () => {
 
               {item.destination && (
                 <View style={styles.locationItem}>
-                  <View style={[styles.locationIcon, { backgroundColor: COLORS.success }]}>
+                  <View
+                    style={[
+                      styles.locationIcon,
+                      { backgroundColor: COLORS.success },
+                    ]}
+                  >
                     <Ionicons name="navigate" size={16} color={COLORS.white} />
                   </View>
                   <View style={styles.locationInfo}>
                     <Text style={styles.locationLabel}>إلى</Text>
-                    <Text style={styles.locationAddress}>{item.destination.address}</Text>
+                    <Text style={styles.locationAddress}>
+                      {item.destination.address}
+                    </Text>
                   </View>
                 </View>
               )}
@@ -265,32 +330,43 @@ const AmaniDetailsScreen = () => {
           )}
 
           {/* Metadata */}
-          {item.metadata && (item.metadata.passengers || item.metadata.luggage || item.metadata.specialRequests) && (
-            <View style={styles.metadataSection}>
-              <Text style={styles.sectionTitle}>بيانات إضافية</Text>
+          {item.metadata &&
+            (item.metadata.passengers ||
+              item.metadata.luggage ||
+              item.metadata.specialRequests) && (
+              <View style={styles.metadataSection}>
+                <Text style={styles.sectionTitle}>بيانات إضافية</Text>
 
-              {item.metadata.passengers && (
-                <View style={styles.metadataItem}>
-                  <Ionicons name="people" size={16} color={COLORS.primary} />
-                  <Text style={styles.metadataText}>{item.metadata.passengers} أشخاص</Text>
-                </View>
-              )}
+                {item.metadata.passengers && (
+                  <View style={styles.metadataItem}>
+                    <Ionicons name="people" size={16} color={COLORS.primary} />
+                    <Text style={styles.metadataText}>
+                      {item.metadata.passengers} أشخاص
+                    </Text>
+                  </View>
+                )}
 
-              {item.metadata.luggage && (
-                <View style={styles.metadataItem}>
-                  <Ionicons name="bag" size={16} color={COLORS.primary} />
-                  <Text style={styles.metadataText}>يوجد أمتعة</Text>
-                </View>
-              )}
+                {item.metadata.luggage && (
+                  <View style={styles.metadataItem}>
+                    <Ionicons name="bag" size={16} color={COLORS.primary} />
+                    <Text style={styles.metadataText}>يوجد أمتعة</Text>
+                  </View>
+                )}
 
-              {item.metadata.specialRequests && (
-                <View style={styles.metadataItem}>
-                  <Ionicons name="information-circle" size={16} color={COLORS.primary} />
-                  <Text style={styles.metadataText}>{item.metadata.specialRequests}</Text>
-                </View>
-              )}
-            </View>
-          )}
+                {item.metadata.specialRequests && (
+                  <View style={styles.metadataItem}>
+                    <Ionicons
+                      name="information-circle"
+                      size={16}
+                      color={COLORS.primary}
+                    />
+                    <Text style={styles.metadataText}>
+                      {item.metadata.specialRequests}
+                    </Text>
+                  </View>
+                )}
+              </View>
+            )}
 
           {/* Driver Information */}
           {item.driver && (
@@ -301,26 +377,33 @@ const AmaniDetailsScreen = () => {
                   <Ionicons name="person" size={24} color={COLORS.primary} />
                   <View style={styles.driverDetails}>
                     <Text style={styles.driverName}>
-                      {typeof item.driver === 'object' && item.driver.fullName
+                      {typeof item.driver === "object" && item.driver.fullName
                         ? item.driver.fullName
-                        : 'سائق معين'}
+                        : "سائق معين"}
                     </Text>
-                    {typeof item.driver === 'object' && item.driver.phone && (
+                    {typeof item.driver === "object" && item.driver.phone && (
                       <TouchableOpacity
                         onPress={() => {
                           Linking.openURL(`tel:${item.driver.phone}`);
                         }}
                         style={styles.phoneButton}
                       >
-                        <Ionicons name="call" size={16} color={COLORS.primary} />
-                        <Text style={styles.phoneText}>{item.driver.phone}</Text>
+                        <Ionicons
+                          name="call"
+                          size={16}
+                          color={COLORS.primary}
+                        />
+                        <Text style={styles.phoneText}>
+                          {item.driver.phone}
+                        </Text>
                       </TouchableOpacity>
                     )}
                   </View>
                 </View>
                 {item.assignedAt && (
                   <Text style={styles.assignedDate}>
-                    تم التعيين: {new Date(item.assignedAt).toLocaleDateString('ar-SA')}
+                    تم التعيين:{" "}
+                    {new Date(item.assignedAt).toLocaleDateString("ar-SA")}
                   </Text>
                 )}
               </View>
@@ -328,24 +411,25 @@ const AmaniDetailsScreen = () => {
           )}
 
           {/* Real-time Location Tracking */}
-          {item.status === 'in_progress' && (driverLocation || item.driverLocation) && (
-            <View style={styles.trackingSection}>
-              <Text style={styles.sectionTitle}>تتبع الموقع المباشر</Text>
-              <View style={styles.trackingCard}>
-                <Ionicons name="location" size={20} color={COLORS.success} />
-                <Text style={styles.trackingText}>
-                  السائق في الطريق - الموقع محدث
-                </Text>
-                {socketConnected && (
-                  <View style={styles.socketIndicator}>
-                    <View style={styles.socketDot} />
-                    <Text style={styles.socketText}>مباشر</Text>
-                  </View>
-                )}
+          {item.status === "in_progress" &&
+            (driverLocation || item.driverLocation) && (
+              <View style={styles.trackingSection}>
+                <Text style={styles.sectionTitle}>تتبع الموقع المباشر</Text>
+                <View style={styles.trackingCard}>
+                  <Ionicons name="location" size={20} color={COLORS.success} />
+                  <Text style={styles.trackingText}>
+                    السائق في الطريق - الموقع محدث
+                  </Text>
+                  {socketConnected && (
+                    <View style={styles.socketIndicator}>
+                      <View style={styles.socketDot} />
+                      <Text style={styles.socketText}>مباشر</Text>
+                    </View>
+                  )}
+                </View>
+                {/* TODO: Add map component here to show driver location */}
               </View>
-              {/* TODO: Add map component here to show driver location */}
-            </View>
-          )}
+            )}
 
           {/* Status History */}
           {item.statusHistory && item.statusHistory.length > 0 && (
@@ -359,12 +443,12 @@ const AmaniDetailsScreen = () => {
                       {getStatusText(history.status)}
                     </Text>
                     <Text style={styles.historyDate}>
-                      {new Date(history.timestamp).toLocaleDateString('ar-SA', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
+                      {new Date(history.timestamp).toLocaleDateString("ar-SA", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
                       })}
                     </Text>
                     {history.note && (
@@ -382,12 +466,12 @@ const AmaniDetailsScreen = () => {
             <View style={styles.dateItem}>
               <Text style={styles.dateLabel}>تاريخ النشر:</Text>
               <Text style={styles.dateValue}>
-                {new Date(item.createdAt).toLocaleDateString('ar-SA', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
+                {new Date(item.createdAt).toLocaleDateString("ar-SA", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
                 })}
               </Text>
             </View>
@@ -395,12 +479,12 @@ const AmaniDetailsScreen = () => {
               <View style={styles.dateItem}>
                 <Text style={styles.dateLabel}>تاريخ التعيين:</Text>
                 <Text style={styles.dateValue}>
-                  {new Date(item.assignedAt).toLocaleDateString('ar-SA', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
+                  {new Date(item.assignedAt).toLocaleDateString("ar-SA", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
                   })}
                 </Text>
               </View>
@@ -409,12 +493,12 @@ const AmaniDetailsScreen = () => {
               <View style={styles.dateItem}>
                 <Text style={styles.dateLabel}>تاريخ الاستلام:</Text>
                 <Text style={styles.dateValue}>
-                  {new Date(item.pickedUpAt).toLocaleDateString('ar-SA', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
+                  {new Date(item.pickedUpAt).toLocaleDateString("ar-SA", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
                   })}
                 </Text>
               </View>
@@ -423,12 +507,12 @@ const AmaniDetailsScreen = () => {
               <View style={styles.dateItem}>
                 <Text style={styles.dateLabel}>تاريخ الإكمال:</Text>
                 <Text style={styles.dateValue}>
-                  {new Date(item.completedAt).toLocaleDateString('ar-SA', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
+                  {new Date(item.completedAt).toLocaleDateString("ar-SA", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
                   })}
                 </Text>
               </View>
@@ -436,12 +520,12 @@ const AmaniDetailsScreen = () => {
             <View style={styles.dateItem}>
               <Text style={styles.dateLabel}>آخر تحديث:</Text>
               <Text style={styles.dateValue}>
-                {new Date(item.updatedAt).toLocaleDateString('ar-SA', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
+                {new Date(item.updatedAt).toLocaleDateString("ar-SA", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
                 })}
               </Text>
             </View>
@@ -459,24 +543,24 @@ const styles = StyleSheet.create({
   },
   centerContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: COLORS.background,
   },
   loadingText: {
     marginTop: 16,
     fontSize: 16,
     color: COLORS.textLight,
-    fontFamily: 'Cairo-Regular',
+    fontFamily: "Cairo-Regular",
   },
   errorText: {
     fontSize: 16,
     color: COLORS.danger,
-    fontFamily: 'Cairo-Regular',
+    fontFamily: "Cairo-Regular",
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: COLORS.white,
@@ -489,13 +573,13 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.text,
-    textAlign: 'center',
-    fontFamily: 'Cairo-SemiBold',
+    textAlign: "center",
+    fontFamily: "Cairo-SemiBold",
   },
   headerActions: {
-    flexDirection: 'row',
+    flexDirection: "row",
   },
   actionButton: {
     padding: 8,
@@ -508,9 +592,9 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   infoHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 16,
   },
   carIcon: {
@@ -525,38 +609,38 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.white,
-    fontFamily: 'Cairo-SemiBold',
+    fontFamily: "Cairo-SemiBold",
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: COLORS.text,
     marginBottom: 16,
     lineHeight: 32,
-    fontFamily: 'Cairo-Bold',
+    fontFamily: "Cairo-Bold",
   },
   description: {
     fontSize: 16,
     color: COLORS.text,
     lineHeight: 24,
     marginBottom: 24,
-    fontFamily: 'Cairo-Regular',
+    fontFamily: "Cairo-Regular",
   },
   routeSection: {
     marginBottom: 24,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.text,
     marginBottom: 16,
-    fontFamily: 'Cairo-SemiBold',
+    fontFamily: "Cairo-SemiBold",
   },
   locationItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: COLORS.lightGray,
     borderRadius: 8,
     padding: 12,
@@ -566,8 +650,8 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: 12,
   },
   locationInfo: {
@@ -575,27 +659,27 @@ const styles = StyleSheet.create({
   },
   locationLabel: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.textLight,
     marginBottom: 2,
-    fontFamily: 'Cairo-SemiBold',
+    fontFamily: "Cairo-SemiBold",
   },
   locationAddress: {
     fontSize: 14,
     color: COLORS.text,
     lineHeight: 18,
-    fontFamily: 'Cairo-Regular',
+    fontFamily: "Cairo-Regular",
   },
   routeArrow: {
-    alignItems: 'center',
+    alignItems: "center",
     marginVertical: 8,
   },
   metadataSection: {
     marginBottom: 24,
   },
   metadataItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 8,
   },
   metadataText: {
@@ -603,27 +687,27 @@ const styles = StyleSheet.create({
     color: COLORS.textLight,
     marginLeft: 8,
     flex: 1,
-    fontFamily: 'Cairo-Regular',
+    fontFamily: "Cairo-Regular",
   },
   datesSection: {
     marginBottom: 24,
   },
   dateItem: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 8,
   },
   dateLabel: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.text,
     width: 100,
-    fontFamily: 'Cairo-SemiBold',
+    fontFamily: "Cairo-SemiBold",
   },
   dateValue: {
     fontSize: 14,
     color: COLORS.textLight,
     flex: 1,
-    fontFamily: 'Cairo-Regular',
+    fontFamily: "Cairo-Regular",
   },
   driverSection: {
     marginBottom: 24,
@@ -634,8 +718,8 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   driverInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 12,
   },
   driverDetails: {
@@ -644,34 +728,34 @@ const styles = StyleSheet.create({
   },
   driverName: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.text,
     marginBottom: 4,
-    fontFamily: 'Cairo-SemiBold',
+    fontFamily: "Cairo-SemiBold",
   },
   phoneButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 4,
   },
   phoneText: {
     fontSize: 14,
     color: COLORS.primary,
     marginLeft: 4,
-    fontFamily: 'Cairo-Regular',
+    fontFamily: "Cairo-Regular",
   },
   assignedDate: {
     fontSize: 12,
     color: COLORS.textLight,
     marginTop: 8,
-    fontFamily: 'Cairo-Regular',
+    fontFamily: "Cairo-Regular",
   },
   trackingSection: {
     marginBottom: 24,
   },
   trackingCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: COLORS.lightBlue,
     borderRadius: 8,
     padding: 12,
@@ -681,11 +765,11 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     marginLeft: 8,
     flex: 1,
-    fontFamily: 'Cairo-Regular',
+    fontFamily: "Cairo-Regular",
   },
   socketIndicator: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginLeft: 8,
   },
   socketDot: {
@@ -698,14 +782,14 @@ const styles = StyleSheet.create({
   socketText: {
     fontSize: 12,
     color: COLORS.success,
-    fontWeight: '600',
-    fontFamily: 'Cairo-SemiBold',
+    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
   },
   historySection: {
     marginBottom: 24,
   },
   historyItem: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 16,
   },
   historyDot: {
@@ -721,22 +805,22 @@ const styles = StyleSheet.create({
   },
   historyStatus: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.text,
     marginBottom: 4,
-    fontFamily: 'Cairo-SemiBold',
+    fontFamily: "Cairo-SemiBold",
   },
   historyDate: {
     fontSize: 12,
     color: COLORS.textLight,
     marginBottom: 2,
-    fontFamily: 'Cairo-Regular',
+    fontFamily: "Cairo-Regular",
   },
   historyNote: {
     fontSize: 12,
     color: COLORS.textLight,
-    fontStyle: 'italic',
-    fontFamily: 'Cairo-Regular',
+    fontStyle: "italic",
+    fontFamily: "Cairo-Regular",
   },
 });
 

@@ -4,6 +4,7 @@ import {
   BadRequestException,
   UnauthorizedException,
   Inject,
+  Logger,
 } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
@@ -23,6 +24,7 @@ import {
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
   private readonly SALT_ROUNDS = 12; // عدد جولات التشفير
   private readonly MAX_PIN_ATTEMPTS = 5; // عدد محاولات PIN المسموحة
   private readonly PIN_LOCK_DURATION = 30 * 60 * 1000; // 30 دقيقة
@@ -307,6 +309,100 @@ export class UserService {
     return {
       message: 'تم تعيين العنوان الافتراضي',
       defaultAddressId: user.defaultAddressId,
+    };
+  }
+
+  /**
+   * الحصول على عنوان بواسطة المعرف (للاستخدام في الطلبات وغيرها)
+   */
+  async getAddressById(
+    userId: string,
+    addressId: string,
+  ): Promise<{
+    label?: string;
+    street?: string;
+    city?: string;
+    location?: { lat: number; lng: number };
+  }> {
+    await this.ensureAddressIds(userId);
+    // استخدم document عادي (بدون lean) لضمان وجود _id في subdocuments
+    const user = await this.userModel
+      .findById(userId)
+      .select('addresses')
+      .exec();
+
+    if (!user?.addresses?.length) {
+      throw new NotFoundException({
+        code: 'ADDRESS_NOT_FOUND',
+        message: 'Address not found',
+        userMessage: 'العنوان غير موجود',
+      });
+    }
+
+    const id = String(addressId || '').trim();
+    const addrList = (user.addresses || []) as Array<{
+      _id?: Types.ObjectId | { toString: () => string };
+      id?: string;
+      label?: string;
+      street?: string;
+      city?: string;
+      location?: { lat: number; lng: number };
+    }>;
+
+    // ترحيل: إضافة _id لأي عنوان لا يملكه
+    let needsSave = false;
+    for (let i = 0; i < addrList.length; i++) {
+      if (!addrList[i]._id) {
+        (user.addresses[i] as { _id: Types.ObjectId })._id = new Types.ObjectId();
+        needsSave = true;
+      }
+    }
+    if (needsSave) {
+      user.markModified('addresses');
+      await user.save();
+    }
+
+    // 🔍 لوج للتصحيح: العناوين المتاحة vs المطلوب
+    const availableIds = addrList.map((a, i) => ({
+      index: i,
+      _id: a._id?.toString?.() ?? String(a._id),
+      id: (a as { id?: string }).id,
+    }));
+    this.logger.log(
+      `[getAddressById] userId=${userId}, addressId received="${id}", available addresses: ${JSON.stringify(availableIds)}`,
+    );
+
+    let address = addrList.find(
+      (a) =>
+        a._id?.toString() === id ||
+        (a as { id?: string }).id === id ||
+        String(a._id) === id,
+    );
+    if (!address) {
+      const index = parseInt(id, 10);
+      if (!isNaN(index) && index >= 0 && index < addrList.length) {
+        address = addrList[index];
+      }
+    }
+    // ترحيل: عند وجود عنوان واحد فقط والعناوين القديمة بدون _id، استخدمه
+    if (!address && addrList.length === 1) {
+      address = addrList[0];
+      this.logger.log(
+        `[getAddressById] Fallback: using single address (addressId "${id}" didn't match _id)`,
+      );
+    }
+    if (!address) {
+      throw new NotFoundException({
+        code: 'ADDRESS_NOT_FOUND',
+        message: 'Address not found',
+        userMessage: 'العنوان غير موجود',
+      });
+    }
+    return {
+      label: address.label,
+      street: address.street,
+      city: address.city,
+      location: address.location,
     };
   }
 

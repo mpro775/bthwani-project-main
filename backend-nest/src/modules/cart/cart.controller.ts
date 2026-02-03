@@ -13,6 +13,7 @@ import {
 import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody } from '@nestjs/swagger';
 import { CartService } from './services/cart.service';
 import { SheinCartService } from './services/shein-cart.service';
+import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';
 import {
   AddToCartDto,
   UpdateCartItemDto,
@@ -30,6 +31,7 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 
 @ApiTags('Cart')
 @Controller({ path: 'delivery/cart', version: '1' })
+@UseGuards(UnifiedAuthGuard)
 @ApiBearerAuth()
 export class CartController {
   constructor(

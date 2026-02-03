@@ -1,5 +1,5 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useState } from "react";
@@ -24,7 +24,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import RadioGroup from "@/components/RadioGroup";
 import ScheduledDeliveryPicker from "@/components/ScheduledDeliveryPicker";
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "@/auth/AuthContext";
+import axiosInstance from "@/utils/api/axiosInstance";
 import COLORS from "@/constants/colors";
 import { getAuthBanner } from "@/guards/bannerGateway";
 type RootStackParamList = {
@@ -64,6 +66,39 @@ const CartScreen = () => {
 
   const navigation = useNavigation<NavProp>();
 
+  // 🔍 لوج شكل السلة من الباك إند عند الدخول لصفحة السلة (للتطوير فقط)
+  useFocusEffect(
+    React.useCallback(() => {
+      if (!__DEV__) return;
+      (async () => {
+        const userId = await AsyncStorage.getItem("userId");
+        if (!userId?.trim()) {
+          console.log("[Cart DEBUG] لا يوجد userId - السلة للضيف");
+          return;
+        }
+        try {
+          const res = await axiosInstance.get(`/delivery/cart/user/${userId}`, {
+            headers: { "x-silent-401": "1" },
+          });
+          console.log(
+            "[Cart DEBUG] ========== شكل السلة من الباك إند =========="
+          );
+          console.log(
+            "[Cart DEBUG] res.data كامل:",
+            JSON.stringify(res?.data, null, 2)
+          );
+          console.log("[Cart DEBUG] res.data.data (الكارت):", res?.data?.data);
+          console.log(
+            "[Cart DEBUG] res.data.data?.items:",
+            res?.data?.data?.items
+          );
+        } catch (e) {
+          console.log("[Cart DEBUG] خطأ في جلب السلة:", e);
+        }
+      })();
+    }, [])
+  );
+
   const scaleAnim = React.useRef(new Animated.Value(1)).current;
 
   const animatePress = () => {
@@ -93,49 +128,64 @@ const CartScreen = () => {
     ]);
   };
 
+  const getImageSource = (img: CartItem["image"]) => {
+    if (!img) return require("../../../assets/profile_placeholder.png");
+    return typeof img === "string" ? { uri: img } : img;
+  };
+
   const renderItem = ({ item }: any) => (
     <Animated.View style={[styles.card, { transform: [{ scale: scaleAnim }] }]}>
-      <Image source={{ uri: item.image }} style={styles.image} />
+      <Image source={getImageSource(item.image)} style={styles.image} />
       <View style={styles.details}>
         <Text style={styles.name} numberOfLines={1}>
           {item.name}
         </Text>
 
         <View style={styles.priceContainer}>
-          {item.originalPrice && item.originalPrice > item.price && (
-            <Text style={styles.originalPrice}>
-              {item.originalPrice.toFixed(1)} ر.ي
-            </Text>
-          )}
-          <Text style={styles.price}>{item.price.toFixed(1)} ر.ي</Text>
-
-          {item.originalPrice && item.originalPrice > item.price && (
-            <View style={styles.discountBadge}>
-              <Text style={styles.discountText}>
-                -
-                {Math.round(
-                  ((item.originalPrice - item.price) / item.originalPrice) * 100
-                )}
-                %
+          {item.originalPrice != null &&
+            item.originalPrice > (item.price ?? 0) && (
+              <Text style={styles.originalPrice}>
+                {Number(item.originalPrice).toFixed(1)} ر.ي
               </Text>
-            </View>
-          )}
+            )}
+          <Text style={styles.price}>
+            {(Number(item.price) || 0).toFixed(1)} ر.ي
+          </Text>
+
+          {item.originalPrice != null &&
+            item.originalPrice > (item.price ?? 0) && (
+              <View style={styles.discountBadge}>
+                <Text style={styles.discountText}>
+                  -
+                  {Math.round(
+                    ((Number(item.originalPrice) - (Number(item.price) || 0)) /
+                      Number(item.originalPrice)) *
+                      100
+                  )}
+                  %
+                </Text>
+              </View>
+            )}
         </View>
 
         {/* إجمالي السطر */}
         <View style={styles.lineTotalRow}>
-          {item.originalPrice && item.originalPrice > item.price ? (
+          {item.originalPrice != null &&
+          item.originalPrice > (item.price ?? 0) ? (
             <>
               <Text style={styles.lineTotalOld}>
-                {(item.originalPrice * item.quantity).toFixed(1)} ر.ي
+                {(Number(item.originalPrice) * (item.quantity ?? 1)).toFixed(1)}{" "}
+                ر.ي
               </Text>
               <Text style={styles.lineTotalNew}>
-                {(item.price * item.quantity).toFixed(1)} ر.ي{" "}
+                {((Number(item.price) || 0) * (item.quantity ?? 1)).toFixed(1)}{" "}
+                ر.ي{" "}
               </Text>
             </>
           ) : (
             <Text style={styles.lineTotalNew}>
-              {(item.price * item.quantity).toFixed(1)} ر.ي
+              {((Number(item.price) || 0) * (item.quantity ?? 1)).toFixed(1)}{" "}
+              ر.ي
             </Text>
           )}
         </View>

@@ -58,9 +58,7 @@ const newSessionToken = () =>
     return v.toString(16);
   });
 
-const PLACES_KEY =
-  process.env.EXPO_PUBLIC_GOOGLE_PLACES_KEY ||
-  "AIzaSyAbWSDQBZUWjXU-CjXWHSV1ZC1t9rhceXs";
+const PLACES_KEY = "AIzaSyAbWSDQBZUWjXU-CjXWHSV1ZC1t9rhceXs";
 
 export default function SelectLocationScreen() {
   const navigation = useNavigation<any>();
@@ -93,23 +91,22 @@ export default function SelectLocationScreen() {
   const [sessionToken, setSessionToken] = useState<string>(newSessionToken());
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // 1) إذن موقع وتمركز أولي
+  // 1) إظهار الخريطة فوراً ثم جلب الموقع في الخلفية (لتجنب تعلق "جاري تجهيز الخريطة")
   useEffect(() => {
+    let mounted = true;
+    // إظهار الخريطة مباشرة بدل انتظار الموقع — يمنع التعلق عند فتح الشاشة من أماني/غيره
+    setLoading(false);
+
     (async () => {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== "granted") {
-          setLoading(false);
-          return;
-        }
+        if (!mounted || status !== "granted") return;
         const ok = await Location.hasServicesEnabledAsync();
-        if (!ok) {
-          setLoading(false);
-          return;
-        }
+        if (!mounted || !ok) return;
         const loc = await Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.Highest,
         });
+        if (!mounted) return;
         const { latitude: lat, longitude: lng } = loc.coords;
         const inside = insideSanaa(lat, lng);
         setRegion((r) => ({
@@ -117,10 +114,18 @@ export default function SelectLocationScreen() {
           latitude: inside ? lat : SANAA_CENTER.lat,
           longitude: inside ? lng : SANAA_CENTER.lng,
         }));
-      } finally {
-        setLoading(false);
+        setCenter({
+          lat: inside ? lat : SANAA_CENTER.lat,
+          lng: inside ? lng : SANAA_CENTER.lng,
+        });
+        if (inside) reverseGeocode(lat, lng);
+      } catch {
+        // تجاهل الأخطاء — الخريطة ظاهرة بالفعل والمنطقة الافتراضية صنعاء
       }
     })();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   // 2) تحديث المركز عند توقف السحب
@@ -176,31 +181,25 @@ export default function SelectLocationScreen() {
           },
           sessionToken,
         };
-        const { data: res } = await axiosInstance.get(
+        const { data, status } = await axiosInstance.post(
           "https://places.googleapis.com/v1/places:autocomplete",
+          body,
           {
-            method: "POST",
             headers: {
               "Content-Type": "application/json",
               "X-Goog-Api-Key": PLACES_KEY,
               "X-Goog-FieldMask":
                 "suggestions.placePrediction.placeId,suggestions.placePrediction.text",
             },
-            body: JSON.stringify(body),
           }
         );
 
-        if (!res.ok) {
-          console.warn(
-            "[Places] Autocomplete error:",
-            res.status,
-            await res.text()
-          );
+        if (status !== 200 || !data) {
+          console.warn("[Places] Autocomplete error:", status, data);
           setPreds([]);
           return;
         }
 
-        // data already available from axiosInstance
         const list = (data?.suggestions || [])
           .slice(0, 5)
           .map((s: any) => ({
@@ -221,7 +220,7 @@ export default function SelectLocationScreen() {
   // 4) Place Details — مرّة عند اختيار نتيجة فقط
   const fetchPlaceDetails = async (pid: string) => {
     try {
-      const { data: res } = await axiosInstance.get(
+      const { data: d, status } = await axiosInstance.get(
         `https://places.googleapis.com/v1/places/${pid}?languageCode=ar`,
         {
           headers: {
@@ -230,11 +229,10 @@ export default function SelectLocationScreen() {
           },
         }
       );
-      if (!res.ok) {
-        console.warn("[Places] Details error:", res.status, await res.text());
+      if (status !== 200 || !d) {
+        console.warn("[Places] Details error:", status, d);
         return null;
       }
-      const d = res;
       const lat = d?.location?.latitude,
         lng = d?.location?.longitude;
       const addr = d?.formattedAddress || "";
@@ -247,24 +245,22 @@ export default function SelectLocationScreen() {
   const reverseGeocode = async (lat: number, lng: number) => {
     if (!PLACES_KEY) return;
     try {
-      const { data: res } = await axiosInstance.get(
+      const { data: d, status } = await axiosInstance.post(
         "https://places.googleapis.com/v1/geocode:reverse",
         {
-          method: "POST",
+          location: { latitude: lat, longitude: lng },
+          languageCode: "ar",
+          regionCode: "YE",
+        },
+        {
           headers: {
             "Content-Type": "application/json",
             "X-Goog-Api-Key": PLACES_KEY,
             "X-Goog-FieldMask": "formattedAddress,plusCode",
           },
-          body: JSON.stringify({
-            location: { latitude: lat, longitude: lng },
-            languageCode: "ar",
-            regionCode: "YE",
-          }),
         }
       );
-      if (!res.ok) return;
-      const d = res;
+      if (status !== 200 || !d) return;
       setAddress(d?.formattedAddress || d?.plusCode?.globalCode || "");
     } catch {}
   };
@@ -288,7 +284,7 @@ export default function SelectLocationScreen() {
     setSessionToken(newSessionToken()); // بداية جلسة جديدة
   };
 
-  // 5) موقعي الحالي
+  // 5) موقعي الحالي — نقل الخريطة وتحديث المركز والعنوان ليظهر كقيمة مختارة
   const recenterToMyLocation = async () => {
     setLocating(true);
     try {
@@ -297,15 +293,22 @@ export default function SelectLocationScreen() {
       });
       const { latitude: lat, longitude: lng } = loc.coords;
       const inside = insideSanaa(lat, lng);
-      mapRef.current?.animateToRegion(
-        {
-          latitude: inside ? lat : SANAA_CENTER.lat,
-          longitude: inside ? lng : SANAA_CENTER.lng,
-          latitudeDelta: 0.02,
-          longitudeDelta: 0.02 * (width / height),
-        },
-        400
-      );
+      const newLat = inside ? lat : SANAA_CENTER.lat;
+      const newLng = inside ? lng : SANAA_CENTER.lng;
+      const newRegion = {
+        latitude: newLat,
+        longitude: newLng,
+        latitudeDelta: 0.02,
+        longitudeDelta: 0.02 * (width / height),
+      };
+      mapRef.current?.animateToRegion(newRegion, 400);
+      setRegion(newRegion);
+      setCenter({ lat: newLat, lng: newLng });
+      setPlaceId(null);
+      setAddress("");
+      reverseGeocode(newLat, newLng);
+    } catch {
+      // إخفاء المؤشر فقط عند فشل جلب الموقع
     } finally {
       setLocating(false);
     }

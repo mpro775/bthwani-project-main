@@ -7,9 +7,11 @@ import { SheinCartService } from './services/shein-cart.service';
 import { Cart, CartSchema } from './entities/cart.entity';
 import { SheinCart, SheinCartSchema } from './entities/shein-cart.entity';
 import { RolesGuard } from '../../common/guards/roles.guard';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
+    AuthModule,
     MongooseModule.forFeature([
       { name: Cart.name, schema: CartSchema },
       { name: SheinCart.name, schema: SheinCartSchema },
