@@ -32,6 +32,11 @@ export default function StoreForm({
 }: Props) {
   const theme = useTheme();
 
+  const subtleBg =
+    theme.palette.mode === "dark"
+      ? theme.palette.grey[800]
+      : theme.palette.grey[100];
+
   return (
     <Box
       component="form"
@@ -40,9 +45,7 @@ export default function StoreForm({
         flexDirection: "column",
         gap: 3,
         mt: 2,
-        "& .MuiTextField-root": {
-          backgroundColor: theme.palette.background.paper,
-        },
+        color: "text.primary",
       }}
     >
       {/* الصف الأول: الاسم والعنوان */}
@@ -164,7 +167,7 @@ export default function StoreForm({
         p={2}
         sx={{
           borderRadius: "12px",
-          backgroundColor: theme.palette.grey[100],
+          backgroundColor: subtleBg,
         }}
       >
         <Typography variant="body1" fontWeight="medium">
@@ -193,40 +196,65 @@ export default function StoreForm({
           />
         </Box>
       </Box>
-<TextField
-  label="نسبة العمولة (%)"
-  type="number"
-  value={form.commissionRate}
-  onChange={e => onChange({ commissionRate: e.target.value })}
-/>
-<FormControlLabel
-  control={
-    <Switch
-      checked={form.isTrending}
-      onChange={e => onChange({ isTrending: e.target.checked })}
-    />
-  }
-  label="رائج"
-/>
-<FormControlLabel
-  control={
-    <Switch
-      checked={form.isFeatured}
-      onChange={e => onChange({ isFeatured: e.target.checked })}
-    />
-  }
-  label="مميز"
-/>
-<Select
-  label="استراتيجية التسعير"
-  value={form.pricingStrategyType}
-  onChange={e => onChange({ pricingStrategyType: e.target.value })}
-  fullWidth
->
-  <MenuItem value="">افتراضي</MenuItem>
-  <MenuItem value="auto">تلقائي</MenuItem>
-  <MenuItem value="manual">يدوي</MenuItem>
-</Select>
+      <TextField
+        label="نسبة العمولة (%)"
+        type="number"
+        value={form.commissionRate}
+        onChange={(e) => onChange({ commissionRate: e.target.value })}
+        fullWidth
+        variant="outlined"
+        InputLabelProps={{ shrink: true }}
+        sx={{ "& .MuiOutlinedInput-root": { borderRadius: "12px" } }}
+      />
+
+      <Box
+        p={2}
+        sx={{
+          borderRadius: "12px",
+          backgroundColor: subtleBg,
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          gap: 2,
+        }}
+      >
+        <FormControlLabel
+          control={
+            <Switch
+              checked={form.isTrending}
+              onChange={(e) => onChange({ isTrending: e.target.checked })}
+            />
+          }
+          label="رائج"
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              checked={form.isFeatured}
+              onChange={(e) => onChange({ isFeatured: e.target.checked })}
+            />
+          }
+          label="مميز"
+        />
+      </Box>
+
+      <FormControl fullWidth>
+        <InputLabel id="pricing-strategy-label">استراتيجية التسعير</InputLabel>
+        <Select
+          labelId="pricing-strategy-label"
+          label="استراتيجية التسعير"
+          value={form.pricingStrategyType}
+          onChange={(e) =>
+            onChange({ pricingStrategyType: e.target.value as string })
+          }
+          variant="outlined"
+          sx={{ borderRadius: "12px" }}
+        >
+          <MenuItem value="">افتراضي</MenuItem>
+          <MenuItem value="auto">تلقائي</MenuItem>
+          <MenuItem value="manual">يدوي</MenuItem>
+        </Select>
+      </FormControl>
       {/* جدول الدوام */}
       <Box>
         <WeeklySchedule

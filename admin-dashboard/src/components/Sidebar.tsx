@@ -192,7 +192,6 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
     // ==================== ADMIN MANAGEMENT ====================
     group(" إدارة المشرفين", <GroupAddIcon />, [
       link("/admin/admins", "قائمة المشرفين", <GroupAddIcon />),
-      link("/admin/admins/new", "إضافة مشرف جديد", <GroupAddIcon />),
     ]),
 
     // ==================== DELIVERY SYSTEM ====================

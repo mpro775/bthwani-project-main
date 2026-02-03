@@ -25,34 +25,41 @@ export default function WeeklySchedule({ schedule, onChange }: Props) {
     onChange(s);
   };
 
+  const paperBg =
+    theme.palette.mode === "dark"
+      ? theme.palette.grey[800]
+      : theme.palette.grey[50];
+
   return (
     <Paper
       elevation={0}
       sx={{
         p: 3,
-        borderRadius: '12px',
+        borderRadius: "12px",
         border: `1px solid ${theme.palette.divider}`,
+        bgcolor: paperBg,
+        color: "text.primary",
       }}
     >
-      <Typography variant="h6" fontWeight="bold" mb={3}>
+      <Typography variant="h6" fontWeight="bold" mb={3} color="inherit">
         جدول الدوام الأسبوعي
       </Typography>
-      
+
       {schedule.map((slot, i) => (
         <motion.div
           key={slot.day}
           whileHover={{ backgroundColor: theme.palette.action.hover }}
         >
-          <Box 
-            display="flex" 
-            alignItems="center" 
-            gap={2} 
+          <Box
+            display="flex"
+            alignItems="center"
+            gap={2}
             p={2}
             sx={{
-              borderRadius: '8px',
-              '&:not(:last-child)': {
+              borderRadius: "8px",
+              "&:not(:last-child)": {
                 mb: 1,
-              }
+              },
             }}
           >
             <Typography 

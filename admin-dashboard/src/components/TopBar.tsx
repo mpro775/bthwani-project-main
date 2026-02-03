@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   AppBar,
   Toolbar,
@@ -33,6 +34,7 @@ const Offset = styled("div")(({ theme }) => theme.mixins.toolbar);
 
 export default function TopBar({ onToggleDrawer }: TopBarProps) {
   const theme = useTheme();
+  const navigate = useNavigate();
   const { mode, toggleMode } = useThemeMode();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -41,6 +43,13 @@ export default function TopBar({ onToggleDrawer }: TopBarProps) {
     setAnchorEl(e.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
 
+  const handleLogout = () => {
+    handleMenuClose();
+    localStorage.removeItem("adminToken");
+    localStorage.removeItem("adminUser");
+    navigate("/admin/login", { replace: true });
+  };
+
   return (
     <>
       <AppBar
@@ -48,8 +57,8 @@ export default function TopBar({ onToggleDrawer }: TopBarProps) {
         elevation={1}
         sx={{
           backgroundColor: theme.palette.primary.dark,
-          color: theme.palette.background.paper,
-          borderBottom: `1px solid ${theme.palette.divider}`,
+          color: "#f1f5f9",
+          borderBottom: `1px solid ${theme.palette.mode === "dark" ? "rgba(241, 245, 249, 0.12)" : theme.palette.divider}`,
           width: "100%",
           zIndex: theme.zIndex.drawer + 1,
         }}
@@ -132,7 +141,7 @@ export default function TopBar({ onToggleDrawer }: TopBarProps) {
             <SettingsIcon fontSize="small" sx={{ ml: 1 }} /> الإعدادات
           </MenuItem>
           <Divider />
-          <MenuItem onClick={handleMenuClose}>
+          <MenuItem onClick={handleLogout}>
             <LogoutIcon fontSize="small" sx={{ ml: 1 }} /> تسجيل خروج
           </MenuItem>
         </Menu>

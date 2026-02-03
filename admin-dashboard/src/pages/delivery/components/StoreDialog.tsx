@@ -60,7 +60,8 @@ export default function StoreDialog({
         PaperProps={{
           sx: {
             borderRadius: "16px",
-            background: theme.palette.background.paper,
+            bgcolor: "background.paper",
+            color: "text.primary",
           },
         }}
       >
@@ -71,9 +72,10 @@ export default function StoreDialog({
             alignItems: "center",
             borderBottom: `1px solid ${theme.palette.divider}`,
             pb: 2,
+            color: "text.primary",
           }}
         >
-          <Typography variant="h6" fontWeight="bold">
+          <Typography variant="h6" fontWeight="bold" color="inherit">
             {editing ? "تعديل بيانات المتجر" : "إضافة متجر جديد"}
           </Typography>
           <IconButton onClick={onClose} size="small">
@@ -81,7 +83,7 @@ export default function StoreDialog({
           </IconButton>
         </DialogTitle>
 
-        <DialogContent sx={{ py: 3 }}>
+        <DialogContent sx={{ py: 3, color: "text.primary" }}>
           <StoreForm
             form={form}
             categories={categories}
@@ -136,9 +138,19 @@ export default function StoreDialog({
           </motion.div>
         </DialogActions>
       </Dialog>
-      <Dialog open={showMap} onClose={handleMapClose} maxWidth="lg" fullWidth>
-        <DialogTitle>اختر الموقع على الخريطة</DialogTitle>
-        <DialogContent sx={{ height: 600, p: 0 }}>
+      <Dialog
+        open={showMap}
+        onClose={handleMapClose}
+        maxWidth="lg"
+        fullWidth
+        PaperProps={{
+          sx: { bgcolor: "background.paper", color: "text.primary" },
+        }}
+      >
+        <DialogTitle sx={{ color: "text.primary" }}>
+          اختر الموقع على الخريطة
+        </DialogTitle>
+        <DialogContent sx={{ height: 600, p: 0, color: "text.primary" }}>
           <SimpleMapPicker
             initial={
               form.lat && form.lng

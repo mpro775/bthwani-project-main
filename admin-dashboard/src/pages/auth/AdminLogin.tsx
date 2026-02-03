@@ -22,15 +22,18 @@ import {
   Visibility,
   VisibilityOff,
   AdminPanelSettings,
+  DarkMode as DarkModeIcon,
+  LightMode as LightModeIcon,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
+import { useThemeMode } from "../../context/ThemeModeContext";
+import { BASE_URL } from "../../utils/axios";
 
 export default function AdminLogin() {
   const [mounted, setMounted] = useState(false);
   const theme = useTheme();
   const navigate = useNavigate();
+  const { mode, toggleMode } = useThemeMode();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -46,7 +49,7 @@ export default function AdminLogin() {
       console.log("📧 محاولة تسجيل الدخول:", email);
 
       const response = await axios.post(
-        `${API_URL}/auth/login`,
+        `${BASE_URL}/auth/login`,
         {
           email: email.trim(),
           password: password,
@@ -114,17 +117,66 @@ export default function AdminLogin() {
     return null; // or a loading spinner
   }
 
+  const pageBackground =
+    theme.palette.mode === "dark"
+      ? `linear-gradient(135deg, ${theme.palette.background.default} 0%, #334155 50%, #475569 100%)`
+      : `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`;
+
+  const inputSx = {
+    "& .MuiOutlinedInput-root": {
+      borderRadius: 2,
+      ...(theme.palette.mode === "dark" && {
+        backgroundColor: "rgba(15, 23, 42, 0.6)",
+        color: theme.palette.text.primary,
+        "& fieldset": {
+          borderColor: "rgba(241, 245, 249, 0.2)",
+        },
+        "&:hover fieldset": {
+          borderColor: "rgba(241, 245, 249, 0.4)",
+        },
+        "&.Mui-focused fieldset": {
+          borderColor: theme.palette.primary.main,
+          borderWidth: "1px",
+        },
+      }),
+      "&:hover fieldset": {
+        borderColor: theme.palette.primary.main,
+      },
+    },
+    "& .MuiInputLabel-outlined": theme.palette.mode === "dark"
+      ? { color: "rgba(241, 245, 249, 0.8)" }
+      : {},
+    "& .MuiInputLabel-outlined.Mui-focused": {
+      color: theme.palette.primary.main,
+    },
+  };
+
   return (
     <Box
       sx={{
         minHeight: "100vh",
-        background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+        background: pageBackground,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         p: 2,
       }}
     >
+      <IconButton
+        onClick={toggleMode}
+        aria-label={mode === "light" ? "تفعيل الوضع الداكن" : "تفعيل الوضع الفاتح"}
+        sx={{
+          position: "fixed",
+          top: 16,
+          left: 16,
+          color: "white",
+          bgcolor: "rgba(255,255,255,0.2)",
+          "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
+          zIndex: 1,
+        }}
+      >
+        {mode === "light" ? <DarkModeIcon /> : <LightModeIcon />}
+      </IconButton>
       <Container maxWidth="sm">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
@@ -136,9 +188,15 @@ export default function AdminLogin() {
             sx={{
               p: 4,
               borderRadius: 3,
-              background: "rgba(255, 255, 255, 0.95)",
+              background:
+                theme.palette.mode === "dark"
+                  ? "rgba(51, 65, 85, 0.98)"
+                  : "rgba(255, 255, 255, 0.95)",
               backdropFilter: "blur(10px)",
-              border: "1px solid rgba(255, 255, 255, 0.2)",
+              border:
+                theme.palette.mode === "dark"
+                  ? "1px solid rgba(255, 255, 255, 0.12)"
+                  : "1px solid rgba(255, 255, 255, 0.2)",
             }}
           >
             <Box sx={{ textAlign: "center", mb: 4 }}>
@@ -226,14 +284,7 @@ export default function AdminLogin() {
                         </InputAdornment>
                       ),
                     }}
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: 2,
-                        "&:hover fieldset": {
-                          borderColor: theme.palette.primary.main,
-                        },
-                      },
-                    }}
+                    sx={inputSx}
                   />
                 </motion.div>
 
@@ -268,14 +319,7 @@ export default function AdminLogin() {
                         </InputAdornment>
                       ),
                     }}
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: 2,
-                        "&:hover fieldset": {
-                          borderColor: theme.palette.primary.main,
-                        },
-                      },
-                    }}
+                    sx={inputSx}
                   />
                 </motion.div>
 

@@ -124,24 +124,22 @@ import { envValidationSchema } from './config/env.validation';
       max: parseInt(process.env.CACHE_MAX_ITEMS || '100', 10),
     }),
 
-    // Rate Limiting Module ✨
-    ThrottlerModule.forRoot([
-      {
-        name: 'default',
-        ttl: 60000, // 60 ثانية
-        limit: 100, // 100 طلب في الدقيقة (افتراضي)
+    // Rate Limiting Module ✨ (معطّل في التطوير إلا إذا THROTTLE_ENABLED=true)
+    ThrottlerModule.forRootAsync({
+      useFactory: () => {
+        const isDev = process.env.NODE_ENV !== 'production';
+        const throttleEnabled = process.env.THROTTLE_ENABLED === 'true';
+        const enableThrottle = !isDev || throttleEnabled;
+        const limit = enableThrottle ? 100 : 1_000_000;
+        const strictLimit = enableThrottle ? 10 : 1_000_000;
+        const authLimit = enableThrottle ? 5 : 1_000_000;
+        return [
+          { name: 'default', ttl: 60000, limit },
+          { name: 'strict', ttl: 60000, limit: strictLimit },
+          { name: 'auth', ttl: 60000, limit: authLimit },
+        ];
       },
-      {
-        name: 'strict',
-        ttl: 60000, // 60 ثانية
-        limit: 10, // 10 طلبات في الدقيقة (للعمليات الحساسة)
-      },
-      {
-        name: 'auth',
-        ttl: 60000, // 60 ثانية
-        limit: 5, // 5 محاولات تسجيل دخول في الدقيقة
-      },
-    ]),
+    }),
 
     // Event Emitter Module (Global)
     EventEmitterModule.forRoot(),
@@ -243,11 +241,10 @@ import { envValidationSchema } from './config/env.validation';
       provide: APP_INTERCEPTOR,
       useClass: RuntimeTapInterceptor,
     },
-    // ✨ Global Rate Limiting Guard
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
+    // ✨ Global Rate Limiting Guard (معطّل في التطوير)
+    ...(process.env.NODE_ENV === 'production' || process.env.THROTTLE_ENABLED === 'true'
+      ? [{ provide: APP_GUARD, useClass: ThrottlerGuard }]
+      : []),
   ],
 })
 export class AppModule implements NestModule {
