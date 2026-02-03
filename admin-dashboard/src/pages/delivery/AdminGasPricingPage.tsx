@@ -87,7 +87,7 @@ export default function AdminGasPricingPage() {
       setForm(gas as GasOption);
 
       const dl = await UtilityApi.listDaily("gas", selectedCity);
-      setDaily(dl);
+      setDaily(Array.isArray(dl) ? dl : []);
     } catch (e: unknown) {
       const error = e as AxiosError<ErrorResponse>;
       if (error.response?.status === 404) {
@@ -299,11 +299,11 @@ export default function AdminGasPricingPage() {
 
           <Divider sx={{ my: 2 }} />
 
-          {daily.length === 0 ? (
+          {(daily ?? []).length === 0 ? (
             <Typography color="text.secondary">لا توجد أسعار يومية.</Typography>
           ) : (
             <Box sx={{ display: "grid", gap: 1 }}>
-              {daily.map((row) => (
+              {(daily ?? []).map((row) => (
                 <Stack
                   key={`${row.date}-${row.variant}`}
                   direction="row"

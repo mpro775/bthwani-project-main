@@ -115,7 +115,10 @@ export class OrderService {
     const city = address.city ?? '';
     const location = address.location ?? { lat: 0, lng: 0 };
 
-    const deliveryFee = cart.items.length > 0 ? 500 : 0;
+    const { deliveryFee } = await this.cartService.calculateDeliveryFee(
+      userId,
+      dto.addressId,
+    );
     const price = cart.total ?? cart.items.reduce((s: number, i: { price: number; quantity: number }) => s + i.price * i.quantity, 0);
     const companyShare = 0;
     const platformShare = 0;

@@ -26,13 +26,14 @@ import {
   UpdateSheinShippingDto,
 } from './dto/shein-cart.dto';
 import { Auth, CurrentUser, Roles } from '../../common/decorators/auth.decorator';
-import { AuthType } from '../../common/guards/unified-auth.guard';
+import { AuthType, UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 
 @ApiTags('Cart')
 @Controller({ path: 'delivery/cart', version: '1' })
 @UseGuards(UnifiedAuthGuard)
 @ApiBearerAuth()
+@UseGuards(UnifiedAuthGuard)
 export class CartController {
   constructor(
     private readonly cartService: CartService,
@@ -269,19 +270,16 @@ export class CartController {
   }
 
   @Get('fee')
+  @ApiQuery({ name: 'addressId', required: false, description: 'معرف عنوان التوصيل لحساب المسافة' })
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'حساب رسوم التوصيل' })
-  async getCartFee(@CurrentUser('id') userId: string) {
-    const cart = await this.cartService.getOrCreateCart(userId);
-    // حساب رسوم بسيط - يمكن تطويره لاحقاً
-    const deliveryFee = cart.items.length > 0 ? 500 : 0;
-    return {
-      subtotal: cart.total,
-      deliveryFee,
-      total: cart.total + deliveryFee,
-    };
+  async getCartFee(
+    @CurrentUser('id') userId: string,
+    @Query('addressId') addressId?: string,
+  ) {
+    return this.cartService.calculateDeliveryFee(userId, addressId);
   }
 
   @Post('merge')

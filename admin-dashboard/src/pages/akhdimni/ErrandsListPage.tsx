@@ -263,17 +263,17 @@ const ErrandsListPage: React.FC = () => {
                 <TableCell>{getStatusChip(errand.status)}</TableCell>
                 <TableCell>
                   <Typography variant="body2">
-                    {ERRAND_CATEGORIES[errand.errand.category] ||
-                      errand.errand.category}
+                    {(ERRAND_CATEGORIES[errand.errand?.category] ||
+                      errand.errand?.category) ?? '—'}
                   </Typography>
                   <Typography variant="caption" color="textSecondary">
-                    {ERRAND_SIZES[errand.errand.size] || errand.errand.size}
+                    {(ERRAND_SIZES[errand.errand?.size] || errand.errand?.size) ?? '—'}
                   </Typography>
                 </TableCell>
                 <TableCell>
-                  {errand.errand.distanceKm.toFixed(1)} كم
+                  {(Number(errand.errand?.distanceKm ?? 0)).toFixed(1)} كم
                 </TableCell>
-                <TableCell>{errand.deliveryFee} ر.ي</TableCell>
+                <TableCell>{errand.deliveryFee ?? '—'} ر.ي</TableCell>
                 <TableCell>
                   <Typography variant="caption">
                     {formatDate(errand.createdAt)}

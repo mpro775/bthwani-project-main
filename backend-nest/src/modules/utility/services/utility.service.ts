@@ -224,6 +224,21 @@ export class UtilityService {
   }
 
   /**
+   * قائمة المدن المتاحة (من تسعيرات الغاز/الماء)
+   * إن لم توجد أي مدينة يُرجع مدينة افتراضية لتمكين الإعداد من لوحة التحكم.
+   */
+  async getCities(): Promise<string[]> {
+    const cities = await this.utilityPricingModel
+      .distinct('city')
+      .exec();
+    const list = (cities || []).sort((a, b) => String(a).localeCompare(String(b)));
+    if (list.length === 0) {
+      return ['صنعاء'];
+    }
+    return list;
+  }
+
+  /**
    * الحصول على تسعير مدينة
    */
   async findByCity(city: string): Promise<UtilityPricing> {

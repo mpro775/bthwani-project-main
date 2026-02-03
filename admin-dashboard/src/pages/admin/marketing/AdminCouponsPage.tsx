@@ -62,10 +62,12 @@ export default function AdminCouponsPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await api.get("admin/wallet/coupons", {
+      const res = await api.get<{ coupons?: Coupon[] } | Coupon[]>("admin/wallet/coupons", {
         params: { q: q || undefined },
       });
-      setRows(res.data || []);
+      const data = res.data;
+      const list = Array.isArray(data) ? data : (Array.isArray((data as { coupons?: Coupon[] })?.coupons) ? (data as { coupons: Coupon[] }).coupons : []);
+      setRows(list);
     } catch (e: unknown) {
       const message = isAxiosError(e)
         ? ((e.response?.data as unknown as { message?: string })?.message ?? e.message)
@@ -134,7 +136,7 @@ export default function AdminCouponsPage() {
     }
   };
 
-  const filtered = useMemo(() => rows, [rows]);
+  const filtered = useMemo(() => (Array.isArray(rows) ? rows : []), [rows]);
 
   return (
     <Box>
@@ -266,7 +268,7 @@ export default function AdminCouponsPage() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {filtered.map((c) => {
+            {(Array.isArray(filtered) ? filtered : []).map((c) => {
               const used = c.usedCount ?? 0;
               const limit = c.usageLimit ?? 0;
               const remaining = limit ? Math.max(limit - used, 0) : "غير محدد";

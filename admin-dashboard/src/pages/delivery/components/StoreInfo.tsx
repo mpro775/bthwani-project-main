@@ -14,44 +14,45 @@ export default function StoreInfo({ store }: Props) {
         mb: 4,
         borderRadius: "12px",
         border: `1px solid ${theme.palette.divider}`,
-        backgroundColor: theme.palette.background.paper,
+        bgcolor: "background.paper",
+        color: "text.primary",
       }}
     >
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         <Box sx={{ display: "flex" }}>
           <Typography
             variant="subtitle1"
-            sx={{ minWidth: "120px", fontWeight: "bold" }}
+            sx={{ minWidth: "120px", fontWeight: "bold", color: "inherit" }}
           >
             الاسم:
           </Typography>
-          <Typography>{store.name}</Typography>
+          <Typography color="inherit">{store.name}</Typography>
         </Box>
 
         <Box sx={{ display: "flex" }}>
           <Typography
             variant="subtitle1"
-            sx={{ minWidth: "120px", fontWeight: "bold" }}
+            sx={{ minWidth: "120px", fontWeight: "bold", color: "inherit" }}
           >
             القسم:
           </Typography>
-          <Typography>{store.category.name}</Typography>
+          <Typography color="inherit">{store.category?.name ?? "—"}</Typography>
         </Box>
 
         <Box sx={{ display: "flex" }}>
           <Typography
             variant="subtitle1"
-            sx={{ minWidth: "120px", fontWeight: "bold" }}
+            sx={{ minWidth: "120px", fontWeight: "bold", color: "inherit" }}
           >
             العنوان:
           </Typography>
-          <Typography>{store.address}</Typography>
+          <Typography color="inherit">{store.address}</Typography>
         </Box>
 
         <Box sx={{ display: "flex" }}>
           <Typography
             variant="subtitle1"
-            sx={{ minWidth: "120px", fontWeight: "bold" }}
+            sx={{ minWidth: "120px", fontWeight: "bold", color: "inherit" }}
           >
             الحالة:
           </Typography>

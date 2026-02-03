@@ -25,7 +25,6 @@ import DeleteAccountPage from "./landing/pages/delete-account";
 // ==================== DELIVERY SYSTEM ====================
 import DeliveryStoresPage from "./pages/delivery/DeliveryStoresPage";
 import DeliveryCategoriesPage from "./pages/delivery/DeliveryCategoriesPage";
-import DeliveryBannersPage from "./pages/delivery/DeliveryBannersPage";
 import DeliveryCartsPage from "./pages/delivery/DeliveryCartsPage";
 import DeliveryStoreDetailsPage from "./pages/delivery/DeliveryStoreDetailsPage";
 import DeliveryPromotionsPage from "./pages/delivery/DeliveryPromotionsPage";
@@ -33,7 +32,7 @@ import AdminGasPricingPage from "./pages/delivery/AdminGasPricingPage";
 import AdminWaterPricingPage from "./pages/delivery/AdminWaterPricingPage";
 import AdminDeliveryOrdersPage from "./pages/delivery/orders";
 import OrderDetailsPage from "./pages/delivery/orders/OrderDetailsPage";
-import PricingSettingsPage from "./pages/delivery/PricingStrategiesPage";
+import PricingStrategiesPage from "./pages/admin/pricing/PricingStrategiesPage";
 
 // ==================== USER MANAGEMENT ====================
 import UserManagement from "./pages/admin/UserManagement";
@@ -112,7 +111,6 @@ import RevenueDashboard from "./pages/admin/analytics/RevenueDashboard";
 
 // ==================== CONTENT MANAGEMENT ====================
 import ContentDashboard from "./pages/admin/content/ContentDashboard";
-import BannersManager from "./pages/admin/content/BannersManager";
 import CMSPagesManager from "./pages/admin/content/CMSPagesManager";
 import AppSettingsManager from "./pages/admin/content/AppSettingsManager";
 import FAQsManager from "./pages/admin/content/FAQsManager";
@@ -280,7 +278,6 @@ export default function App() {
         <Route path="orders/details/:id" element={<OrderDetailsPage />} />
         <Route path="carts" element={<DeliveryCartsPage />} />
         <Route path="offers" element={<DeliveryPromotionsPage />} />
-        <Route path="banners" element={<DeliveryBannersPage />} />
         <Route path="utility/gas" element={<AdminGasPricingPage />} />
         <Route path="utility/water" element={<AdminWaterPricingPage />} />
 
@@ -357,7 +354,6 @@ export default function App() {
 
         {/* ==================== CONTENT MANAGEMENT ==================== */}
         <Route path="content" element={<ContentDashboard />} />
-        <Route path="content/banners" element={<BannersManager />} />
         <Route path="content/cms-pages" element={<CMSPagesManager />} />
         <Route path="content/app-settings" element={<AppSettingsManager />} />
         <Route path="content/faqs" element={<FAQsManager />} />
@@ -451,7 +447,7 @@ export default function App() {
         <Route path="test-otp" element={<TestOtpPage />} />
 
         {/* ==================== SETTINGS ==================== */}
-        <Route path="settings/pricing" element={<PricingSettingsPage />} />
+        <Route path="settings/pricing" element={<PricingStrategiesPage />} />
         <Route path="settings/appearance" element={<AppearanceSettingsPage />} />
 
         {/* ==================== AKHDIMNI ==================== */}

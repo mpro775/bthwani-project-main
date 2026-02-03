@@ -5,7 +5,6 @@
 
 import { Box, Grid, Card, CardContent, Typography, Button } from '@mui/material';
 import {
-  ViewCarousel,
   Article,
   Settings,
   Help,
@@ -74,16 +73,6 @@ export default function ContentDashboard() {
       </Typography>
 
       <Grid container spacing={3}>
-        <Grid  size={{xs: 12, sm: 6, md: 4}}>
-          <ContentCard
-            title="البانرات الإعلانية"
-            description="إدارة البانرات الإعلانية في الصفحة الرئيسية والأقسام"
-            icon={<ViewCarousel sx={{ fontSize: 40, color: '#e91e63' }} />}
-            color="#e91e63"
-            route="/admin/content/banners"
-          />
-        </Grid>
-
         <Grid  size={{xs: 12, sm: 6, md: 4}}>
           <ContentCard
             title="صفحات CMS"

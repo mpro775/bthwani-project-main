@@ -5,14 +5,23 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { getDistance } from 'geolib';
 import { Cart } from '../entities/cart.entity';
 import { AddToCartDto, UpdateCartItemDto } from '../dto/add-to-cart.dto';
+import { PricingStrategyService } from '../../pricing-strategy/pricing-strategy.service';
+import { UserService } from '../../user/user.service';
+import { StoreService } from '../../store/store.service';
+
+const DEFAULT_FALLBACK_FEE = 500;
 
 @Injectable()
 export class CartService {
   constructor(
     @InjectModel(Cart.name)
     private cartModel: Model<Cart>,
+    private readonly pricingStrategyService: PricingStrategyService,
+    private readonly userService: UserService,
+    private readonly storeService: StoreService,
   ) {}
 
   /**
@@ -169,5 +178,99 @@ export class CartService {
       .limit(limit)
       .lean()
       .exec() as unknown as Promise<Cart[]>;
+  }
+
+  /**
+   * حساب رسوم التوصيل بناءً على المسافة واستراتيجية التسعير
+   */
+  async calculateDeliveryFee(
+    userId: string,
+    addressId?: string | null,
+  ): Promise<{ subtotal: number; deliveryFee: number; total: number }> {
+    const cart = await this.getOrCreateCart(userId);
+    const subtotal = cart.total ?? 0;
+
+    if (!cart.items?.length) {
+      return {
+        subtotal,
+        deliveryFee: 0,
+        total: subtotal,
+      };
+    }
+
+    if (!addressId) {
+      return {
+        subtotal,
+        deliveryFee: DEFAULT_FALLBACK_FEE,
+        total: subtotal + DEFAULT_FALLBACK_FEE,
+      };
+    }
+
+    const address = await this.userService.getAddressById(userId, addressId);
+    if (!address?.location?.lat || !address?.location?.lng) {
+      return {
+        subtotal,
+        deliveryFee: DEFAULT_FALLBACK_FEE,
+        total: subtotal + DEFAULT_FALLBACK_FEE,
+      };
+    }
+
+    const firstStoreId = cart.items[0]?.store?.toString?.() ?? cart.items[0]?.store;
+    if (!firstStoreId) {
+      return {
+        subtotal,
+        deliveryFee: DEFAULT_FALLBACK_FEE,
+        total: subtotal + DEFAULT_FALLBACK_FEE,
+      };
+    }
+
+    let store: { location?: { lat: number; lng: number }; deliveryRadiusKm?: number };
+    try {
+      store = await this.storeService.findStoreById(firstStoreId);
+    } catch {
+      return {
+        subtotal,
+        deliveryFee: DEFAULT_FALLBACK_FEE,
+        total: subtotal + DEFAULT_FALLBACK_FEE,
+      };
+    }
+
+    const storeLocation = store?.location;
+    if (!storeLocation?.lat || !storeLocation?.lng) {
+      return {
+        subtotal,
+        deliveryFee: DEFAULT_FALLBACK_FEE,
+        total: subtotal + DEFAULT_FALLBACK_FEE,
+      };
+    }
+
+    const distanceMeters = getDistance(
+      { latitude: storeLocation.lat, longitude: storeLocation.lng },
+      { latitude: address.location.lat, longitude: address.location.lng },
+    );
+    const distanceKm = Math.round((distanceMeters / 1000) * 100) / 100;
+
+    if (
+      store.deliveryRadiusKm != null &&
+      store.deliveryRadiusKm > 0 &&
+      distanceKm > store.deliveryRadiusKm
+    ) {
+      throw new BadRequestException({
+        code: 'DELIVERY_OUT_OF_RANGE',
+        message: `المسافة (${distanceKm} كم) تتجاوز نصف قطر التوصيل (${store.deliveryRadiusKm} كم)`,
+        userMessage: 'العنوان خارج نطاق التوصيل للمتجر',
+        details: { distanceKm, deliveryRadiusKm: store.deliveryRadiusKm },
+      });
+    }
+
+    const deliveryFee = await this.pricingStrategyService.calculateDeliveryFee(
+      distanceKm,
+    );
+
+    return {
+      subtotal,
+      deliveryFee,
+      total: subtotal + deliveryFee,
+    };
   }
 }

@@ -109,21 +109,31 @@ export default function GroceriesMerchantProductsPage() {
       merchantApi.getMerchantProducts(),
       merchantApi.getCategories(),
       merchantApi.getCatalogProducts('grocery'),
-      axios.get<Vendor[]>("/vendor", {
+      axios.get<{ data?: Vendor[] } | Vendor[]>("/vendor", {
         headers: { Authorization: `Bearer ${token}` },
       }),
-      axios.get("/delivery/stores"),
+      axios.get<{ data?: Store[] } | Store[]>("/delivery/stores"),
     ]);
 
-    console.log("🟢 Merchants", merchRes.data);
-    console.log("🟢 Stores", storesRes.data);
-    console.log("🟢 Products", prodsRes);
+    const merchData = merchRes.data;
+    const merchantsList = Array.isArray(merchData)
+      ? merchData
+      : Array.isArray((merchData as { data?: Vendor[] })?.data)
+        ? (merchData as { data: Vendor[] }).data
+        : [];
+
+    const storesData = storesRes.data;
+    const storesList = Array.isArray(storesData)
+      ? storesData
+      : Array.isArray((storesData as { data?: Store[] })?.data)
+        ? (storesData as { data: Store[] }).data
+        : [];
 
     setAllMerchantProducts(Array.isArray(mpRes) ? mpRes : []);
     setCategories(Array.isArray(catsRes) ? catsRes : []);
     setProducts(Array.isArray(prodsRes) ? prodsRes : []);
-    setMerchants(merchRes.data ?? []);
-    setStores(storesRes.data ?? []);
+    setMerchants(merchantsList);
+    setStores(storesList);
   };
 
   console.log("stores in dialog", stores);
@@ -349,7 +359,7 @@ export default function GroceriesMerchantProductsPage() {
               label="التاجر"
               onChange={(e) => handleChange("merchant", e.target.value)}
             >
-              {merchants.map((m) => (
+              {(Array.isArray(merchants) ? merchants : []).map((m) => (
                 <MenuItem key={m._id} value={m._id}>
                   {m.fullName}
                 </MenuItem>
@@ -363,7 +373,7 @@ export default function GroceriesMerchantProductsPage() {
               label="المتجر"
               onChange={(e) => handleChange("store", e.target.value)}
             >
-              {stores.map((s) => (
+              {(Array.isArray(stores) ? stores : []).map((s) => (
                 <MenuItem key={s._id} value={s._id}>
                   {s.name}
                 </MenuItem>

@@ -22,20 +22,27 @@ type Props = {
 export default function SubCategoryTable({ items, onEdit, onDelete }: Props) {
   const theme = useTheme();
 
+  const headerBg =
+    theme.palette.mode === "dark"
+      ? theme.palette.grey[800]
+      : theme.palette.grey[100];
+
   return (
-    <Paper 
-      sx={{ 
+    <Paper
+      sx={{
         mb: 4,
-        borderRadius: '12px',
-        overflow: 'hidden',
-        border: `1px solid ${theme.palette.divider}`
+        borderRadius: "12px",
+        overflow: "hidden",
+        border: `1px solid ${theme.palette.divider}`,
+        bgcolor: "background.paper",
+        color: "text.primary",
       }}
     >
       <Table>
-        <TableHead sx={{ backgroundColor: theme.palette.grey[100] }}>
+        <TableHead sx={{ backgroundColor: headerBg, color: "text.primary" }}>
           <TableRow>
-            <TableCell sx={{ fontWeight: 'bold' }}>اسم الفئة</TableCell>
-            <TableCell align="right" sx={{ fontWeight: 'bold' }}>إجراءات</TableCell>
+            <TableCell sx={{ fontWeight: "bold", color: "inherit" }}>اسم الفئة</TableCell>
+            <TableCell align="right" sx={{ fontWeight: "bold", color: "inherit" }}>إجراءات</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>

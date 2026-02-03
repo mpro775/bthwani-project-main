@@ -26,7 +26,9 @@ import { NotificationModule } from './modules/notification/notification.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { FinanceModule } from './modules/finance/finance.module';
 import { CartModule } from './modules/cart/cart.module';
+import { PricingStrategyModule } from './modules/pricing-strategy/pricing-strategy.module';
 import { UtilityModule } from './modules/utility/utility.module';
+import { MetaModule } from './modules/meta/meta.module';
 import { AkhdimniModule } from './modules/akhdimni/akhdimni.module';
 import { AmaniModule } from './modules/amani/amani.module';
 import { PromotionModule } from './modules/promotion/promotion.module';
@@ -167,7 +169,10 @@ import { envValidationSchema } from './config/env.validation';
 
     CartModule,
 
+    PricingStrategyModule,
+
     UtilityModule,
+    MetaModule,
 
     AkhdimniModule,
 
