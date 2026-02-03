@@ -1,4 +1,4 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -42,8 +42,14 @@ export default function PricingSettingsPage() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await axios.get<{ success?: boolean; data?: Strategy[] }>("/pricing-strategies");
-        const list = Array.isArray(res.data?.data) ? res.data.data : (Array.isArray(res.data) ? res.data : []);
+        const res = await axios.get<{ success?: boolean; data?: Strategy[] }>(
+          "/pricing-strategies"
+        );
+        const list = Array.isArray(res.data?.data)
+          ? res.data.data
+          : Array.isArray(res.data)
+          ? res.data
+          : [];
         const first = list[0];
         if (first) {
           setStrategy(first);
@@ -53,7 +59,7 @@ export default function PricingSettingsPage() {
             name: first.name,
             baseDistance: first.baseDistance,
             basePrice: first.basePrice,
-            tiers: first.tiers?.map(t => ({ ...t })) ?? [],
+            tiers: first.tiers?.map((t: Tier) => ({ ...t })) ?? [],
             defaultPricePerKm: first.defaultPricePerKm,
           });
         } else {
@@ -64,7 +70,7 @@ export default function PricingSettingsPage() {
       }
     })();
   }, []);
-  
+
   // إضافة شريحة جديدة
   const addTier = () => {
     setForm((f) => ({
@@ -85,11 +91,7 @@ export default function PricingSettingsPage() {
   };
 
   // تحديث قيمة ضمن شريحة
-  const updateTier = (
-    index: number,
-    field: keyof Tier,
-    value: number
-  ) => {
+  const updateTier = (index: number, field: keyof Tier, value: number) => {
     setForm((f) => ({
       ...f,
       tiers: (f.tiers || []).map((t, i) =>
@@ -105,40 +107,52 @@ export default function PricingSettingsPage() {
         name: form.name ?? "",
         baseDistance: Number(form.baseDistance ?? 0),
         basePrice: Number(form.basePrice ?? 0),
-        tiers: (form.tiers ?? []).map(t => ({
+        tiers: (form.tiers ?? []).map((t) => ({
           minDistance: Number(t.minDistance ?? 0),
           maxDistance: Number(t.maxDistance ?? 0),
           pricePerKm: Number(t.pricePerKm ?? 0),
         })),
         defaultPricePerKm: Number(form.defaultPricePerKm ?? 0),
       };
-  
+
       let res;
       if (form._id) {
-        res = await axios.put<{ success?: boolean; data?: Strategy }>(`/pricing-strategies/${form._id}`, payload);
+        res = await axios.put<{ success?: boolean; data?: Strategy }>(
+          `/pricing-strategies/${form._id}`,
+          payload
+        );
       } else if (strategy?._id) {
-        res = await axios.put<{ success?: boolean; data?: Strategy }>(`/pricing-strategies/${strategy._id}`, payload);
+        res = await axios.put<{ success?: boolean; data?: Strategy }>(
+          `/pricing-strategies/${strategy._id}`,
+          payload
+        );
       } else {
-        res = await axios.post<{ success?: boolean; data?: Strategy }>("/pricing-strategies", payload);
+        res = await axios.post<{ success?: boolean; data?: Strategy }>(
+          "/pricing-strategies",
+          payload
+        );
       }
-  
-      const s = res.data?.data ?? res.data;
-      setStrategy(s);
-      setForm({
-        _id: s._id,
-        name: s.name,
-        baseDistance: s.baseDistance,
-        basePrice: s.basePrice,
-        tiers: s.tiers?.map(t => ({ ...t })) ?? [],
-        defaultPricePerKm: s.defaultPricePerKm,
-      });
-      alert("تم حفظ الإعدادات بنجاح");
+
+      const s = res.data?.data;
+      if (s) {
+        setStrategy(s);
+        setForm({
+          _id: s._id,
+          name: s.name,
+          baseDistance: s.baseDistance,
+          basePrice: s.basePrice,
+          tiers: s.tiers?.map((t: Tier) => ({ ...t })) ?? [],
+          defaultPricePerKm: s.defaultPricePerKm,
+        });
+        alert("تم حفظ الإعدادات بنجاح");
+      } else {
+        alert("حدث خطأ أثناء الحفظ - لم يتم إرجاع البيانات");
+      }
     } catch (err) {
       console.error(err);
       alert("حدث خطأ أثناء الحفظ");
     }
   };
-  
 
   if (!strategy) return <Typography>جارٍ تحميل الإعدادات...</Typography>;
 
@@ -154,9 +168,7 @@ export default function PricingSettingsPage() {
           fullWidth
           margin="normal"
           value={form.name || ""}
-          onChange={(e) =>
-            setForm({ ...form, name: e.target.value })
-          }
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
         />
 
         <Box display="flex" gap={2} mt={2}>
@@ -184,13 +196,7 @@ export default function PricingSettingsPage() {
           شرائح المسافات (Ranges)
         </Typography>
         {(form.tiers || []).map((tier, idx) => (
-          <Box
-            key={idx}
-            display="flex"
-            alignItems="center"
-            gap={1}
-            mt={1}
-          >
+          <Box key={idx} display="flex" alignItems="center" gap={1} mt={1}>
             <TextField
               label="من (كم)"
               type="number"
