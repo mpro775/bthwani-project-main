@@ -13,24 +13,10 @@ export class EmailService {
   }
 
   private initializeTransporter() {
-    const smtpHost =
-      this.configService.get<string>('SMTP_HOST') || 'smtp.hostinger.com';
-    const smtpPort =
-      parseInt(this.configService.get<string>('SMTP_PORT') || '465', 10) || 465;
-    const smtpUser =
-      this.configService.get<string>('SMTP_USER') || 'ceo@bthwani.com';
-    const smtpPassword =
-      this.configService.get<string>('SMTP_PASSWORD') || 'Ju[UVV>WCrNY4dJ';
-    const connectionTimeout =
-      parseInt(
-        this.configService.get<string>('SMTP_CONNECTION_TIMEOUT_MS') || '15000',
-        10,
-      ) || 15000;
-    const socketTimeout =
-      parseInt(
-        this.configService.get<string>('SMTP_SOCKET_TIMEOUT_MS') || '20000',
-        10,
-      ) || 20000;
+    const smtpHost = 'smtp.hostinger.com';
+    const smtpPort = 587;
+    const smtpUser = 'ceo@bthwani.com';
+    const smtpPassword = 'Ju[UVV>WCrNY4dJ';
 
     if (!smtpHost || !smtpUser || !smtpPassword) {
       this.logger.warn(
@@ -43,14 +29,11 @@ export class EmailService {
       this.transporter = nodemailer.createTransport({
         host: smtpHost,
         port: smtpPort,
-        secure: smtpPort === 465,
+        secure: smtpPort === 587, // true for 465, false for other ports
         auth: {
           user: smtpUser,
           pass: smtpPassword,
         },
-        connectionTimeout,
-        socketTimeout,
-        greetingTimeout: 10000,
       });
 
       this.logger.log('Email service initialized successfully');
@@ -76,7 +59,7 @@ export class EmailService {
 
     const emailFrom = this.configService.get<string>(
       'EMAIL_FROM',
-      'noreply@bthwani.com',
+      'ceo@bthwani.com',
     );
     const name = fullName || 'مستخدم';
 
