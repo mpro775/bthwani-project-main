@@ -10,10 +10,17 @@ import {
   UseGuards,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiQuery,
+  ApiBody,
+} from '@nestjs/swagger';
 import { CartService } from './services/cart.service';
 import { SheinCartService } from './services/shein-cart.service';
-import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';
 import {
   AddToCartDto,
   UpdateCartItemDto,
@@ -25,8 +32,15 @@ import {
   UpdateSheinCartItemDto,
   UpdateSheinShippingDto,
 } from './dto/shein-cart.dto';
-import { Auth, CurrentUser, Roles } from '../../common/decorators/auth.decorator';
-import { AuthType, UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';
+import {
+  Auth,
+  CurrentUser,
+  Roles,
+} from '../../common/decorators/auth.decorator';
+import {
+  AuthType,
+  UnifiedAuthGuard,
+} from '../../common/guards/unified-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 
 @ApiTags('Cart')
@@ -96,7 +110,10 @@ export class CartController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'الحصول على سلة بالمعرف' })
-  async getCartById(@Param('cartId') cartId: string, @CurrentUser('id') userId: string) {
+  async getCartById(
+    @Param('cartId') cartId: string,
+    @CurrentUser('id') userId: string,
+  ) {
     return this.cartService.getOrCreateCart(userId);
   }
 
@@ -107,7 +124,10 @@ export class CartController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'حذف سلة أو منتج من السلة' })
-  async deleteCartItem(@CurrentUser('id') userId: string, @Param('id') itemId: string) {
+  async deleteCartItem(
+    @CurrentUser('id') userId: string,
+    @Param('id') itemId: string,
+  ) {
     return this.cartService.removeItem(userId, itemId);
   }
 
@@ -133,16 +153,18 @@ export class CartController {
   }
 
   @Post('add')
-  @ApiBody({ schema: { type: 'object', properties: { items: { type: 'array' }, store: { type: 'string' } } } })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { items: { type: 'array' }, store: { type: 'string' } },
+    },
+  })
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Auth(AuthType.JWT)
   @ApiOperation({ summary: 'إضافة منتج للسلة (توافق)' })
-  async addToCartCompat(
-    @CurrentUser('id') userId: string,
-    @Body() body: any,
-  ) {
+  async addToCartCompat(@CurrentUser('id') userId: string, @Body() body: any) {
     if (!userId || typeof userId !== 'string' || !String(userId).trim()) {
       throw new UnauthorizedException({
         code: 'USER_REQUIRED',
@@ -270,7 +292,11 @@ export class CartController {
   }
 
   @Get('fee')
-  @ApiQuery({ name: 'addressId', required: false, description: 'معرف عنوان التوصيل لحساب المسافة' })
+  @ApiQuery({
+    name: 'addressId',
+    required: false,
+    description: 'معرف عنوان التوصيل لحساب المسافة',
+  })
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Auth(AuthType.JWT)
@@ -283,7 +309,9 @@ export class CartController {
   }
 
   @Post('merge')
-  @ApiBody({ schema: { type: 'object', properties: { guestCartId: { type: 'string' } } } })
+  @ApiBody({
+    schema: { type: 'object', properties: { guestCartId: { type: 'string' } } },
+  })
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })

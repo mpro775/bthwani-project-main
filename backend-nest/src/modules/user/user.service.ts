@@ -164,11 +164,7 @@ export class UserService {
     if (byId >= 0) return { address: user.addresses[byId], index: byId };
 
     const index = parseInt(addressId, 10);
-    if (
-      !isNaN(index) &&
-      index >= 0 &&
-      index < user.addresses.length
-    ) {
+    if (!isNaN(index) && index >= 0 && index < user.addresses.length) {
       return { address: user.addresses[index], index };
     }
     return null;
@@ -271,7 +267,8 @@ export class UserService {
     let resolvedId: string | null = null;
 
     const byId = user.addresses.find(
-      (addr) => (addr as { _id?: Types.ObjectId })._id?.toString() === addressId,
+      (addr) =>
+        (addr as { _id?: Types.ObjectId })._id?.toString() === addressId,
     );
     if (byId) {
       resolvedId = (byId as { _id?: Types.ObjectId })._id?.toString() ?? null;
@@ -279,11 +276,7 @@ export class UserService {
 
     if (!resolvedId) {
       const index = parseInt(addressId, 10);
-      if (
-        !isNaN(index) &&
-        index >= 0 &&
-        index < user.addresses.length
-      ) {
+      if (!isNaN(index) && index >= 0 && index < user.addresses.length) {
         const addr = user.addresses[index] as { _id?: Types.ObjectId };
         if (!addr._id) {
           (user.addresses[index] as { _id: Types.ObjectId })._id =
@@ -291,7 +284,9 @@ export class UserService {
           user.markModified('addresses');
           await user.save();
         }
-        resolvedId = (user.addresses[index] as { _id?: Types.ObjectId })._id?.toString() ?? null;
+        resolvedId =
+          (user.addresses[index] as { _id?: Types.ObjectId })._id?.toString() ??
+          null;
       }
     }
 
@@ -309,100 +304,6 @@ export class UserService {
     return {
       message: 'تم تعيين العنوان الافتراضي',
       defaultAddressId: user.defaultAddressId,
-    };
-  }
-
-  /**
-   * الحصول على عنوان بواسطة المعرف (للاستخدام في الطلبات وغيرها)
-   */
-  async getAddressById(
-    userId: string,
-    addressId: string,
-  ): Promise<{
-    label?: string;
-    street?: string;
-    city?: string;
-    location?: { lat: number; lng: number };
-  }> {
-    await this.ensureAddressIds(userId);
-    // استخدم document عادي (بدون lean) لضمان وجود _id في subdocuments
-    const user = await this.userModel
-      .findById(userId)
-      .select('addresses')
-      .exec();
-
-    if (!user?.addresses?.length) {
-      throw new NotFoundException({
-        code: 'ADDRESS_NOT_FOUND',
-        message: 'Address not found',
-        userMessage: 'العنوان غير موجود',
-      });
-    }
-
-    const id = String(addressId || '').trim();
-    const addrList = (user.addresses || []) as Array<{
-      _id?: Types.ObjectId | { toString: () => string };
-      id?: string;
-      label?: string;
-      street?: string;
-      city?: string;
-      location?: { lat: number; lng: number };
-    }>;
-
-    // ترحيل: إضافة _id لأي عنوان لا يملكه
-    let needsSave = false;
-    for (let i = 0; i < addrList.length; i++) {
-      if (!addrList[i]._id) {
-        (user.addresses[i] as { _id: Types.ObjectId })._id = new Types.ObjectId();
-        needsSave = true;
-      }
-    }
-    if (needsSave) {
-      user.markModified('addresses');
-      await user.save();
-    }
-
-    // 🔍 لوج للتصحيح: العناوين المتاحة vs المطلوب
-    const availableIds = addrList.map((a, i) => ({
-      index: i,
-      _id: a._id?.toString?.() ?? String(a._id),
-      id: (a as { id?: string }).id,
-    }));
-    this.logger.log(
-      `[getAddressById] userId=${userId}, addressId received="${id}", available addresses: ${JSON.stringify(availableIds)}`,
-    );
-
-    let address = addrList.find(
-      (a) =>
-        a._id?.toString() === id ||
-        (a as { id?: string }).id === id ||
-        String(a._id) === id,
-    );
-    if (!address) {
-      const index = parseInt(id, 10);
-      if (!isNaN(index) && index >= 0 && index < addrList.length) {
-        address = addrList[index];
-      }
-    }
-    // ترحيل: عند وجود عنوان واحد فقط والعناوين القديمة بدون _id، استخدمه
-    if (!address && addrList.length === 1) {
-      address = addrList[0];
-      this.logger.log(
-        `[getAddressById] Fallback: using single address (addressId "${id}" didn't match _id)`,
-      );
-    }
-    if (!address) {
-      throw new NotFoundException({
-        code: 'ADDRESS_NOT_FOUND',
-        message: 'Address not found',
-        userMessage: 'العنوان غير موجود',
-      });
-    }
-    return {
-      label: address.label,
-      street: address.street,
-      city: address.city,
-      location: address.location,
     };
   }
 
@@ -433,7 +334,11 @@ export class UserService {
   async getAddressById(
     userId: string,
     addressId: string,
-  ): Promise<{ street: string; city: string; location?: { lat: number; lng: number } } | null> {
+  ): Promise<{
+    street: string;
+    city: string;
+    location?: { lat: number; lng: number };
+  } | null> {
     await this.ensureAddressIds(userId);
     const user = await this.userModel
       .findById(userId)
