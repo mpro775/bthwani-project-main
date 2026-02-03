@@ -4,6 +4,7 @@ import {
   VersioningType,
   BadRequestException,
 } from '@nestjs/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
@@ -17,9 +18,13 @@ import rateLimit from 'express-rate-limit';
 
 async function bootstrap() {
   try {
-    const app = await NestFactory.create(AppModule, {
+    const app = await NestFactory.create<NestExpressApplication>(AppModule, {
       logger,
     });
+
+  // عند تشغيل التطبيق خلف بروكسي (nginx وغيرها) يجب الثقة بـ X-Forwarded-For
+  // وإلا express-rate-limit يرمي ERR_ERL_UNEXPECTED_X_FORWARDED_FOR ويفشل الطلب
+  app.set('trust proxy', 1);
 
   // CORS أولاً حتى يعالج طلب preflight (OPTIONS) قبل أي middleware
   // مع credentials: true لا يمكن استخدام '*' — نستخدم قائمة أصول صريحة
