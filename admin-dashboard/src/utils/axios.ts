@@ -6,10 +6,9 @@ import type { ApiResponse } from "../types/api";
 // محلياً (npm run dev): يستخدم localhost إلا إذا عرّفت VITE_API_URL
 // عند البناء للإنتاج: يستخدم السيرفر الحقيقي إلا إذا عرّفت VITE_API_URL
 const PRODUCTION_API = "https://api-bthwani.smartagency-ye.com/api/v1";
-const LOCAL_API = "http://localhost:3000/api/v1";
+  // const LOCAL_API = "http://localhost:3000/api/v1";
 export const BASE_URL =
-  import.meta.env.VITE_API_URL ||
-  (import.meta.env.DEV ? LOCAL_API : PRODUCTION_API);
+   PRODUCTION_API;
 
 // Axios instance
 const instance = axios.create({
