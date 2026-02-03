@@ -8,5 +8,9 @@
 node_modules
 *.secret.json
 
+<<<<<<< HEAD
+# runtime/reports (generated, do not commit)
+=======
 # runtime/tap reports (generated, do not commit)
+>>>>>>> 14295af8fc81b0530570691c880c80362ad35493
 backend-nest/reports/runtime-tap-24h.json
