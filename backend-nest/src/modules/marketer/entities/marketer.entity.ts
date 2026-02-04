@@ -12,8 +12,14 @@ export class Marketer extends Document {
   @Prop()
   email?: string;
 
+  @Prop({ select: false })
+  password?: string;
+
   @Prop({ type: Types.ObjectId, ref: 'User' })
   userId?: Types.ObjectId;
+
+  @Prop()
+  pushToken?: string;
 
   @Prop({ default: 'active', enum: ['active', 'inactive', 'suspended'] })
   status: string;

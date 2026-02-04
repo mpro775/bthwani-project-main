@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule } from '@nestjs/jwt';
 import { MarketerController } from './marketer.controller';
+import { OnboardingController } from '../onboarding/onboarding.controller';
 import { MarketerService } from './marketer.service';
 import { Marketer, MarketerSchema } from './entities/marketer.entity';
 import { Onboarding, OnboardingSchema } from './entities/onboarding.entity';
@@ -24,7 +25,7 @@ import {
     ]),
     JwtModule.register({}),
   ],
-  controllers: [MarketerController],
+  controllers: [MarketerController, OnboardingController],
   providers: [MarketerService],
   exports: [MarketerService],
 })

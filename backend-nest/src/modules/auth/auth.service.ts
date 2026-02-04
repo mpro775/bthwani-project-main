@@ -14,6 +14,7 @@ import { User } from './entities/user.entity';
 import { RegisterDto } from './dto/register.dto';
 import { RegisterLocalDto } from './dto/register-local.dto';
 import { Driver } from '../driver/entities/driver.entity';
+import { Marketer } from '../marketer/entities/marketer.entity';
 import * as bcrypt from 'bcrypt';
 import { EmailService } from '../../common/services/email.service';
 import { VerifyOtpResponse } from './types/auth.types';
@@ -54,6 +55,7 @@ export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Driver.name) private driverModel: Model<Driver>,
+    @InjectModel(Marketer.name) private marketerModel: Model<Marketer>,
     private jwtService: JwtService,
     private configService: ConfigService,
     private emailService: EmailService,
@@ -310,6 +312,118 @@ export class AuthService {
   private sanitizeDriver(driver: any) {
     const sanitized = SanitizationHelper.sanitize<Driver>(driver);
     return sanitized;
+  }
+
+  // ==================== Marketer Authentication ====================
+
+  /** Marketer login: email + password → Marketer JWT + user */
+  async marketerLogin(
+    email: string,
+    password: string,
+  ): Promise<{ user: { id: string; fullName: string; email?: string }; token: { accessToken: string; tokenType: string; expiresIn: string } }> {
+    const marketer = await this.marketerModel
+      .findOne({ email: email.toLowerCase() })
+      .select('+password')
+      .lean();
+
+    if (!marketer) {
+      throw new UnauthorizedException({
+        code: 'INVALID_CREDENTIALS',
+        message: 'Invalid email or password',
+        userMessage: 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
+      });
+    }
+
+    if (!marketer.password) {
+      throw new UnauthorizedException({
+        code: 'PASSWORD_NOT_SET',
+        message: 'Password not set for this account',
+        userMessage: 'لم يتم تعيين كلمة مرور لهذا الحساب',
+      });
+    }
+
+    const isValidPassword = await this.comparePassword(
+      password,
+      marketer.password,
+    );
+    if (!isValidPassword) {
+      throw new UnauthorizedException({
+        code: 'INVALID_CREDENTIALS',
+        message: 'Invalid email or password',
+        userMessage: 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
+      });
+    }
+
+    if (!marketer.isActive) {
+      throw new UnauthorizedException({
+        code: 'ACCOUNT_INACTIVE',
+        message: 'Account is not active',
+        userMessage: 'الحساب غير نشط',
+      });
+    }
+
+    const marketerId = String((marketer as any)._id);
+    const token = await this.generateMarketerToken(marketerId);
+    const expiresIn =
+      this.configService.get<string>('jwt.marketerExpiresIn') || '30d';
+
+    return {
+      user: {
+        id: marketerId,
+        fullName: marketer.fullName,
+        email: marketer.email,
+      },
+      token: {
+        accessToken: token,
+        tokenType: 'Bearer',
+        expiresIn,
+      },
+    };
+  }
+
+  private async generateMarketerToken(marketerId: string): Promise<string> {
+    const secret = this.configService.get<string>('jwt.marketerSecret');
+    if (!secret) {
+      throw new UnauthorizedException('Marketer JWT secret is not configured');
+    }
+    const expiresIn =
+      this.configService.get<string>('jwt.marketerExpiresIn') || '30d';
+    return this.jwtService.signAsync(
+      { marketerId },
+      { secret, expiresIn } as SignOptions,
+    );
+  }
+
+  async getMarketerProfile(marketerId: string): Promise<{
+    user: { id: string; fullName: string; email?: string; phone?: string };
+  }> {
+    const marketer = await this.marketerModel.findById(marketerId).lean();
+    if (!marketer) {
+      throw new NotFoundException({
+        code: 'MARKETER_NOT_FOUND',
+        message: 'Marketer not found',
+        userMessage: 'المسوق غير موجود',
+      });
+    }
+    const m = marketer as any;
+    return {
+      user: {
+        id: String(m._id),
+        fullName: m.fullName,
+        email: m.email,
+        phone: m.phone,
+      },
+    };
+  }
+
+  async updateMarketerPushToken(
+    marketerId: string,
+    pushToken: string,
+  ): Promise<{ success: boolean; message: string }> {
+    await this.marketerModel.findByIdAndUpdate(marketerId, {
+      pushToken,
+    });
+    return { success: true, message: 'تم حفظ رمز الإشعارات بنجاح' };
   }
 
   // ==================== Local Authentication Methods ====================

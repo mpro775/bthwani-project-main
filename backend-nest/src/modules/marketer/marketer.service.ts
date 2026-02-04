@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types, FilterQuery, UpdateQuery } from 'mongoose';
 import { Marketer } from './entities/marketer.entity';
@@ -653,46 +657,160 @@ export class MarketerService {
     return this.getById(marketerId);
   }
 
-  async updateProfile(marketerId: string, updates: UpdateQuery<Marketer>) {
-    void marketerId;
-    void updates;
-    await Promise.resolve();
-    return this.update(marketerId, updates);
+  async updateProfile(
+    marketerId: string,
+    updates: UpdateQuery<Marketer> & { name?: string; fullName?: string; phone?: string; email?: string },
+  ) {
+    const normalized: UpdateQuery<Marketer> = { ...updates };
+    const nameValue = (updates.fullName ?? updates.name) as string | undefined;
+    if (nameValue !== undefined) {
+      (normalized as any).fullName = nameValue;
+    }
+    delete (normalized as any).name;
+    return this.update(marketerId, normalized);
   }
 
   async createOnboarding(marketerId: string, onboardingData: any) {
-    const onboarding = await this.onboardingModel.create({
+    const payload = {
       ...onboardingData,
       marketer: new Types.ObjectId(marketerId),
-      status: 'pending',
-    });
-    void marketerId;
-    void onboardingData;
-    await Promise.resolve();
+      status: onboardingData.status ?? 'draft',
+    };
+    const onboarding = await this.onboardingModel.create(payload);
     return onboarding;
   }
 
-  async getMyOnboardings(marketerId: string, status?: string) {
+  async getMyOnboardings(
+    marketerId: string,
+    status?: string,
+    page?: number,
+    limit?: number,
+    from?: string,
+    to?: string,
+  ) {
     const query: FilterQuery<Onboarding> = {
       marketer: new Types.ObjectId(marketerId),
     };
     if (status) query.status = status;
+    if (from || to) {
+      query.createdAt = {} as any;
+      if (from) (query.createdAt as any).$gte = new Date(from);
+      if (to) (query.createdAt as any).$lte = new Date(to);
+    }
 
-    const onboardings = await this.onboardingModel
-      .find(query)
-      .sort({ createdAt: -1 });
-    void marketerId;
-    void status;
-    await Promise.resolve();
-    return { data: onboardings, total: onboardings.length };
+    const pageNum = Math.max(1, page ?? 1);
+    const limitNum = Math.min(100, Math.max(1, limit ?? 20));
+    const skip = (pageNum - 1) * limitNum;
+
+    const [onboardings, total] = await Promise.all([
+      this.onboardingModel
+        .find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+      this.onboardingModel.countDocuments(query),
+    ]);
+
+    return {
+      data: onboardings,
+      items: onboardings,
+      total,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages: Math.ceil(total / limitNum),
+      },
+    };
   }
 
   async getOnboardingDetails(onboardingId: string) {
     return this.getApplicationDetails(onboardingId);
   }
 
-  async quickOnboard(marketerId: string, data: any) {
-    return this.createOnboarding(marketerId, { ...data, quickOnboard: true });
+  async getOnboardingDetailsForMarketer(
+    onboardingId: string,
+    marketerId: string,
+  ) {
+    const doc = await this.onboardingModel.findById(onboardingId).lean();
+    if (!doc) {
+      throw new NotFoundException({
+        code: 'ONBOARDING_NOT_FOUND',
+        userMessage: 'الطلب غير موجود',
+      });
+    }
+    const docMarketerId = (doc as any).marketer?.toString?.() ?? (doc as any).marketer;
+    if (docMarketerId !== marketerId) {
+      throw new ForbiddenException({
+        code: 'ONBOARDING_ACCESS_DENIED',
+        userMessage: 'غير مصرح لك بعرض هذا الطلب',
+      });
+    }
+    return doc;
+  }
+
+  async updateOnboardingByMarketer(
+    onboardingId: string,
+    marketerId: string,
+    updates: Partial<{
+      storeName: string;
+      ownerName: string;
+      phone: string;
+      email: string;
+      address: any;
+      type: string;
+    }>,
+  ) {
+    await this.getOnboardingDetailsForMarketer(onboardingId, marketerId);
+    const updated = await this.onboardingModel
+      .findByIdAndUpdate(
+        onboardingId,
+        { $set: updates },
+        { new: true },
+      )
+      .lean();
+    return updated;
+  }
+
+  async submitOnboardingByMarketer(onboardingId: string, marketerId: string) {
+    await this.getOnboardingDetailsForMarketer(onboardingId, marketerId);
+    const doc = await this.onboardingModel.findById(onboardingId);
+    if (!doc) throw new NotFoundException({ code: 'ONBOARDING_NOT_FOUND', userMessage: 'الطلب غير موجود' });
+    const allowedBeforeSubmit = ['draft', 'needs_fix'];
+    if (!allowedBeforeSubmit.includes(doc.status)) {
+      return doc.toObject ? doc.toObject() : doc;
+    }
+    const updated = await this.onboardingModel
+      .findByIdAndUpdate(onboardingId, { status: 'pending' }, { new: true })
+      .lean();
+    return updated;
+  }
+
+  async quickOnboard(
+    marketerId: string,
+    data: {
+      phone: string;
+      storeName: string;
+      location: { lat: number; lng: number };
+      ownerName?: string;
+      type?: 'store' | 'vendor' | 'driver';
+    },
+  ) {
+    const payload = {
+      storeName: data.storeName,
+      ownerName: data.ownerName ?? data.storeName,
+      phone: data.phone,
+      address: {
+        street: '',
+        city: '',
+        district: '',
+        location: data.location,
+      },
+      type: data.type ?? 'store',
+      status: 'pending', // التسجيل السريع يُرفع مباشرة
+    };
+    return this.createOnboarding(marketerId, payload);
   }
 
   async generateReferralCode(marketerId: string) {

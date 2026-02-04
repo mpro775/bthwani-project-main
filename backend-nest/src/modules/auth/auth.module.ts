@@ -10,6 +10,7 @@ import { ConsentService } from './services/consent.service';
 import { User, UserSchema } from './entities/user.entity';
 import { UserConsent, UserConsentSchema } from './entities/user-consent.entity';
 import { Driver, DriverSchema } from '../driver/entities/driver.entity';
+import { Marketer, MarketerSchema } from '../marketer/entities/marketer.entity';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -27,6 +28,7 @@ import { EmailService } from '../../common/services/email.service';
       { name: User.name, schema: UserSchema },
       { name: UserConsent.name, schema: UserConsentSchema },
       { name: Driver.name, schema: DriverSchema },
+      { name: Marketer.name, schema: MarketerSchema },
     ]),
 
     // Passport

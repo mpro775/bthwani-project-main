@@ -30,8 +30,9 @@ export function useOnboarding() {
 
   const hasMore = total == null ? false : items.length < total;
   async function getOne(id: string) {
-    const { data } = await api.get(ENDPOINTS.ONB_GET_ONE(id));
-    return data; // مستند Onboarding الواحد
+    const res = await api.get(ENDPOINTS.ONB_GET_ONE(id));
+    const data = res.data as any;
+    return data?.data ?? data; // الباك قد يرجع { success, data: {...} }
   }
   async function listMy(opts: ListMyOpts = {}) {
     setLoading(true);
@@ -40,7 +41,7 @@ export function useOnboarding() {
       const reqPage = opts.page ?? page;
       const reqLimit = opts.limit ?? limit;
 
-      const { data } = await api.get<ListMyResponse | OnboardingDraft[]>(
+      const res = await api.get<{ data?: { items?: OnboardingDraft[]; pagination?: { page: number; limit: number; total: number }; total?: number }; items?: OnboardingDraft[]; pagination?: { page: number; limit: number; total: number } }>(
         ENDPOINTS.ONB_LIST_MY,
         {
           params: {
@@ -52,9 +53,10 @@ export function useOnboarding() {
           },
         }
       );
-
-      // يدعم الشكلين: { items, pagination } أو Array مباشرة
-      const incomingItems = Array.isArray(data) ? data : data.items || [];
+      const data = res.data;
+      // الباك يرجع { success, data: { items, pagination, total }, message }
+      const payload = (data as any)?.data ?? data;
+      const incomingItems = Array.isArray(payload) ? payload : payload?.items ?? [];
       const nextItems =
         opts.reset || reqPage === 1
           ? incomingItems
@@ -62,15 +64,15 @@ export function useOnboarding() {
 
       setItems(nextItems);
 
-      if (!Array.isArray(data) && data.pagination) {
-        setPage(data.pagination.page);
-        setLimit(data.pagination.limit);
-        setTotal(data.pagination.total);
+      const pag = payload?.pagination;
+      if (pag) {
+        setPage(pag.page);
+        setLimit(pag.limit);
+        setTotal(pag.total);
       } else {
-        // لو الباك ما يرجّع pagination، اعتبرها صفحة واحدة
         setPage(1);
         setLimit(incomingItems.length);
-        setTotal(incomingItems.length);
+        setTotal(payload?.total ?? incomingItems.length);
       }
     } catch (e: any) {
       const status = e?.response?.status;
@@ -89,8 +91,9 @@ export function useOnboarding() {
   async function createDraft(
     payload: Partial<OnboardingDraft>
   ): Promise<{ id: string }> {
-    const { data } = await api.post(ENDPOINTS.ONB_CREATE, payload);
-    return { id: data._id || data.id };
+    const res = await api.post(ENDPOINTS.ONB_CREATE, payload);
+    const data = (res.data as any)?.data ?? res.data;
+    return { id: data?._id ?? data?.id ?? "" };
   }
 
   async function updateDraft(id: string, payload: Partial<OnboardingDraft>) {

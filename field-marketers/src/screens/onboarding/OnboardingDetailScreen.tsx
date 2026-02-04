@@ -61,11 +61,22 @@ export default function OnboardingDetailScreen() {
     );
   }
 
-  // دعم الشكلين: Onboarding (storeDraft/status) أو Store (store/* من استجابة أخرى)
-  const storeName = doc.storeDraft?.name ?? doc.store?.name ?? "—";
-  const storeAddr = doc.storeDraft?.address ?? doc.store?.address ?? "—";
-  const status = doc.status; // متاح فقط في Onboarding
-  const isStoreOnly = !status; // لو ما فيه status اعتبره Store
+  // دعم شكل التطبيق (storeDraft/ownerDraft) وشكل الباك (storeName, ownerName, address)
+  const storeName =
+    doc.storeName ??
+    doc.storeDraft?.name ??
+    doc.store?.name ??
+    "—";
+  const storeAddr =
+    doc.storeDraft?.address ??
+    doc.store?.address ??
+    (doc.address
+      ? [doc.address.street, doc.address.city, doc.address.district]
+          .filter(Boolean)
+          .join("، ") || "—"
+      : "—");
+  const status = doc.status;
+  const isStoreOnly = !status;
 
   const badgeStyle =
     status === "approved"
@@ -120,9 +131,9 @@ export default function OnboardingDetailScreen() {
         <>
           <View style={s.card}>
             <Text style={s.h1}>المالك</Text>
-            <Text>الاسم: {doc.ownerDraft?.fullName || "—"}</Text>
-            <Text>الهاتف: {doc.ownerDraft?.phone || "—"}</Text>
-            <Text>البريد: {doc.ownerDraft?.email || "—"}</Text>
+            <Text>الاسم: {doc.ownerName ?? doc.ownerDraft?.fullName ?? "—"}</Text>
+            <Text>الهاتف: {doc.phone ?? doc.ownerDraft?.phone ?? "—"}</Text>
+            <Text>البريد: {doc.email ?? doc.ownerDraft?.email ?? "—"}</Text>
           </View>
 
           <View style={s.card}>
@@ -167,11 +178,12 @@ function mapStatus(s: string) {
     case "rejected":
       return "مرفوض";
     case "submitted":
-      return "مُرسَل";
+    case "pending":
+      return "مُرسَل / بانتظار المراجعة";
     case "draft":
       return "مسودة";
     default:
-      return "غير معروف";
+      return s || "غير معروف";
   }
 }
 
