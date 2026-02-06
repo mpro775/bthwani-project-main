@@ -38,7 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // تحقق من وجود token محفوظ عند بدء التطبيق
+  // تحقق من وجود token محفوظ عند بدء التطبيق (ربط مع GET /auth/me في الباك)
   useEffect(() => {
     const checkAuthState = async () => {
       try {
@@ -48,26 +48,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return;
         }
 
-        // ضع التوكن فوراً في api (بما يغطي كلا الحالتين)
         await setAuthToken(savedToken);
 
-        // الآن اطلب endpoint مخصص لإرجاع بيانات المستخدم الحالية
-        // يجب أن يكون هذا endpoint محمي بتوكنك (verifyMarketerJWT)
-        const resp = await api.get("/auth/me"); // ← تأكد أن الباك يوفر هذا المسار
-
-        // إذا رجع المستخدم بنجاح — اعتبر الجلسة صالحة
-        const u = resp.data;
-        setToken(savedToken);
-        setUser({
-          id: u._id || u.id,
-          fullName: u.fullName,
-          email: u.email,
-          uid: u.uid || u.firebaseUid,
-        });
+        // الباك يرجع: { success: true, data: { user: { id, fullName, email, phone } } }
+        const resp = await api.get(ENDPOINTS.AUTH_ME);
+        const payload = resp.data?.data ?? resp.data;
+        const u = payload?.user;
+        if (u) {
+          setToken(savedToken);
+          setUser({
+            id: String(u.id ?? u._id),
+            fullName: u.fullName,
+            email: u.email,
+            uid: u.uid ?? u.firebaseUid,
+          });
+        }
       } catch (err) {
         console.log(
           "Token validation failed, clearing saved token",
-          (err as any)?.response?.status || (err as any)?.message
+          (err as any)?.response?.status ?? (err as any)?.message
         );
         await setAuthToken(null);
       } finally {
@@ -93,20 +92,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email,
       password,
     });
-    console.log("login response data:", data);
-    setToken(data.token);
+    // الباك يرجع: { success, message, data: { user: { id, fullName, email }, token: { accessToken, tokenType, expiresIn } } }
+    const payload = data?.data ?? data;
+    const userData = payload?.user;
+    const tokenObj = payload?.token;
+    const tokenStr =
+      typeof tokenObj === "string"
+        ? tokenObj
+        : tokenObj?.accessToken ?? payload?.accessToken;
+    if (!tokenStr) {
+      throw new Error("لم يُرجَع توكن من الخادم");
+    }
+    setToken(tokenStr);
     setUser({
-      id: data.user?._id || data.user?.id,
-      fullName: data.user?.fullName,
-      email: data.user?.email,
-      uid: data.user?.uid || data.user?.firebaseUid,
+      id: String(userData?.id ?? userData?._id ?? ""),
+      fullName: userData?.fullName,
+      email: userData?.email,
+      uid: userData?.uid ?? userData?.firebaseUid,
     });
-    await setAuthToken(data.token);
+    await setAuthToken(tokenStr);
 
     try {
       const expoToken = await registerForPush();
       if (expoToken) {
-        await api.post(ENDPOINTS.PUSH_TOKEN, { expoPushToken: expoToken });
+        await api.post(ENDPOINTS.PUSH_TOKEN, { pushToken: expoToken });
       }
     } catch (err) {
       console.warn("push token registration failed (non-blocking):", err);
@@ -116,7 +125,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     setToken(null);
     setUser(null);
-    await setAuthToken(null);
+    await setAuthToken(null); // يمسح التوكن من SecureStore ويفك ربط الـ api
   };
   const value = useMemo(
     () => ({ user, token, isLoading, login, logout }),

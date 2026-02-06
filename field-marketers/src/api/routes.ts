@@ -1,17 +1,20 @@
 export const ENDPOINTS = {
   // ==================== Auth ====================
-  AUTH_MARKETER_LOGIN: "/auth/marketer-login", // { token, user }
+  AUTH_MARKETER_LOGIN: "/auth/marketer-login",
+  AUTH_ME: "/auth/me", // Marketer JWT → current user
   PUSH_TOKEN: "/auth/push-token",
 
   // ==================== Profile ====================
   PROFILE_GET: "/marketer/profile",
   PROFILE_UPDATE: "/marketer/profile",
 
-  // ==================== Onboarding ====================
-  ONB_CREATE: "/marketer/onboarding",
-  ONB_LIST_MY: "/marketer/onboarding/my",
-  ONB_GET_ONE: (id: string) => `/marketer/onboarding/${id}`,
-  QUICK_ONBOARD: "/marketer/quick-onboard",
+  // ==================== Onboarding (مطابقة الباك: /onboarding) ====================
+  ONB_CREATE: "/onboarding",
+  ONB_LIST_MY: "/onboarding/my",
+  ONB_GET_ONE: (id: string) => `/onboarding/${id}`,
+  ONB_UPDATE: (id: string) => `/onboarding/${id}`,
+  ONB_SUBMIT: (id: string) => `/onboarding/${id}/submit`,
+  QUICK_ONBOARD: "/onboarding/quick-onboard",
 
   // ==================== Referrals ====================
   REFERRALS_GENERATE_CODE: "/marketer/referrals/generate-code",

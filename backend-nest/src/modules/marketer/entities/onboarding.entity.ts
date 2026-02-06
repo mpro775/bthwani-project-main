@@ -34,7 +34,10 @@ export class Onboarding extends Document {
   @Prop({ required: true, enum: ['store', 'vendor', 'driver'] })
   type: string;
 
-  @Prop({ default: 'pending', enum: ['pending', 'approved', 'rejected'] })
+  @Prop({
+    default: 'draft',
+    enum: ['draft', 'pending', 'submitted', 'needs_fix', 'approved', 'rejected'],
+  })
   status: string;
 
   @Prop({ type: Types.ObjectId, ref: 'Marketer' })
@@ -42,6 +45,12 @@ export class Onboarding extends Document {
 
   @Prop()
   rejectionReason?: string;
+
+  @Prop({ type: Types.ObjectId, ref: 'User' })
+  rejectedBy?: Types.ObjectId;
+
+  @Prop()
+  rejectedAt?: Date;
 
   @Prop({ type: Types.ObjectId })
   createdEntityId?: Types.ObjectId;
@@ -51,6 +60,12 @@ export class Onboarding extends Document {
 
   @Prop({ type: Types.ObjectId, ref: 'User' })
   approvedBy?: Types.ObjectId;
+
+  @Prop()
+  categoryId?: string;
+
+  @Prop()
+  imageUrl?: string;
 }
 
 export const OnboardingSchema = SchemaFactory.createForClass(Onboarding);

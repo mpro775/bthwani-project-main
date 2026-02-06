@@ -85,8 +85,9 @@ export default function LoginScreen() {
     try {
       await login(formData.email.trim(), formData.password);
     } catch (error: any) {
+      const res = error?.response?.data;
       const errorMessage =
-        error?.response?.data?.message || "حدث خطأ أثناء تسجيل الدخول";
+        res?.userMessage ?? res?.message ?? "حدث خطأ أثناء تسجيل الدخول";
       Alert.alert("فشل الدخول", errorMessage);
     } finally {
       setLoading(false);

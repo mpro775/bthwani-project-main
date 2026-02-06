@@ -59,6 +59,87 @@ export class AuthController {
     return this.authService.driverLogin(loginDto.email, loginDto.password);
   }
 
+  // ==================== Marketer Authentication ====================
+
+  @Public()
+  @Throttle({ auth: { ttl: 60000, limit: 5 } })
+  @Post('marketer-login')
+  @ApiResponse({
+    status: 200,
+    description: 'تسجيل دخول المسوق بنجاح',
+    schema: {
+      example: {
+        success: true,
+        message: 'تم تسجيل الدخول بنجاح',
+        data: {
+          user: { id: '...', fullName: '...', email: '...' },
+          token: { accessToken: '...', tokenType: 'Bearer', expiresIn: '30d' },
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
+  @ApiOperation({ summary: 'تسجيل دخول المسوق' })
+  async marketerLogin(@Body() loginDto: LoginLocalDto): Promise<{
+    success: boolean;
+    message: string;
+    data: { user: { id: string; fullName: string; email?: string }; token: { accessToken: string; tokenType: string; expiresIn: string } };
+  }> {
+    const result = await this.authService.marketerLogin(
+      loginDto.email,
+      loginDto.password,
+    );
+    return {
+      success: true,
+      message: 'تم تسجيل الدخول بنجاح',
+      data: result,
+    };
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(UnifiedAuthGuard)
+  @Auth(AuthType.MARKETER_JWT)
+  @Get('me')
+  @ApiResponse({
+    status: 200,
+    description: 'بيانات المسوق الحالي',
+    schema: {
+      example: {
+        success: true,
+        data: {
+          user: { id: '...', fullName: '...', email: '...', phone: '...' },
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiOperation({ summary: 'المسوق الحالي (Marketer JWT فقط)' })
+  async getMe(@CurrentUser('id') marketerId: string) {
+    const profile = await this.authService.getMarketerProfile(marketerId);
+    return {
+      success: true,
+      data: profile,
+    };
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(UnifiedAuthGuard)
+  @Auth(AuthType.MARKETER_JWT)
+  @Post('push-token')
+  @ApiResponse({ status: 200, description: 'تم حفظ رمز الإشعارات' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiOperation({ summary: 'ربط Expo push token بحساب المسوق' })
+  async pushToken(
+    @CurrentUser('id') marketerId: string,
+    @Body() body: { pushToken: string },
+  ) {
+    const result = await this.authService.updateMarketerPushToken(
+      marketerId,
+      body.pushToken,
+    );
+    return { success: true, ...result };
+  }
+
   // ==================== Local Authentication ====================
 
   @Public()

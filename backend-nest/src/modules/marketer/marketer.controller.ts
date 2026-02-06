@@ -26,7 +26,11 @@ export class MarketerController {
   @Auth(AuthType.MARKETER_JWT)
   @ApiBearerAuth()
   @Get('profile')
-  @ApiResponse({ status: 200, description: 'Success' })
+  @ApiResponse({
+    status: 200,
+    description: 'ملف المسوق الشخصي',
+    schema: { example: { _id: '...', fullName: '...', phone: '...', email: '...', isActive: true, territory: '...' } },
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiOperation({ summary: 'ملفي الشخصي' })
   async getProfile(@CurrentUser('id') marketerId: string) {
@@ -36,7 +40,17 @@ export class MarketerController {
   @Auth(AuthType.MARKETER_JWT)
   @ApiBearerAuth()
   @Patch('profile')
-  @ApiBody({ schema: { type: 'object', properties: { name: { type: 'string' }, phone: { type: 'string' }, email: { type: 'string' } } } })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        fullName: { type: 'string' },
+        name: { type: 'string', description: 'يُحوّل إلى fullName' },
+        phone: { type: 'string' },
+        email: { type: 'string' },
+      },
+    },
+  })
   @ApiResponse({ status: 200, description: 'Updated' })
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiResponse({ status: 400, description: 'Bad request' })
@@ -44,7 +58,7 @@ export class MarketerController {
   @ApiOperation({ summary: 'تحديث الملف الشخصي' })
   async updateProfile(
     @CurrentUser('id') marketerId: string,
-    @Body() body: any,
+    @Body() body: { fullName?: string; name?: string; phone?: string; email?: string },
   ) {
     return this.marketerService.updateProfile(marketerId, body);
   }
@@ -154,8 +168,30 @@ export class MarketerController {
   }
 
   // ==================== Commissions ====================
-  // ✅ تم نقل Commissions إلى FinanceController - استخدم /finance/commissions/my
-  // السبب: Finance هو المكان المناسب لجميع العمليات المالية
+
+  @Auth(AuthType.MARKETER_JWT)
+  @ApiBearerAuth()
+  @Get('commissions/my')
+  @ApiQuery({ name: 'status', required: false, description: 'pending | paid' })
+  @ApiResponse({
+    status: 200,
+    description: 'قائمة عمولات المسوق',
+    schema: {
+      example: {
+        data: [{ _id: '...', onboardingId: '...', type: 'store', storeName: '...', amount: 5000, status: 'pending', createdAt: '...', approvedAt: '...' }],
+        total: 1,
+        totalAmount: 5000,
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiOperation({ summary: 'عمولاتي' })
+  async getMyCommissions(
+    @CurrentUser('id') marketerId: string,
+    @Query('status') status?: string,
+  ) {
+    return this.marketerService.getMyCommissions(marketerId, status);
+  }
 
   @Auth(AuthType.MARKETER_JWT)
   @ApiBearerAuth()

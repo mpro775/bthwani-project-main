@@ -26,8 +26,13 @@ import {
 import { Request } from 'express';
 import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';
 import { ArabonService } from './arabon.service';
+import { BookingSlotService } from './booking-slot.service';
+import { BookingService } from './booking.service';
 import CreateArabonDto from './dto/create-arabon.dto';
 import UpdateArabonDto from './dto/update-arabon.dto';
+import { CreateSlotsDto } from './dto/create-slots.dto';
+import { ConfirmBookingDto } from './dto/confirm-booking.dto';
+import { BookingStatus } from './entities/booking.entity';
 
 function toListResponse<T>(result: { items: T[]; nextCursor: string | null }) {
   return {
@@ -44,7 +49,11 @@ function toListResponse<T>(result: { items: T[]; nextCursor: string | null }) {
 @UseGuards(UnifiedAuthGuard)
 @Controller('arabon')
 export class ArabonController {
-  constructor(private readonly service: ArabonService) {}
+  constructor(
+    private readonly service: ArabonService,
+    private readonly bookingSlotService: BookingSlotService,
+    private readonly bookingService: BookingService,
+  ) {}
 
   @Post()
   @ApiOperation({
@@ -180,6 +189,74 @@ export class ArabonController {
     return this.service.getStats();
   }
 
+  @Get('bookings/my')
+  @ApiOperation({
+    summary: 'حجوزاتي',
+    description: 'قائمة حجوزات المستخدم الحالي',
+  })
+  @ApiQuery({ name: 'status', required: false, description: 'فلترة حسب الحالة', enum: ['confirmed', 'completed', 'cancelled', 'no_show'] })
+  @ApiQuery({ name: 'cursor', required: false })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiResponse({ status: HttpStatus.OK })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
+  async getMyBookings(
+    @Req() req: Request & { user?: { id?: string } },
+    @Query('status') status?: string,
+    @Query('cursor') cursor?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const uid = req?.user?.id;
+    if (!uid) throw new BadRequestException('يجب تسجيل الدخول');
+    const result = await this.bookingService.getMyBookings(uid, {
+      status,
+      cursor,
+      limit: limit ? parseInt(limit, 10) : undefined,
+    });
+    return toListResponse(result);
+  }
+
+  @Get('bookings/:bookingId')
+  @ApiOperation({ summary: 'تفاصيل حجز', description: 'استرجاع حجز بواسطة المعرف' })
+  @ApiParam({ name: 'bookingId', description: 'معرف الحجز' })
+  @ApiResponse({ status: HttpStatus.OK })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND })
+  @ApiResponse({ status: HttpStatus.FORBIDDEN })
+  async getBooking(
+    @Req() req: Request & { user?: { id?: string } },
+    @Param('bookingId') bookingId: string,
+  ) {
+    const uid = req?.user?.id;
+    return this.bookingService.findOne(bookingId, uid);
+  }
+
+  @Patch('bookings/:bookingId/status')
+  @ApiOperation({
+    summary: 'تحديث حالة الحجز (للمالك)',
+    description: 'تحديث حالة الحجز: completed | cancelled | no_show. لصاحب المنشأة فقط.',
+  })
+  @ApiParam({ name: 'bookingId', description: 'معرف الحجز' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['status'],
+      properties: { status: { type: 'string', enum: ['completed', 'cancelled', 'no_show'] } },
+    },
+  })
+  @ApiResponse({ status: HttpStatus.OK })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND })
+  @ApiResponse({ status: HttpStatus.FORBIDDEN })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST })
+  async updateBookingStatus(
+    @Req() req: Request & { user?: { id?: string } },
+    @Param('bookingId') bookingId: string,
+    @Body() body: { status: string },
+  ) {
+    const uid = req?.user?.id;
+    if (!uid) throw new BadRequestException('يجب تسجيل الدخول');
+    const status = body.status as BookingStatus;
+    return this.bookingService.updateStatus(bookingId, status, uid);
+  }
+
   @Get(':id/activity')
   @ApiOperation({
     summary: 'سجل تغيير الحالة',
@@ -237,6 +314,90 @@ export class ArabonController {
     if (!uid) throw new BadRequestException('يجب تسجيل الدخول');
     const result = await this.service.getRequests(id, uid);
     return { data: result.items };
+  }
+
+  @Get(':id/slots')
+  @ApiOperation({
+    summary: 'الأوقات المتاحة للحجز',
+    description: 'استرجاع قائمة الـ slots غير المحجوزة للعربون في المدى الزمني (اختياري)',
+  })
+  @ApiParam({ name: 'id', description: 'معرف العربون', example: '507f1f77bcf86cd799439012' })
+  @ApiQuery({ name: 'from', required: false, description: 'بداية المدى (ISO 8601)', example: '2025-06-01T00:00:00.000Z' })
+  @ApiQuery({ name: 'to', required: false, description: 'نهاية المدى (ISO 8601)', example: '2025-06-30T23:59:59.999Z' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'قائمة الأوقات المتاحة' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'العربون غير موجود' })
+  async getSlots(
+    @Param('id') id: string,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+  ) {
+    const slots = await this.bookingSlotService.getAvailableSlots(id, from, to);
+    return { data: slots };
+  }
+
+  @Post(':id/slots')
+  @ApiOperation({
+    summary: 'إنشاء أوقات حجز (للمالك)',
+    description: 'إضافة slots لعربون إما قائمة صريحة أو نطاق زمني + فاصل. مسموح لصاحب المنشأة فقط.',
+  })
+  @ApiParam({ name: 'id', description: 'معرف العربون', example: '507f1f77bcf86cd799439012' })
+  @ApiBody({
+    description: 'إما slots: [{ datetime, durationMinutes? }] أو range: { start, end, intervalMinutes, durationMinutes? }',
+    type: CreateSlotsDto,
+  })
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'تم إنشاء الأوقات بنجاح' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'بيانات غير صحيحة' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'العربون غير موجود' })
+  @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'مسموح لصاحب المنشأة فقط' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'غير مخول' })
+  async createSlots(
+    @Req() req: Request & { user?: { id?: string } },
+    @Param('id') id: string,
+    @Body() dto: CreateSlotsDto,
+  ) {
+    const uid = req?.user?.id;
+    if (!uid) throw new BadRequestException('يجب تسجيل الدخول');
+    return this.bookingSlotService.createSlots(id, uid, dto);
+  }
+
+  @Post(':id/book')
+  @ApiOperation({
+    summary: 'تأكيد حجز',
+    description: 'حجز وقت لعربون: خصم العربون من المحفظة وربط الـ slot. يتطلب تسجيل الدخول.',
+  })
+  @ApiParam({ name: 'id', description: 'معرف العربون' })
+  @ApiBody({ type: ConfirmBookingDto })
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'تم الحجز بنجاح' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
+  async confirmBooking(
+    @Req() req: Request & { user?: { id?: string } },
+    @Param('id') id: string,
+    @Body() dto: ConfirmBookingDto,
+  ) {
+    const uid = req?.user?.id;
+    if (!uid) throw new BadRequestException('يجب تسجيل الدخول');
+    return this.bookingService.confirmBooking(id, uid, dto);
+  }
+
+  @Get(':id/bookings')
+  @ApiOperation({
+    summary: 'حجوزات العربون (للمالك)',
+    description: 'قائمة الحجوزات على هذا العربون. لصاحب المنشأة فقط.',
+  })
+  @ApiParam({ name: 'id', description: 'معرف العربون' })
+  @ApiResponse({ status: HttpStatus.OK })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND })
+  @ApiResponse({ status: HttpStatus.FORBIDDEN })
+  async getArabonBookings(
+    @Req() req: Request & { user?: { id?: string } },
+    @Param('id') id: string,
+  ) {
+    const uid = req?.user?.id;
+    if (!uid) throw new BadRequestException('يجب تسجيل الدخول');
+    const result = await this.bookingService.getBookingsByArabon(id, uid);
+    return toListResponse(result);
   }
 
   @Get(':id')

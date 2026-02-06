@@ -32,6 +32,7 @@ import {
 } from "@expo-google-fonts/cairo";
 import { uploadFileToBunny } from "../../services/upload";
 import * as SecureStore from "expo-secure-store";
+import { ENDPOINTS } from "../../api/routes";
 
 // Tip: استورد هذه الشاشة في الـ Navigator الخاص بك بصيغة .tsx
 
@@ -191,53 +192,24 @@ export default function OnboardingWizardScreen() {
       }
       setUploadingFiles(false);
 
-      // 2) payload
+      // 2) payload مطابق للباك: phone, storeName, location (+ اختياري ownerName, type)
       const payload = {
-        store: {
-          name: name.trim(),
-          address: address.trim(),
-          category: category!._id,
-          location: { lat: Number(loc.lat), lng: Number(loc.lng) },
-          image: imageUrl,
-          logo: logoUrl,
-          tags: [],
-        },
-        vendor: {
-          fullName: ownerName.trim(),
-          phone: ownerPhone.trim(),
-          email: ownerEmail?.trim() || undefined,
-          password: ownerPassword,
-        },
-        participants: [
-          leadUid
-            ? {
-                uid: leadUid.trim(),
-                role: "lead",
-                weight: Number(weights.lead) || 0,
-              }
-            : null,
-          supportUid
-            ? {
-                uid: supportUid.trim(),
-                role: "support",
-                weight: Number(weights.support) || 0,
-              }
-            : null,
-        ].filter(Boolean),
-        idempotencyKey: makeIdempotencyKey(),
-        attachments: attachmentsUrls.length
-          ? attachmentsUrls.map((u) => ({ url: u }))
-          : undefined,
+        phone: ownerPhone.trim() || "",
+        storeName: name.trim(),
+        location: { lat: Number(loc.lat), lng: Number(loc.lng) },
+        ownerName: ownerName.trim() || name.trim(),
+        type: "store" as const,
       };
 
-      // 3) call API
-      await api.post("/field/quick-onboard", payload);
+      // 3) استدعاء الباك /onboarding/quick-onboard
+      await api.post(ENDPOINTS.QUICK_ONBOARD, payload);
 
       Alert.alert("تم", "تم إرسال الطلب — بانتظار تفعيل الإدارة");
       resetForm();
     } catch (e: any) {
       console.error("quick-onboard error:", e);
-      Alert.alert("فشل", e?.response?.data?.message || e?.message || "حصل خطأ");
+      const msg = e?.response?.data?.userMessage ?? e?.response?.data?.message ?? e?.message ?? "حصل خطأ";
+      Alert.alert("فشل", msg);
     } finally {
       setUploadingFiles(false);
       setSubmitting(false);
