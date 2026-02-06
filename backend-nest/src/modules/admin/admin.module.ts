@@ -5,6 +5,7 @@ import { AdminController } from './admin.controller';
 import { AdminCMSController } from './admin-cms.controller';
 import { AdminKawaderController } from './kawader.admin.controller';
 import { AdminKenzController } from './kenz.admin.controller';
+import { AdminKenzCategoriesController } from './kenz-categories.admin.controller';
 import { AdminMaaroufController } from './maarouf.admin.controller';
 import { AdminSanadController } from './sanad.admin.controller';
 import { AdminPaymentsController } from './payments.admin.controller';
@@ -127,7 +128,7 @@ import { Es3afniModule } from '../es3afni/es3afni.module';
     ArabonModule,
     Es3afniModule,
   ],
-  controllers: [AdminController, AdminCMSController, AdminKawaderController, AdminKenzController, AdminMaaroufController, AdminSanadController, AdminPaymentsController, AdminAmaniController, AdminArabonController, AdminEs3afniController],
+  controllers: [AdminController, AdminCMSController, AdminKawaderController, AdminKenzController, AdminKenzCategoriesController, AdminMaaroufController, AdminSanadController, AdminPaymentsController, AdminAmaniController, AdminArabonController, AdminEs3afniController],
   providers: [
     AdminService,
     WithdrawalService,

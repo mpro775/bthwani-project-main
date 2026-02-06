@@ -35,6 +35,9 @@ export interface CreateKenzPayload {
   keywords?: string[];
   currency?: string;
   quantity?: number;
+  postedOnBehalfOfPhone?: string;
+  deliveryOption?: 'meetup' | 'delivery' | 'both';
+  deliveryFee?: number;
 }
 
 export interface UpdateKenzPayload {
@@ -49,6 +52,9 @@ export interface UpdateKenzPayload {
   keywords?: string[];
   currency?: string;
   quantity?: number;
+  postedOnBehalfOfPhone?: string;
+  deliveryOption?: 'meetup' | 'delivery' | 'both';
+  deliveryFee?: number;
 }
 
 export interface KenzItem {
@@ -68,6 +74,10 @@ export interface KenzItem {
   quantity?: number;
   createdAt: Date | string;
   updatedAt: Date | string;
+  postedOnBehalfOfPhone?: string;
+  postedOnBehalfOfUserId?: string | { _id: string; name?: string; phone?: string };
+  deliveryOption?: 'meetup' | 'delivery' | 'both';
+  deliveryFee?: number;
 }
 
 export interface KenzListResponse {
@@ -107,14 +117,40 @@ export const createKenz = async (
   return unwrap(response.data);
 };
 
+export type KenzSortOption = 'newest' | 'price_asc' | 'price_desc' | 'views_desc';
+
 /**
- * جلب قائمة الإعلانات
+ * جلب قائمة الإعلانات (مع دعم البحث والترتيب)
  */
+/** شجرة فئات كنز (للفلاتر والنشر) */
+export interface KenzCategoryTreeItem {
+  _id: string;
+  nameAr: string;
+  nameEn: string;
+  slug: string;
+  parentId: string | null;
+  order: number;
+  children?: KenzCategoryTreeItem[];
+}
+
+export const getKenzCategoriesTree = async (): Promise<KenzCategoryTreeItem[]> => {
+  const response = await axiosInstance.get("/kenz/categories");
+  return (response?.data ?? []) as KenzCategoryTreeItem[];
+};
+
+export type KenzCondition = 'new' | 'used' | 'refurbished';
+
+export type KenzDeliveryOption = 'meetup' | 'delivery' | 'both';
+
 export const getKenzList = async (
   cursor?: string,
   category?: KenzCategory,
   status?: KenzStatus,
-  city?: string
+  city?: string,
+  search?: string,
+  sort?: KenzSortOption,
+  condition?: KenzCondition,
+  deliveryOption?: KenzDeliveryOption
 ): Promise<KenzListResponse> => {
   const headers = await getAuthHeaders();
   const params: any = {};
@@ -122,6 +158,10 @@ export const getKenzList = async (
   if (category) params.category = category;
   if (status) params.status = status;
   if (city) params.city = city;
+  if (search) params.search = search;
+  if (sort) params.sort = sort;
+  if (condition) params.condition = condition;
+  if (deliveryOption) params.deliveryOption = deliveryOption;
 
   const response = await axiosInstance.get("/kenz", {
     headers,
@@ -217,6 +257,32 @@ export const updateKenzStatus = async (
 };
 
 /**
+ * تعليم الإعلان كمباع (للمالك فقط، يتطلب مصادقة)
+ */
+export const markKenzAsSold = async (id: string): Promise<KenzItem> => {
+  const headers = await getAuthHeaders();
+  const response = await axiosInstance.patch(`/kenz/${id}/sold`, {}, { headers });
+  return unwrap(response.data);
+};
+
+export interface ReportKenzPayload {
+  reason: string;
+  notes?: string;
+}
+
+/**
+ * الإبلاغ عن إعلان (يتطلب مصادقة)
+ */
+export const reportKenz = async (
+  id: string,
+  payload: ReportKenzPayload
+): Promise<{ success: boolean; message: string }> => {
+  const headers = await getAuthHeaders();
+  const response = await axiosInstance.post(`/kenz/${id}/report`, payload, { headers });
+  return unwrap(response.data);
+};
+
+/**
  * جلب إحصائيات الإعلانات
  */
 export const getKenzStats = async () => {
@@ -237,6 +303,39 @@ export const getKenzByCategory = async (
   const headers = await getAuthHeaders();
   const params = cursor ? { cursor, category } : { category };
   const response = await axiosInstance.get("/kenz/category", {
+    headers,
+    params,
+  });
+  return unwrap(response.data);
+};
+
+/**
+ * إضافة إعلان للمفضلة (يتطلب مصادقة)
+ */
+export const addKenzFavorite = async (kenzId: string): Promise<{ success: boolean }> => {
+  const headers = await getAuthHeaders();
+  const response = await axiosInstance.post(`/kenz/${kenzId}/favorite`, {}, { headers });
+  return unwrap(response.data);
+};
+
+/**
+ * إزالة إعلان من المفضلة (يتطلب مصادقة)
+ */
+export const removeKenzFavorite = async (kenzId: string): Promise<{ success: boolean }> => {
+  const headers = await getAuthHeaders();
+  await axiosInstance.delete(`/kenz/${kenzId}/favorite`, { headers });
+  return { success: true };
+};
+
+/**
+ * قائمة إعلاناتي المفضلة (يتطلب مصادقة)
+ */
+export const getKenzFavorites = async (
+  cursor?: string
+): Promise<KenzListResponse> => {
+  const headers = await getAuthHeaders();
+  const params = cursor ? { cursor } : {};
+  const response = await axiosInstance.get("/kenz/favorites", {
     headers,
     params,
   });

@@ -24,7 +24,22 @@ export interface KenzItem {
     email?: string;
     phone?: string;
   };
+  /** من الباك اند عند دمج الترويج */
+  isBoosted?: boolean;
+  boostType?: string | null;
+  /** حالة السلعة */
+  condition?: 'new' | 'used' | 'refurbished';
+  /** نشر بالنيابة: رقم الهاتف */
+  postedOnBehalfOfPhone?: string;
+  /** نشر بالنيابة: المستخدم (معرّف أو كائن من الباك اند) */
+  postedOnBehalfOfUserId?: string | { _id: string; name?: string; phone?: string };
+  /** طريقة التسليم */
+  deliveryOption?: 'meetup' | 'delivery' | 'both';
+  /** رسوم التوصيل */
+  deliveryFee?: number;
 }
+
+export type KenzCondition = 'new' | 'used' | 'refurbished';
 
 export interface CreateKenzPayload {
   ownerId: string;
@@ -39,6 +54,11 @@ export interface CreateKenzPayload {
   keywords?: string[];
   currency?: string;
   quantity?: number;
+  condition?: KenzCondition;
+  /** نشر بالنيابة: رقم هاتف من نُشر الإعلان باسمه */
+  postedOnBehalfOfPhone?: string;
+  deliveryOption?: 'meetup' | 'delivery' | 'both';
+  deliveryFee?: number;
 }
 
 export interface UpdateKenzPayload {
@@ -53,6 +73,10 @@ export interface UpdateKenzPayload {
   keywords?: string[];
   currency?: string;
   quantity?: number;
+  condition?: KenzCondition;
+  postedOnBehalfOfPhone?: string;
+  deliveryOption?: 'meetup' | 'delivery' | 'both';
+  deliveryFee?: number;
 }
 
 export interface KenzFilters {

@@ -18,6 +18,10 @@ export interface KenzItem {
     email: string;
     phone?: string;
   };
+  /** نشر بالنيابة: رقم الهاتف */
+  postedOnBehalfOfPhone?: string;
+  /** نشر بالنيابة: المستخدم (مُعبأ من الباك اند) */
+  postedOnBehalfOfUserId?: string | { _id: string; name?: string; phone?: string };
 }
 
 export interface KenzStats {
@@ -39,6 +43,12 @@ export interface UpdateKenzStatusRequest {
   notes?: string;
 }
 
+export type KenzSortOption = 'newest' | 'price_asc' | 'price_desc' | 'views_desc';
+
+export type KenzCondition = 'new' | 'used' | 'refurbished';
+
+export type KenzDeliveryOption = 'meetup' | 'delivery' | 'both';
+
 // جلب قائمة إعلانات الكنز
 export const getKenzList = async (params?: {
   cursor?: string;
@@ -46,10 +56,14 @@ export const getKenzList = async (params?: {
   status?: string;
   ownerId?: string;
   category?: string;
+  condition?: KenzCondition;
+  deliveryOption?: KenzDeliveryOption;
   priceMin?: number;
   priceMax?: number;
   createdAfter?: string;
   createdBefore?: string;
+  search?: string;
+  sort?: KenzSortOption;
 }): Promise<KenzListResponse> => {
   try {
     const response = await api.get('/admin/kenz', { params });
@@ -100,6 +114,185 @@ export const getKenzStats = async (): Promise<KenzStats> => {
     return response.data;
   } catch (error) {
     console.error('خطأ في جلب إحصائيات الكنز:', error);
+    throw error;
+  }
+};
+
+export interface KenzReportItem {
+  _id: string;
+  kenzId: { _id: string; title?: string; status?: string; ownerId?: string };
+  reporterId: { _id: string; name?: string; email?: string; phone?: string };
+  reason: string;
+  notes?: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface KenzReportsResponse {
+  items: KenzReportItem[];
+  nextCursor?: string;
+}
+
+// جلب قائمة بلاغات كنز
+export const getKenzReports = async (params?: {
+  cursor?: string;
+  limit?: number;
+  status?: string;
+}): Promise<KenzReportsResponse> => {
+  try {
+    const response = await api.get('/admin/kenz/reports', { params });
+    return response.data;
+  } catch (error) {
+    console.error('خطأ في جلب بلاغات الكنز:', error);
+    throw error;
+  }
+};
+
+// ========== فئات كنز (شجرة) ==========
+export interface KenzCategoryItem {
+  _id: string;
+  nameAr: string;
+  nameEn: string;
+  slug: string;
+  parentId: string | null;
+  order: number;
+  children?: KenzCategoryItem[];
+}
+
+export interface KenzCategoryFlat {
+  _id: string;
+  nameAr: string;
+  nameEn: string;
+  slug: string;
+  parentId: string | null;
+  order: number;
+}
+
+export const getKenzCategoriesTree = async (): Promise<KenzCategoryItem[]> => {
+  try {
+    const response = await api.get('/kenz/categories');
+    return response.data;
+  } catch (error) {
+    console.error('خطأ في جلب شجرة فئات الكنز:', error);
+    throw error;
+  }
+};
+
+export const getKenzCategoriesList = async (): Promise<KenzCategoryFlat[]> => {
+  try {
+    const response = await api.get('/admin/kenz/categories');
+    return response.data;
+  } catch (error) {
+    console.error('خطأ في جلب قائمة فئات الكنز:', error);
+    throw error;
+  }
+};
+
+export const getKenzCategoriesTreeAdmin = async (): Promise<KenzCategoryItem[]> => {
+  try {
+    const response = await api.get('/admin/kenz/categories/tree');
+    return response.data;
+  } catch (error) {
+    console.error('خطأ في جلب شجرة فئات الكنز (أدمن):', error);
+    throw error;
+  }
+};
+
+export const createKenzCategory = async (data: {
+  nameAr: string;
+  nameEn: string;
+  slug: string;
+  parentId?: string | null;
+  order?: number;
+}): Promise<KenzCategoryFlat> => {
+  try {
+    const response = await api.post('/admin/kenz/categories', data);
+    return response.data;
+  } catch (error) {
+    console.error('خطأ في إنشاء فئة الكنز:', error);
+    throw error;
+  }
+};
+
+export const updateKenzCategory = async (
+  id: string,
+  data: Partial<{ nameAr: string; nameEn: string; slug: string; parentId: string | null; order: number }>
+): Promise<KenzCategoryFlat> => {
+  try {
+    const response = await api.patch(`/admin/kenz/categories/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error('خطأ في تحديث فئة الكنز:', error);
+    throw error;
+  }
+};
+
+export const deleteKenzCategory = async (id: string): Promise<void> => {
+  try {
+    await api.delete(`/admin/kenz/categories/${id}`);
+  } catch (error) {
+    console.error('خطأ في حذف فئة الكنز:', error);
+    throw error;
+  }
+};
+
+// ========== ترويج الإعلانات (Boost) ==========
+export type KenzBoostType = 'highlight' | 'pin' | 'top';
+export type KenzBoostStatus = 'active' | 'expired' | 'cancelled';
+
+export interface KenzBoostItem {
+  _id: string;
+  kenzId: { _id: string; title?: string; status?: string; ownerId?: string };
+  startDate: string;
+  endDate: string;
+  boostType: KenzBoostType;
+  createdBy?: { _id: string; name?: string; email?: string };
+  status: KenzBoostStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface KenzBoostsResponse {
+  items: KenzBoostItem[];
+  nextCursor?: string;
+}
+
+export const getKenzBoosts = async (params?: {
+  cursor?: string;
+  limit?: number;
+  status?: KenzBoostStatus;
+  kenzId?: string;
+}): Promise<KenzBoostsResponse> => {
+  try {
+    const response = await api.get('/admin/kenz/boosts', { params });
+    return response.data;
+  } catch (error) {
+    console.error('خطأ في جلب ترويجات الكنز:', error);
+    throw error;
+  }
+};
+
+export const createKenzBoost = async (data: {
+  kenzId: string;
+  startDate: string;
+  endDate: string;
+  boostType?: KenzBoostType;
+}): Promise<KenzBoostItem> => {
+  try {
+    const response = await api.post('/admin/kenz/boosts', data);
+    return response.data;
+  } catch (error) {
+    console.error('خطأ في إنشاء ترويج الكنز:', error);
+    throw error;
+  }
+};
+
+export const cancelKenzBoost = async (id: string): Promise<{ success: boolean }> => {
+  try {
+    const response = await api.patch(`/admin/kenz/boosts/${id}/cancel`);
+    return response.data;
+  } catch (error) {
+    console.error('خطأ في إلغاء ترويج الكنز:', error);
     throw error;
   }
 };

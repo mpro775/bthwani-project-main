@@ -16,6 +16,8 @@ export interface KenzItem {
     email: string;
     phone?: string;
   };
+  postedOnBehalfOfPhone?: string;
+  postedOnBehalfOfUserId?: string | { _id: string; name?: string; phone?: string };
 }
 
 export enum KenzStatus {
@@ -44,6 +46,8 @@ export const KenzStatusColors: Record<KenzStatus, 'default' | 'primary' | 'secon
   [KenzStatus.CANCELLED]: 'error'
 };
 
+export type KenzSortOption = 'newest' | 'price_asc' | 'price_desc' | 'views_desc';
+
 export interface KenzFilters {
   status?: KenzStatus;
   ownerId?: string;
@@ -53,6 +57,7 @@ export interface KenzFilters {
   createdAfter?: string;
   createdBefore?: string;
   search?: string;
+  sort?: KenzSortOption;
 }
 
 export interface KenzStats {

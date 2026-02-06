@@ -12,6 +12,8 @@ import {
   Image,
   FlatList,
   Dimensions,
+  Modal,
+  TextInput,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
@@ -20,7 +22,15 @@ import { Ionicons } from "@expo/vector-icons";
 
 import { RootStackParamList } from "@/types/navigation";
 import { KenzItem } from "@/types/types";
-import { getKenzDetails, deleteKenz } from "@/api/kenzApi";
+import {
+  getKenzDetails,
+  deleteKenz,
+  markKenzAsSold,
+  reportKenz,
+  getKenzFavorites,
+  addKenzFavorite,
+  removeKenzFavorite,
+} from "@/api/kenzApi";
 import { createConversation } from "@/api/kenzChatApi";
 import { fetchUserProfile } from "@/api/userApi";
 import { useAuth } from "@/auth/AuthContext";
@@ -30,7 +40,10 @@ const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const GALLERY_HEIGHT = 220;
 
 type RouteProps = RouteProp<RootStackParamList, "KenzDetails">;
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, "KenzDetails">;
+type NavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "KenzDetails"
+>;
 
 const KenzDetailsScreen = () => {
   const navigation = useNavigation<NavigationProp>();
@@ -42,7 +55,14 @@ const KenzDetailsScreen = () => {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [startingChat, setStartingChat] = useState(false);
+  const [markingSold, setMarkingSold] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [reportModalVisible, setReportModalVisible] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [reportNotes, setReportNotes] = useState("");
+  const [reportSubmitting, setReportSubmitting] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [favoriteLoading, setFavoriteLoading] = useState(false);
 
   // استنتاج هوية المستخدم الحالي (لإخفاء زر التواصل عن صاحب الإعلان)
   useEffect(() => {
@@ -53,7 +73,10 @@ const KenzDetailsScreen = () => {
         if (!uid) {
           try {
             const profile = await fetchUserProfile();
-            uid = profile?.uid || profile?.id || profile?._id ? String(profile.uid || profile.id || profile._id) : null;
+            uid =
+              profile?.uid || profile?.id || profile?._id
+                ? String(profile.uid || profile.id || profile._id)
+                : null;
           } catch {
             // تجاهل
           }
@@ -81,25 +104,62 @@ const KenzDetailsScreen = () => {
     loadItem();
   }, [loadItem]);
 
+  useEffect(() => {
+    if (!itemId || !isLoggedIn) return;
+    getKenzFavorites()
+      .then((res) => {
+        const found = (res?.items ?? []).some((i) => i._id === itemId);
+        setIsFavorited(found);
+      })
+      .catch(() => setIsFavorited(false));
+  }, [itemId, isLoggedIn]);
+
+  const handleFavoriteToggle = async () => {
+    if (!item) return;
+    setFavoriteLoading(true);
+    const prev = isFavorited;
+    setIsFavorited(!prev);
+    try {
+      if (prev) await removeKenzFavorite(item._id);
+      else await addKenzFavorite(item._id);
+    } catch {
+      setIsFavorited(prev);
+    } finally {
+      setFavoriteLoading(false);
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'draft': return COLORS.gray;
-      case 'pending': return COLORS.orangeDark;
-      case 'confirmed': return COLORS.primary;
-      case 'completed': return COLORS.success;
-      case 'cancelled': return COLORS.danger;
-      default: return COLORS.gray;
+      case "draft":
+        return COLORS.gray;
+      case "pending":
+        return COLORS.orangeDark;
+      case "confirmed":
+        return COLORS.primary;
+      case "completed":
+        return COLORS.success;
+      case "cancelled":
+        return COLORS.danger;
+      default:
+        return COLORS.gray;
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'draft': return 'مسودة';
-      case 'pending': return 'في الانتظار';
-      case 'confirmed': return 'متاح';
-      case 'completed': return 'مباع';
-      case 'cancelled': return 'ملغي';
-      default: return status;
+      case "draft":
+        return "مسودة";
+      case "pending":
+        return "في الانتظار";
+      case "confirmed":
+        return "متاح";
+      case "completed":
+        return "مباع";
+      case "cancelled":
+        return "ملغي";
+      default:
+        return status;
     }
   };
 
@@ -110,18 +170,20 @@ const KenzDetailsScreen = () => {
   };
 
   const formatDate = (dateInput?: string | Date) => {
-    if (!dateInput) return 'غير محدد';
+    if (!dateInput) return "غير محدد";
     try {
       const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
-      return date.toLocaleDateString('ar-SA', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
+      return date.toLocaleDateString("ar-SA", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
       });
     } catch {
-      return typeof dateInput === 'string' ? dateInput : dateInput.toISOString();
+      return typeof dateInput === "string"
+        ? dateInput
+        : dateInput.toISOString();
     }
   };
 
@@ -129,23 +191,34 @@ const KenzDetailsScreen = () => {
     if (!category) return "storefront-outline";
 
     switch (category) {
-      case 'إلكترونيات': return "phone-portrait-outline";
-      case 'سيارات': return "car-outline";
-      case 'عقارات': return "home-outline";
-      case 'أثاث': return "bed-outline";
-      case 'ملابس': return "shirt-outline";
-      case 'رياضة': return "football-outline";
-      case 'كتب': return "book-outline";
-      case 'خدمات': return "briefcase-outline";
-      case 'وظائف': return "business-outline";
-      case 'حيوانات': return "paw-outline";
-      default: return "storefront-outline";
+      case "إلكترونيات":
+        return "phone-portrait-outline";
+      case "سيارات":
+        return "car-outline";
+      case "عقارات":
+        return "home-outline";
+      case "أثاث":
+        return "bed-outline";
+      case "ملابس":
+        return "shirt-outline";
+      case "رياضة":
+        return "football-outline";
+      case "كتب":
+        return "book-outline";
+      case "خدمات":
+        return "briefcase-outline";
+      case "وظائف":
+        return "business-outline";
+      case "حيوانات":
+        return "paw-outline";
+      default:
+        return "storefront-outline";
     }
   };
 
   const handleEdit = () => {
     if (item) {
-      navigation.navigate('KenzEdit', { itemId: item._id });
+      navigation.navigate("KenzEdit", { itemId: item._id });
     }
   };
 
@@ -186,7 +259,19 @@ const KenzDetailsScreen = () => {
     if (!item) return;
 
     try {
-      const message = `إعلان في كنز: ${item.title}\n\n${item.description || ""}\n\nالسعر: ${formatCurrency(item.price, item.currency)}\nالفئة: ${item.category || "غير محدد"}\n${item.city ? `المدينة: ${item.city}\n` : ""}${item.metadata ? `\nالتفاصيل: ${Object.entries(item.metadata).map(([k, v]) => `${k}: ${v}`).join(", ")}` : ""}\n\nالحالة: ${getStatusText(item.status)}\n\nتاريخ النشر: ${formatDate(item.createdAt)}`;
+      const message = `إعلان في كنز: ${item.title}\n\n${
+        item.description || ""
+      }\n\nالسعر: ${formatCurrency(item.price, item.currency)}\nالفئة: ${
+        item.category || "غير محدد"
+      }\n${item.city ? `المدينة: ${item.city}\n` : ""}${
+        item.metadata
+          ? `\nالتفاصيل: ${Object.entries(item.metadata)
+              .map(([k, v]) => `${k}: ${v}`)
+              .join(", ")}`
+          : ""
+      }\n\nالحالة: ${getStatusText(item.status)}\n\nتاريخ النشر: ${formatDate(
+        item.createdAt
+      )}`;
 
       await Share.share({
         message,
@@ -252,7 +337,10 @@ const KenzDetailsScreen = () => {
       if (!uid) {
         try {
           const profile = await fetchUserProfile();
-          uid = profile?.uid || profile?.id || profile?._id ? String(profile.uid || profile.id || profile._id) : null;
+          uid =
+            profile?.uid || profile?.id || profile?._id
+              ? String(profile.uid || profile.id || profile._id)
+              : null;
         } catch {
           // تجاهل
         }
@@ -272,7 +360,8 @@ const KenzDetailsScreen = () => {
       navigation.navigate("KenzChat", { conversationId: conv._id });
     } catch (e: any) {
       console.error("خطأ في بدء المحادثة:", e);
-      const msg = e?.response?.data?.userMessage || e?.message || "فشل في بدء المحادثة.";
+      const msg =
+        e?.response?.data?.userMessage || e?.message || "فشل في بدء المحادثة.";
       Alert.alert("خطأ", msg);
     } finally {
       setStartingChat(false);
@@ -283,13 +372,62 @@ const KenzDetailsScreen = () => {
     navigation.navigate("KenzChatList");
   };
 
+  const handleMarkSold = async () => {
+    if (!item) return;
+    Alert.alert("تم البيع", "هل تريد تعليم هذا الإعلان كمباع؟", [
+      { text: "إلغاء", style: "cancel" },
+      {
+        text: "نعم",
+        onPress: async () => {
+          setMarkingSold(true);
+          try {
+            const updated = await markKenzAsSold(item._id);
+            setItem(updated);
+            Alert.alert("تم", "تم تعليم الإعلان كمباع بنجاح");
+          } catch (e: any) {
+            const msg =
+              e?.response?.data?.message ||
+              e?.message ||
+              "فشل في تعليم الإعلان كمباع";
+            Alert.alert("خطأ", msg);
+          } finally {
+            setMarkingSold(false);
+          }
+        },
+      },
+    ]);
+  };
+
+  const handleReportSubmit = async () => {
+    if (!item || !reportReason.trim()) return;
+    setReportSubmitting(true);
+    try {
+      await reportKenz(item._id, {
+        reason: reportReason.trim(),
+        notes: reportNotes.trim() || undefined,
+      });
+      setReportModalVisible(false);
+      setReportReason("");
+      setReportNotes("");
+      Alert.alert("تم", "تم إرسال البلاغ بنجاح");
+    } catch (e: any) {
+      const msg =
+        e?.response?.data?.message ||
+        e?.message ||
+        "فشل في إرسال البلاغ أو أنك أبلغت مسبقاً";
+      Alert.alert("خطأ", msg);
+    } finally {
+      setReportSubmitting(false);
+    }
+  };
+
   const ownerIdStr =
     item &&
     (typeof item.ownerId === "object" && (item.ownerId as any)?._id
       ? String((item.ownerId as any)._id)
       : String(item.ownerId || ""));
   const isOwner = !!(currentUserId && item && ownerIdStr === currentUserId);
-  const hasContact = !!(item?.metadata?.contact);
+  const hasContact = !!item?.metadata?.contact;
 
   if (loading) {
     return (
@@ -324,13 +462,37 @@ const KenzDetailsScreen = () => {
           </TouchableOpacity>
           {isOwner && (
             <>
+              {item.status !== "completed" && (
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={handleMarkSold}
+                  disabled={markingSold}
+                >
+                  {markingSold ? (
+                    <ActivityIndicator size="small" color={COLORS.success} />
+                  ) : (
+                    <Ionicons
+                      name="checkmark-circle-outline"
+                      size={20}
+                      color={COLORS.success}
+                    />
+                  )}
+                </TouchableOpacity>
+              )}
               <TouchableOpacity
                 style={styles.actionButton}
                 onPress={handleOpenChatList}
               >
-                <Ionicons name="chatbubbles-outline" size={20} color={COLORS.text} />
+                <Ionicons
+                  name="chatbubbles-outline"
+                  size={20}
+                  color={COLORS.text}
+                />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.actionButton} onPress={handleEdit}>
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={handleEdit}
+              >
                 <Ionicons name="pencil" size={20} color={COLORS.text} />
               </TouchableOpacity>
               <TouchableOpacity
@@ -341,15 +503,51 @@ const KenzDetailsScreen = () => {
                 {deleting ? (
                   <ActivityIndicator size="small" color={COLORS.danger} />
                 ) : (
-                  <Ionicons name="trash-outline" size={20} color={COLORS.danger} />
+                  <Ionicons
+                    name="trash-outline"
+                    size={20}
+                    color={COLORS.danger}
+                  />
                 )}
               </TouchableOpacity>
             </>
           )}
+          {!isOwner && isLoggedIn && (
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={handleFavoriteToggle}
+              disabled={favoriteLoading}
+            >
+              {favoriteLoading ? (
+                <ActivityIndicator size="small" color={COLORS.primary} />
+              ) : (
+                <Ionicons
+                  name={isFavorited ? "heart" : "heart-outline"}
+                  size={20}
+                  color={isFavorited ? COLORS.danger : COLORS.text}
+                />
+              )}
+            </TouchableOpacity>
+          )}
+          {!isOwner && (
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => setReportModalVisible(true)}
+            >
+              <Ionicons
+                name="flag-outline"
+                size={20}
+                color={COLORS.orangeDark}
+              />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
-      <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.content}>
           {/* Image gallery */}
           {(item.images ?? []).length > 0 ? (
@@ -377,16 +575,44 @@ const KenzDetailsScreen = () => {
 
           {/* Header Info */}
           <View style={styles.infoHeader}>
-            <View style={styles.categoryContainer}>
-              <Ionicons
-                name={getCategoryIcon(item.category)}
-                size={20}
-                color={COLORS.primary}
-              />
-              <Text style={styles.categoryText}>{item.category || "غير مصنف"}</Text>
+            <View
+              style={{
+                flexDirection: "row",
+                flexWrap: "wrap",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
+              <View style={styles.categoryContainer}>
+                <Ionicons
+                  name={getCategoryIcon(item.category)}
+                  size={20}
+                  color={COLORS.primary}
+                />
+                <Text style={styles.categoryText}>
+                  {item.category || "غير مصنف"}
+                </Text>
+              </View>
+              {item.isBoosted && (
+                <View style={styles.boostBadge}>
+                  <Ionicons
+                    name="trending-up"
+                    size={14}
+                    color={COLORS.background}
+                  />
+                  <Text style={styles.boostBadgeText}>إعلان مميز</Text>
+                </View>
+              )}
             </View>
-            <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
-              <Text style={styles.statusText}>{getStatusText(item.status)}</Text>
+            <View
+              style={[
+                styles.statusBadge,
+                { backgroundColor: getStatusColor(item.status) },
+              ]}
+            >
+              <Text style={styles.statusText}>
+                {getStatusText(item.status)}
+              </Text>
             </View>
           </View>
 
@@ -397,7 +623,11 @@ const KenzDetailsScreen = () => {
           <View style={styles.metaRow}>
             {item.city && (
               <View style={styles.metaChip}>
-                <Ionicons name="location-outline" size={14} color={COLORS.primary} />
+                <Ionicons
+                  name="location-outline"
+                  size={14}
+                  color={COLORS.primary}
+                />
                 <Text style={styles.metaChipText}>{item.city}</Text>
               </View>
             )}
@@ -413,6 +643,40 @@ const KenzDetailsScreen = () => {
               </View>
             )}
           </View>
+
+          {/* طريقة التسليم */}
+          {item.deliveryOption && (
+            <Text style={styles.postedOnBehalfText}>
+              طريقة التسليم:{" "}
+              {item.deliveryOption === "meetup"
+                ? "لقاء"
+                : item.deliveryOption === "delivery"
+                ? item.deliveryFee
+                  ? `توصيل (${item.deliveryFee} ر.ي)`
+                  : "توصيل"
+                : item.deliveryFee
+                ? `لقاء أو توصيل (${item.deliveryFee} ر.ي)`
+                : "لقاء وتوصيل"}
+            </Text>
+          )}
+
+          {/* نشر بالنيابة عن */}
+          {(item.postedOnBehalfOfPhone ||
+            (typeof item.postedOnBehalfOfUserId === "object" &&
+              item.postedOnBehalfOfUserId)) && (
+            <Text style={styles.postedOnBehalfText}>
+              نُشر بالنيابة عن:{" "}
+              {typeof item.postedOnBehalfOfUserId === "object" &&
+              item.postedOnBehalfOfUserId?.name
+                ? item.postedOnBehalfOfUserId.name
+                : item.postedOnBehalfOfPhone
+                ? `${String(item.postedOnBehalfOfPhone).replace(
+                    /(\d{3})\d+(\d{3})/,
+                    "$1***$2"
+                  )}`
+                : ""}
+            </Text>
+          )}
 
           {/* Price */}
           {item.price != null && (
@@ -462,8 +726,34 @@ const KenzDetailsScreen = () => {
           {isOwner && (
             <View style={styles.ownerSection}>
               <Text style={styles.sectionTitle}>إدارة إعلانك</Text>
-              <Text style={styles.ownerHint}>يمكنك تعديل بيانات الإعلان أو حذفه أو متابعة المحادثات مع المهتمين.</Text>
+              <Text style={styles.ownerHint}>
+                يمكنك تعديل بيانات الإعلان أو حذفه أو متابعة المحادثات مع
+                المهتمين.
+              </Text>
               <View style={styles.ownerActions}>
+                {item.status !== "completed" && (
+                  <TouchableOpacity
+                    style={[
+                      styles.ownerButton,
+                      { backgroundColor: COLORS.success },
+                    ]}
+                    onPress={handleMarkSold}
+                    disabled={markingSold}
+                  >
+                    {markingSold ? (
+                      <ActivityIndicator size="small" color={COLORS.white} />
+                    ) : (
+                      <>
+                        <Ionicons
+                          name="checkmark-circle-outline"
+                          size={22}
+                          color={COLORS.white}
+                        />
+                        <Text style={styles.ownerButtonText}>تم البيع</Text>
+                      </>
+                    )}
+                  </TouchableOpacity>
+                )}
                 <TouchableOpacity
                   style={[styles.ownerButton, styles.ownerButtonEdit]}
                   onPress={handleEdit}
@@ -475,7 +765,11 @@ const KenzDetailsScreen = () => {
                   style={[styles.ownerButton, styles.ownerButtonChat]}
                   onPress={handleOpenChatList}
                 >
-                  <Ionicons name="chatbubbles-outline" size={22} color={COLORS.white} />
+                  <Ionicons
+                    name="chatbubbles-outline"
+                    size={22}
+                    color={COLORS.white}
+                  />
                   <Text style={styles.ownerButtonText}>محادثاتي</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -487,7 +781,11 @@ const KenzDetailsScreen = () => {
                     <ActivityIndicator size="small" color={COLORS.white} />
                   ) : (
                     <>
-                      <Ionicons name="trash-outline" size={22} color={COLORS.white} />
+                      <Ionicons
+                        name="trash-outline"
+                        size={22}
+                        color={COLORS.white}
+                      />
                       <Text style={styles.ownerButtonText}>حذف الإعلان</Text>
                     </>
                   )}
@@ -511,8 +809,14 @@ const KenzDetailsScreen = () => {
                       <ActivityIndicator size="small" color={COLORS.white} />
                     ) : (
                       <>
-                        <Ionicons name="chatbubble-ellipses-outline" size={18} color={COLORS.white} />
-                        <Text style={styles.contactButtonText}>تواصل مع المعلن</Text>
+                        <Ionicons
+                          name="chatbubble-ellipses-outline"
+                          size={18}
+                          color={COLORS.white}
+                        />
+                        <Text style={styles.contactButtonText}>
+                          تواصل مع المعلن
+                        </Text>
                       </>
                     )}
                   </TouchableOpacity>
@@ -522,18 +826,27 @@ const KenzDetailsScreen = () => {
                     style={[styles.contactButton, styles.callButton]}
                     onPress={handleCall}
                   >
-                    <Ionicons name="call-outline" size={18} color={COLORS.white} />
+                    <Ionicons
+                      name="call-outline"
+                      size={18}
+                      color={COLORS.white}
+                    />
                     <Text style={styles.contactButtonText}>اتصال مباشر</Text>
                   </TouchableOpacity>
                 )}
               </View>
               {hasContact && (
                 <Text style={styles.phoneDisplay}>
-                  رقم التواصل: {normalizePhoneNumber(item.metadata.contact) ?? item.metadata.contact}
+                  رقم التواصل:{" "}
+                  {normalizePhoneNumber(item.metadata.contact) ??
+                    item.metadata.contact}
                 </Text>
               )}
               {!hasContact && (currentUserId || user) && (
-                <Text style={styles.noContactHint}>لم يُذكر رقم تواصل في هذا الإعلان. يمكنك المحادثة مع المعلن أعلاه.</Text>
+                <Text style={styles.noContactHint}>
+                  لم يُذكر رقم تواصل في هذا الإعلان. يمكنك المحادثة مع المعلن
+                  أعلاه.
+                </Text>
               )}
             </View>
           )}
@@ -558,19 +871,65 @@ const KenzDetailsScreen = () => {
             <Text style={styles.sectionTitle}>تواريخ مهمة</Text>
             <View style={styles.dateItem}>
               <Text style={styles.dateLabel}>تاريخ النشر:</Text>
-              <Text style={styles.dateValue}>
-                {formatDate(item.createdAt)}
-              </Text>
+              <Text style={styles.dateValue}>{formatDate(item.createdAt)}</Text>
             </View>
             <View style={styles.dateItem}>
               <Text style={styles.dateLabel}>آخر تحديث:</Text>
-              <Text style={styles.dateValue}>
-                {formatDate(item.updatedAt)}
-              </Text>
+              <Text style={styles.dateValue}>{formatDate(item.updatedAt)}</Text>
             </View>
           </View>
         </View>
       </ScrollView>
+
+      {/* Report Modal */}
+      <Modal
+        visible={reportModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setReportModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>الإبلاغ عن إعلان</Text>
+            <TextInput
+              style={styles.reportInput}
+              placeholder="سبب الإبلاغ (مطلوب)"
+              value={reportReason}
+              onChangeText={setReportReason}
+              multiline
+            />
+            <TextInput
+              style={[styles.reportInput, styles.reportNotes]}
+              placeholder="ملاحظات (اختياري)"
+              value={reportNotes}
+              onChangeText={setReportNotes}
+              multiline
+            />
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={styles.modalButtonCancel}
+                onPress={() => setReportModalVisible(false)}
+              >
+                <Text style={styles.modalButtonCancelText}>إلغاء</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.modalButtonSubmit,
+                  !reportReason.trim() && styles.modalButtonDisabled,
+                ]}
+                onPress={handleReportSubmit}
+                disabled={!reportReason.trim() || reportSubmitting}
+              >
+                {reportSubmitting ? (
+                  <ActivityIndicator size="small" color={COLORS.white} />
+                ) : (
+                  <Text style={styles.modalButtonSubmitText}>إرسال البلاغ</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -582,8 +941,8 @@ const styles = StyleSheet.create({
   },
   centerContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: COLORS.background,
   },
   loadingText: {
@@ -598,8 +957,8 @@ const styles = StyleSheet.create({
     color: COLORS.danger,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: COLORS.white,
@@ -614,10 +973,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
-    textAlign: 'center',
+    textAlign: "center",
   },
   headerActions: {
-    flexDirection: 'row',
+    flexDirection: "row",
   },
   actionButton: {
     padding: 8,
@@ -671,6 +1030,13 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     marginLeft: 4,
   },
+  postedOnBehalfText: {
+    fontFamily: "Cairo-Regular",
+    fontSize: 13,
+    color: COLORS.gray,
+    marginTop: 8,
+    marginBottom: 4,
+  },
   keywordsSection: {
     marginBottom: 24,
   },
@@ -692,14 +1058,14 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
   },
   infoHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 16,
   },
   categoryContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: COLORS.lightBlue,
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -721,6 +1087,20 @@ const styles = StyleSheet.create({
     fontFamily: "Cairo-SemiBold",
     color: COLORS.white,
   },
+  boostBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.orangeDark,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    gap: 6,
+  },
+  boostBadgeText: {
+    fontSize: 12,
+    fontFamily: "Cairo-SemiBold",
+    color: COLORS.background,
+  },
   title: {
     fontSize: 24,
     fontFamily: "Cairo-Bold",
@@ -741,7 +1121,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontFamily: "Cairo-Bold",
     color: COLORS.success,
-    textAlign: 'center',
+    textAlign: "center",
     backgroundColor: COLORS.lightGreen,
     paddingVertical: 16,
     paddingHorizontal: 24,
@@ -758,8 +1138,8 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   categoryDisplay: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: COLORS.lightGray,
     padding: 12,
     borderRadius: 8,
@@ -774,7 +1154,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   metadataItem: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 8,
     padding: 8,
     backgroundColor: COLORS.white,
@@ -875,7 +1255,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   dateItem: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 8,
     padding: 8,
     backgroundColor: COLORS.white,
@@ -892,6 +1272,68 @@ const styles = StyleSheet.create({
     fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
     flex: 1,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 24,
+  },
+  modalContent: {
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    padding: 20,
+    width: "100%",
+    maxWidth: 400,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontFamily: "Cairo-SemiBold",
+    color: COLORS.text,
+    marginBottom: 16,
+  },
+  reportInput: {
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 14,
+    fontFamily: "Cairo-Regular",
+    marginBottom: 12,
+    minHeight: 44,
+  },
+  reportNotes: {
+    minHeight: 64,
+  },
+  modalActions: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 12,
+    marginTop: 8,
+  },
+  modalButtonCancel: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+  },
+  modalButtonCancelText: {
+    fontSize: 15,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.gray,
+  },
+  modalButtonSubmit: {
+    backgroundColor: COLORS.orangeDark,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  modalButtonSubmitText: {
+    fontSize: 15,
+    fontFamily: "Cairo-SemiBold",
+    color: COLORS.white,
+  },
+  modalButtonDisabled: {
+    opacity: 0.5,
   },
 });
 

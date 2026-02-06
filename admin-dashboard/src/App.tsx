@@ -192,6 +192,9 @@ import KawaderDetailsPage from "./pages/admin/kawader/KawaderDetailsPage";
 // ==================== KENZ ====================
 import KenzListPage from "./pages/admin/kenz/KenzListPage";
 import KenzDetailsPage from "./pages/admin/kenz/KenzDetailsPage";
+import KenzReportsPage from "./pages/admin/kenz/KenzReportsPage";
+import KenzCategoriesPage from "./pages/admin/kenz/KenzCategoriesPage";
+import KenzBoostPage from "./pages/admin/kenz/KenzBoostPage";
 
 // ==================== MAAROUF ====================
 import MaaroufListPage from "./pages/admin/maarouf/MaaroufListPage";
@@ -206,9 +209,13 @@ import PaymentsListPage from "./pages/admin/payments/PaymentsListPage";
 import PaymentsDetailsPage from "./pages/admin/payments/PaymentsDetailsPage";
 
 // ==================== CMS SYSTEM ====================
-const CmsOnboardingPage = React.lazy(() => import("./pages/cms/CmsOnboardingPage"));
+const CmsOnboardingPage = React.lazy(
+  () => import("./pages/cms/CmsOnboardingPage")
+);
 const CmsStringsPage = React.lazy(() => import("./pages/cms/CmsStringsPage"));
-const HomeLayoutAdminPage = React.lazy(() => import("./pages/cms/CmsHomeLayoutPage"));
+const HomeLayoutAdminPage = React.lazy(
+  () => import("./pages/cms/CmsHomeLayoutPage")
+);
 
 // ==================== PAGES WITHOUT ROUTE (NEW) ====================
 import AppearanceSettingsPage from "./pages/admin/AppearanceSettingsPage";
@@ -253,278 +260,346 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Routes>
-      {/* ==================== AUTHENTICATION ==================== */}
-      <Route path="/admin/login" element={<AdminLogin />} />
+        {/* ==================== AUTHENTICATION ==================== */}
+        <Route path="/admin/login" element={<AdminLogin />} />
 
-      {/* ==================== PROTECTED ADMIN ROUTES ==================== */}
-      <Route
-        path="/admin"
-        element={
-          <RequireAdminAuth>
-            <AdminLayout />
-          </RequireAdminAuth>
-        }
-      >
-        {/* ==================== DASHBOARD ==================== */}
-        <Route index element={<HomeDashboard />} />
-        <Route path="dashboard" element={<HomeDashboard />} />
+        {/* ==================== PROTECTED ADMIN ROUTES ==================== */}
+        <Route
+          path="/admin"
+          element={
+            <RequireAdminAuth>
+              <AdminLayout />
+            </RequireAdminAuth>
+          }
+        >
+          {/* ==================== DASHBOARD ==================== */}
+          <Route index element={<HomeDashboard />} />
+          <Route path="dashboard" element={<HomeDashboard />} />
 
-        {/* ==================== DELIVERY SYSTEM ==================== */}
-        <Route path="stores" element={<DeliveryStoresPage />} />
-        <Route path="stores/moderation" element={<StoresModerationPage />} />
-        <Route path="categories" element={<DeliveryCategoriesPage />} />
-        <Route path="delivery/stores/:id" element={<DeliveryStoreDetailsPage />} />
-        <Route path="orders" element={<AdminDeliveryOrdersPage />} />
-        <Route path="orders/details/:id" element={<OrderDetailsPage />} />
-        <Route path="carts" element={<DeliveryCartsPage />} />
-        <Route path="offers" element={<DeliveryPromotionsPage />} />
-        <Route path="utility/gas" element={<AdminGasPricingPage />} />
-        <Route path="utility/water" element={<AdminWaterPricingPage />} />
+          {/* ==================== DELIVERY SYSTEM ==================== */}
+          <Route path="stores" element={<DeliveryStoresPage />} />
+          <Route path="stores/moderation" element={<StoresModerationPage />} />
+          <Route path="categories" element={<DeliveryCategoriesPage />} />
+          <Route
+            path="delivery/stores/:id"
+            element={<DeliveryStoreDetailsPage />}
+          />
+          <Route path="orders" element={<AdminDeliveryOrdersPage />} />
+          <Route path="orders/details/:id" element={<OrderDetailsPage />} />
+          <Route path="carts" element={<DeliveryCartsPage />} />
+          <Route path="offers" element={<DeliveryPromotionsPage />} />
+          <Route path="utility/gas" element={<AdminGasPricingPage />} />
+          <Route path="utility/water" element={<AdminWaterPricingPage />} />
 
-        {/* ==================== USER MANAGEMENT ==================== */}
-        <Route path="users" element={<UserManagement />} />
-        <Route path="users/list" element={<UsersListPage />} />
-        <Route path="users/:id" element={<UserDetailsPage />} />
-        <Route path="users/stats" element={<UserStats />} />
+          {/* ==================== USER MANAGEMENT ==================== */}
+          <Route path="users" element={<UserManagement />} />
+          <Route path="users/list" element={<UsersListPage />} />
+          <Route path="users/:id" element={<UserDetailsPage />} />
+          <Route path="users/stats" element={<UserStats />} />
 
-        {/* ==================== DRIVER MANAGEMENT ==================== */}
-        <Route path="drivers" element={<AdminDriversPage />} />
-        <Route path="drivers/:id" element={<AdminDriverDetailsPage />} />
-        <Route path="drivers/attendance" element={<DriverAttendancePage />} />
-        <Route path="drivers/shifts" element={<DriverShiftsPage />} />
-        <Route path="drivers/assets" element={<DriverAssetsPage />} />
-        <Route path="drivers/ratings" element={<DriverRatingsPage />} />
-        <Route path="drivers/leave-requests" element={<DriverLeaveRequestsPage />} />
+          {/* ==================== DRIVER MANAGEMENT ==================== */}
+          <Route path="drivers" element={<AdminDriversPage />} />
+          <Route path="drivers/:id" element={<AdminDriverDetailsPage />} />
+          <Route path="drivers/attendance" element={<DriverAttendancePage />} />
+          <Route path="drivers/shifts" element={<DriverShiftsPage />} />
+          <Route path="drivers/assets" element={<DriverAssetsPage />} />
+          <Route path="drivers/ratings" element={<DriverRatingsPage />} />
+          <Route
+            path="drivers/leave-requests"
+            element={<DriverLeaveRequestsPage />}
+          />
 
-        {/* ==================== OPERATIONS ==================== */}
-        <Route path="ops/drivers" element={<OpsDriversDashboard />} />
-        <Route path="ops/drivers/ops" element={<DriversDashboard />} />
-        <Route path="ops/drivers/list" element={<DriversList />} />
-        <Route path="ops/drivers/:id" element={<DriverDetails />} />
-        <Route path="ops/activations" element={<PendingActivationsPage />} />
+          {/* ==================== OPERATIONS ==================== */}
+          <Route path="ops/drivers" element={<OpsDriversDashboard />} />
+          <Route path="ops/drivers/ops" element={<DriversDashboard />} />
+          <Route path="ops/drivers/list" element={<DriversList />} />
+          <Route path="ops/drivers/:id" element={<DriverDetails />} />
+          <Route path="ops/activations" element={<PendingActivationsPage />} />
 
-        {/* ==================== ADMIN OVERVIEW ==================== */}
-        <Route path="overview" element={<OverviewPage />} />
+          {/* ==================== ADMIN OVERVIEW ==================== */}
+          <Route path="overview" element={<OverviewPage />} />
 
-        {/* ==================== ADMIN MANAGEMENT ==================== */}
-        <Route path="admins" element={<AdminsListPage />} />
-        <Route path="admins/new" element={<AdminCreateRoute />} />
-        <Route path="admins/:id" element={<AdminDetailsRoute />} />
+          {/* ==================== ADMIN MANAGEMENT ==================== */}
+          <Route path="admins" element={<AdminsListPage />} />
+          <Route path="admins/new" element={<AdminCreateRoute />} />
+          <Route path="admins/:id" element={<AdminDetailsRoute />} />
 
+          {/* ==================== VENDOR MANAGEMENT ==================== */}
+          <Route path="vendors/create" element={<AdminVendorCreatePage />} />
+          <Route path="vendors" element={<VendorsListPage />} />
+          <Route path="vendors/:id" element={<VendorProfileWrapper />} />
+          <Route
+            path="vendors/moderation"
+            element={<VendorsModerationPage />}
+          />
+          <Route
+            path="vendors/performance"
+            element={<VendorPerformanceTrackingPage />}
+          />
+          <Route path="stores/moderation" element={<StoresModerationPage />} />
 
-        {/* ==================== VENDOR MANAGEMENT ==================== */}
-        <Route path="vendors/create" element={<AdminVendorCreatePage />} />
-        <Route path="vendors" element={<VendorsListPage />} />
-        <Route path="vendors/:id" element={<VendorProfileWrapper />} />
-        <Route path="vendors/moderation" element={<VendorsModerationPage />} />
-        <Route path="vendors/performance" element={<VendorPerformanceTrackingPage />} />
-        <Route path="stores/moderation" element={<StoresModerationPage />} />
+          {/* ==================== MARKETING ==================== */}
+          <Route path="marketing/marketers" element={<MarketersPage />} />
+          <Route path="marketing/coupons" element={<AdminCouponsPage />} />
+          <Route path="marketing/campaigns" element={<AdminCampaignsPanel />} />
 
-        {/* ==================== MARKETING ==================== */}
-        <Route path="marketing/marketers" element={<MarketersPage />} />
-        <Route path="marketing/coupons" element={<AdminCouponsPage />} />
-        <Route path="marketing/campaigns" element={<AdminCampaignsPanel />} />
+          {/* ==================== ONBOARDING ==================== */}
+          <Route path="field/onboarding" element={<OnboardingQueuePage />} />
+          <Route
+            path="field/onboarding-list"
+            element={<OnboardingListPage />}
+          />
 
-        {/* ==================== ONBOARDING ==================== */}
-        <Route path="field/onboarding" element={<OnboardingQueuePage />} />
-        <Route path="field/onboarding-list" element={<OnboardingListPage />} />
+          {/* ==================== GROCERIES ==================== */}
+          <Route
+            path="groceries/categories"
+            element={<GroceriesCategoriesPage />}
+          />
+          <Route
+            path="groceries/attributes"
+            element={<GroceriesAttributesPage />}
+          />
+          <Route path="groceries/catalog" element={<GroceriesCatalogPage />} />
+          <Route
+            path="groceries/merchant-products"
+            element={<GroceriesMerchantProductsPage />}
+          />
 
-        {/* ==================== GROCERIES ==================== */}
-        <Route path="groceries/categories" element={<GroceriesCategoriesPage />} />
-        <Route path="groceries/attributes" element={<GroceriesAttributesPage />} />
-        <Route path="groceries/catalog" element={<GroceriesCatalogPage />} />
-        <Route path="groceries/merchant-products" element={<GroceriesMerchantProductsPage />} />
+          {/* ==================== FINANCE DASHBOARD ==================== */}
+          <Route path="finance" element={<FinanceDashboard />} />
+          <Route path="finance/new" element={<FinanceDashboardNew />} />
+          <Route path="finance/payouts" element={<PayoutBatchesPage />} />
+          <Route path="finance/settlements" element={<SettlementsPage />} />
+          <Route path="finance/coupons" element={<CouponsPage />} />
+          <Route
+            path="finance/reconciliations"
+            element={<ReconciliationsPage />}
+          />
 
-        {/* ==================== FINANCE DASHBOARD ==================== */}
-        <Route path="finance" element={<FinanceDashboard />} />
-        <Route path="finance/new" element={<FinanceDashboardNew />} />
-        <Route path="finance/payouts" element={<PayoutBatchesPage />} />
-        <Route path="finance/settlements" element={<SettlementsPage />} />
-        <Route path="finance/coupons" element={<CouponsPage />} />
-        <Route path="finance/reconciliations" element={<ReconciliationsPage />} />
+          {/* ==================== ANALYTICS DASHBOARD ==================== */}
+          <Route path="analytics" element={<AnalyticsDashboard />} />
+          <Route path="analytics/roas" element={<ROASDashboard />} />
+          <Route path="analytics/kpis" element={<KPIDashboard />} />
+          <Route path="analytics/advanced" element={<AdvancedAnalytics />} />
+          <Route path="analytics/funnel" element={<FunnelDashboard />} />
+          <Route path="analytics/users" element={<UsersDashboard />} />
+          <Route path="analytics/revenue" element={<RevenueDashboard />} />
 
-        {/* ==================== ANALYTICS DASHBOARD ==================== */}
-        <Route path="analytics" element={<AnalyticsDashboard />} />
-        <Route path="analytics/roas" element={<ROASDashboard />} />
-        <Route path="analytics/kpis" element={<KPIDashboard />} />
-        <Route path="analytics/advanced" element={<AdvancedAnalytics />} />
-        <Route path="analytics/funnel" element={<FunnelDashboard />} />
-        <Route path="analytics/users" element={<UsersDashboard />} />
-        <Route path="analytics/revenue" element={<RevenueDashboard />} />
+          {/* ==================== CONTENT MANAGEMENT ==================== */}
+          <Route path="content" element={<ContentDashboard />} />
+          <Route path="content/cms-pages" element={<CMSPagesManager />} />
+          <Route path="content/app-settings" element={<AppSettingsManager />} />
+          <Route path="content/faqs" element={<FAQsManager />} />
 
-        {/* ==================== CONTENT MANAGEMENT ==================== */}
-        <Route path="content" element={<ContentDashboard />} />
-        <Route path="content/cms-pages" element={<CMSPagesManager />} />
-        <Route path="content/app-settings" element={<AppSettingsManager />} />
-        <Route path="content/faqs" element={<FAQsManager />} />
+          {/* ==================== ER/HR SYSTEM ==================== */}
+          <Route path="er" element={<ERDashboard />} />
 
-        {/* ==================== ER/HR SYSTEM ==================== */}
-        <Route path="er" element={<ERDashboard />} />
+          {/* ==================== HEALTH MONITORING ==================== */}
+          <Route path="system/health" element={<HealthMonitorPage />} />
 
-        {/* ==================== HEALTH MONITORING ==================== */}
-        <Route path="system/health" element={<HealthMonitorPage />} />
+          {/* ==================== METRICS ==================== */}
+          <Route path="system/metrics" element={<MetricsPage />} />
+          <Route path="system/audit-log" element={<AuditLogPage />} />
 
-        {/* ==================== METRICS ==================== */}
-        <Route path="system/metrics" element={<MetricsPage />} />
-        <Route path="system/audit-log" element={<AuditLogPage />} />
+          {/* ==================== LEGAL SYSTEM ==================== */}
+          <Route path="legal" element={<LegalDashboard />} />
 
-        {/* ==================== LEGAL SYSTEM ==================== */}
-        <Route path="legal" element={<LegalDashboard />} />
+          {/* ==================== SUPPORT SYSTEM ==================== */}
+          <Route path="support/dashboard" element={<SupportDashboard />} />
 
-        {/* ==================== SUPPORT SYSTEM ==================== */}
-        <Route path="support/dashboard" element={<SupportDashboard />} />
+          {/* ==================== API TESTING ==================== */}
+          <Route path="test/api" element={<ApiTestPage />} />
 
-        {/* ==================== API TESTING ==================== */}
-        <Route path="test/api" element={<ApiTestPage />} />
+          {/* ==================== DRIVER SUB-PAGES ==================== */}
+          <Route path="drivers/attendance" element={<DriverAttendancePage />} />
+          <Route path="drivers/shifts" element={<DriverShiftsPage />} />
+          <Route path="drivers/assets" element={<DriverAssetsPage />} />
+          <Route path="drivers/ratings" element={<DriverRatingsPage />} />
+          <Route
+            path="drivers/leave-requests"
+            element={<DriverLeaveRequestsPage />}
+          />
 
-        {/* ==================== DRIVER SUB-PAGES ==================== */}
-        <Route path="drivers/attendance" element={<DriverAttendancePage />} />
-        <Route path="drivers/shifts" element={<DriverShiftsPage />} />
-        <Route path="drivers/assets" element={<DriverAssetsPage />} />
-        <Route path="drivers/ratings" element={<DriverRatingsPage />} />
-        <Route path="drivers/leave-requests" element={<DriverLeaveRequestsPage />} />
+          {/* ==================== FINANCE SYSTEM ==================== */}
+          <Route path="finance/ledger" element={<ChartAccounts />} />
+          <Route path="finance/employees" element={<EmployeesPage />} />
+          <Route path="finance/attendance" element={<AttendancePage />} />
+          <Route path="finance/payroll" element={<PayrollPage />} />
+          <Route path="finance/assets" element={<AssetsPage />} />
+          <Route path="finance/vouchers" element={<JournalVoucherPage />} />
+          <Route path="finance/accounts" element={<GeneralLedger />} />
+          <Route path="finance/reports" element={<ReportsPage />} />
+          <Route
+            path="finance/payouts-management"
+            element={<PayoutsManagementPage />}
+          />
 
-        {/* ==================== FINANCE SYSTEM ==================== */}
-        <Route path="finance/ledger" element={<ChartAccounts />} />
-        <Route path="finance/employees" element={<EmployeesPage />} />
-        <Route path="finance/attendance" element={<AttendancePage />} />
-        <Route path="finance/payroll" element={<PayrollPage />} />
-        <Route path="finance/assets" element={<AssetsPage />} />
-        <Route path="finance/vouchers" element={<JournalVoucherPage />} />
-        <Route path="finance/accounts" element={<GeneralLedger />} />
-        <Route path="finance/reports" element={<ReportsPage />} />
-        <Route path="finance/payouts-management" element={<PayoutsManagementPage />} />
+          {/* ==================== HR SYSTEM ==================== */}
+          <Route path="hr/employees" element={<EmployeesPage />} />
+          <Route path="hr/attendance" element={<AttendancePage />} />
+          <Route path="hr/payroll" element={<PayrollPage />} />
+          <Route path="hr/assets" element={<AssetsPage />} />
 
-        {/* ==================== HR SYSTEM ==================== */}
-        <Route path="hr/employees" element={<EmployeesPage />} />
-        <Route path="hr/attendance" element={<AttendancePage />} />
-        <Route path="hr/payroll" element={<PayrollPage />} />
-        <Route path="hr/assets" element={<AssetsPage />} />
+          {/* ==================== WALLET SYSTEM ==================== */}
+          <Route path="wallet" element={<AdminWalletPage />} />
+          <Route path="wallet/stats" element={<WalletStatsDashboard />} />
+          <Route path="wallet/management" element={<WalletManagementPage />} />
+          <Route
+            path="wallet/withdrawals"
+            element={<WithdrawalManagementPage />}
+          />
+          <Route path="wallet/escrow" element={<EscrowManagementPage />} />
+          <Route path="wallet/transactions" element={<TransactionsPage />} />
+          <Route
+            path="wallet/transactions-tracking"
+            element={<TransactionTrackingPage />}
+          />
+          <Route
+            path="wallet/subscriptions"
+            element={<SubscriptionsManagementPage />}
+          />
+          <Route
+            path="wallet/settlements"
+            element={<SettlementsManagementPage />}
+          />
+          <Route path="wallet/coupons" element={<CouponsManagementPage />} />
 
-        {/* ==================== WALLET SYSTEM ==================== */}
-        <Route path="wallet" element={<AdminWalletPage />} />
-        <Route path="wallet/stats" element={<WalletStatsDashboard />} />
-        <Route path="wallet/management" element={<WalletManagementPage />} />
-        <Route path="wallet/withdrawals" element={<WithdrawalManagementPage />} />
-        <Route path="wallet/escrow" element={<EscrowManagementPage />} />
-        <Route path="wallet/transactions" element={<TransactionsPage />} />
-        <Route path="wallet/transactions-tracking" element={<TransactionTrackingPage />} />
-        <Route path="wallet/subscriptions" element={<SubscriptionsManagementPage />} />
-        <Route path="wallet/settlements" element={<SettlementsManagementPage />} />
-        <Route path="wallet/coupons" element={<CouponsManagementPage />} />
+          {/* ==================== QUALITY & REVIEWS ==================== */}
+          <Route path="quality/reviews" element={<QualityReviewsPage />} />
 
-        {/* ==================== QUALITY & REVIEWS ==================== */}
-        <Route path="quality/reviews" element={<QualityReviewsPage />} />
+          {/* ==================== PARTNERS ==================== */}
+          <Route path="partners" element={<PartnersList />} />
+          <Route path="partners/:store" element={<PartnerDetails />} />
 
-        {/* ==================== PARTNERS ==================== */}
-        <Route path="partners" element={<PartnersList />} />
-        <Route path="partners/:store" element={<PartnerDetails />} />
+          {/* ==================== SUPPORT SYSTEM ==================== */}
+          <Route path="support/inbox" element={<Inbox />} />
+          <Route path="support/tickets" element={<SupportTicketsPage />} />
+          <Route path="support/ticket/:id" element={<TicketView />} />
+          <Route path="support/reports" element={<Reports />} />
 
-        {/* ==================== SUPPORT SYSTEM ==================== */}
-        <Route path="support/inbox" element={<Inbox />} />
-        <Route path="support/tickets" element={<SupportTicketsPage />} />
-        <Route path="support/ticket/:id" element={<TicketView />} />
-        <Route path="support/reports" element={<Reports />} />
+          {/* ==================== MARKETING - Additional Routes ==================== */}
+          <Route path="commission/plans" element={<CommissionPlansPage />} />
+          <Route
+            path="commission/settings"
+            element={<CommissionSettingsPage />}
+          />
+          <Route path="reports/marketers" element={<MarketersOverviewPage />} />
+          <Route
+            path="reports/marketers/:uid"
+            element={<MarketerReportPage />}
+          />
 
-        {/* ==================== MARKETING - Additional Routes ==================== */}
-        <Route path="commission/plans" element={<CommissionPlansPage />} />
-        <Route path="commission/settings" element={<CommissionSettingsPage />} />
-        <Route path="reports/marketers" element={<MarketersOverviewPage />} />
-        <Route path="reports/marketers/:uid" element={<MarketerReportPage />} />
+          {/* ==================== DOCUMENTS & ASSETS ==================== */}
+          <Route path="assets" element={<AssetsPage />} />
+          <Route path="documents" element={<DocumentsManagementPage />} />
 
-        {/* ==================== DOCUMENTS & ASSETS ==================== */}
-        <Route path="assets" element={<AssetsPage />} />
-        <Route path="documents" element={<DocumentsManagementPage />} />
+          {/* ==================== REPORTS ==================== */}
+          <Route path="reports" element={<AdminReportsPage />} />
+          <Route path="reports/dashboard" element={<ReportsDashboardPage />} />
+          <Route path="reports/merchants" element={<MerchantReportsPage />} />
+          <Route path="reports/unified" element={<UnifiedReportsPage />} />
 
-        {/* ==================== REPORTS ==================== */}
-        <Route path="reports" element={<AdminReportsPage />} />
-        <Route path="reports/dashboard" element={<ReportsDashboardPage />} />
-        <Route path="reports/merchants" element={<MerchantReportsPage />} />
-        <Route path="reports/unified" element={<UnifiedReportsPage />} />
+          {/* ==================== NOTIFICATIONS ==================== */}
+          <Route
+            path="notifications/inbox"
+            element={<NotificationsListPage />}
+          />
+          <Route path="test-otp" element={<TestOtpPage />} />
 
-        {/* ==================== NOTIFICATIONS ==================== */}
-        <Route path="notifications/inbox" element={<NotificationsListPage />} />
-        <Route path="test-otp" element={<TestOtpPage />} />
+          {/* ==================== SETTINGS ==================== */}
+          <Route path="settings/pricing" element={<PricingStrategiesPage />} />
+          <Route
+            path="settings/appearance"
+            element={<AppearanceSettingsPage />}
+          />
 
-        {/* ==================== SETTINGS ==================== */}
-        <Route path="settings/pricing" element={<PricingStrategiesPage />} />
-        <Route path="settings/appearance" element={<AppearanceSettingsPage />} />
+          {/* ==================== AKHDIMNI ==================== */}
+          <Route path="akhdimni" element={<ErrandsListPage />} />
+          <Route path="akhdimni/:id" element={<ErrandDetailsPage />} />
 
-        {/* ==================== AKHDIMNI ==================== */}
-        <Route path="akhdimni" element={<ErrandsListPage />} />
-        <Route path="akhdimni/:id" element={<ErrandDetailsPage />} />
+          {/* ==================== AMANI ==================== */}
+          <Route path="amani" element={<AmaniListPage />} />
+          <Route path="amani/pricing" element={<AmaniPricingPage />} />
+          <Route path="amani/:id" element={<AmaniDetailsPage />} />
 
-        {/* ==================== AMANI ==================== */}
-        <Route path="amani" element={<AmaniListPage />} />
-        <Route path="amani/pricing" element={<AmaniPricingPage />} />
-        <Route path="amani/:id" element={<AmaniDetailsPage />} />
+          {/* ==================== ARABON ==================== */}
+          <Route path="arabon" element={<ArabonListPage />} />
+          <Route path="arabon/:id" element={<ArabonDetailsPage />} />
 
-        {/* ==================== ARABON ==================== */}
-        <Route path="arabon" element={<ArabonListPage />} />
-        <Route path="arabon/:id" element={<ArabonDetailsPage />} />
+          {/* ==================== ES3AFNI ==================== */}
+          <Route path="es3afni" element={<Es3afniListPage />} />
+          <Route path="es3afni/:id" element={<Es3afniDetailsPage />} />
 
-        {/* ==================== ES3AFNI ==================== */}
-        <Route path="es3afni" element={<Es3afniListPage />} />
-        <Route path="es3afni/:id" element={<Es3afniDetailsPage />} />
+          {/* ==================== KAWADER ==================== */}
+          <Route path="kawader" element={<KawaderListPage />} />
+          <Route path="kawader/:id" element={<KawaderDetailsPage />} />
 
-        {/* ==================== KAWADER ==================== */}
-        <Route path="kawader" element={<KawaderListPage />} />
-        <Route path="kawader/:id" element={<KawaderDetailsPage />} />
+          {/* ==================== KENZ ==================== */}
+          <Route path="kenz" element={<KenzListPage />} />
+          <Route path="kenz/reports" element={<KenzReportsPage />} />
+          <Route path="kenz/categories" element={<KenzCategoriesPage />} />
+          <Route path="kenz/boosts" element={<KenzBoostPage />} />
+          <Route path="kenz/:id" element={<KenzDetailsPage />} />
 
-        {/* ==================== KENZ ==================== */}
-        <Route path="kenz" element={<KenzListPage />} />
-        <Route path="kenz/:id" element={<KenzDetailsPage />} />
+          {/* ==================== MAAROUF ==================== */}
+          <Route path="maarouf" element={<MaaroufListPage />} />
+          <Route path="maarouf/:id" element={<MaaroufDetailsPage />} />
 
-        {/* ==================== MAAROUF ==================== */}
-        <Route path="maarouf" element={<MaaroufListPage />} />
-        <Route path="maarouf/:id" element={<MaaroufDetailsPage />} />
+          {/* ==================== SANAD ==================== */}
+          <Route path="sanad" element={<SanadListPage />} />
+          <Route path="sanad/:id" element={<SanadDetailsPage />} />
 
-        {/* ==================== SANAD ==================== */}
-        <Route path="sanad" element={<SanadListPage />} />
-        <Route path="sanad/:id" element={<SanadDetailsPage />} />
+          {/* ==================== PAYMENTS ==================== */}
+          <Route path="payments" element={<PaymentsListPage />} />
+          <Route path="payments/:id" element={<PaymentsDetailsPage />} />
 
-        {/* ==================== PAYMENTS ==================== */}
-        <Route path="payments" element={<PaymentsListPage />} />
-        <Route path="payments/:id" element={<PaymentsDetailsPage />} />
+          {/* ==================== CMS SYSTEM ==================== */}
+          <Route
+            path="cms/onboarding"
+            element={
+              <Suspense fallback={<div>Loading...</div>}>
+                <CmsOnboardingPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="cms/strings"
+            element={
+              <Suspense fallback={<div>Loading...</div>}>
+                <CmsStringsPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="cms/home-layout"
+            element={
+              <Suspense fallback={<div>Loading...</div>}>
+                <HomeLayoutAdminPage />
+              </Suspense>
+            }
+          />
+        </Route>
 
-        {/* ==================== CMS SYSTEM ==================== */}
-        <Route path="cms/onboarding" element={
-          <Suspense fallback={<div>Loading...</div>}>
-            <CmsOnboardingPage />
-          </Suspense>
-        } />
-        <Route path="cms/strings" element={
-          <Suspense fallback={<div>Loading...</div>}>
-            <CmsStringsPage />
-          </Suspense>
-        } />
-        <Route path="cms/home-layout" element={
-          <Suspense fallback={<div>Loading...</div>}>
-            <HomeLayoutAdminPage />
-          </Suspense>
-        } />
-      </Route>
+        {/* ==================== PUBLIC/LANDING PAGES ==================== */}
+        <Route path="/landing" element={<LandingPage />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/for-merchants" element={<ForMerchantsPage />} />
+        <Route path="/become-captain" element={<BecomeCaptainPage />} />
+        <Route path="/support" element={<SupportPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/merchant-terms" element={<MerchantTermsPage />} />
+        <Route path="/safety" element={<SafetyPage />} />
+        <Route path="/delete-account" element={<DeleteAccountPage />} />
 
-      {/* ==================== PUBLIC/LANDING PAGES ==================== */}
-      <Route path="/landing" element={<LandingPage />} />
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/for-merchants" element={<ForMerchantsPage />} />
-      <Route path="/become-captain" element={<BecomeCaptainPage />} />
-      <Route path="/support" element={<SupportPage />} />
-      <Route path="/about" element={<AboutPage />} />
-      <Route path="/contact" element={<ContactPage />} />
-      <Route path="/privacy" element={<PrivacyPage />} />
-      <Route path="/terms" element={<TermsPage />} />
-      <Route path="/merchant-terms" element={<MerchantTermsPage />} />
-      <Route path="/safety" element={<SafetyPage />} />
-      <Route path="/delete-account" element={<DeleteAccountPage />} />
+        {/* ==================== ERROR PAGES ==================== */}
+        <Route path="/admin/error" element={<ErrorPage />} />
 
-      {/* ==================== ERROR PAGES ==================== */}
-      <Route path="/admin/error" element={<ErrorPage />} />
-
-      {/* ==================== CATCH ALL ==================== */}
-      <Route path="*" element={<LandingPage />} />
-    </Routes>
+        {/* ==================== CATCH ALL ==================== */}
+        <Route path="*" element={<LandingPage />} />
+      </Routes>
     </QueryClientProvider>
   );
 }

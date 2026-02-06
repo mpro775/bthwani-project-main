@@ -1,71 +1,68 @@
-import React, { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
-import { AuthProvider } from './contexts/AuthContext';
-import useCartStore from './store/cartStore';
-import './utils/i18n';
+import React, { useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+import { AuthProvider } from "./contexts/AuthContext";
+import useCartStore from "./store/cartStore";
+import "./utils/i18n";
 
 // Layout
-import Header from './components/layout/Header';
-import BottomNav from './components/layout/BottomNav';
+import Header from "./components/layout/Header";
+import BottomNav from "./components/layout/BottomNav";
 
 // Pages
-import Login from './pages/auth/Login';
-import Register from './pages/auth/Register';
-import ForgotPassword from './pages/auth/ForgotPassword';
-import OTPVerification from './pages/auth/OTPVerification';
-import ResetNewPassword from './pages/auth/ResetNewPassword';
-import ResetVerify from './pages/auth/ResetVerify';
-import ServicesHome from './pages/ServicesHome';
-import DeliveryHome from './pages/delivery/Home';
-import Stores from './pages/delivery/Stores';
-import StoreDetails from './pages/delivery/StoreDetails';
-import ProductDetails from './pages/delivery/ProductDetails';
-import CategoryDetails from './pages/delivery/CategoryDetailsScreen';
-import Deals from './pages/delivery/Deals';
-import Cart from './pages/cart/Cart';
-import Checkout from './pages/checkout/Checkout';
-import Payment from './pages/payment/Payment';
-import PaymentCallback from './pages/payment/Callback';
-import Orders from './pages/orders/Orders';
-import OrderDetails from './pages/orders/OrderDetails';
-import Favorites from './pages/favorites/Favorites';
-import Notifications from './pages/notifications/Notifications';
-import Profile from './pages/profile/Profile';
-import EditProfile from './pages/profile/EditProfile';
-import Addresses from './pages/profile/Addresses';
-import AddAddress from './pages/profile/AddAddress';
-import EditAddress from './pages/profile/EditAddress';
-import Search from './pages/search/Search';
-import SelectLocation from './pages/map/SelectLocation';
-import AkhdimniOptions from './pages/akhdimni/AkhdimniOptions';
-import Akhdimni from './pages/akhdimni/Akhdimni';
-import MyErrandsPage from './pages/orders/MyErrandsPage';
-import ErrandDetailsPage from './pages/orders/ErrandDetailsPage';
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import OTPVerification from "./pages/auth/OTPVerification";
+import ResetNewPassword from "./pages/auth/ResetNewPassword";
+import ResetVerify from "./pages/auth/ResetVerify";
+import ServicesHome from "./pages/ServicesHome";
+import DeliveryHome from "./pages/delivery/Home";
+import Stores from "./pages/delivery/Stores";
+import StoreDetails from "./pages/delivery/StoreDetails";
+import ProductDetails from "./pages/delivery/ProductDetails";
+import CategoryDetails from "./pages/delivery/CategoryDetailsScreen";
+import Deals from "./pages/delivery/Deals";
+import Cart from "./pages/cart/Cart";
+import Checkout from "./pages/checkout/Checkout";
+import Payment from "./pages/payment/Payment";
+import PaymentCallback from "./pages/payment/Callback";
+import Orders from "./pages/orders/Orders";
+import OrderDetails from "./pages/orders/OrderDetails";
+import Favorites from "./pages/favorites/Favorites";
+import Notifications from "./pages/notifications/Notifications";
+import Profile from "./pages/profile/Profile";
+import EditProfile from "./pages/profile/EditProfile";
+import Addresses from "./pages/profile/Addresses";
+import AddAddress from "./pages/profile/AddAddress";
+import EditAddress from "./pages/profile/EditAddress";
+import Search from "./pages/search/Search";
+import SelectLocation from "./pages/map/SelectLocation";
+import AkhdimniOptions from "./pages/akhdimni/AkhdimniOptions";
+import Akhdimni from "./pages/akhdimni/Akhdimni";
+import MyErrandsPage from "./pages/orders/MyErrandsPage";
+import ErrandDetailsPage from "./pages/orders/ErrandDetailsPage";
 
-import UtilityGasScreen from './pages/utility/UtilityGasScreen';
-import UtilityWaterScreen from './pages/utility/UtilityWaterScreen';
-import ProtectedRoute from './ProtectedRoute';
-import GroceryScreen from './pages/delivery/GroceryScreen';
-import Maarouf from './pages/maarouf/Maarouf';
-import Arabon from './pages/arabon/Arabon';
-import Kawader from './pages/kawader/Kawader';
-import Kenz from './pages/kenz/Kenz';
-import Es3afni from './pages/es3afni/Es3afni';
-import Amani from './pages/amani/Amani';
-import Sanad from './pages/sanad/Sanad';
-
-
-
+import UtilityGasScreen from "./pages/utility/UtilityGasScreen";
+import UtilityWaterScreen from "./pages/utility/UtilityWaterScreen";
+import ProtectedRoute from "./ProtectedRoute";
+import GroceryScreen from "./pages/delivery/GroceryScreen";
+import Maarouf from "./pages/maarouf/Maarouf";
+import Arabon from "./pages/arabon/Arabon";
+import Kawader from "./pages/kawader/Kawader";
+import Kenz from "./pages/kenz/Kenz";
+import KenzChatList from "./pages/kenz/KenzChatList";
+import KenzChatPage from "./pages/kenz/KenzChatPage";
+import Es3afni from "./pages/es3afni/Es3afni";
+import Amani from "./pages/amani/Amani";
+import Sanad from "./pages/sanad/Sanad";
 
 // App Layout
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      <main className="min-h-[calc(100vh-4rem)]">
-        {children}
-      </main>
+      <main className="min-h-[calc(100vh-4rem)]">{children}</main>
       <BottomNav />
     </div>
   );
@@ -73,7 +70,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 // Main App Component
 const AppContent: React.FC = () => {
-  const initCart = useCartStore(state => state.initCart);
+  const initCart = useCartStore((state) => state.initCart);
 
   useEffect(() => {
     initCart();
@@ -371,6 +368,22 @@ const AppContent: React.FC = () => {
         }
       />
       <Route
+        path="/kenz/chat"
+        element={
+          <AppLayout>
+            <KenzChatList />
+          </AppLayout>
+        }
+      />
+      <Route
+        path="/kenz/chat/:conversationId"
+        element={
+          <AppLayout>
+            <KenzChatPage />
+          </AppLayout>
+        }
+      />
+      <Route
         path="/kenz/:id"
         element={
           <AppLayout>
@@ -532,7 +545,6 @@ const AppContent: React.FC = () => {
         }
       />
 
-
       {/* Orders (Protected - contains personal order data) */}
       <Route
         path="/orders"
@@ -655,8 +667,8 @@ const App: React.FC = () => {
           toastOptions={{
             duration: 3000,
             style: {
-              background: '#333',
-              color: '#fff',
+              background: "#333",
+              color: "#fff",
             },
           }}
         />

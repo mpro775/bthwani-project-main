@@ -77,6 +77,7 @@ export type RootStackParamList = {
 
   // كنز (السوق المفتوح)
   KenzList: undefined;
+  KenzFavorites: undefined;
   KenzCreate: undefined;
   KenzDetails: { itemId: string };
   KenzEdit: { itemId: string };

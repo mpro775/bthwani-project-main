@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsNumber, IsObject, IsEnum, IsArray, Min } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsObject, IsEnum, IsArray, Min, IsIn } from 'class-validator';
 
 export enum KenzStatus {
   DRAFT = 'draft',
@@ -28,10 +28,15 @@ export default class CreateKenzDto {
   @IsNumber()
   price?: number;
 
-  @ApiProperty({ description: 'الفئة', required: false, example: 'إلكترونيات' })
+  @ApiProperty({ description: 'الفئة (نص حر)', required: false, example: 'إلكترونيات' })
   @IsOptional()
   @IsString()
   category?: string;
+
+  @ApiProperty({ description: 'معرف الفئة من شجرة الفئات', required: false })
+  @IsOptional()
+  @IsString()
+  categoryId?: string | null;
 
   @ApiProperty({ description: 'بيانات إضافية', required: false, example: { color: 'فضي', storage: '256GB' } })
   @IsOptional()
@@ -54,6 +59,11 @@ export default class CreateKenzDto {
   @IsString()
   city?: string;
 
+  @ApiProperty({ description: 'حالة السلعة', required: false, enum: ['new', 'used', 'refurbished'] })
+  @IsOptional()
+  @IsIn(['new', 'used', 'refurbished'])
+  condition?: 'new' | 'used' | 'refurbished';
+
   @ApiProperty({ description: 'كلمات مفتاحية', required: false, example: ['جوال', 'أيفون'] })
   @IsOptional()
   @IsArray()
@@ -70,4 +80,24 @@ export default class CreateKenzDto {
   @IsNumber()
   @Min(1)
   quantity?: number;
+
+  @ApiProperty({ description: 'رقم هاتف من نُشر الإعلان بالنيابة عنه', required: false, example: '771234567' })
+  @IsOptional()
+  @IsString()
+  postedOnBehalfOfPhone?: string;
+
+  @ApiProperty({ description: 'معرف المستخدم الذي نُشر الإعلان بالنيابة عنه', required: false })
+  @IsOptional()
+  @IsString()
+  postedOnBehalfOfUserId?: string | null;
+
+  @ApiProperty({ description: 'طريقة التسليم: meetup, delivery, both', required: false, enum: ['meetup', 'delivery', 'both'] })
+  @IsOptional()
+  @IsIn(['meetup', 'delivery', 'both'])
+  deliveryOption?: 'meetup' | 'delivery' | 'both';
+
+  @ApiProperty({ description: 'رسوم التوصيل (عند خيار توصيل)', required: false, example: 500 })
+  @IsOptional()
+  @IsNumber()
+  deliveryFee?: number;
 }

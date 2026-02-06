@@ -8,28 +8,51 @@ import COLORS from "@/constants/colors";
 interface KenzCardProps {
   item: KenzItem;
   onPress: () => void;
+  isFavorited?: boolean;
+  onFavoritePress?: () => void;
 }
 
-const KenzCard: React.FC<KenzCardProps> = ({ item, onPress }) => {
+const KenzCard: React.FC<KenzCardProps> = ({
+  item,
+  onPress,
+  isFavorited,
+  onFavoritePress,
+}) => {
+  const handleFavoritePress = (e: any) => {
+    e?.stopPropagation?.();
+    onFavoritePress?.();
+  };
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'draft': return COLORS.gray;
-      case 'pending': return COLORS.orangeDark;
-      case 'confirmed': return COLORS.primary;
-      case 'completed': return COLORS.success;
-      case 'cancelled': return COLORS.danger;
-      default: return COLORS.gray;
+      case "draft":
+        return COLORS.gray;
+      case "pending":
+        return COLORS.orangeDark;
+      case "confirmed":
+        return COLORS.primary;
+      case "completed":
+        return COLORS.success;
+      case "cancelled":
+        return COLORS.danger;
+      default:
+        return COLORS.gray;
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'draft': return 'مسودة';
-      case 'pending': return 'في الانتظار';
-      case 'confirmed': return 'متاح';
-      case 'completed': return 'مباع';
-      case 'cancelled': return 'ملغي';
-      default: return status;
+      case "draft":
+        return "مسودة";
+      case "pending":
+        return "في الانتظار";
+      case "confirmed":
+        return "متاح";
+      case "completed":
+        return "مباع";
+      case "cancelled":
+        return "ملغي";
+      default:
+        return status;
     }
   };
 
@@ -42,13 +65,13 @@ const KenzCard: React.FC<KenzCardProps> = ({ item, onPress }) => {
   const coverImage = (item.images ?? [])[0];
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return 'غير محدد';
+    if (!dateString) return "غير محدد";
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString('ar-SA', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
+      return date.toLocaleDateString("ar-SA", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
       });
     } catch {
       return dateString;
@@ -59,29 +82,65 @@ const KenzCard: React.FC<KenzCardProps> = ({ item, onPress }) => {
     if (!category) return "storefront-outline";
 
     switch (category) {
-      case 'إلكترونيات': return "phone-portrait-outline";
-      case 'سيارات': return "car-outline";
-      case 'عقارات': return "home-outline";
-      case 'أثاث': return "bed-outline";
-      case 'ملابس': return "shirt-outline";
-      case 'رياضة': return "football-outline";
-      case 'كتب': return "book-outline";
-      case 'خدمات': return "briefcase-outline";
-      case 'وظائف': return "business-outline";
-      case 'حيوانات': return "paw-outline";
-      default: return "storefront-outline";
+      case "إلكترونيات":
+        return "phone-portrait-outline";
+      case "سيارات":
+        return "car-outline";
+      case "عقارات":
+        return "home-outline";
+      case "أثاث":
+        return "bed-outline";
+      case "ملابس":
+        return "shirt-outline";
+      case "رياضة":
+        return "football-outline";
+      case "كتب":
+        return "book-outline";
+      case "خدمات":
+        return "briefcase-outline";
+      case "وظائف":
+        return "business-outline";
+      case "حيوانات":
+        return "paw-outline";
+      default:
+        return "storefront-outline";
     }
   };
 
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress}>
-      {coverImage ? (
-        <Image source={{ uri: coverImage }} style={styles.coverImage} resizeMode="cover" />
-      ) : (
-        <View style={styles.coverPlaceholder}>
-          <Ionicons name="image-outline" size={40} color={COLORS.gray} />
-        </View>
-      )}
+    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.9}>
+      <View style={styles.coverWrap}>
+        {coverImage ? (
+          <Image
+            source={{ uri: coverImage }}
+            style={styles.coverImage}
+            resizeMode="cover"
+          />
+        ) : (
+          <View style={styles.coverPlaceholder}>
+            <Ionicons name="image-outline" size={40} color={COLORS.gray} />
+          </View>
+        )}
+        {item.isBoosted && (
+          <View style={styles.boostBadge}>
+            <Ionicons name="trending-up" size={14} color={COLORS.background} />
+            <Text style={styles.boostBadgeText}>مميز</Text>
+          </View>
+        )}
+        {onFavoritePress != null && (
+          <TouchableOpacity
+            style={styles.favoriteButton}
+            onPress={handleFavoritePress}
+            activeOpacity={0.8}
+          >
+            <Ionicons
+              name={isFavorited ? "heart" : "heart-outline"}
+              size={22}
+              color={isFavorited ? COLORS.danger : COLORS.white}
+            />
+          </TouchableOpacity>
+        )}
+      </View>
 
       <View style={styles.header}>
         <View style={styles.categoryContainer}>
@@ -90,11 +149,14 @@ const KenzCard: React.FC<KenzCardProps> = ({ item, onPress }) => {
             size={16}
             color={COLORS.primary}
           />
-          <Text style={styles.categoryText}>
-            {item.category || "غير مصنف"}
-          </Text>
+          <Text style={styles.categoryText}>{item.category || "غير مصنف"}</Text>
         </View>
-        <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
+        <View
+          style={[
+            styles.statusBadge,
+            { backgroundColor: getStatusColor(item.status) },
+          ]}
+        >
           <Text style={styles.statusText}>{getStatusText(item.status)}</Text>
         </View>
       </View>
@@ -109,11 +171,31 @@ const KenzCard: React.FC<KenzCardProps> = ({ item, onPress }) => {
         </Text>
       )}
 
-      {(item.city || (item.viewCount ?? 0) > 0) && (
+      {(item.city || item.deliveryOption || (item.viewCount ?? 0) > 0) && (
         <View style={styles.metaRow}>
+          {item.deliveryOption && (
+            <View style={styles.metaChip}>
+              <Ionicons name="car-outline" size={12} color={COLORS.info} />
+              <Text style={styles.metaChipText}>
+                {item.deliveryOption === "meetup"
+                  ? "لقاء"
+                  : item.deliveryOption === "delivery"
+                  ? item.deliveryFee
+                    ? `توصيل ${item.deliveryFee}`
+                    : "توصيل"
+                  : item.deliveryFee
+                  ? `لقاء/توصيل ${item.deliveryFee}`
+                  : "لقاء وتوصيل"}
+              </Text>
+            </View>
+          )}
           {item.city && (
             <View style={styles.metaChip}>
-              <Ionicons name="location-outline" size={12} color={COLORS.primary} />
+              <Ionicons
+                name="location-outline"
+                size={12}
+                color={COLORS.primary}
+              />
               <Text style={styles.metaChipText}>{item.city}</Text>
             </View>
           )}
@@ -129,7 +211,9 @@ const KenzCard: React.FC<KenzCardProps> = ({ item, onPress }) => {
       {item.price != null && (
         <View style={styles.priceContainer}>
           <Ionicons name="cash-outline" size={16} color={COLORS.success} />
-          <Text style={styles.priceText}>{formatCurrency(item.price, item.currency)}</Text>
+          <Text style={styles.priceText}>
+            {formatCurrency(item.price, item.currency)}
+          </Text>
         </View>
       )}
 
@@ -139,7 +223,7 @@ const KenzCard: React.FC<KenzCardProps> = ({ item, onPress }) => {
             {Object.entries(item.metadata)
               .slice(0, 2)
               .map(([key, value]) => `${key}: ${value}`)
-              .join(' • ')}
+              .join(" • ")}
           </Text>
         </View>
       )}
@@ -166,6 +250,10 @@ const styles = StyleSheet.create({
     elevation: 3,
     overflow: "hidden",
   },
+  coverWrap: {
+    position: "relative",
+    width: "100%",
+  },
   coverImage: {
     width: "100%",
     height: 140,
@@ -178,17 +266,45 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  favoriteButton: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "rgba(0,0,0,0.35)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  boostBadge: {
+    position: "absolute",
+    top: 8,
+    left: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.orangeDark,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    gap: 4,
+  },
+  boostBadgeText: {
+    fontSize: 11,
+    fontFamily: "Cairo-SemiBold",
+    color: COLORS.background,
+  },
   header: {
     paddingHorizontal: 16,
     paddingTop: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 12,
   },
   categoryContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: COLORS.blue,
     paddingHorizontal: 8,
     paddingVertical: 4,

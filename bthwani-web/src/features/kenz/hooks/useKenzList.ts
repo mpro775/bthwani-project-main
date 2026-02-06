@@ -1,16 +1,24 @@
 // مطابق لـ app-user - دعم الفلترة حسب الفئة والمدينة
 import { useState, useEffect, useCallback } from "react";
 import { getKenzList } from "../api";
-import type { KenzItem, KenzListResponse } from "../types";
+import type { KenzItem, KenzListResponse, KenzCondition } from "../types";
+
+export type KenzSortOption = 'newest' | 'price_asc' | 'price_desc' | 'views_desc';
+
+export type KenzDeliveryOption = 'meetup' | 'delivery' | 'both';
 
 interface UseKenzListOptions {
   initialCategory?: string | undefined;
   initialCity?: string | undefined;
+  initialSearch?: string | undefined;
+  initialSort?: KenzSortOption;
+  initialCondition?: KenzCondition | undefined;
+  initialDeliveryOption?: KenzDeliveryOption | undefined;
   limit?: number;
 }
 
 export function useKenzList(options: UseKenzListOptions = {}) {
-  const { initialCategory, initialCity, limit = 20 } = options;
+  const { initialCategory, initialCity, initialSearch, initialSort = 'newest', initialCondition, limit = 20 } = options;
 
   const [items, setItems] = useState<KenzItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -24,6 +32,10 @@ export function useKenzList(options: UseKenzListOptions = {}) {
   const [selectedCity, setSelectedCity] = useState<string | undefined>(
     initialCity
   );
+  const [selectedCondition, setSelectedCondition] = useState<KenzCondition | undefined>(initialCondition);
+  const [selectedDeliveryOption, setSelectedDeliveryOption] = useState<KenzDeliveryOption | undefined>(initialDeliveryOption);
+  const [searchQuery, setSearchQuery] = useState<string | undefined>(initialSearch);
+  const [sortOption, setSortOption] = useState<KenzSortOption>(initialSort);
 
   const loadItems = useCallback(
     async (cursor?: string, isLoadMore = false) => {
@@ -40,6 +52,10 @@ export function useKenzList(options: UseKenzListOptions = {}) {
           limit,
           category: selectedCategory,
           city: selectedCity,
+          condition: selectedCondition,
+          deliveryOption: selectedDeliveryOption,
+          search: searchQuery || undefined,
+          sort: sortOption,
         });
         const list = response?.items ?? [];
 
@@ -61,13 +77,17 @@ export function useKenzList(options: UseKenzListOptions = {}) {
         setLoadingMore(false);
       }
     },
-    [selectedCategory, selectedCity, limit]
+    [selectedCategory, selectedCity, selectedCondition, selectedDeliveryOption, searchQuery, sortOption, limit]
   );
 
   const updateFilters = useCallback(
-    (updates: { category?: string | undefined; city?: string | undefined }) => {
+    (updates: { category?: string; city?: string; condition?: KenzCondition; deliveryOption?: KenzDeliveryOption; search?: string; sort?: KenzSortOption }) => {
       if (updates.category !== undefined) setSelectedCategory(updates.category);
       if (updates.city !== undefined) setSelectedCity(updates.city);
+      if (updates.condition !== undefined) setSelectedCondition(updates.condition);
+      if (updates.deliveryOption !== undefined) setSelectedDeliveryOption(updates.deliveryOption);
+      if (updates.search !== undefined) setSearchQuery(updates.search);
+      if (updates.sort !== undefined) setSortOption(updates.sort);
     },
     []
   );
@@ -86,9 +106,39 @@ export function useKenzList(options: UseKenzListOptions = {}) {
     setHasMore(true);
   }, []);
 
+  const handleConditionChange = useCallback((condition: KenzCondition | undefined) => {
+    setSelectedCondition(condition);
+    setItems([]);
+    setNextCursor(undefined);
+    setHasMore(true);
+  }, []);
+
+  const handleDeliveryOptionChange = useCallback((deliveryOption: KenzDeliveryOption | undefined) => {
+    setSelectedDeliveryOption(deliveryOption);
+    setItems([]);
+    setNextCursor(undefined);
+    setHasMore(true);
+  }, []);
+
+  const handleSearchChange = useCallback((search: string | undefined) => {
+    setSearchQuery(search);
+    setItems([]);
+    setNextCursor(undefined);
+    setHasMore(true);
+  }, []);
+
+  const handleSortChange = useCallback((sort: KenzSortOption) => {
+    setSortOption(sort);
+    setItems([]);
+    setNextCursor(undefined);
+    setHasMore(true);
+  }, []);
+
   const resetFilters = useCallback(() => {
     setSelectedCategory(undefined);
     setSelectedCity(undefined);
+    setSelectedCondition(undefined);
+    setSelectedDeliveryOption(undefined);
     setItems([]);
     setNextCursor(undefined);
     setHasMore(false);
@@ -135,9 +185,17 @@ export function useKenzList(options: UseKenzListOptions = {}) {
     error,
     selectedCategory,
     selectedCity,
+    selectedCondition,
+    selectedDeliveryOption,
+    searchQuery,
+    sortOption,
     updateFilters,
     handleCategoryChange,
     handleCityChange,
+    handleConditionChange,
+    handleDeliveryOptionChange,
+    handleSearchChange,
+    handleSortChange,
     resetFilters,
     loadMore,
     refresh,

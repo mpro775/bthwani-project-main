@@ -1,8 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsOptional, IsEnum, IsDateString, IsNumber, IsMongoId } from 'class-validator';
 import { Type } from 'class-transformer';
-import { KenzStatus, KenzListResponse, KenzStats, KenzAdminQuery, KenzStatusUpdateDto } from '../interfaces/admin.interfaces';
+import { KenzStatus, KenzListResponse, KenzStats, KenzAdminQuery, KenzStatusUpdateDto, KenzSortOption } from '../interfaces/admin.interfaces';
 import { Types } from 'mongoose';
+import { IsIn } from 'class-validator';
+
 export class KenzAdminQueryDto implements KenzAdminQuery {
   @ApiProperty({ required: false, enum: KenzStatus })
   @IsOptional()
@@ -18,6 +20,16 @@ export class KenzAdminQueryDto implements KenzAdminQuery {
   @IsOptional()
   @IsString()
   category?: string;
+
+  @ApiProperty({ required: false, description: 'حالة السلعة', enum: ['new', 'used', 'refurbished'] })
+  @IsOptional()
+  @IsIn(['new', 'used', 'refurbished'])
+  condition?: 'new' | 'used' | 'refurbished';
+
+  @ApiProperty({ required: false, description: 'طريقة التسليم', enum: ['meetup', 'delivery', 'both'] })
+  @IsOptional()
+  @IsIn(['meetup', 'delivery', 'both'])
+  deliveryOption?: 'meetup' | 'delivery' | 'both';
 
   @ApiProperty({ required: false, example: '2024-01-01T00:00:00.000Z' })
   @IsOptional()
@@ -40,6 +52,16 @@ export class KenzAdminQueryDto implements KenzAdminQuery {
   @IsNumber()
   @Type(() => Number)
   priceMax?: number;
+
+  @ApiProperty({ required: false, description: 'بحث في العنوان والوصف والكلمات المفتاحية' })
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @ApiProperty({ required: false, enum: ['newest', 'price_asc', 'price_desc', 'views_desc'] })
+  @IsOptional()
+  @IsIn(['newest', 'price_asc', 'price_desc', 'views_desc'])
+  sort?: KenzSortOption;
 }
 
 export class KenzStatusUpdateAdminDto implements KenzStatusUpdateDto {

@@ -494,6 +494,17 @@ export interface KenzItem {
   quantity?: number;
   createdAt: Date | string;
   updatedAt: Date | string;
+  /** من الباك اند عند دمج الترويج */
+  isBoosted?: boolean;
+  boostType?: string | null;
+  /** حالة السلعة */
+  condition?: 'new' | 'used' | 'refurbished';
+  /** نشر بالنيابة: رقم الهاتف */
+  postedOnBehalfOfPhone?: string;
+  /** نشر بالنيابة: المستخدم (معرّف أو كائن من الباك اند) */
+  postedOnBehalfOfUserId?: string | { _id: string; name?: string; phone?: string };
+  deliveryOption?: 'meetup' | 'delivery' | 'both';
+  deliveryFee?: number;
 }
 
 export interface CreateKenzPayload {
@@ -523,6 +534,9 @@ export interface UpdateKenzPayload {
   keywords?: string[];
   currency?: string;
   quantity?: number;
+  postedOnBehalfOfPhone?: string;
+  deliveryOption?: 'meetup' | 'delivery' | 'both';
+  deliveryFee?: number;
 }
 
 export interface KenzListResponse {

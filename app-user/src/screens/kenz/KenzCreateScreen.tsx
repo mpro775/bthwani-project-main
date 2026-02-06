@@ -33,7 +33,10 @@ import COLORS from "@/constants/colors";
 
 const MAX_IMAGES = 8;
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, "KenzCreate">;
+type NavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "KenzCreate"
+>;
 
 const KenzCreateScreen = () => {
   const navigation = useNavigation<NavigationProp>();
@@ -56,6 +59,9 @@ const KenzCreateScreen = () => {
     keywords: undefined,
     currency: "ريال يمني",
     quantity: 1,
+    postedOnBehalfOfPhone: "",
+    deliveryOption: undefined as "meetup" | "delivery" | "both" | undefined,
+    deliveryFee: undefined as number | undefined,
   });
   const [imageUris, setImageUris] = useState<string[]>([]);
   const [keywordsText, setKeywordsText] = useState("");
@@ -147,6 +153,14 @@ const KenzCreateScreen = () => {
         images: imageUrls.length ? imageUrls : undefined,
         keywords: keywords.length ? keywords : undefined,
         quantity: qty,
+        postedOnBehalfOfPhone:
+          formData.postedOnBehalfOfPhone?.trim() || undefined,
+        deliveryOption: formData.deliveryOption,
+        deliveryFee:
+          formData.deliveryOption === "delivery" ||
+          formData.deliveryOption === "both"
+            ? formData.deliveryFee
+            : undefined,
       };
       await createKenz(payload);
       Alert.alert("نجح", "تم إنشاء الإعلان بنجاح", [
@@ -165,14 +179,14 @@ const KenzCreateScreen = () => {
   };
 
   const updateFormData = (field: keyof CreateKenzPayload, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
   };
 
   const updateMetadata = (field: string, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       metadata: {
         ...prev.metadata,
@@ -194,7 +208,10 @@ const KenzCreateScreen = () => {
         <View style={styles.headerSpacer} />
       </View>
 
-      <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.formContainer}>
           {/* العنوان */}
           <View style={styles.section}>
@@ -202,7 +219,7 @@ const KenzCreateScreen = () => {
             <TextInput
               style={styles.textInput}
               value={formData.title}
-              onChangeText={(value) => updateFormData('title', value)}
+              onChangeText={(value) => updateFormData("title", value)}
               placeholder="مثال: iPhone 14 Pro مستعمل بحالة ممتازة"
               placeholderTextColor={COLORS.textLight}
               maxLength={100}
@@ -215,7 +232,7 @@ const KenzCreateScreen = () => {
             <TextInput
               style={[styles.textInput, styles.textArea]}
               value={formData.description}
-              onChangeText={(value) => updateFormData('description', value)}
+              onChangeText={(value) => updateFormData("description", value)}
               placeholder="وصف تفصيلي للمنتج أو الخدمة..."
               placeholderTextColor={COLORS.textLight}
               multiline
@@ -230,7 +247,7 @@ const KenzCreateScreen = () => {
             <View style={styles.pickerContainer}>
               <Picker
                 selectedValue={formData.category}
-                onValueChange={(value) => updateFormData('category', value)}
+                onValueChange={(value) => updateFormData("category", value)}
                 style={styles.picker}
               >
                 <Picker.Item label="اختر الفئة" value={undefined} />
@@ -282,8 +299,8 @@ const KenzCreateScreen = () => {
             <Text style={styles.sectionTitle}>رقم التواصل</Text>
             <TextInput
               style={styles.textInput}
-              value={formData.metadata?.contact || ''}
-              onChangeText={(value) => updateMetadata('contact', value)}
+              value={formData.metadata?.contact || ""}
+              onChangeText={(value) => updateMetadata("contact", value)}
               placeholder="مثال: +9677XXXXXXXX"
               placeholderTextColor={COLORS.textLight}
               keyboardType="phone-pad"
@@ -346,12 +363,72 @@ const KenzCreateScreen = () => {
               value={String(formData.quantity ?? 1)}
               onChangeText={(v) => {
                 const n = v ? parseInt(v, 10) : NaN;
-                updateFormData("quantity", Number.isFinite(n) && n >= 1 ? n : 1);
+                updateFormData(
+                  "quantity",
+                  Number.isFinite(n) && n >= 1 ? n : 1
+                );
               }}
               placeholder="1"
               placeholderTextColor={COLORS.textLight}
               keyboardType="number-pad"
             />
+          </View>
+
+          {/* طريقة التسليم */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>طريقة التسليم</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={formData.deliveryOption}
+                onValueChange={(value) =>
+                  updateFormData("deliveryOption", value)
+                }
+                style={styles.picker}
+              >
+                <Picker.Item label="اختياري" value={undefined} />
+                <Picker.Item label="لقاء" value="meetup" />
+                <Picker.Item label="توصيل" value="delivery" />
+                <Picker.Item label="لقاء وتوصيل" value="both" />
+              </Picker>
+            </View>
+            {(formData.deliveryOption === "delivery" ||
+              formData.deliveryOption === "both") && (
+              <>
+                <Text style={[styles.sectionTitle, { marginTop: 12 }]}>
+                  رسوم التوصيل
+                </Text>
+                <TextInput
+                  style={styles.textInput}
+                  value={formData.deliveryFee?.toString() ?? ""}
+                  onChangeText={(v) =>
+                    updateFormData("deliveryFee", v ? parseFloat(v) : undefined)
+                  }
+                  placeholder="مثال: 500"
+                  placeholderTextColor={COLORS.textLight}
+                  keyboardType="number-pad"
+                />
+              </>
+            )}
+          </View>
+
+          {/* نشر بالنيابة عن */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>
+              نشر بالنيابة عن (رقم الهاتف)
+            </Text>
+            <TextInput
+              style={styles.textInput}
+              value={formData.postedOnBehalfOfPhone ?? ""}
+              onChangeText={(value) =>
+                updateFormData("postedOnBehalfOfPhone", value)
+              }
+              placeholder="اختياري: أدخل رقم هاتف من تنشر الإعلان باسمه"
+              placeholderTextColor={COLORS.textLight}
+              maxLength={20}
+            />
+            <Text style={styles.helperText}>
+              اتركه فارغاً إذا كنت تنشر الإعلان باسمك
+            </Text>
           </View>
 
           {/* الكلمات المفتاحية */}
@@ -369,7 +446,9 @@ const KenzCreateScreen = () => {
 
           {/* صور الإعلان */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>صور الإعلان (حد أقصى {MAX_IMAGES})</Text>
+            <Text style={styles.sectionTitle}>
+              صور الإعلان (حد أقصى {MAX_IMAGES})
+            </Text>
             <View style={styles.imagesRow}>
               {imageUris.map((uri, i) => (
                 <View key={i} style={styles.imageWrap}>
@@ -378,7 +457,11 @@ const KenzCreateScreen = () => {
                     style={styles.removeImageBtn}
                     onPress={() => removeImage(i)}
                   >
-                    <Ionicons name="close-circle" size={24} color={COLORS.danger} />
+                    <Ionicons
+                      name="close-circle"
+                      size={24}
+                      color={COLORS.danger}
+                    />
                   </TouchableOpacity>
                 </View>
               ))}
@@ -402,48 +485,48 @@ const KenzCreateScreen = () => {
           </View>
 
           {/* حقول إضافية حسب الفئة */}
-          {formData.category === 'إلكترونيات' && (
+          {formData.category === "إلكترونيات" && (
             <View style={styles.additionalFields}>
               <Text style={styles.sectionTitle}>تفاصيل إضافية</Text>
               <TextInput
                 style={styles.textInput}
-                value={formData.metadata?.brand || ''}
-                onChangeText={(value) => updateMetadata('brand', value)}
+                value={formData.metadata?.brand || ""}
+                onChangeText={(value) => updateMetadata("brand", value)}
                 placeholder="الماركة (مثال: Apple)"
                 placeholderTextColor={COLORS.textLight}
               />
               <TextInput
                 style={styles.textInput}
-                value={formData.metadata?.model || ''}
-                onChangeText={(value) => updateMetadata('model', value)}
+                value={formData.metadata?.model || ""}
+                onChangeText={(value) => updateMetadata("model", value)}
                 placeholder="الموديل (مثال: iPhone 14 Pro)"
                 placeholderTextColor={COLORS.textLight}
               />
             </View>
           )}
 
-          {formData.category === 'سيارات' && (
+          {formData.category === "سيارات" && (
             <View style={styles.additionalFields}>
               <Text style={styles.sectionTitle}>تفاصيل إضافية</Text>
               <TextInput
                 style={styles.textInput}
-                value={formData.metadata?.brand || ''}
-                onChangeText={(value) => updateMetadata('brand', value)}
+                value={formData.metadata?.brand || ""}
+                onChangeText={(value) => updateMetadata("brand", value)}
                 placeholder="الماركة (مثال: Toyota)"
                 placeholderTextColor={COLORS.textLight}
               />
               <TextInput
                 style={styles.textInput}
-                value={formData.metadata?.year || ''}
-                onChangeText={(value) => updateMetadata('year', value)}
+                value={formData.metadata?.year || ""}
+                onChangeText={(value) => updateMetadata("year", value)}
                 placeholder="سنة الصنع (مثال: 2020)"
                 placeholderTextColor={COLORS.textLight}
                 keyboardType="number-pad"
               />
               <TextInput
                 style={styles.textInput}
-                value={formData.metadata?.mileage || ''}
-                onChangeText={(value) => updateMetadata('mileage', value)}
+                value={formData.metadata?.mileage || ""}
+                onChangeText={(value) => updateMetadata("mileage", value)}
                 placeholder="عدد الكيلومترات"
                 placeholderTextColor={COLORS.textLight}
                 keyboardType="number-pad"
@@ -481,8 +564,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: COLORS.white,
@@ -497,7 +580,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
-    textAlign: 'center',
+    textAlign: "center",
   },
   headerSpacer: {
     width: 40,
@@ -517,6 +600,11 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     marginBottom: 8,
   },
+  helperText: {
+    fontSize: 12,
+    color: COLORS.textLight,
+    marginTop: 4,
+  },
   textInput: {
     borderWidth: 1,
     borderColor: COLORS.border,
@@ -529,14 +617,14 @@ const styles = StyleSheet.create({
   },
   textArea: {
     height: 100,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
   },
   pickerContainer: {
     borderWidth: 1,
     borderColor: COLORS.border,
     borderRadius: 8,
     backgroundColor: COLORS.white,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   picker: {
     height: 50,
@@ -551,9 +639,9 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     backgroundColor: COLORS.primary,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     padding: 16,
     borderRadius: 12,
     marginTop: 16,

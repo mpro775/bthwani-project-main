@@ -57,7 +57,10 @@ const KenzEditScreen = () => {
         if (!uid) {
           try {
             const profile = await fetchUserProfile();
-            uid = profile?.uid || profile?.id || profile?._id ? String(profile.uid || profile.id || profile._id) : null;
+            uid =
+              profile?.uid || profile?.id || profile?._id
+                ? String(profile.uid || profile.id || profile._id)
+                : null;
           } catch {
             // تجاهل
           }
@@ -79,6 +82,9 @@ const KenzEditScreen = () => {
     currency: "ريال يمني",
     quantity: 1,
     images: undefined,
+    postedOnBehalfOfPhone: "",
+    deliveryOption: undefined as "meetup" | "delivery" | "both" | undefined,
+    deliveryFee: undefined as number | undefined,
   });
   const [keywordsText, setKeywordsText] = useState("");
   const [imageUrls, setImageUrls] = useState<string[]>([]);
@@ -108,10 +114,11 @@ const KenzEditScreen = () => {
         currency: itemData.currency ?? "ريال يمني",
         quantity: itemData.quantity ?? 1,
         images: itemData.images,
+        postedOnBehalfOfPhone: itemData.postedOnBehalfOfPhone ?? "",
+        deliveryOption: itemData.deliveryOption,
+        deliveryFee: itemData.deliveryFee,
       });
-      setKeywordsText(
-        (itemData.keywords ?? []).join("، ")
-      );
+      setKeywordsText((itemData.keywords ?? []).join("، "));
       setImageUrls(itemData.images ?? []);
       setNewImageUris([]);
     } catch (error) {
@@ -191,6 +198,14 @@ const KenzEditScreen = () => {
         images: [...imageUrls, ...newUrls],
         keywords: keywords.length ? keywords : undefined,
         quantity: qty,
+        postedOnBehalfOfPhone:
+          formData.postedOnBehalfOfPhone?.trim() || undefined,
+        deliveryOption: formData.deliveryOption,
+        deliveryFee:
+          formData.deliveryOption === "delivery" ||
+          formData.deliveryOption === "both"
+            ? formData.deliveryFee
+            : undefined,
       };
       await updateKenz(itemId, payload);
       Alert.alert("نجح", "تم تحديث الإعلان بنجاح", [
@@ -221,11 +236,17 @@ const KenzEditScreen = () => {
 
   const ownerIdStr =
     originalItem &&
-    (typeof originalItem.ownerId === "object" && (originalItem.ownerId as any)?._id
+    (typeof originalItem.ownerId === "object" &&
+    (originalItem.ownerId as any)?._id
       ? String((originalItem.ownerId as any)._id)
       : String(originalItem.ownerId || ""));
-  const isOwner = !!(currentUserId && originalItem && ownerIdStr === currentUserId);
-  const stillResolvingUser = isLoggedIn && currentUserId === null && !!originalItem;
+  const isOwner = !!(
+    currentUserId &&
+    originalItem &&
+    ownerIdStr === currentUserId
+  );
+  const stillResolvingUser =
+    isLoggedIn && currentUserId === null && !!originalItem;
 
   if (loading) {
     return (
@@ -274,15 +295,18 @@ const KenzEditScreen = () => {
         <View style={styles.headerSpacer} />
       </View>
 
-      <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.formContainer}>
           {/* العنوان */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>عنوان الإعلان *</Text>
             <TextInput
               style={styles.textInput}
-              value={formData.title || ''}
-              onChangeText={(value) => updateFormData('title', value)}
+              value={formData.title || ""}
+              onChangeText={(value) => updateFormData("title", value)}
               placeholder="مثال: iPhone 14 Pro مستعمل بحالة ممتازة"
               placeholderTextColor={COLORS.lightText}
               maxLength={100}
@@ -294,8 +318,8 @@ const KenzEditScreen = () => {
             <Text style={styles.sectionTitle}>تفاصيل الإعلان</Text>
             <TextInput
               style={[styles.textInput, styles.textArea]}
-              value={formData.description || ''}
-              onChangeText={(value) => updateFormData('description', value)}
+              value={formData.description || ""}
+              onChangeText={(value) => updateFormData("description", value)}
               placeholder="وصف تفصيلي للمنتج أو الخدمة..."
               placeholderTextColor={COLORS.lightText}
               multiline
@@ -310,7 +334,7 @@ const KenzEditScreen = () => {
             <View style={styles.pickerContainer}>
               <Picker
                 selectedValue={formData.category}
-                onValueChange={(value) => updateFormData('category', value)}
+                onValueChange={(value) => updateFormData("category", value)}
                 style={styles.picker}
               >
                 <Picker.Item label="اختر الفئة" value={undefined} />
@@ -362,8 +386,8 @@ const KenzEditScreen = () => {
             <Text style={styles.sectionTitle}>رقم التواصل</Text>
             <TextInput
               style={styles.textInput}
-              value={formData.metadata?.contact || ''}
-              onChangeText={(value) => updateMetadata('contact', value)}
+              value={formData.metadata?.contact || ""}
+              onChangeText={(value) => updateMetadata("contact", value)}
               placeholder="مثال: +9677XXXXXXXX"
               placeholderTextColor={COLORS.lightText}
               keyboardType="phone-pad"
@@ -406,8 +430,8 @@ const KenzEditScreen = () => {
             <Text style={styles.sectionTitle}>حالة المنتج</Text>
             <View style={styles.pickerContainer}>
               <Picker
-                selectedValue={formData.metadata?.condition || 'جديد'}
-                onValueChange={(value) => updateMetadata('condition', value)}
+                selectedValue={formData.metadata?.condition || "جديد"}
+                onValueChange={(value) => updateMetadata("condition", value)}
                 style={styles.picker}
               >
                 <Picker.Item label="جديد" value="جديد" />
@@ -444,12 +468,68 @@ const KenzEditScreen = () => {
               value={String(formData.quantity ?? 1)}
               onChangeText={(v) => {
                 const n = v ? parseInt(v, 10) : NaN;
-                updateFormData("quantity", Number.isFinite(n) && n >= 1 ? n : 1);
+                updateFormData(
+                  "quantity",
+                  Number.isFinite(n) && n >= 1 ? n : 1
+                );
               }}
               placeholder="1"
               placeholderTextColor={COLORS.lightText}
               keyboardType="number-pad"
             />
+          </View>
+
+          {/* طريقة التسليم */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>طريقة التسليم</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={formData.deliveryOption}
+                onValueChange={(v) => updateFormData("deliveryOption", v)}
+                style={styles.picker}
+              >
+                <Picker.Item label="اختياري" value={undefined} />
+                <Picker.Item label="لقاء" value="meetup" />
+                <Picker.Item label="توصيل" value="delivery" />
+                <Picker.Item label="لقاء وتوصيل" value="both" />
+              </Picker>
+            </View>
+            {(formData.deliveryOption === "delivery" ||
+              formData.deliveryOption === "both") && (
+              <>
+                <Text style={[styles.sectionTitle, { marginTop: 12 }]}>
+                  رسوم التوصيل
+                </Text>
+                <TextInput
+                  style={styles.textInput}
+                  value={formData.deliveryFee?.toString() ?? ""}
+                  onChangeText={(v) =>
+                    updateFormData("deliveryFee", v ? parseFloat(v) : undefined)
+                  }
+                  placeholder="مثال: 500"
+                  placeholderTextColor={COLORS.lightText}
+                  keyboardType="number-pad"
+                />
+              </>
+            )}
+          </View>
+
+          {/* نشر بالنيابة عن */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>
+              نشر بالنيابة عن (رقم الهاتف)
+            </Text>
+            <TextInput
+              style={styles.textInput}
+              value={formData.postedOnBehalfOfPhone ?? ""}
+              onChangeText={(v) => updateFormData("postedOnBehalfOfPhone", v)}
+              placeholder="اختياري: أدخل رقم هاتف من تنشر الإعلان باسمه"
+              placeholderTextColor={COLORS.lightText}
+              maxLength={20}
+            />
+            <Text style={styles.helperText}>
+              اتركه فارغاً إذا كنت تنشر الإعلان باسمك
+            </Text>
           </View>
 
           {/* الكلمات المفتاحية */}
@@ -467,7 +547,9 @@ const KenzEditScreen = () => {
 
           {/* صور الإعلان */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>صور الإعلان (حد أقصى {MAX_IMAGES})</Text>
+            <Text style={styles.sectionTitle}>
+              صور الإعلان (حد أقصى {MAX_IMAGES})
+            </Text>
             <View style={styles.imagesRow}>
               {imageUrls.map((url, i) => (
                 <View key={`url-${i}`} style={styles.imageWrap}>
@@ -476,7 +558,11 @@ const KenzEditScreen = () => {
                     style={styles.removeImageBtn}
                     onPress={() => removeExistingImage(i)}
                   >
-                    <Ionicons name="close-circle" size={24} color={COLORS.danger} />
+                    <Ionicons
+                      name="close-circle"
+                      size={24}
+                      color={COLORS.danger}
+                    />
                   </TouchableOpacity>
                 </View>
               ))}
@@ -487,7 +573,11 @@ const KenzEditScreen = () => {
                     style={styles.removeImageBtn}
                     onPress={() => removeNewImage(i)}
                   >
-                    <Ionicons name="close-circle" size={24} color={COLORS.danger} />
+                    <Ionicons
+                      name="close-circle"
+                      size={24}
+                      color={COLORS.danger}
+                    />
                   </TouchableOpacity>
                 </View>
               ))}
@@ -511,50 +601,50 @@ const KenzEditScreen = () => {
           </View>
 
           {/* حقول إضافية حسب الفئة */}
-          {formData.category === 'إلكترونيات' && (
+          {formData.category === "إلكترونيات" && (
             <View style={styles.additionalFields}>
               <Text style={styles.sectionTitle}>تفاصيل إضافية</Text>
               <TextInput
                 style={styles.textInput}
-                value={formData.metadata?.brand || ''}
-                onChangeText={(value) => updateMetadata('brand', value)}
+                value={formData.metadata?.brand || ""}
+                onChangeText={(value) => updateMetadata("brand", value)}
                 placeholder="الماركة (مثال: Apple)"
                 placeholderTextColor={COLORS.lightText}
               />
               <TextInput
                 style={styles.textInput}
-                value={formData.metadata?.model || ''}
-                onChangeText={(value) => updateMetadata('model', value)}
+                value={formData.metadata?.model || ""}
+                onChangeText={(value) => updateMetadata("model", value)}
                 placeholder="الموديل (مثال: iPhone 14 Pro)"
                 placeholderTextColor={COLORS.lightText}
               />
             </View>
           )}
 
-          {formData.category === 'سيارات' && (
+          {formData.category === "سيارات" && (
             <View style={styles.additionalFields}>
               <Text style={styles.sectionTitle}>تفاصيل إضافية</Text>
               <TextInput
                 style={styles.textInput}
-                value={formData.metadata?.brand || ''}
-                onChangeText={(value) => updateMetadata('brand', value)}
+                value={formData.metadata?.brand || ""}
+                onChangeText={(value) => updateMetadata("brand", value)}
                 placeholder="الماركة (مثال: Toyota)"
                 placeholderTextColor={COLORS.lightText}
               />
               <TextInput
                 style={styles.textInput}
-                value={formData.metadata?.year || ''}
-                onChangeText={(value) => updateMetadata('year', value)}
+                value={formData.metadata?.year || ""}
+                onChangeText={(value) => updateMetadata("year", value)}
                 placeholder="سنة الصنع (مثال: 2020)"
                 placeholderTextColor={COLORS.lightText}
                 keyboardType="number-pad"
               />
               <TextInput
                 style={styles.textInput}
-                value={formData.metadata?.mileage || ''}
-                onChangeText={(value) => updateMetadata('mileage', value)}
+                value={formData.metadata?.mileage || ""}
+                onChangeText={(value) => updateMetadata("mileage", value)}
                 placeholder="عدد الكيلومترات"
-                  placeholderTextColor={COLORS.lightText}
+                placeholderTextColor={COLORS.lightText}
                 keyboardType="number-pad"
               />
             </View>
@@ -573,7 +663,11 @@ const KenzEditScreen = () => {
               <ActivityIndicator size="small" color={COLORS.lightText} />
             ) : (
               <>
-                <Ionicons name="checkmark-circle" size={20} color={COLORS.lightText} />
+                <Ionicons
+                  name="checkmark-circle"
+                  size={20}
+                  color={COLORS.lightText}
+                />
                 <Text style={styles.submitButtonText}>حفظ التغييرات</Text>
               </>
             )}
@@ -591,8 +685,8 @@ const styles = StyleSheet.create({
   },
   centerContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: COLORS.background,
   },
   loadingText: {
@@ -605,11 +699,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Cairo-Regular",
     color: COLORS.danger,
-    textAlign: 'center',
+    textAlign: "center",
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: COLORS.background,
@@ -624,7 +718,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
-    textAlign: 'center',
+    textAlign: "center",
   },
   headerSpacer: {
     width: 40,
@@ -644,6 +738,11 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     marginBottom: 8,
   },
+  helperText: {
+    fontSize: 12,
+    color: COLORS.textLight || COLORS.lightText,
+    marginTop: 4,
+  },
   textInput: {
     borderWidth: 1,
     borderColor: COLORS.lightGray,
@@ -656,14 +755,14 @@ const styles = StyleSheet.create({
   },
   textArea: {
     height: 100,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
   },
   pickerContainer: {
     borderWidth: 1,
     borderColor: COLORS.lightGray,
     borderRadius: 8,
     backgroundColor: COLORS.background,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   picker: {
     height: 50,
@@ -678,9 +777,9 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     backgroundColor: COLORS.primary,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     padding: 16,
     borderRadius: 12,
     marginTop: 16,

@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -27,9 +27,8 @@ import {
   DialogContent,
   DialogActions,
   CircularProgress,
-
   Grid,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Add as AddIcon,
   Delete as DeleteIcon,
@@ -39,20 +38,41 @@ import {
   AttachMoney as MoneyIcon,
   Visibility as ViewIcon,
   Category as CategoryIcon,
-} from '@mui/icons-material';
-import { getKenzList, updateKenzStatus, deleteKenz, type KenzItem } from '../../../api/kenz';
-import { KenzStatus, KenzStatusLabels, KenzStatusColors, KenzCategories } from '../../../types/kenz';
-import RequireAdminPermission from '../../../components/RequireAdminPermission';
+  CheckCircle as SoldIcon,
+} from "@mui/icons-material";
+import {
+  getKenzList,
+  updateKenzStatus,
+  deleteKenz,
+  type KenzItem,
+  type KenzSortOption,
+  type KenzCondition,
+  type KenzDeliveryOption,
+} from "../../../api/kenz";
+import {
+  KenzStatus,
+  KenzStatusLabels,
+  KenzStatusColors,
+  KenzCategories,
+} from "../../../types/kenz";
+import RequireAdminPermission from "../../../components/RequireAdminPermission";
 
 const KenzListPage: React.FC = () => {
   const navigate = useNavigate();
   const [kenzItems, setKenzItems] = useState<KenzItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<KenzStatus | ''>('');
-  const [categoryFilter, setCategoryFilter] = useState('');
-  const [priceMinFilter, setPriceMinFilter] = useState('');
-  const [priceMaxFilter, setPriceMaxFilter] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<KenzStatus | "">("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [conditionFilter, setConditionFilter] = useState<KenzCondition | "">(
+    ""
+  );
+  const [deliveryOptionFilter, setDeliveryOptionFilter] = useState<
+    "meetup" | "delivery" | "both" | ""
+  >("");
+  const [priceMinFilter, setPriceMinFilter] = useState("");
+  const [priceMaxFilter, setPriceMaxFilter] = useState("");
+  const [sortFilter, setSortFilter] = useState<KenzSortOption>("newest");
   const [nextCursor, setNextCursor] = useState<string | undefined>();
   const [loadingMore, setLoadingMore] = useState(false);
 
@@ -67,57 +87,72 @@ const KenzListPage: React.FC = () => {
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
-    severity: 'success' | 'error';
+    severity: "success" | "error";
   }>({
     open: false,
-    message: '',
-    severity: 'success',
+    message: "",
+    severity: "success",
   });
 
-  const loadKenzItems = useCallback(async (loadMore = false) => {
-    try {
-      if (loadMore) {
-        setLoadingMore(true);
-      } else {
-        setLoading(true);
+  const loadKenzItems = useCallback(
+    async (loadMore = false) => {
+      try {
+        if (loadMore) {
+          setLoadingMore(true);
+        } else {
+          setLoading(true);
+        }
+
+        const params: any = {
+          limit: 25,
+        };
+
+        if (!loadMore) {
+          if (searchTerm) params.search = searchTerm;
+          if (statusFilter) params.status = statusFilter;
+          if (categoryFilter) params.category = categoryFilter;
+          if (conditionFilter) params.condition = conditionFilter;
+          if (deliveryOptionFilter)
+            params.deliveryOption = deliveryOptionFilter;
+          if (priceMinFilter) params.priceMin = parseFloat(priceMinFilter);
+          if (priceMaxFilter) params.priceMax = parseFloat(priceMaxFilter);
+          if (sortFilter) params.sort = sortFilter;
+        } else if (nextCursor) {
+          params.cursor = nextCursor;
+        }
+
+        const response = await getKenzList(params);
+
+        if (loadMore) {
+          setKenzItems((prev) => [...prev, ...response.items]);
+        } else {
+          setKenzItems(response.items);
+        }
+
+        setNextCursor(response.nextCursor);
+      } catch (error) {
+        console.error("خطأ في تحميل إعلانات الكنز:", error);
+        setSnackbar({
+          open: true,
+          message: "فشل في تحميل إعلانات الكنز",
+          severity: "error",
+        });
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
       }
-
-      const params: any = {
-        limit: 25,
-      };
-
-      if (!loadMore) {
-        // Only add filters for initial load
-        if (searchTerm) params.search = searchTerm;
-        if (statusFilter) params.status = statusFilter;
-        if (categoryFilter) params.category = categoryFilter;
-        if (priceMinFilter) params.priceMin = parseFloat(priceMinFilter);
-        if (priceMaxFilter) params.priceMax = parseFloat(priceMaxFilter);
-      } else if (nextCursor) {
-        params.cursor = nextCursor;
-      }
-
-      const response = await getKenzList(params);
-
-      if (loadMore) {
-        setKenzItems(prev => [...prev, ...response.items]);
-      } else {
-        setKenzItems(response.items);
-      }
-
-      setNextCursor(response.nextCursor);
-    } catch (error) {
-      console.error('خطأ في تحميل إعلانات الكنز:', error);
-      setSnackbar({
-        open: true,
-        message: 'فشل في تحميل إعلانات الكنز',
-        severity: 'error',
-      });
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  }, [searchTerm, statusFilter, categoryFilter, priceMinFilter, priceMaxFilter, nextCursor]);
+    },
+    [
+      searchTerm,
+      statusFilter,
+      categoryFilter,
+      conditionFilter,
+      priceMinFilter,
+      priceMaxFilter,
+      sortFilter,
+      nextCursor,
+    ]
+  );
 
   useEffect(() => {
     loadKenzItems();
@@ -129,17 +164,17 @@ const KenzListPage: React.FC = () => {
       await updateKenzStatus(id, { status: newStatus });
       setSnackbar({
         open: true,
-        message: 'تم تحديث حالة الإعلان بنجاح',
-        severity: 'success',
+        message: "تم تحديث حالة الإعلان بنجاح",
+        severity: "success",
       });
       // Reload the list
       loadKenzItems();
     } catch (error) {
-      console.error('خطأ في تحديث الحالة:', error);
+      console.error("خطأ في تحديث الحالة:", error);
       setSnackbar({
         open: true,
-        message: 'فشل في تحديث الحالة',
-        severity: 'error',
+        message: "فشل في تحديث الحالة",
+        severity: "error",
       });
     } finally {
       setUpdatingStatus(null);
@@ -153,18 +188,18 @@ const KenzListPage: React.FC = () => {
       await deleteKenz(itemToDelete._id);
       setSnackbar({
         open: true,
-        message: 'تم حذف الإعلان بنجاح',
-        severity: 'success',
+        message: "تم حذف الإعلان بنجاح",
+        severity: "success",
       });
       setDeleteDialogOpen(false);
       setItemToDelete(null);
       loadKenzItems();
     } catch (error) {
-      console.error('خطأ في الحذف:', error);
+      console.error("خطأ في الحذف:", error);
       setSnackbar({
         open: true,
-        message: 'فشل في حذف الإعلان',
-        severity: 'error',
+        message: "فشل في حذف الإعلان",
+        severity: "error",
       });
     }
   };
@@ -174,32 +209,39 @@ const KenzListPage: React.FC = () => {
   };
 
   const formatCurrency = (amount?: number) => {
-    if (!amount) return 'غير محدد';
-    return new Intl.NumberFormat('ar-SA', {
-      style: 'currency',
-      currency: 'SAR',
+    if (!amount) return "غير محدد";
+    return new Intl.NumberFormat("ar-SA", {
+      style: "currency",
+      currency: "SAR",
     }).format(amount);
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-SA', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
+    return new Date(dateString).toLocaleDateString("ar-SA", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
   return (
     <RequireAdminPermission>
       <Box sx={{ p: 3 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 3,
+          }}
+        >
           <Typography variant="h4" component="h1">
             إدارة إعلانات الكنز
           </Typography>
           <Button
             variant="contained"
             startIcon={<AddIcon />}
-            onClick={() => navigate('/admin/kenz/new')}
+            onClick={() => navigate("/admin/kenz/new")}
           >
             إضافة إعلان جديد
           </Button>
@@ -208,7 +250,7 @@ const KenzListPage: React.FC = () => {
         {/* Filters */}
         <Paper sx={{ p: 2, mb: 3 }}>
           <Grid container spacing={2} alignItems="center">
-            <Grid  size={{xs: 12, sm: 6, md: 3}}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <TextField
                 fullWidth
                 label="البحث"
@@ -224,13 +266,15 @@ const KenzListPage: React.FC = () => {
                 placeholder="ابحث في العناوين..."
               />
             </Grid>
-            <Grid  size={{xs: 12, sm: 6, md: 2}}>
+            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
               <FormControl fullWidth>
                 <InputLabel>الحالة</InputLabel>
                 <Select
                   value={statusFilter}
                   label="الحالة"
-                  onChange={(e) => setStatusFilter(e.target.value as KenzStatus)}
+                  onChange={(e) =>
+                    setStatusFilter(e.target.value as KenzStatus)
+                  }
                 >
                   <MenuItem value="">الكل</MenuItem>
                   {Object.values(KenzStatus).map((status) => (
@@ -241,7 +285,24 @@ const KenzListPage: React.FC = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid  size={{xs: 12, sm: 6, md: 2}}>
+            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+              <FormControl fullWidth>
+                <InputLabel>الترتيب</InputLabel>
+                <Select
+                  value={sortFilter}
+                  label="الترتيب"
+                  onChange={(e) =>
+                    setSortFilter(e.target.value as KenzSortOption)
+                  }
+                >
+                  <MenuItem value="newest">الأحدث</MenuItem>
+                  <MenuItem value="price_asc">السعر (أقل أولاً)</MenuItem>
+                  <MenuItem value="price_desc">السعر (أعلى أولاً)</MenuItem>
+                  <MenuItem value="views_desc">الأكثر مشاهدة</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
               <FormControl fullWidth>
                 <InputLabel>الفئة</InputLabel>
                 <Select
@@ -258,7 +319,45 @@ const KenzListPage: React.FC = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid  size={{xs: 12, sm: 6, md: 2}}>
+            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+              <FormControl fullWidth>
+                <InputLabel>حالة السلعة</InputLabel>
+                <Select
+                  value={conditionFilter}
+                  label="حالة السلعة"
+                  onChange={(e) =>
+                    setConditionFilter(
+                      (e.target.value || "") as KenzCondition | ""
+                    )
+                  }
+                >
+                  <MenuItem value="">الكل</MenuItem>
+                  <MenuItem value="new">جديد</MenuItem>
+                  <MenuItem value="used">مستعمل</MenuItem>
+                  <MenuItem value="refurbished">مجدد</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+              <FormControl fullWidth>
+                <InputLabel>طريقة التسليم</InputLabel>
+                <Select
+                  value={deliveryOptionFilter}
+                  label="طريقة التسليم"
+                  onChange={(e) =>
+                    setDeliveryOptionFilter(
+                      (e.target.value || "") as KenzDeliveryOption | ""
+                    )
+                  }
+                >
+                  <MenuItem value="">الكل</MenuItem>
+                  <MenuItem value="meetup">لقاء</MenuItem>
+                  <MenuItem value="delivery">توصيل</MenuItem>
+                  <MenuItem value="both">لقاء وتوصيل</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
               <TextField
                 fullWidth
                 label="السعر من"
@@ -266,11 +365,13 @@ const KenzListPage: React.FC = () => {
                 value={priceMinFilter}
                 onChange={(e) => setPriceMinFilter(e.target.value)}
                 InputProps={{
-                  startAdornment: <InputAdornment position="start">ر.س</InputAdornment>,
+                  startAdornment: (
+                    <InputAdornment position="start">ر.س</InputAdornment>
+                  ),
                 }}
               />
             </Grid>
-            <Grid  size={{xs: 12, sm: 6, md: 2}}>
+            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
               <TextField
                 fullWidth
                 label="السعر إلى"
@@ -278,11 +379,13 @@ const KenzListPage: React.FC = () => {
                 value={priceMaxFilter}
                 onChange={(e) => setPriceMaxFilter(e.target.value)}
                 InputProps={{
-                  startAdornment: <InputAdornment position="start">ر.س</InputAdornment>,
+                  startAdornment: (
+                    <InputAdornment position="start">ر.س</InputAdornment>
+                  ),
                 }}
               />
             </Grid>
-            <Grid  size={{xs: 12, sm: 6, md: 1}}>
+            <Grid size={{ xs: 12, sm: 6, md: 1 }}>
               <Stack direction="row" spacing={1}>
                 <Button
                   variant="outlined"
@@ -293,15 +396,18 @@ const KenzListPage: React.FC = () => {
                 </Button>
               </Stack>
             </Grid>
-            <Grid  size={{xs: 12, sm: 6, md: 1}}>
+            <Grid size={{ xs: 12, sm: 6, md: 1 }}>
               <Button
                 variant="text"
                 onClick={() => {
-                  setSearchTerm('');
-                  setStatusFilter('');
-                  setCategoryFilter('');
-                  setPriceMinFilter('');
-                  setPriceMaxFilter('');
+                  setSearchTerm("");
+                  setStatusFilter("");
+                  setCategoryFilter("");
+                  setConditionFilter("");
+                  setDeliveryOptionFilter("");
+                  setSortFilter("newest");
+                  setPriceMinFilter("");
+                  setPriceMaxFilter("");
                   loadKenzItems();
                 }}
               >
@@ -318,6 +424,7 @@ const KenzListPage: React.FC = () => {
               <TableRow>
                 <TableCell>العنوان</TableCell>
                 <TableCell>المالك</TableCell>
+                <TableCell>نشر بالنيابة</TableCell>
                 <TableCell>السعر</TableCell>
                 <TableCell>الفئة</TableCell>
                 <TableCell>الحالة</TableCell>
@@ -328,13 +435,13 @@ const KenzListPage: React.FC = () => {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={7} align="center">
+                  <TableCell colSpan={8} align="center">
                     <CircularProgress />
                   </TableCell>
                 </TableRow>
               ) : kenzItems.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} align="center">
+                  <TableCell colSpan={8} align="center">
                     <Typography variant="body2" color="text.secondary">
                       لا توجد إعلانات كنز
                     </Typography>
@@ -349,21 +456,35 @@ const KenzListPage: React.FC = () => {
                           {item.title}
                         </Typography>
                         {item.description && (
-                          <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{
+                              maxWidth: 200,
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
                             {item.description}
                           </Typography>
                         )}
                       </Box>
                     </TableCell>
                     <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
                         <PersonIcon fontSize="small" color="action" />
                         <Box>
                           <Typography variant="body2">
-                            {item.owner?.name || 'غير محدد'}
+                            {item.owner?.name || "غير محدد"}
                           </Typography>
                           {item.owner?.email && (
-                            <Typography variant="caption" color="text.secondary">
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
                               {item.owner.email}
                             </Typography>
                           )}
@@ -371,7 +492,30 @@ const KenzListPage: React.FC = () => {
                       </Box>
                     </TableCell>
                     <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      {item.postedOnBehalfOfPhone ||
+                      (typeof item.postedOnBehalfOfUserId === "object" &&
+                        item.postedOnBehalfOfUserId?.name) ? (
+                        <Typography variant="body2" color="text.secondary">
+                          {typeof item.postedOnBehalfOfUserId === "object" &&
+                          item.postedOnBehalfOfUserId?.name
+                            ? item.postedOnBehalfOfUserId.name
+                            : item.postedOnBehalfOfPhone
+                            ? `📱 ${String(item.postedOnBehalfOfPhone).replace(
+                                /(\d{3})\d+(\d{3})/,
+                                "$1***$2"
+                              )}`
+                            : "—"}
+                        </Typography>
+                      ) : (
+                        <Typography variant="body2" color="text.secondary">
+                          —
+                        </Typography>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
                         <MoneyIcon fontSize="small" color="action" />
                         <Typography variant="body2">
                           {formatCurrency(item.price)}
@@ -379,10 +523,12 @@ const KenzListPage: React.FC = () => {
                       </Box>
                     </TableCell>
                     <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
                         <CategoryIcon fontSize="small" color="action" />
                         <Typography variant="body2">
-                          {item.category || 'غير مصنف'}
+                          {item.category || "غير مصنف"}
                         </Typography>
                       </Box>
                     </TableCell>
@@ -390,7 +536,12 @@ const KenzListPage: React.FC = () => {
                       <FormControl size="small" fullWidth>
                         <Select
                           value={item.status}
-                          onChange={(e) => handleStatusUpdate(item._id, e.target.value as KenzStatus)}
+                          onChange={(e) =>
+                            handleStatusUpdate(
+                              item._id,
+                              e.target.value as KenzStatus
+                            )
+                          }
                           disabled={updatingStatus === item._id}
                         >
                           {Object.values(KenzStatus).map((status) => (
@@ -406,7 +557,9 @@ const KenzListPage: React.FC = () => {
                       </FormControl>
                     </TableCell>
                     <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
                         <TimeIcon fontSize="small" color="action" />
                         <Typography variant="body2">
                           {formatDate(item.createdAt)}
@@ -424,6 +577,23 @@ const KenzListPage: React.FC = () => {
                             <ViewIcon />
                           </IconButton>
                         </Tooltip>
+                        {item.status !== KenzStatus.COMPLETED && (
+                          <Tooltip title="تم البيع">
+                            <IconButton
+                              size="small"
+                              onClick={() =>
+                                handleStatusUpdate(
+                                  item._id,
+                                  KenzStatus.COMPLETED
+                                )
+                              }
+                              disabled={updatingStatus === item._id}
+                              color="success"
+                            >
+                              <SoldIcon />
+                            </IconButton>
+                          </Tooltip>
+                        )}
                         <Tooltip title="حذف">
                           <IconButton
                             size="small"
@@ -447,14 +617,14 @@ const KenzListPage: React.FC = () => {
 
         {/* Load More */}
         {nextCursor && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
             <Button
               variant="outlined"
               onClick={() => loadKenzItems(true)}
               disabled={loadingMore}
               startIcon={loadingMore ? <CircularProgress size={16} /> : null}
             >
-              {loadingMore ? 'جاري التحميل...' : 'تحميل المزيد'}
+              {loadingMore ? "جاري التحميل..." : "تحميل المزيد"}
             </Button>
           </Box>
         )}
@@ -474,9 +644,7 @@ const KenzListPage: React.FC = () => {
             </Typography>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setDeleteDialogOpen(false)}>
-              إلغاء
-            </Button>
+            <Button onClick={() => setDeleteDialogOpen(false)}>إلغاء</Button>
             <Button onClick={handleDelete} color="error" variant="contained">
               حذف
             </Button>
@@ -492,7 +660,7 @@ const KenzListPage: React.FC = () => {
           <Alert
             onClose={() => setSnackbar({ ...snackbar, open: false })}
             severity={snackbar.severity}
-            sx={{ width: '100%' }}
+            sx={{ width: "100%" }}
           >
             {snackbar.message}
           </Alert>

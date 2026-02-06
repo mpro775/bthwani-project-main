@@ -1,12 +1,6 @@
 // مطابق لـ app-user KenzCard
 import React from "react";
-import {
-  Card,
-  CardContent,
-  Typography,
-  Box,
-  Chip,
-} from "@mui/material";
+import { Card, CardContent, Typography, Box, Chip } from "@mui/material";
 import {
   Storefront,
   LocationOn,
@@ -14,16 +8,31 @@ import {
   AttachMoney,
   ChevronRight,
   Image as ImageIcon,
+  Favorite,
+  FavoriteBorder,
+  TrendingUp,
 } from "@mui/icons-material";
+import { IconButton } from "@mui/material";
 import type { KenzItem } from "../types";
 import { KenzStatusLabels, KenzStatusColors } from "../types";
 
 interface KenzCardProps {
   item: KenzItem;
   onView?: (item: KenzItem) => void;
+  isFavorited?: boolean;
+  onFavoriteToggle?: (item: KenzItem) => void;
 }
 
-const KenzCard: React.FC<KenzCardProps> = ({ item, onView }) => {
+const KenzCard: React.FC<KenzCardProps> = ({
+  item,
+  onView,
+  isFavorited,
+  onFavoriteToggle,
+}) => {
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onFavoriteToggle?.(item);
+  };
   const formatCurrency = (price?: number, currency?: string) => {
     if (!price) return "غير محدد";
     const cur = currency ?? "ريال يمني";
@@ -33,8 +42,7 @@ const KenzCard: React.FC<KenzCardProps> = ({ item, onView }) => {
   const formatDate = (dateString?: string | Date) => {
     if (!dateString) return "غير محدد";
     try {
-      const d =
-        dateString instanceof Date ? dateString : new Date(dateString);
+      const d = dateString instanceof Date ? dateString : new Date(dateString);
       return d.toLocaleDateString("ar-SA", {
         year: "numeric",
         month: "short",
@@ -58,33 +66,71 @@ const KenzCard: React.FC<KenzCardProps> = ({ item, onView }) => {
       }}
       onClick={onView ? () => onView(item) : undefined}
     >
-      {/* Cover Image */}
-      {coverImage ? (
-        <Box
-          component="img"
-          src={coverImage}
-          alt={item.title}
-          sx={{
-            width: "100%",
-            height: 140,
-            objectFit: "cover",
-            backgroundColor: "grey.200",
-          }}
-        />
-      ) : (
-        <Box
-          sx={{
-            width: "100%",
-            height: 140,
-            backgroundColor: "grey.200",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <ImageIcon sx={{ fontSize: 40, color: "grey.500" }} />
-        </Box>
-      )}
+      {/* Cover Image + Favorite */}
+      <Box sx={{ position: "relative" }}>
+        {coverImage ? (
+          <Box
+            component="img"
+            src={coverImage}
+            alt={item.title}
+            sx={{
+              width: "100%",
+              height: 140,
+              objectFit: "cover",
+              backgroundColor: "grey.200",
+            }}
+          />
+        ) : (
+          <Box
+            sx={{
+              width: "100%",
+              height: 140,
+              backgroundColor: "grey.200",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <ImageIcon sx={{ fontSize: 40, color: "grey.500" }} />
+          </Box>
+        )}
+        {item.isBoosted && (
+          <Chip
+            icon={<TrendingUp sx={{ fontSize: 14 }} />}
+            label="مميز"
+            size="small"
+            sx={{
+              position: "absolute",
+              top: 8,
+              left: 8,
+              backgroundColor: "warning.main",
+              color: "warning.contrastText",
+              fontWeight: 600,
+              "& .MuiChip-icon": { color: "inherit" },
+            }}
+          />
+        )}
+        {onFavoriteToggle && (
+          <IconButton
+            size="small"
+            onClick={handleFavoriteClick}
+            sx={{
+              position: "absolute",
+              top: 8,
+              right: 8,
+              backgroundColor: "rgba(255,255,255,0.8)",
+              "&:hover": { backgroundColor: "rgba(255,255,255,0.95)" },
+            }}
+            aria-label={isFavorited ? "إزالة من المفضلة" : "إضافة للمفضلة"}
+          >
+            {isFavorited ? (
+              <Favorite sx={{ color: "error.main", fontSize: 22 }} />
+            ) : (
+              <FavoriteBorder sx={{ fontSize: 22 }} />
+            )}
+          </IconButton>
+        )}
+      </Box>
 
       <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
         {/* Category & Status */}
@@ -119,7 +165,14 @@ const KenzCard: React.FC<KenzCardProps> = ({ item, onView }) => {
         <Typography
           variant="subtitle1"
           fontWeight={600}
-          sx={{ mb: 1, lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}
+          sx={{
+            mb: 1,
+            lineHeight: 1.4,
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+          }}
         >
           {item.title}
         </Typography>
@@ -141,9 +194,26 @@ const KenzCard: React.FC<KenzCardProps> = ({ item, onView }) => {
           </Typography>
         )}
 
-        {/* City & ViewCount */}
-        {(item.city || (item.viewCount ?? 0) > 0) && (
+        {/* City, Delivery, ViewCount */}
+        {(item.city || item.deliveryOption || (item.viewCount ?? 0) > 0) && (
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 1 }}>
+            {item.deliveryOption && (
+              <Chip
+                label={
+                  item.deliveryOption === "meetup"
+                    ? "لقاء"
+                    : item.deliveryOption === "delivery"
+                    ? item.deliveryFee
+                      ? `توصيل ${item.deliveryFee}`
+                      : "توصيل"
+                    : item.deliveryFee
+                    ? `لقاء/توصيل ${item.deliveryFee}`
+                    : "لقاء وتوصيل"
+                }
+                size="small"
+                sx={{ backgroundColor: "info.light", color: "info.dark" }}
+              />
+            )}
             {item.city && (
               <Chip
                 icon={<LocationOn sx={{ fontSize: 12 }} />}
@@ -212,9 +282,7 @@ const KenzCard: React.FC<KenzCardProps> = ({ item, onView }) => {
           <Typography variant="caption" color="text.secondary">
             {formatDate(item.createdAt)}
           </Typography>
-          {onView && (
-            <ChevronRight sx={{ fontSize: 16, color: "grey.500" }} />
-          )}
+          {onView && <ChevronRight sx={{ fontSize: 16, color: "grey.500" }} />}
         </Box>
       </CardContent>
     </Card>

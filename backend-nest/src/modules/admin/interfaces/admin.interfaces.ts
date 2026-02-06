@@ -236,14 +236,20 @@ export interface KenzStats {
   cancelled: number;
 }
 
+export type KenzSortOption = 'newest' | 'price_asc' | 'price_desc' | 'views_desc';
+
 export interface KenzAdminQuery {
   status?: KenzStatus;
   ownerId?: Types.ObjectId;
   category?: string;
+  condition?: 'new' | 'used' | 'refurbished';
+  deliveryOption?: 'meetup' | 'delivery' | 'both';
   createdAfter?: Date;
   createdBefore?: Date;
   priceMin?: number;
   priceMax?: number;
+  search?: string;
+  sort?: KenzSortOption;
 }
 
 export interface KenzStatusUpdateDto {

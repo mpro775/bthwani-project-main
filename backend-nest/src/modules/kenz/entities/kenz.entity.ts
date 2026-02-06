@@ -28,9 +28,13 @@ export class Kenz extends Document {
   @Prop()
   price?: number;
 
-  @ApiProperty({ description: 'الفئة', required: false, example: 'إلكترونيات' })
+  @ApiProperty({ description: 'الفئة (نص حر للتوافق مع الإعلانات القديمة)', required: false, example: 'إلكترونيات' })
   @Prop()
   category?: string;
+
+  @ApiProperty({ description: 'معرف الفئة من شجرة الفئات (اختياري)', required: false })
+  @Prop({ type: Types.ObjectId, ref: 'KenzCategory', default: null })
+  categoryId?: Types.ObjectId | null;
 
   @ApiProperty({ description: 'بيانات إضافية', required: false, example: { color: 'فضي', storage: '256GB' } })
   @Prop({ type: Object, default: {} })
@@ -48,6 +52,10 @@ export class Kenz extends Document {
   @Prop()
   city?: string;
 
+  @ApiProperty({ description: 'حالة السلعة', required: false, enum: ['new', 'used', 'refurbished'] })
+  @Prop({ type: String, enum: ['new', 'used', 'refurbished'] })
+  condition?: 'new' | 'used' | 'refurbished';
+
   @ApiProperty({ description: 'عدد المشاهدات', default: 0 })
   @Prop({ default: 0 })
   viewCount: number;
@@ -63,6 +71,32 @@ export class Kenz extends Document {
   @ApiProperty({ description: 'الكمية', required: false, example: 1, default: 1 })
   @Prop({ default: 1 })
   quantity?: number;
+
+  @ApiProperty({ description: 'تاريخ البيع (عند تعليم الإعلان كمباع)', required: false })
+  @Prop({ type: Date })
+  soldAt?: Date;
+
+  @ApiProperty({ description: 'تاريخ الأرشفة (إعلانات مباعة أقدم من 90 يوم تُستبعد من القائمة)', required: false })
+  @Prop({ type: Date })
+  archivedAt?: Date;
+
+  @ApiProperty({ description: 'رقم هاتف من نُشر الإعلان بالنيابة عنه (اختياري)', required: false, example: '771234567' })
+  @Prop()
+  postedOnBehalfOfPhone?: string;
+
+  @ApiProperty({ description: 'معرف المستخدم الذي نُشر الإعلان بالنيابة عنه (اختياري)', required: false })
+  @Prop({ type: Types.ObjectId, ref: 'User' })
+  postedOnBehalfOfUserId?: Types.ObjectId;
+
+  @ApiProperty({ description: 'طريقة التسليم: لقاء، توصيل، أو الاثنان', required: false, enum: ['meetup', 'delivery', 'both'] })
+  @Prop({ type: String, enum: ['meetup', 'delivery', 'both'] })
+  deliveryOption?: 'meetup' | 'delivery' | 'both';
+
+  @ApiProperty({ description: 'رسوم التوصيل (عند خيار توصيل)', required: false, example: 500 })
+  @Prop()
+  deliveryFee?: number;
 }
 
 export const KenzSchema = SchemaFactory.createForClass(Kenz);
+KenzSchema.index({ archivedAt: 1 });
+KenzSchema.index({ status: 1, soldAt: 1 });

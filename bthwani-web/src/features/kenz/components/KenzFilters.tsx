@@ -1,5 +1,5 @@
 // src/features/kenz/components/KenzFilters.tsx
-import React from 'react';
+import React from "react";
 import {
   Paper,
   TextField,
@@ -12,16 +12,27 @@ import {
   Chip,
   InputAdornment,
   Typography,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Search as SearchIcon,
   FilterList as FilterIcon,
   Clear as ClearIcon,
   AttachMoney as MoneyIcon,
   Category as CategoryIcon,
-} from '@mui/icons-material';
-import type { KenzFilters, KenzStatus, KenzCategory } from '../types';
-import { KenzStatusLabels, KenzCategoryLabels, KenzStatusValues, KenzCategoryValues } from '../types';
+} from "@mui/icons-material";
+import type {
+  KenzFilters,
+  KenzStatus,
+  KenzCategory,
+  KenzDeliveryOption,
+} from "../types";
+import {
+  KenzStatusLabels,
+  KenzCategoryLabels,
+  KenzStatusValues,
+  KenzCategoryValues,
+  KenzDeliveryOptionLabels,
+} from "../types";
 
 interface KenzFiltersProps {
   filters: KenzFilters;
@@ -40,17 +51,17 @@ const KenzFiltersComponent: React.FC<KenzFiltersProps> = ({
     onFiltersChange({ ...filters, search: value });
   };
 
-  const handleStatusChange = (status: KenzStatus | '') => {
+  const handleStatusChange = (status: KenzStatus | "") => {
     onFiltersChange({
       ...filters,
-      status: status === '' ? undefined : status
+      status: status === "" ? undefined : status,
     });
   };
 
-  const handleCategoryChange = (category: KenzCategory | '') => {
+  const handleCategoryChange = (category: KenzCategory | "") => {
     onFiltersChange({
       ...filters,
-      category: category === '' ? undefined : category
+      category: category === "" ? undefined : category,
     });
   };
 
@@ -64,6 +75,15 @@ const KenzFiltersComponent: React.FC<KenzFiltersProps> = ({
     onFiltersChange({ ...filters, priceMax });
   };
 
+  const handleDeliveryOptionChange = (
+    deliveryOption: KenzDeliveryOption | "",
+  ) => {
+    onFiltersChange({
+      ...filters,
+      deliveryOption: deliveryOption === "" ? undefined : deliveryOption,
+    });
+  };
+
   const getActiveFiltersCount = () => {
     let count = 0;
     if (filters.search) count++;
@@ -71,14 +91,15 @@ const KenzFiltersComponent: React.FC<KenzFiltersProps> = ({
     if (filters.category) count++;
     if (filters.priceMin !== undefined) count++;
     if (filters.priceMax !== undefined) count++;
+    if (filters.deliveryOption) count++;
     return count;
   };
 
   return (
     <Paper sx={{ p: 2, mb: 3 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+      <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
         <FilterIcon sx={{ mr: 1 }} />
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <span>فلترة الإعلانات</span>
           {getActiveFiltersCount() > 0 && (
             <Chip
@@ -91,10 +112,12 @@ const KenzFiltersComponent: React.FC<KenzFiltersProps> = ({
         </Box>
       </Box>
 
-      <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+      <Box
+        sx={{ display: "flex", gap: 2, flexWrap: "wrap", alignItems: "center" }}
+      >
         <TextField
           placeholder="البحث في العناوين والأوصاف..."
-          value={filters.search || ''}
+          value={filters.search || ""}
           onChange={(e) => handleSearchChange(e.target.value)}
           InputProps={{
             startAdornment: (
@@ -110,12 +133,14 @@ const KenzFiltersComponent: React.FC<KenzFiltersProps> = ({
         <FormControl sx={{ minWidth: 150 }} size="small">
           <InputLabel>الفئة</InputLabel>
           <Select
-            value={filters.category || ''}
+            value={filters.category || ""}
             label="الفئة"
-            onChange={(e) => handleCategoryChange(e.target.value as KenzCategory | '')}
+            onChange={(e) =>
+              handleCategoryChange(e.target.value as KenzCategory | "")
+            }
           >
             <MenuItem value="">
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
                 <CategoryIcon sx={{ mr: 1, opacity: 0.5 }} />
                 الكل
               </Box>
@@ -131,9 +156,11 @@ const KenzFiltersComponent: React.FC<KenzFiltersProps> = ({
         <FormControl sx={{ minWidth: 150 }} size="small">
           <InputLabel>الحالة</InputLabel>
           <Select
-            value={filters.status || ''}
+            value={filters.status || ""}
             label="الحالة"
-            onChange={(e) => handleStatusChange(e.target.value as KenzStatus | '')}
+            onChange={(e) =>
+              handleStatusChange(e.target.value as KenzStatus | "")
+            }
           >
             <MenuItem value="">الكل</MenuItem>
             {KenzStatusValues.map((status: KenzStatus) => (
@@ -144,14 +171,40 @@ const KenzFiltersComponent: React.FC<KenzFiltersProps> = ({
           </Select>
         </FormControl>
 
+        <FormControl sx={{ minWidth: 180 }} size="small">
+          <InputLabel>طريقة التسليم</InputLabel>
+          <Select
+            value={filters.deliveryOption || ""}
+            label="طريقة التسليم"
+            onChange={(e) =>
+              handleDeliveryOptionChange(
+                e.target.value as KenzDeliveryOption | "",
+              )
+            }
+          >
+            <MenuItem value="">الكل</MenuItem>
+            <MenuItem value="meetup">
+              {KenzDeliveryOptionLabels.meetup}
+            </MenuItem>
+            <MenuItem value="delivery">
+              {KenzDeliveryOptionLabels.delivery}
+            </MenuItem>
+            <MenuItem value="both">{KenzDeliveryOptionLabels.both}</MenuItem>
+          </Select>
+        </FormControl>
+
         <TextField
           label="السعر من"
           type="number"
-          value={filters.priceMin || ''}
+          value={filters.priceMin || ""}
           onChange={(e) => handlePriceMinChange(e.target.value)}
           InputProps={{
-            startAdornment: <MoneyIcon sx={{ mr: 1, color: 'action' }} />,
-            endAdornment: <Typography variant="body2" color="text.secondary">ريال</Typography>,
+            startAdornment: <MoneyIcon sx={{ mr: 1, color: "action" }} />,
+            endAdornment: (
+              <Typography variant="body2" color="text.secondary">
+                ريال
+              </Typography>
+            ),
           }}
           inputProps={{ min: 0 }}
           sx={{ minWidth: 150 }}
@@ -161,11 +214,15 @@ const KenzFiltersComponent: React.FC<KenzFiltersProps> = ({
         <TextField
           label="السعر إلى"
           type="number"
-          value={filters.priceMax || ''}
+          value={filters.priceMax || ""}
           onChange={(e) => handlePriceMaxChange(e.target.value)}
           InputProps={{
-            startAdornment: <MoneyIcon sx={{ mr: 1, color: 'action' }} />,
-            endAdornment: <Typography variant="body2" color="text.secondary">ريال</Typography>,
+            startAdornment: <MoneyIcon sx={{ mr: 1, color: "action" }} />,
+            endAdornment: (
+              <Typography variant="body2" color="text.secondary">
+                ريال
+              </Typography>
+            ),
           }}
           inputProps={{ min: 0 }}
           sx={{ minWidth: 150 }}

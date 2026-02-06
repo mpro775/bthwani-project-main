@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -23,7 +23,7 @@ import {
   Card,
   CardContent,
   Divider,
-} from '@mui/material';
+} from "@mui/material";
 import {
   ArrowBack as ArrowBackIcon,
   Edit as EditIcon,
@@ -33,10 +33,20 @@ import {
   AttachMoney as MoneyIcon,
   Description as DescriptionIcon,
   Category as CategoryIcon,
-} from '@mui/icons-material';
-import { getKenz, updateKenzStatus, deleteKenz, type KenzItem as ApiKenzItem } from '../../../api/kenz';
-import { KenzStatus, KenzStatusLabels, KenzStatusColors, type KenzItem } from '../../../types/kenz';
-import RequireAdminPermission from '../../../components/RequireAdminPermission';
+} from "@mui/icons-material";
+import {
+  getKenz,
+  updateKenzStatus,
+  deleteKenz,
+  type KenzItem as ApiKenzItem,
+} from "../../../api/kenz";
+import {
+  KenzStatus,
+  KenzStatusLabels,
+  KenzStatusColors,
+  type KenzItem,
+} from "../../../types/kenz";
+import RequireAdminPermission from "../../../components/RequireAdminPermission";
 
 const KenzDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -48,7 +58,7 @@ const KenzDetailsPage: React.FC = () => {
   // Status update dialog
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [newStatus, setNewStatus] = useState<KenzStatus>(KenzStatus.DRAFT);
-  const [statusNotes, setStatusNotes] = useState('');
+  const [statusNotes, setStatusNotes] = useState("");
 
   // Delete confirmation dialog
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -57,11 +67,11 @@ const KenzDetailsPage: React.FC = () => {
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
-    severity: 'success' | 'error';
+    severity: "success" | "error";
   }>({
     open: false,
-    message: '',
-    severity: 'success',
+    message: "",
+    severity: "success",
   });
 
   useEffect(() => {
@@ -76,11 +86,11 @@ const KenzDetailsPage: React.FC = () => {
       const data: ApiKenzItem = await getKenz(id!);
       // Convert string status to KenzStatus enum
       const statusMap: Record<string, KenzStatus> = {
-        'draft': KenzStatus.DRAFT,
-        'pending': KenzStatus.PENDING,
-        'confirmed': KenzStatus.CONFIRMED,
-        'completed': KenzStatus.COMPLETED,
-        'cancelled': KenzStatus.CANCELLED,
+        draft: KenzStatus.DRAFT,
+        pending: KenzStatus.PENDING,
+        confirmed: KenzStatus.CONFIRMED,
+        completed: KenzStatus.COMPLETED,
+        cancelled: KenzStatus.CANCELLED,
       };
       const convertedData: KenzItem = {
         ...data,
@@ -89,11 +99,11 @@ const KenzDetailsPage: React.FC = () => {
       setKenz(convertedData);
       setNewStatus(statusMap[data.status] || KenzStatus.DRAFT);
     } catch (error) {
-      console.error('خطأ في تحميل إعلان الكنز:', error);
+      console.error("خطأ في تحميل إعلان الكنز:", error);
       setSnackbar({
         open: true,
-        message: 'فشل في تحميل إعلان الكنز',
-        severity: 'error',
+        message: "فشل في تحميل إعلان الكنز",
+        severity: "error",
       });
     } finally {
       setLoading(false);
@@ -105,21 +115,24 @@ const KenzDetailsPage: React.FC = () => {
 
     try {
       setUpdatingStatus(true);
-      await updateKenzStatus(kenz._id, { status: newStatus, notes: statusNotes });
+      await updateKenzStatus(kenz._id, {
+        status: newStatus,
+        notes: statusNotes,
+      });
       setKenz({ ...kenz, status: newStatus });
       setStatusDialogOpen(false);
-      setStatusNotes('');
+      setStatusNotes("");
       setSnackbar({
         open: true,
-        message: 'تم تحديث حالة الإعلان بنجاح',
-        severity: 'success',
+        message: "تم تحديث حالة الإعلان بنجاح",
+        severity: "success",
       });
     } catch (error) {
-      console.error('خطأ في تحديث الحالة:', error);
+      console.error("خطأ في تحديث الحالة:", error);
       setSnackbar({
         open: true,
-        message: 'فشل في تحديث الحالة',
-        severity: 'error',
+        message: "فشل في تحديث الحالة",
+        severity: "error",
       });
     } finally {
       setUpdatingStatus(false);
@@ -133,41 +146,48 @@ const KenzDetailsPage: React.FC = () => {
       await deleteKenz(kenz._id);
       setSnackbar({
         open: true,
-        message: 'تم حذف الإعلان بنجاح',
-        severity: 'success',
+        message: "تم حذف الإعلان بنجاح",
+        severity: "success",
       });
-      navigate('/admin/kenz');
+      navigate("/admin/kenz");
     } catch (error) {
-      console.error('خطأ في الحذف:', error);
+      console.error("خطأ في الحذف:", error);
       setSnackbar({
         open: true,
-        message: 'فشل في حذف الإعلان',
-        severity: 'error',
+        message: "فشل في حذف الإعلان",
+        severity: "error",
       });
     }
   };
 
   const formatCurrency = (amount?: number) => {
-    if (!amount) return 'غير محدد';
-    return new Intl.NumberFormat('ar-SA', {
-      style: 'currency',
-      currency: 'SAR',
+    if (!amount) return "غير محدد";
+    return new Intl.NumberFormat("ar-SA", {
+      style: "currency",
+      currency: "SAR",
     }).format(amount);
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-SA', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Date(dateString).toLocaleDateString("ar-SA", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "400px",
+        }}
+      >
         <CircularProgress />
       </Box>
     );
@@ -181,7 +201,7 @@ const KenzDetailsPage: React.FC = () => {
         </Typography>
         <Button
           startIcon={<ArrowBackIcon />}
-          onClick={() => navigate('/admin/kenz')}
+          onClick={() => navigate("/admin/kenz")}
           sx={{ mt: 2 }}
         >
           العودة للقائمة
@@ -194,9 +214,16 @@ const KenzDetailsPage: React.FC = () => {
     <RequireAdminPermission>
       <Box sx={{ p: 3 }}>
         {/* Header */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <IconButton onClick={() => navigate('/admin/kenz')}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 3,
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <IconButton onClick={() => navigate("/admin/kenz")}>
               <ArrowBackIcon />
             </IconButton>
             <Box>
@@ -208,7 +235,7 @@ const KenzDetailsPage: React.FC = () => {
               </Typography>
             </Box>
           </Box>
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{ display: "flex", gap: 1 }}>
             <Button
               variant="outlined"
               startIcon={<EditIcon />}
@@ -229,7 +256,7 @@ const KenzDetailsPage: React.FC = () => {
 
         <Grid container spacing={3}>
           {/* Main Info */}
-          <Grid  size={{xs: 12, lg: 8}}>
+          <Grid size={{ xs: 12, lg: 8 }}>
             <Paper sx={{ p: 3 }}>
               <Typography variant="h6" gutterBottom>
                 معلومات الإعلان
@@ -241,7 +268,14 @@ const KenzDetailsPage: React.FC = () => {
                   {kenz.title}
                 </Typography>
                 {kenz.category && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      mb: 2,
+                    }}
+                  >
                     <CategoryIcon fontSize="small" color="action" />
                     <Chip label={kenz.category} variant="outlined" />
                   </Box>
@@ -250,18 +284,27 @@ const KenzDetailsPage: React.FC = () => {
 
               {kenz.description && (
                 <Box sx={{ mb: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      mb: 1,
+                    }}
+                  >
                     <DescriptionIcon fontSize="small" color="action" />
                     <Typography variant="h6">الوصف</Typography>
                   </Box>
-                  <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
+                  <Typography variant="body1" sx={{ whiteSpace: "pre-wrap" }}>
                     {kenz.description}
                   </Typography>
                 </Box>
               )}
 
               <Box sx={{ mb: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                <Box
+                  sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+                >
                   <MoneyIcon fontSize="small" color="action" />
                   <Typography variant="h6">السعر</Typography>
                 </Box>
@@ -275,7 +318,7 @@ const KenzDetailsPage: React.FC = () => {
                   <Typography variant="h6" gutterBottom>
                     بيانات إضافية
                   </Typography>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
                     {Object.entries(kenz.metadata).map(([key, value]) => (
                       <Chip
                         key={key}
@@ -291,7 +334,7 @@ const KenzDetailsPage: React.FC = () => {
           </Grid>
 
           {/* Sidebar */}
-          <Grid  size={{xs: 12, lg: 4}}>
+          <Grid size={{ xs: 12, lg: 4 }}>
             {/* Status Card */}
             <Card sx={{ mb: 3 }}>
               <CardContent>
@@ -315,11 +358,13 @@ const KenzDetailsPage: React.FC = () => {
                 <Typography variant="h6" gutterBottom>
                   معلومات المالك
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                <Box
+                  sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}
+                >
                   <PersonIcon color="action" />
                   <Box>
                     <Typography variant="body1" fontWeight="medium">
-                      {kenz.owner?.name || 'غير محدد'}
+                      {kenz.owner?.name || "غير محدد"}
                     </Typography>
                     {kenz.owner?.email && (
                       <Typography variant="body2" color="text.secondary">
@@ -336,13 +381,40 @@ const KenzDetailsPage: React.FC = () => {
               </CardContent>
             </Card>
 
+            {/* نشر بالنيابة */}
+            {(kenz.postedOnBehalfOfPhone ||
+              (typeof kenz.postedOnBehalfOfUserId === "object" &&
+                kenz.postedOnBehalfOfUserId)) && (
+              <Card sx={{ mb: 3 }}>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    نشر بالنيابة عن
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {typeof kenz.postedOnBehalfOfUserId === "object" &&
+                    kenz.postedOnBehalfOfUserId?.name
+                      ? `${kenz.postedOnBehalfOfUserId.name}${
+                          kenz.postedOnBehalfOfUserId?.phone
+                            ? ` (${kenz.postedOnBehalfOfUserId.phone})`
+                            : ""
+                        }`
+                      : kenz.postedOnBehalfOfPhone
+                      ? `رقم الهاتف: ${kenz.postedOnBehalfOfPhone}`
+                      : "—"}
+                  </Typography>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Dates */}
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
                   التواريخ
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                <Box
+                  sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+                >
                   <TimeIcon fontSize="small" color="action" />
                   <Box>
                     <Typography variant="body2" color="text.secondary">
@@ -353,7 +425,7 @@ const KenzDetailsPage: React.FC = () => {
                     </Typography>
                   </Box>
                 </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <TimeIcon fontSize="small" color="action" />
                   <Box>
                     <Typography variant="body2" color="text.secondary">
@@ -404,16 +476,14 @@ const KenzDetailsPage: React.FC = () => {
             />
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setStatusDialogOpen(false)}>
-              إلغاء
-            </Button>
+            <Button onClick={() => setStatusDialogOpen(false)}>إلغاء</Button>
             <Button
               onClick={handleStatusUpdate}
               variant="contained"
               disabled={updatingStatus}
               startIcon={updatingStatus ? <CircularProgress size={16} /> : null}
             >
-              {updatingStatus ? 'جاري التحديث...' : 'تحديث'}
+              {updatingStatus ? "جاري التحديث..." : "تحديث"}
             </Button>
           </DialogActions>
         </Dialog>
@@ -425,17 +495,13 @@ const KenzDetailsPage: React.FC = () => {
         >
           <DialogTitle>تأكيد الحذف</DialogTitle>
           <DialogContent>
-            <Typography>
-              هل أنت متأكد من حذف إعلان "{kenz.title}"؟
-            </Typography>
+            <Typography>هل أنت متأكد من حذف إعلان "{kenz.title}"؟</Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
               هذا الإجراء لا يمكن التراجع عنه.
             </Typography>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setDeleteDialogOpen(false)}>
-              إلغاء
-            </Button>
+            <Button onClick={() => setDeleteDialogOpen(false)}>إلغاء</Button>
             <Button onClick={handleDelete} color="error" variant="contained">
               حذف
             </Button>
@@ -451,7 +517,7 @@ const KenzDetailsPage: React.FC = () => {
           <Alert
             onClose={() => setSnackbar({ ...snackbar, open: false })}
             severity={snackbar.severity}
-            sx={{ width: '100%' }}
+            sx={{ width: "100%" }}
           >
             {snackbar.message}
           </Alert>

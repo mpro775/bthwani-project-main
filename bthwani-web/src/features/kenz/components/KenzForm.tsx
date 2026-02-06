@@ -20,16 +20,8 @@ import {
   Add as AddIcon,
   Delete as DeleteIcon,
 } from "@mui/icons-material";
-import type {
-  KenzItem,
-  CreateKenzPayload,
-  UpdateKenzPayload,
-} from "../types";
-import {
-  KENZ_CATEGORIES,
-  KENZ_YEMEN_CITIES,
-  KENZ_CURRENCIES,
-} from "../types";
+import type { KenzItem, CreateKenzPayload, UpdateKenzPayload } from "../types";
+import { KENZ_CATEGORIES, KENZ_YEMEN_CITIES, KENZ_CURRENCIES } from "../types";
 import { uploadKenzImageToBunny } from "../../../utils/uploadToBunny";
 
 const MAX_IMAGES = 8;
@@ -70,6 +62,9 @@ const KenzForm: React.FC<KenzFormProps> = ({
     currency: "ريال يمني" as string,
     quantity: 1,
     status: "draft" as string,
+    postedOnBehalfOfPhone: "" as string,
+    deliveryOption: undefined as "meetup" | "delivery" | "both" | undefined,
+    deliveryFee: undefined as number | undefined,
   });
   const [keywordsText, setKeywordsText] = useState("");
   const [imageUrls, setImageUrls] = useState<string[]>([]);
@@ -99,6 +94,9 @@ const KenzForm: React.FC<KenzFormProps> = ({
         currency: item.currency ?? "ريال يمني",
         quantity: item.quantity ?? 1,
         status: item.status,
+        postedOnBehalfOfPhone: item.postedOnBehalfOfPhone ?? "",
+        deliveryOption: item.deliveryOption,
+        deliveryFee: item.deliveryFee,
       });
       setKeywordsText((item.keywords ?? []).join("، "));
       setImageUrls(item.images ?? []);
@@ -124,7 +122,9 @@ const KenzForm: React.FC<KenzFormProps> = ({
       setError(`يمكنك إضافة حتى ${MAX_IMAGES} صور فقط`);
       return;
     }
-    setNewFiles((prev) => [...prev, ...Array.from(files)].slice(0, MAX_IMAGES - imageUrls.length));
+    setNewFiles((prev) =>
+      [...prev, ...Array.from(files)].slice(0, MAX_IMAGES - imageUrls.length)
+    );
     setError(null);
   };
 
@@ -180,13 +180,23 @@ const KenzForm: React.FC<KenzFormProps> = ({
           ...(formData.metadata.brand && { brand: formData.metadata.brand }),
           ...(formData.metadata.model && { model: formData.metadata.model }),
           ...(formData.metadata.year && { year: formData.metadata.year }),
-          ...(formData.metadata.mileage && { mileage: formData.metadata.mileage }),
+          ...(formData.metadata.mileage && {
+            mileage: formData.metadata.mileage,
+          }),
         },
         images: allImageUrls.length ? allImageUrls : undefined,
         city: formData.city,
         keywords: keywords.length ? keywords : undefined,
         currency: formData.currency,
         quantity: qty,
+        postedOnBehalfOfPhone:
+          formData.postedOnBehalfOfPhone?.trim() || undefined,
+        deliveryOption: formData.deliveryOption,
+        deliveryFee:
+          formData.deliveryOption === "delivery" ||
+          formData.deliveryOption === "both"
+            ? formData.deliveryFee
+            : undefined,
       };
 
       if (mode === "create") {
@@ -230,7 +240,11 @@ const KenzForm: React.FC<KenzFormProps> = ({
       <Paper sx={{ p: 3 }}>
         <form onSubmit={handleSubmit}>
           {error && (
-            <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
+            <Alert
+              severity="error"
+              sx={{ mb: 2 }}
+              onClose={() => setError(null)}
+            >
               {error}
             </Alert>
           )}
@@ -266,7 +280,9 @@ const KenzForm: React.FC<KenzFormProps> = ({
                 <Select
                   value={formData.category || ""}
                   label="الفئة"
-                  onChange={(e) => updateForm("category", e.target.value || undefined)}
+                  onChange={(e) =>
+                    updateForm("category", e.target.value || undefined)
+                  }
                 >
                   <MenuItem value="">اختر الفئة</MenuItem>
                   {KENZ_CATEGORIES.map((c) => (
@@ -339,7 +355,9 @@ const KenzForm: React.FC<KenzFormProps> = ({
                 <Select
                   value={formData.city || ""}
                   label="المدينة"
-                  onChange={(e) => updateForm("city", e.target.value || undefined)}
+                  onChange={(e) =>
+                    updateForm("city", e.target.value || undefined)
+                  }
                 >
                   <MenuItem value="">اختر المدينة</MenuItem>
                   {KENZ_YEMEN_CITIES.map((c) => (
@@ -350,6 +368,56 @@ const KenzForm: React.FC<KenzFormProps> = ({
                 </Select>
               </FormControl>
             </Grid>
+
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                label="نشر بالنيابة عن (رقم الهاتف)"
+                value={formData.postedOnBehalfOfPhone ?? ""}
+                onChange={(e) =>
+                  updateForm("postedOnBehalfOfPhone", e.target.value)
+                }
+                placeholder="اختياري: أدخل رقم هاتف من تنشر الإعلان باسمه"
+                inputProps={{ maxLength: 20 }}
+                helperText="اتركه فارغاً إذا كنت تنشر الإعلان باسمك"
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <FormControl fullWidth>
+                <InputLabel>طريقة التسليم</InputLabel>
+                <Select
+                  value={formData.deliveryOption ?? ""}
+                  label="طريقة التسليم"
+                  onChange={(e) =>
+                    updateForm("deliveryOption", e.target.value || undefined)
+                  }
+                >
+                  <MenuItem value="">اختياري</MenuItem>
+                  <MenuItem value="meetup">لقاء</MenuItem>
+                  <MenuItem value="delivery">توصيل</MenuItem>
+                  <MenuItem value="both">لقاء وتوصيل</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            {(formData.deliveryOption === "delivery" ||
+              formData.deliveryOption === "both") && (
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField
+                  fullWidth
+                  label="رسوم التوصيل"
+                  type="number"
+                  value={formData.deliveryFee ?? ""}
+                  onChange={(e) =>
+                    updateForm(
+                      "deliveryFee",
+                      e.target.value ? parseFloat(e.target.value) : undefined
+                    )
+                  }
+                  placeholder="مثال: 500"
+                />
+              </Grid>
+            )}
 
             <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth>
@@ -569,7 +637,11 @@ const KenzForm: React.FC<KenzFormProps> = ({
                 )}
               </Box>
               {uploadingImages && (
-                <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ mt: 1 }}
+                >
                   جاري رفع الصور...
                 </Typography>
               )}

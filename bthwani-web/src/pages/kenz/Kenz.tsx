@@ -3,40 +3,54 @@ import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import toast from "react-hot-toast";
-import {
-  Snackbar,
-  Alert,
-} from '@mui/material';
+import { Snackbar, Alert } from "@mui/material";
 import {
   KenzList,
   KenzDetails,
   KenzForm,
+  KenzFavoritesView,
   useKenz,
   useKenzList,
+  useKenzFavoriteIds,
+  markKenzAsSold,
+  reportKenz,
+  createKenzConversation,
   type KenzItem,
   type CreateKenzPayload,
   type UpdateKenzPayload,
-} from '../../features/kenz';
+} from "../../features/kenz";
 
 const KenzPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { id, action } = useParams<{ id?: string; action?: string }>();
   const currentUserId = user?._id ?? user?.id ?? null;
+  const favorites = useKenzFavoriteIds(!!currentUserId);
 
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
-    severity: 'success' | 'error';
+    severity: "success" | "error";
   }>({
     open: false,
-    message: '',
-    severity: 'success',
+    message: "",
+    severity: "success",
   });
 
   // Hooks for data management
-  const { item: currentItem, createItem, updateItem, deleteItem, loading: itemLoading } = useKenz(id);
-  const { updateItem: updateListItem, removeItem: removeListItem, addItem: addListItem } = useKenzList();
+  const {
+    item: currentItem,
+    createItem,
+    updateItem,
+    deleteItem,
+    loadItem: refetchItem,
+    loading: itemLoading,
+  } = useKenz(id);
+  const {
+    updateItem: updateListItem,
+    removeItem: removeListItem,
+    addItem: addListItem,
+  } = useKenzList();
 
   // Handle view item
   const handleViewItem = (item: KenzItem) => {
@@ -65,67 +79,87 @@ const KenzPage: React.FC = () => {
         removeListItem(item._id);
         setSnackbar({
           open: true,
-          message: 'تم حذف الإعلان بنجاح',
-          severity: 'success',
+          message: "تم حذف الإعلان بنجاح",
+          severity: "success",
         });
-        navigate('/kenz');
+        navigate("/kenz");
       } catch (error) {
         setSnackbar({
           open: true,
-          message: 'فشل في حذف الإعلان',
-          severity: 'error',
+          message: "فشل في حذف الإعلان",
+          severity: "error",
         });
       }
     }
   };
 
   // Handle form submit
-  const handleFormSubmit = async (data: CreateKenzPayload | UpdateKenzPayload) => {
+  const handleFormSubmit = async (
+    data: CreateKenzPayload | UpdateKenzPayload
+  ) => {
     try {
-      const isCreate = id === 'new';
+      const isCreate = id === "new";
       if (isCreate) {
         const newItem = await createItem(data as CreateKenzPayload);
         addListItem(newItem);
         setSnackbar({
           open: true,
-          message: 'تم نشر الإعلان بنجاح',
-          severity: 'success',
+          message: "تم نشر الإعلان بنجاح",
+          severity: "success",
         });
         navigate(`/kenz/${newItem._id}`);
-      } else if (id && action === 'edit' && currentItem) {
+      } else if (id && action === "edit" && currentItem) {
         const updatedItem = await updateItem(data as UpdateKenzPayload);
         updateListItem(updatedItem);
         setSnackbar({
           open: true,
-          message: 'تم تحديث الإعلان بنجاح',
-          severity: 'success',
+          message: "تم تحديث الإعلان بنجاح",
+          severity: "success",
         });
         navigate(`/kenz/${updatedItem._id}`);
       }
     } catch (error) {
       setSnackbar({
         open: true,
-        message: 'فشل في حفظ الإعلان',
-        severity: 'error',
+        message: "فشل في حفظ الإعلان",
+        severity: "error",
       });
     }
   };
 
   // Handle back navigation
   const handleBack = () => {
-    navigate('/kenz');
+    navigate("/kenz");
   };
 
   // Determine what to render based on route
   const renderContent = () => {
+    // صفحة إعلاناتي المفضلة
+    if (id === "favorites") {
+      if (!currentUserId) {
+        navigate("/login", { state: { from: "/kenz/favorites" } });
+        return null;
+      }
+      return (
+        <KenzFavoritesView
+          onViewItem={(item) => navigate(`/kenz/${item._id}`)}
+        />
+      );
+    }
+
     // Show details page
     if (id && !action) {
       const ownerIdStr =
         currentItem &&
-        (typeof currentItem.ownerId === "object" && (currentItem.ownerId as { _id?: string })?._id
+        (typeof currentItem.ownerId === "object" &&
+        (currentItem.ownerId as { _id?: string })?._id
           ? String((currentItem.ownerId as { _id: string })._id)
           : String(currentItem.ownerId || ""));
-      const isOwner = !!(currentUserId && currentItem && ownerIdStr === currentUserId);
+      const isOwner = !!(
+        currentUserId &&
+        currentItem &&
+        ownerIdStr === currentUserId
+      );
       return (
         <KenzDetails
           item={currentItem!}
@@ -134,18 +168,67 @@ const KenzPage: React.FC = () => {
           onEdit={handleEditItem}
           onDelete={handleDeleteItem}
           isOwner={isOwner}
-          onChat={() => toast("محادثات كنز قريباً على الويب", { icon: "💬" })}
+          onChat={async (it) => {
+            if (!currentUserId) {
+              navigate("/login", { state: { from: `/kenz/${it._id}` } });
+              return;
+            }
+            try {
+              const conv = await createKenzConversation(it._id);
+              navigate(`/kenz/chat/${conv._id}`);
+            } catch (e) {
+              setSnackbar({
+                open: true,
+                message: "فشل في فتح المحادثة",
+                severity: "error",
+              });
+            }
+          }}
+          onMarkSold={async (it) => {
+            try {
+              const updated = await markKenzAsSold(it._id);
+              updateListItem(updated);
+              if (refetchItem) refetchItem();
+              setSnackbar({
+                open: true,
+                message: "تم تعليم الإعلان كمباع",
+                severity: "success",
+              });
+            } catch (e) {
+              setSnackbar({
+                open: true,
+                message: "فشل في تعليم الإعلان كمباع",
+                severity: "error",
+              });
+            }
+          }}
+          onReport={async (it, payload) => {
+            try {
+              await reportKenz(it._id, payload);
+              toast.success("تم إرسال البلاغ بنجاح");
+            } catch (e) {
+              toast.error(
+                "فشل في إرسال البلاغ أو أنك أبلغت مسبقاً عن هذا الإعلان"
+              );
+            }
+          }}
+          isFavorited={
+            currentUserId ? favorites.isFavorited(currentItem._id) : false
+          }
+          onFavoriteToggle={
+            currentUserId ? (it) => favorites.toggle(it._id) : undefined
+          }
         />
       );
     }
 
     // Show form (create/edit)
-    if ((id === "new") || (id && action === "edit")) {
+    if (id === "new" || (id && action === "edit")) {
       const isEdit = id !== "new" && action === "edit";
       const ownerId = String(currentUserId ?? "");
       return (
         <KenzForm
-          item={isEdit ? (currentItem ?? undefined) : undefined}
+          item={isEdit ? currentItem ?? undefined : undefined}
           loading={itemLoading}
           mode={isEdit ? "edit" : "create"}
           onSubmit={handleFormSubmit}
@@ -160,6 +243,16 @@ const KenzPage: React.FC = () => {
       <KenzList
         onViewItem={handleViewItem}
         onCreateItem={handleCreateItem}
+        isFavorited={currentUserId ? favorites.isFavorited : undefined}
+        onFavoriteToggle={
+          currentUserId ? (item) => favorites.toggle(item._id) : undefined
+        }
+        onNavigateToFavorites={
+          currentUserId ? () => navigate("/kenz/favorites") : undefined
+        }
+        onNavigateToChat={
+          currentUserId ? () => navigate("/kenz/chat") : undefined
+        }
       />
     );
   };
@@ -177,7 +270,7 @@ const KenzPage: React.FC = () => {
         <Alert
           onClose={() => setSnackbar({ ...snackbar, open: false })}
           severity={snackbar.severity}
-          sx={{ width: '100%' }}
+          sx={{ width: "100%" }}
         >
           {snackbar.message}
         </Alert>

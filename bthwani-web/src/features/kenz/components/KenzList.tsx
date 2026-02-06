@@ -1,5 +1,5 @@
 // مطابق لـ app-user KenzListScreen
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Typography,
@@ -9,21 +9,48 @@ import {
   Container,
   Chip,
   Grid,
+  TextField,
+  InputAdornment,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
-import { Add as AddIcon, Storefront as StoreIcon } from "@mui/icons-material";
+import {
+  Add as AddIcon,
+  Storefront as StoreIcon,
+  Search as SearchIcon,
+  Favorite as FavoriteIcon,
+  ChatBubbleOutline as ChatIcon,
+} from "@mui/icons-material";
 import KenzCard from "./KenzCard";
-import { useKenzList } from "../hooks/useKenzList";
-import { KENZ_CATEGORIES, KENZ_YEMEN_CITIES } from "../types";
+import { useKenzList, type KenzSortOption } from "../hooks/useKenzList";
+import { useKenzCategories } from "../hooks/useKenzCategories";
+import { KENZ_YEMEN_CITIES } from "../types";
 import type { KenzItem } from "../types";
+
+const SORT_OPTIONS: { value: KenzSortOption; label: string }[] = [
+  { value: "newest", label: "الأحدث" },
+  { value: "price_asc", label: "السعر (أقل أولاً)" },
+  { value: "price_desc", label: "السعر (أعلى أولاً)" },
+  { value: "views_desc", label: "الأكثر مشاهدة" },
+];
 
 interface KenzListProps {
   onViewItem?: (item: KenzItem) => void;
   onCreateItem?: () => void;
+  isFavorited?: (id: string) => boolean;
+  onFavoriteToggle?: (item: KenzItem) => void;
+  onNavigateToFavorites?: () => void;
 }
 
 const KenzList: React.FC<KenzListProps> = ({
   onViewItem,
   onCreateItem,
+  isFavorited,
+  onFavoriteToggle,
+  onNavigateToFavorites,
+  onNavigateToChat,
 }) => {
   const {
     items,
@@ -33,13 +60,25 @@ const KenzList: React.FC<KenzListProps> = ({
     error,
     selectedCategory,
     selectedCity,
+    selectedCondition,
+    selectedDeliveryOption,
+    searchQuery,
+    sortOption,
     handleCategoryChange,
     handleCityChange,
+    handleConditionChange,
+    handleDeliveryOptionChange,
+    handleSearchChange,
+    handleSortChange,
     loadMore,
   } = useKenzList();
+  const [searchInput, setSearchInput] = useState(searchQuery ?? "");
+  const { flatOptions: categoryOptions } = useKenzCategories();
 
   return (
-    <Box sx={{ minHeight: "100vh", backgroundColor: "background.default", pb: 10 }}>
+    <Box
+      sx={{ minHeight: "100vh", backgroundColor: "background.default", pb: 10 }}
+    >
       {/* Header - مطابق لـ app-user */}
       <Box
         sx={{
@@ -69,13 +108,35 @@ const KenzList: React.FC<KenzListProps> = ({
             السوق المفتوح
           </Typography>
         </Box>
-        <Button
-          variant="text"
-          onClick={onCreateItem}
-          sx={{ p: 0.5, minWidth: 0 }}
-        >
-          <AddIcon sx={{ fontSize: 28, color: "primary.main" }} />
-        </Button>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          {onNavigateToChat && (
+            <Button
+              variant="text"
+              onClick={onNavigateToChat}
+              sx={{ p: 0.5, minWidth: 0 }}
+              title="محادثاتي"
+            >
+              <ChatIcon sx={{ fontSize: 26, color: "primary.main" }} />
+            </Button>
+          )}
+          {onNavigateToFavorites && (
+            <Button
+              variant="text"
+              onClick={onNavigateToFavorites}
+              sx={{ p: 0.5, minWidth: 0 }}
+              title="إعلاناتي المفضلة"
+            >
+              <FavoriteIcon sx={{ fontSize: 26, color: "primary.main" }} />
+            </Button>
+          )}
+          <Button
+            variant="text"
+            onClick={onCreateItem}
+            sx={{ p: 0.5, minWidth: 0 }}
+          >
+            <AddIcon sx={{ fontSize: 28, color: "primary.main" }} />
+          </Button>
+        </Box>
       </Box>
 
       {/* Category Filter - مطابق لـ app-user */}
@@ -101,16 +162,163 @@ const KenzList: React.FC<KenzListProps> = ({
             border: 1,
           }}
         />
-        {KENZ_CATEGORIES.slice(0, 4).map((category) => (
+        {categoryOptions.slice(0, 6).map((opt) => (
           <Chip
-            key={category}
-            label={category}
-            onClick={() => handleCategoryChange(category)}
+            key={opt.value}
+            label={opt.label}
+            onClick={() => handleCategoryChange(opt.value)}
             sx={{
               backgroundColor:
-                selectedCategory === category ? "primary.main" : "transparent",
+                selectedCategory === opt.value ? "primary.main" : "transparent",
               color:
-                selectedCategory === category ? "white" : "text.secondary",
+                selectedCategory === opt.value ? "white" : "text.secondary",
+              borderColor: "divider",
+              border: 1,
+            }}
+          />
+        ))}
+      </Box>
+
+      {/* Search & Sort */}
+      <Box
+        sx={{
+          px: 2,
+          py: 1.5,
+          backgroundColor: "background.paper",
+          borderBottom: 1,
+          borderColor: "divider",
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 2,
+          alignItems: "center",
+        }}
+      >
+        <TextField
+          size="small"
+          placeholder="بحث في العناوين والوصف..."
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          onKeyDown={(e) =>
+            e.key === "Enter" &&
+            handleSearchChange(searchInput.trim() || undefined)
+          }
+          onBlur={() => handleSearchChange(searchInput.trim() || undefined)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon fontSize="small" />
+              </InputAdornment>
+            ),
+          }}
+          sx={{ minWidth: 220 }}
+        />
+        <FormControl size="small" sx={{ minWidth: 180 }}>
+          <InputLabel>الترتيب</InputLabel>
+          <Select
+            value={sortOption}
+            label="الترتيب"
+            onChange={(e) => handleSortChange(e.target.value as KenzSortOption)}
+          >
+            {SORT_OPTIONS.map((opt) => (
+              <MenuItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
+
+      {/* Condition Filter - حالة السلعة */}
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 1,
+          px: 2,
+          py: 1.25,
+          backgroundColor: "background.paper",
+          borderBottom: 1,
+          borderColor: "divider",
+        }}
+      >
+        <Chip
+          label="كل الحالات"
+          onClick={() => handleConditionChange(undefined)}
+          sx={{
+            backgroundColor: !selectedCondition
+              ? "primary.main"
+              : "transparent",
+            color: !selectedCondition ? "white" : "text.secondary",
+            borderColor: "divider",
+            border: 1,
+          }}
+        />
+        {[
+          { value: "new" as const, label: "جديد" },
+          { value: "used" as const, label: "مستعمل" },
+          { value: "refurbished" as const, label: "مجدد" },
+        ].map((opt) => (
+          <Chip
+            key={opt.value}
+            label={opt.label}
+            onClick={() => handleConditionChange(opt.value)}
+            sx={{
+              backgroundColor:
+                selectedCondition === opt.value
+                  ? "primary.main"
+                  : "transparent",
+              color:
+                selectedCondition === opt.value ? "white" : "text.secondary",
+              borderColor: "divider",
+              border: 1,
+            }}
+          />
+        ))}
+      </Box>
+
+      {/* Delivery Option Filter - طريقة التسليم */}
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 1,
+          px: 2,
+          py: 1.25,
+          backgroundColor: "background.paper",
+          borderBottom: 1,
+          borderColor: "divider",
+        }}
+      >
+        <Chip
+          label="الكل"
+          onClick={() => handleDeliveryOptionChange(undefined)}
+          sx={{
+            backgroundColor: !selectedDeliveryOption
+              ? "primary.main"
+              : "transparent",
+            color: !selectedDeliveryOption ? "white" : "text.secondary",
+            borderColor: "divider",
+            border: 1,
+          }}
+        />
+        {[
+          { value: "meetup" as const, label: "لقاء" },
+          { value: "delivery" as const, label: "توصيل" },
+          { value: "both" as const, label: "لقاء وتوصيل" },
+        ].map((opt) => (
+          <Chip
+            key={opt.value}
+            label={opt.label}
+            onClick={() => handleDeliveryOptionChange(opt.value)}
+            sx={{
+              backgroundColor:
+                selectedDeliveryOption === opt.value
+                  ? "primary.main"
+                  : "transparent",
+              color:
+                selectedDeliveryOption === opt.value
+                  ? "white"
+                  : "text.secondary",
               borderColor: "divider",
               border: 1,
             }}
@@ -147,7 +355,8 @@ const KenzList: React.FC<KenzListProps> = ({
             label={city}
             onClick={() => handleCityChange(city)}
             sx={{
-              backgroundColor: selectedCity === city ? "primary.main" : "transparent",
+              backgroundColor:
+                selectedCity === city ? "primary.main" : "transparent",
               color: selectedCity === city ? "white" : "text.secondary",
               borderColor: "divider",
               border: 1,
@@ -216,6 +425,8 @@ const KenzList: React.FC<KenzListProps> = ({
                   <KenzCard
                     item={item}
                     onView={onViewItem ? () => onViewItem(item) : undefined}
+                    isFavorited={isFavorited?.(item._id)}
+                    onFavoriteToggle={onFavoriteToggle}
                   />
                 </Grid>
               ))}

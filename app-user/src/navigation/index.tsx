@@ -69,7 +69,10 @@ import MaaroufListScreen from "@/screens/maarouf/MaaroufListScreen";
 import MaaroufCreateScreen from "@/screens/maarouf/MaaroufCreateScreen";
 import MaaroufDetailsScreen from "@/screens/maarouf/MaaroufDetailsScreen";
 import MaaroufEditScreen from "@/screens/maarouf/MaaroufEditScreen";
-import { MaaroufChatListScreen, MaaroufChatScreen } from "@/screens/maarouf-chat";
+import {
+  MaaroufChatListScreen,
+  MaaroufChatScreen,
+} from "@/screens/maarouf-chat";
 
 // السند (Services + Emergency + Charity)
 import SanadListScreen from "@/screens/sanad/SanadListScreen";
@@ -96,10 +99,14 @@ import KawaderListScreen from "@/screens/kawader/KawaderListScreen";
 import KawaderCreateScreen from "@/screens/kawader/KawaderCreateScreen";
 import KawaderDetailsScreen from "@/screens/kawader/KawaderDetailsScreen";
 import KawaderEditScreen from "@/screens/kawader/KawaderEditScreen";
-import { KawaderChatListScreen, KawaderChatScreen } from "@/screens/kawader-chat";
+import {
+  KawaderChatListScreen,
+  KawaderChatScreen,
+} from "@/screens/kawader-chat";
 
 // كنز (Marketplace)
 import KenzListScreen from "@/screens/kenz/KenzListScreen";
+import KenzFavoritesScreen from "@/screens/kenz/KenzFavoritesScreen";
 import KenzCreateScreen from "@/screens/kenz/KenzCreateScreen";
 import KenzDetailsScreen from "@/screens/kenz/KenzDetailsScreen";
 import KenzEditScreen from "@/screens/kenz/KenzEditScreen";
@@ -258,13 +265,15 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
 
       {/* قسم الديلفري */}
       <View style={{ marginTop: 20, paddingHorizontal: 16 }}>
-        <Text style={{
-          fontSize: 14,
-          fontFamily: "Cairo-Bold",
-          color: "#666",
-          marginBottom: 12,
-          textAlign: "right"
-        }}>
+        <Text
+          style={{
+            fontSize: 14,
+            fontFamily: "Cairo-Bold",
+            color: "#666",
+            marginBottom: 12,
+            textAlign: "right",
+          }}
+        >
           التوصيل
         </Text>
 
@@ -281,14 +290,16 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
           onPress={() => navigation.navigate("DeliveryHome" as never)}
         >
           <Ionicons name="bicycle" size={20} color={BRAND.primary} />
-          <Text style={{
-            fontSize: 16,
-            fontFamily: "Cairo-SemiBold",
-            color: BRAND.primary,
-            marginRight: 12,
-            textAlign: "right",
-            flex: 1
-          }}>
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: "Cairo-SemiBold",
+              color: BRAND.primary,
+              marginRight: 12,
+              textAlign: "right",
+              flex: 1,
+            }}
+          >
             الديلفري
           </Text>
           <Ionicons name="chevron-back" size={16} color={BRAND.primary} />
@@ -297,13 +308,15 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
 
       {/* قسم الخدمات المجتمعية */}
       <View style={{ marginTop: 20, paddingHorizontal: 16 }}>
-        <Text style={{
-          fontSize: 14,
-          fontFamily: "Cairo-Bold",
-          color: "#666",
-          marginBottom: 12,
-          textAlign: "right"
-        }}>
+        <Text
+          style={{
+            fontSize: 14,
+            fontFamily: "Cairo-Bold",
+            color: "#666",
+            marginBottom: 12,
+            textAlign: "right",
+          }}
+        >
           الخدمات المجتمعية
         </Text>
 
@@ -321,14 +334,16 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
           onPress={() => navigation.navigate("SanadList" as never)}
         >
           <Ionicons name="briefcase-outline" size={20} color={BRAND.primary} />
-          <Text style={{
-            fontSize: 16,
-            fontFamily: "Cairo-SemiBold",
-            color: BRAND.primary,
-            marginRight: 12,
-            textAlign: "right",
-            flex: 1
-          }}>
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: "Cairo-SemiBold",
+              color: BRAND.primary,
+              marginRight: 12,
+              textAlign: "right",
+              flex: 1,
+            }}
+          >
             سند
           </Text>
           <Ionicons name="chevron-back" size={16} color={BRAND.primary} />
@@ -348,14 +363,16 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
           onPress={() => navigation.navigate("AmaniList" as never)}
         >
           <Ionicons name="car-outline" size={20} color={BRAND.primary} />
-          <Text style={{
-            fontSize: 16,
-            fontFamily: "Cairo-SemiBold",
-            color: BRAND.primary,
-            marginRight: 12,
-            textAlign: "right",
-            flex: 1
-          }}>
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: "Cairo-SemiBold",
+              color: BRAND.primary,
+              marginRight: 12,
+              textAlign: "right",
+              flex: 1,
+            }}
+          >
             أماني
           </Text>
           <Ionicons name="chevron-back" size={16} color={BRAND.primary} />
@@ -375,14 +392,16 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
           onPress={() => navigation.navigate("MaaroufList" as never)}
         >
           <Ionicons name="search-outline" size={20} color={BRAND.primary} />
-          <Text style={{
-            fontSize: 16,
-            fontFamily: "Cairo-SemiBold",
-            color: BRAND.primary,
-            marginRight: 12,
-            textAlign: "right",
-            flex: 1
-          }}>
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: "Cairo-SemiBold",
+              color: BRAND.primary,
+              marginRight: 12,
+              textAlign: "right",
+              flex: 1,
+            }}
+          >
             المعروف
           </Text>
           <Ionicons name="chevron-back" size={16} color={BRAND.primary} />
@@ -402,14 +421,16 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
           onPress={() => navigation.navigate("ArabonList" as never)}
         >
           <Ionicons name="wallet-outline" size={20} color={BRAND.primary} />
-          <Text style={{
-            fontSize: 16,
-            fontFamily: "Cairo-SemiBold",
-            color: BRAND.primary,
-            marginRight: 12,
-            textAlign: "right",
-            flex: 1
-          }}>
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: "Cairo-SemiBold",
+              color: BRAND.primary,
+              marginRight: 12,
+              textAlign: "right",
+              flex: 1,
+            }}
+          >
             العربون
           </Text>
           <Ionicons name="chevron-back" size={16} color={BRAND.primary} />
@@ -429,14 +450,16 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
           onPress={() => navigation.navigate("KawaderList" as never)}
         >
           <Ionicons name="people-outline" size={20} color={BRAND.primary} />
-          <Text style={{
-            fontSize: 16,
-            fontFamily: "Cairo-SemiBold",
-            color: BRAND.primary,
-            marginRight: 12,
-            textAlign: "right",
-            flex: 1
-          }}>
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: "Cairo-SemiBold",
+              color: BRAND.primary,
+              marginRight: 12,
+              textAlign: "right",
+              flex: 1,
+            }}
+          >
             الكوادر
           </Text>
           <Ionicons name="chevron-back" size={16} color={BRAND.primary} />
@@ -456,14 +479,16 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
           onPress={() => navigation.navigate("KenzList" as never)}
         >
           <Ionicons name="storefront-outline" size={20} color={BRAND.primary} />
-          <Text style={{
-            fontSize: 16,
-            fontFamily: "Cairo-SemiBold",
-            color: BRAND.primary,
-            marginRight: 12,
-            textAlign: "right",
-            flex: 1
-          }}>
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: "Cairo-SemiBold",
+              color: BRAND.primary,
+              marginRight: 12,
+              textAlign: "right",
+              flex: 1,
+            }}
+          >
             كنز
           </Text>
           <Ionicons name="chevron-back" size={16} color={BRAND.primary} />
@@ -483,14 +508,16 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
           onPress={() => navigation.navigate("Es3afniList" as never)}
         >
           <Ionicons name="heart-outline" size={20} color={BRAND.primary} />
-          <Text style={{
-            fontSize: 16,
-            fontFamily: "Cairo-SemiBold",
-            color: BRAND.primary,
-            marginRight: 12,
-            textAlign: "right",
-            flex: 1
-          }}>
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: "Cairo-SemiBold",
+              color: BRAND.primary,
+              marginRight: 12,
+              textAlign: "right",
+              flex: 1,
+            }}
+          >
             اسعفني
           </Text>
           <Ionicons name="chevron-back" size={16} color={BRAND.primary} />
@@ -790,8 +817,14 @@ function AppStackNavigator() {
       <AppStack.Screen name="WithdrawalScreen" component={WithdrawalScreen} />
       <AppStack.Screen name="TransferScreen" component={TransferScreen} />
       <AppStack.Screen name="PayBillScreen" component={PayBillScreen} />
-      <AppStack.Screen name="RefundRequestScreen" component={RefundRequestScreen} />
-      <AppStack.Screen name="TransactionDetailsScreen" component={TransactionDetailsScreen} />
+      <AppStack.Screen
+        name="RefundRequestScreen"
+        component={RefundRequestScreen}
+      />
+      <AppStack.Screen
+        name="TransactionDetailsScreen"
+        component={TransactionDetailsScreen}
+      />
       <AppStack.Screen
         name="OrderDetailsScreen"
         component={OrderDetailsScreen}
@@ -833,7 +866,10 @@ function AppStackNavigator() {
       <AppStack.Screen name="MaaroufCreate" component={MaaroufCreateScreen} />
       <AppStack.Screen name="MaaroufDetails" component={MaaroufDetailsScreen} />
       <AppStack.Screen name="MaaroufEdit" component={MaaroufEditScreen} />
-      <AppStack.Screen name="MaaroufChatList" component={MaaroufChatListScreen} />
+      <AppStack.Screen
+        name="MaaroufChatList"
+        component={MaaroufChatListScreen}
+      />
       <AppStack.Screen name="MaaroufChat" component={MaaroufChatScreen} />
 
       {/* السند (Services + Emergency + Charity) */}
@@ -858,6 +894,7 @@ function AppStackNavigator() {
 
       {/* كنز (Marketplace) */}
       <AppStack.Screen name="KenzList" component={KenzListScreen} />
+      <AppStack.Screen name="KenzFavorites" component={KenzFavoritesScreen} />
       <AppStack.Screen name="KenzCreate" component={KenzCreateScreen} />
       <AppStack.Screen name="KenzDetails" component={KenzDetailsScreen} />
       <AppStack.Screen name="KenzEdit" component={KenzEditScreen} />
@@ -869,7 +906,10 @@ function AppStackNavigator() {
       <AppStack.Screen name="KawaderCreate" component={KawaderCreateScreen} />
       <AppStack.Screen name="KawaderDetails" component={KawaderDetailsScreen} />
       <AppStack.Screen name="KawaderEdit" component={KawaderEditScreen} />
-      <AppStack.Screen name="KawaderChatList" component={KawaderChatListScreen} />
+      <AppStack.Screen
+        name="KawaderChatList"
+        component={KawaderChatListScreen}
+      />
       <AppStack.Screen name="KawaderChat" component={KawaderChatScreen} />
 
       {/* اسعفني (Emergency Blood Donation) */}
