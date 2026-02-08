@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -24,7 +24,7 @@ import {
   MenuItem,
   Breadcrumbs,
   Link,
-} from '@mui/material';
+} from "@mui/material";
 import {
   ArrowBack as ArrowBackIcon,
   LocationOn as LocationIcon,
@@ -32,10 +32,26 @@ import {
   AccessTime as TimeIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
-} from '@mui/icons-material';
-import { getAmani, updateAmaniStatus, deleteAmani, type AmaniItem as ApiAmaniItem } from '../../../api/amani';
-import { AmaniStatus, AmaniStatusLabels, AmaniStatusColors, type AmaniItem } from '../../../types/amani';
-import RequireAdminPermission from '../../../components/RequireAdminPermission';
+  PersonAdd as PersonAddIcon,
+  Phone as PhoneIcon,
+} from "@mui/icons-material";
+import {
+  getAmani,
+  updateAmaniStatus,
+  deleteAmani,
+  assignAmaniDriver,
+  getWomenDrivers,
+  getAvailableDrivers,
+  type AmaniItem as ApiAmaniItem,
+  type AmaniDriver,
+} from "../../../api/amani";
+import {
+  AmaniStatus,
+  AmaniStatusLabels,
+  AmaniStatusColors,
+  type AmaniItem,
+} from "../../../types/amani";
+import RequireAdminPermission from "../../../components/RequireAdminPermission";
 
 const AmaniDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -46,22 +62,28 @@ const AmaniDetailsPage: React.FC = () => {
 
   const [statusDialog, setStatusDialog] = useState<{
     open: boolean;
-    newStatus: AmaniStatus | '';
+    newStatus: AmaniStatus | "";
   }>({
     open: false,
-    newStatus: '',
+    newStatus: "",
   });
 
   const [deleteDialog, setDeleteDialog] = useState(false);
 
+  const [assignDialog, setAssignDialog] = useState(false);
+  const [drivers, setDrivers] = useState<AmaniDriver[]>([]);
+  const [driversLoading, setDriversLoading] = useState(false);
+  const [selectedDriverId, setSelectedDriverId] = useState<string>("");
+  const [assigning, setAssigning] = useState(false);
+
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
-    severity: 'success' | 'error';
+    severity: "success" | "error";
   }>({
     open: false,
-    message: '',
-    severity: 'success',
+    message: "",
+    severity: "success",
   });
 
   // جلب بيانات الطلب
@@ -73,12 +95,12 @@ const AmaniDetailsPage: React.FC = () => {
       const data: ApiAmaniItem = await getAmani(id);
       // Convert string status to AmaniStatus enum
       const statusMap: Record<string, AmaniStatus> = {
-        'draft': AmaniStatus.DRAFT,
-        'pending': AmaniStatus.PENDING,
-        'confirmed': AmaniStatus.CONFIRMED,
-        'in_progress': AmaniStatus.IN_PROGRESS,
-        'completed': AmaniStatus.COMPLETED,
-        'cancelled': AmaniStatus.CANCELLED,
+        draft: AmaniStatus.DRAFT,
+        pending: AmaniStatus.PENDING,
+        confirmed: AmaniStatus.CONFIRMED,
+        in_progress: AmaniStatus.IN_PROGRESS,
+        completed: AmaniStatus.COMPLETED,
+        cancelled: AmaniStatus.CANCELLED,
       };
       const convertedData: AmaniItem = {
         ...data,
@@ -86,11 +108,11 @@ const AmaniDetailsPage: React.FC = () => {
       };
       setAmani(convertedData);
     } catch (error) {
-      console.error('خطأ في جلب بيانات الطلب:', error);
+      console.error("خطأ في جلب بيانات الطلب:", error);
       setSnackbar({
         open: true,
-        message: 'فشل في تحميل بيانات الطلب',
-        severity: 'error',
+        message: "فشل في تحميل بيانات الطلب",
+        severity: "error",
       });
     } finally {
       setLoading(false);
@@ -110,22 +132,76 @@ const AmaniDetailsPage: React.FC = () => {
       await updateAmaniStatus(amani._id, statusDialog.newStatus);
       setSnackbar({
         open: true,
-        message: 'تم تحديث حالة الطلب بنجاح',
-        severity: 'success',
+        message: "تم تحديث حالة الطلب بنجاح",
+        severity: "success",
       });
-      setStatusDialog({ open: false, newStatus: '' });
+      setStatusDialog({ open: false, newStatus: "" });
       fetchAmani(); // إعادة جلب البيانات
     } catch (error) {
-      console.error('خطأ في تحديث الحالة:', error);
+      console.error("خطأ في تحديث الحالة:", error);
       setSnackbar({
         open: true,
-        message: 'فشل في تحديث حالة الطلب',
-        severity: 'error',
+        message: "فشل في تحديث حالة الطلب",
+        severity: "error",
       });
     } finally {
       setUpdating(false);
     }
   };
+
+  // فتح نافذة تعيين السائق
+  const handleOpenAssignDialog = async () => {
+    setAssignDialog(true);
+    setSelectedDriverId("");
+    setDriversLoading(true);
+    try {
+      const list = amani?.metadata?.womenOnly
+        ? await getWomenDrivers()
+        : await getAvailableDrivers();
+      setDrivers(Array.isArray(list) ? list : []);
+    } catch {
+      setSnackbar({
+        open: true,
+        message: "فشل في جلب قائمة السائقين",
+        severity: "error",
+      });
+      setDrivers([]);
+    } finally {
+      setDriversLoading(false);
+    }
+  };
+
+  // تعيين السائق
+  const handleAssignDriver = async () => {
+    if (!amani || !selectedDriverId) return;
+    try {
+      setAssigning(true);
+      await assignAmaniDriver(amani._id, selectedDriverId);
+      setSnackbar({
+        open: true,
+        message: "تم تعيين السائق بنجاح",
+        severity: "success",
+      });
+      setAssignDialog(false);
+      setSelectedDriverId("");
+      fetchAmani();
+    } catch (err: any) {
+      setSnackbar({
+        open: true,
+        message: err?.response?.data?.message || "فشل في تعيين السائق",
+        severity: "error",
+      });
+    } finally {
+      setAssigning(false);
+    }
+  };
+
+  // الحصول على بيانات السائق المعين
+  const assignedDriver = amani?.driver
+    ? typeof amani.driver === "object"
+      ? (amani.driver as AmaniDriver)
+      : null
+    : null;
 
   // حذف الطلب
   const handleDelete = async () => {
@@ -136,16 +212,16 @@ const AmaniDetailsPage: React.FC = () => {
       await deleteAmani(amani._id);
       setSnackbar({
         open: true,
-        message: 'تم حذف الطلب بنجاح',
-        severity: 'success',
+        message: "تم حذف الطلب بنجاح",
+        severity: "success",
       });
-      navigate('/admin/amani');
+      navigate("/admin/amani");
     } catch (error) {
-      console.error('خطأ في حذف الطلب:', error);
+      console.error("خطأ في حذف الطلب:", error);
       setSnackbar({
         open: true,
-        message: 'فشل في حذف الطلب',
-        severity: 'error',
+        message: "فشل في حذف الطلب",
+        severity: "error",
       });
     } finally {
       setUpdating(false);
@@ -155,12 +231,12 @@ const AmaniDetailsPage: React.FC = () => {
 
   // الحصول على لون الحالة
   const getStatusColor = (status: AmaniStatus) => {
-    return AmaniStatusColors[status] || 'default';
+    return AmaniStatusColors[status] || "default";
   };
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
         <CircularProgress />
       </Box>
     );
@@ -169,9 +245,7 @@ const AmaniDetailsPage: React.FC = () => {
   if (!amani) {
     return (
       <Box sx={{ p: 3 }}>
-        <Alert severity="error">
-          لم يتم العثور على الطلب المطلوب
-        </Alert>
+        <Alert severity="error">لم يتم العثور على الطلب المطلوب</Alert>
       </Box>
     );
   }
@@ -186,7 +260,7 @@ const AmaniDetailsPage: React.FC = () => {
             href="#"
             onClick={(e) => {
               e.preventDefault();
-              navigate('/admin/amani');
+              navigate("/admin/amani");
             }}
           >
             الأماني
@@ -195,11 +269,18 @@ const AmaniDetailsPage: React.FC = () => {
         </Breadcrumbs>
 
         {/* Header */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 3,
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <Button
               startIcon={<ArrowBackIcon />}
-              onClick={() => navigate('/admin/amani')}
+              onClick={() => navigate("/admin/amani")}
               variant="outlined"
             >
               العودة
@@ -214,11 +295,13 @@ const AmaniDetailsPage: React.FC = () => {
             </Box>
           </Box>
 
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{ display: "flex", gap: 1 }}>
             <Button
               variant="contained"
               startIcon={<EditIcon />}
-              onClick={() => setStatusDialog({ open: true, newStatus: amani.status })}
+              onClick={() =>
+                setStatusDialog({ open: true, newStatus: amani.status })
+              }
             >
               تحديث الحالة
             </Button>
@@ -233,20 +316,47 @@ const AmaniDetailsPage: React.FC = () => {
           </Box>
         </Box>
 
-        {/* Status Chip */}
-        <Box sx={{ mb: 3 }}>
+        {/* Status Chip + womenOnly + Assign Button */}
+        <Box
+          sx={{
+            mb: 3,
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 1,
+            alignItems: "center",
+          }}
+        >
           <Chip
             label={AmaniStatusLabels[amani.status]}
             size="medium"
             color={getStatusColor(amani.status)}
             variant="outlined"
           />
+          {amani.metadata?.womenOnly && (
+            <Chip
+              label="سائقة أنثى فقط"
+              size="small"
+              color="secondary"
+              variant="outlined"
+            />
+          )}
+          {(amani.status === AmaniStatus.PENDING ||
+            amani.status === AmaniStatus.CONFIRMED) &&
+            !assignedDriver && (
+              <Button
+                variant="contained"
+                startIcon={<PersonAddIcon />}
+                onClick={handleOpenAssignDialog}
+              >
+                تعيين سائق
+              </Button>
+            )}
         </Box>
 
         {/* Main Content */}
         <Grid container spacing={3}>
           {/* Basic Information */}
-          <Grid  size={{xs: 12, md: 8}}>
+          <Grid size={{ xs: 12, md: 8 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
@@ -255,8 +365,15 @@ const AmaniDetailsPage: React.FC = () => {
                 <Divider sx={{ mb: 2 }} />
 
                 <Grid container spacing={2}>
-                  <Grid  size={{xs: 12}}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                  <Grid size={{ xs: 12 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        mb: 1,
+                      }}
+                    >
                       <PersonIcon color="action" />
                       <Typography variant="body2" color="text.secondary">
                         المالك
@@ -268,8 +385,12 @@ const AmaniDetailsPage: React.FC = () => {
                   </Grid>
 
                   {amani.description && (
-                    <Grid  size={{xs: 12}}>
-                      <Typography variant="body2" color="text.secondary" gutterBottom>
+                    <Grid size={{ xs: 12 }}>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        gutterBottom
+                      >
                         الوصف
                       </Typography>
                       <Typography variant="body1">
@@ -280,8 +401,15 @@ const AmaniDetailsPage: React.FC = () => {
 
                   {/* Origin */}
                   {amani.origin && (
-                    <Grid  size={{xs: 12, sm: 6}}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
+                          mb: 1,
+                        }}
+                      >
                         <LocationIcon color="action" />
                         <Typography variant="body2" color="text.secondary">
                           نقطة الانطلاق
@@ -298,8 +426,15 @@ const AmaniDetailsPage: React.FC = () => {
 
                   {/* Destination */}
                   {amani.destination && (
-                    <Grid  size={{xs: 12, sm: 6}}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
+                          mb: 1,
+                        }}
+                      >
                         <LocationIcon color="action" />
                         <Typography variant="body2" color="text.secondary">
                           الوجهة
@@ -316,12 +451,16 @@ const AmaniDetailsPage: React.FC = () => {
 
                   {/* Metadata */}
                   {amani.metadata && Object.keys(amani.metadata).length > 0 && (
-                    <Grid  size={{xs: 12}}>
-                      <Typography variant="body2" color="text.secondary" gutterBottom>
+                    <Grid size={{ xs: 12 }}>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        gutterBottom
+                      >
                         بيانات إضافية
                       </Typography>
-                      <Paper sx={{ p: 2, bgcolor: 'grey.50' }}>
-                        <pre style={{ fontSize: '0.875rem', margin: 0 }}>
+                      <Paper sx={{ p: 2, bgcolor: "grey.50" }}>
+                        <pre style={{ fontSize: "0.875rem", margin: 0 }}>
                           {JSON.stringify(amani.metadata, null, 2)}
                         </pre>
                       </Paper>
@@ -332,8 +471,77 @@ const AmaniDetailsPage: React.FC = () => {
             </Card>
           </Grid>
 
+          {/* Driver Info (when assigned) */}
+          {assignedDriver && (
+            <Grid size={{ xs: 12, md: 8 }}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    السائق المعين
+                  </Typography>
+                  <Divider sx={{ mb: 2 }} />
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <PersonIcon color="action" />
+                    <Box>
+                      <Typography variant="body1" fontWeight="medium">
+                        {assignedDriver.fullName}
+                      </Typography>
+                      {assignedDriver.phone && (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 0.5,
+                            mt: 0.5,
+                          }}
+                        >
+                          <PhoneIcon fontSize="small" color="action" />
+                          <Typography variant="body2" color="text.secondary">
+                            {assignedDriver.phone}
+                          </Typography>
+                        </Box>
+                      )}
+                      {amani.assignedAt && (
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          display="block"
+                          sx={{ mt: 0.5 }}
+                        >
+                          تم التعيين:{" "}
+                          {new Date(amani.assignedAt).toLocaleDateString(
+                            "ar-SA",
+                            {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }
+                          )}
+                        </Typography>
+                      )}
+                    </Box>
+                  </Box>
+                  {(amani.status === AmaniStatus.PENDING ||
+                    amani.status === AmaniStatus.CONFIRMED) && (
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<PersonAddIcon />}
+                      onClick={handleOpenAssignDialog}
+                      sx={{ mt: 2 }}
+                    >
+                      تغيير السائق
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            </Grid>
+          )}
+
           {/* Timestamps */}
-          <Grid  size={{xs: 12, md: 4}}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
@@ -343,34 +551,45 @@ const AmaniDetailsPage: React.FC = () => {
 
                 <Stack spacing={2}>
                   <Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        mb: 1,
+                      }}
+                    >
                       <TimeIcon color="action" fontSize="small" />
                       <Typography variant="body2" color="text.secondary">
                         تاريخ الإنشاء
                       </Typography>
                     </Box>
                     <Typography variant="body2">
-                      {new Date(amani.createdAt).toLocaleDateString('ar-SA', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
+                      {new Date(amani.createdAt).toLocaleDateString("ar-SA", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
                       })}
                     </Typography>
                   </Box>
 
                   <Box>
-                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      gutterBottom
+                    >
                       آخر تحديث
                     </Typography>
                     <Typography variant="body2">
-                      {new Date(amani.updatedAt).toLocaleDateString('ar-SA', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
+                      {new Date(amani.updatedAt).toLocaleDateString("ar-SA", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
                       })}
                     </Typography>
                   </Box>
@@ -381,14 +600,22 @@ const AmaniDetailsPage: React.FC = () => {
         </Grid>
 
         {/* Status Update Dialog */}
-        <Dialog open={statusDialog.open} onClose={() => setStatusDialog({ open: false, newStatus: '' })}>
+        <Dialog
+          open={statusDialog.open}
+          onClose={() => setStatusDialog({ open: false, newStatus: "" })}
+        >
           <DialogTitle>تحديث حالة الطلب</DialogTitle>
           <DialogContent>
             <FormControl fullWidth sx={{ mt: 1 }}>
               <InputLabel>الحالة الجديدة</InputLabel>
               <Select
                 value={statusDialog.newStatus}
-                onChange={(e) => setStatusDialog({ ...statusDialog, newStatus: e.target.value as AmaniStatus })}
+                onChange={(e) =>
+                  setStatusDialog({
+                    ...statusDialog,
+                    newStatus: e.target.value as AmaniStatus,
+                  })
+                }
                 label="الحالة الجديدة"
               >
                 {Object.values(AmaniStatus).map((status) => (
@@ -400,7 +627,9 @@ const AmaniDetailsPage: React.FC = () => {
             </FormControl>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setStatusDialog({ open: false, newStatus: '' })}>
+            <Button
+              onClick={() => setStatusDialog({ open: false, newStatus: "" })}
+            >
               إلغاء
             </Button>
             <Button
@@ -408,7 +637,66 @@ const AmaniDetailsPage: React.FC = () => {
               variant="contained"
               disabled={updating || !statusDialog.newStatus}
             >
-              {updating ? <CircularProgress size={16} /> : 'تحديث'}
+              {updating ? <CircularProgress size={16} /> : "تحديث"}
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Assign Driver Dialog */}
+        <Dialog
+          open={assignDialog}
+          onClose={() => setAssignDialog(false)}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle>
+            تعيين سائق
+            {amani?.metadata?.womenOnly && (
+              <Typography variant="body2" color="secondary" sx={{ mt: 0.5 }}>
+                (سائقة أنثى فقط)
+              </Typography>
+            )}
+          </DialogTitle>
+          <DialogContent>
+            {driversLoading ? (
+              <Box sx={{ display: "flex", justifyContent: "center", py: 3 }}>
+                <CircularProgress />
+              </Box>
+            ) : (
+              <FormControl fullWidth sx={{ mt: 1 }}>
+                <InputLabel>اختر السائق</InputLabel>
+                <Select
+                  value={selectedDriverId}
+                  onChange={(e) => setSelectedDriverId(e.target.value)}
+                  label="اختر السائق"
+                >
+                  <MenuItem value="">
+                    <em>— اختر سائقاً —</em>
+                  </MenuItem>
+                  {drivers.map((d) => (
+                    <MenuItem key={d._id} value={d._id}>
+                      {d.fullName} {d.phone ? `— ${d.phone}` : ""}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+            {!driversLoading && drivers.length === 0 && (
+              <Alert severity="info" sx={{ mt: 2 }}>
+                {amani?.metadata?.womenOnly
+                  ? "لا توجد سائقات متاحات حالياً"
+                  : "لا يوجد سائقون متاحون حالياً"}
+              </Alert>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setAssignDialog(false)}>إلغاء</Button>
+            <Button
+              onClick={handleAssignDriver}
+              variant="contained"
+              disabled={assigning || !selectedDriverId}
+            >
+              {assigning ? <CircularProgress size={16} /> : "تعيين"}
             </Button>
           </DialogActions>
         </Dialog>
@@ -417,9 +705,7 @@ const AmaniDetailsPage: React.FC = () => {
         <Dialog open={deleteDialog} onClose={() => setDeleteDialog(false)}>
           <DialogTitle>تأكيد الحذف</DialogTitle>
           <DialogContent>
-            <Typography>
-              هل أنت متأكد من حذف الطلب "{amani.title}"؟
-            </Typography>
+            <Typography>هل أنت متأكد من حذف الطلب "{amani.title}"؟</Typography>
             <Alert severity="error" sx={{ mt: 2 }}>
               هذا الإجراء لا يمكن التراجع عنه
             </Alert>
@@ -432,7 +718,7 @@ const AmaniDetailsPage: React.FC = () => {
               color="error"
               disabled={updating}
             >
-              {updating ? <CircularProgress size={16} /> : 'حذف'}
+              {updating ? <CircularProgress size={16} /> : "حذف"}
             </Button>
           </DialogActions>
         </Dialog>

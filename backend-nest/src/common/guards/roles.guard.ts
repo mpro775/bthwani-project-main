@@ -16,6 +16,7 @@ interface RequestUser {
   authType?: string;
   vendorId?: string;
   marketerId?: string;
+  driverId?: string; // للمسارات المحمية بدور السائق
 }
 
 declare module 'express' {

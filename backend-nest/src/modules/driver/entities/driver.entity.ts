@@ -63,6 +63,10 @@ export class Driver extends Document {
   @Prop({ required: true, unique: true, lowercase: true })
   email: string;
 
+  /** ربط اختياري بالمستخدم (User) إن كان للسائق حساب في تطبيق المستخدم */
+  @Prop({ type: Types.ObjectId, ref: 'User' })
+  userId?: Types.ObjectId;
+
   @Prop({ required: true, select: false })
   password: string;
 

@@ -41,20 +41,20 @@ const AmaniDetailsScreen = () => {
     lng: number;
   } | null>(null);
 
-  // WebSocket connection for real-time updates
-  const { connected: socketConnected } = useAmaniSocket(item?._id, {
+  // WebSocket connection for real-time updates (use itemId from route - available immediately)
+  const { connected: socketConnected } = useAmaniSocket(itemId, {
     onStatusUpdate: (data) => {
-      if (data.amaniId === item?._id) {
+      if (data.amaniId === itemId) {
         loadItem(); // Reload to get updated status
       }
     },
     onDriverAssigned: (data) => {
-      if (data.amaniId === item?._id) {
+      if (data.amaniId === itemId) {
         loadItem(); // Reload to get driver info
       }
     },
     onLocationUpdate: (data) => {
-      if (data.amaniId === item?._id) {
+      if (data.amaniId === itemId) {
         setDriverLocation(data.location);
       }
     },
@@ -260,15 +260,25 @@ const AmaniDetailsScreen = () => {
             <View style={styles.carIcon}>
               <Ionicons name="car" size={24} color={COLORS.primary} />
             </View>
-            <View
-              style={[
-                styles.statusBadge,
-                { backgroundColor: getStatusColor(item.status) },
-              ]}
-            >
-              <Text style={styles.statusText}>
-                {getStatusText(item.status)}
-              </Text>
+            <View style={styles.badgesRow}>
+              <View
+                style={[
+                  styles.statusBadge,
+                  { backgroundColor: getStatusColor(item.status) },
+                ]}
+              >
+                <Text style={styles.statusText}>
+                  {getStatusText(item.status)}
+                </Text>
+              </View>
+              {item.metadata?.womenOnly && (
+                <View style={[styles.statusBadge, styles.womenOnlyBadge]}>
+                  <Ionicons name="woman" size={14} color={COLORS.white} />
+                  <Text style={[styles.statusText, { marginLeft: 4 }]}>
+                    سائقة أنثى
+                  </Text>
+                </View>
+              )}
             </View>
           </View>
 
@@ -333,7 +343,8 @@ const AmaniDetailsScreen = () => {
           {item.metadata &&
             (item.metadata.passengers ||
               item.metadata.luggage ||
-              item.metadata.specialRequests) && (
+              item.metadata.specialRequests ||
+              item.metadata.womenOnly) && (
               <View style={styles.metadataSection}>
                 <Text style={styles.sectionTitle}>بيانات إضافية</Text>
 
@@ -350,6 +361,13 @@ const AmaniDetailsScreen = () => {
                   <View style={styles.metadataItem}>
                     <Ionicons name="bag" size={16} color={COLORS.primary} />
                     <Text style={styles.metadataText}>يوجد أمتعة</Text>
+                  </View>
+                )}
+
+                {item.metadata.womenOnly && (
+                  <View style={styles.metadataItem}>
+                    <Ionicons name="woman" size={16} color={COLORS.primary} />
+                    <Text style={styles.metadataText}>سائقة أنثى فقط</Text>
                   </View>
                 )}
 
@@ -602,10 +620,21 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 12,
   },
+  badgesRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap",
+  },
   statusBadge: {
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  womenOnlyBadge: {
+    backgroundColor: COLORS.primary,
+    marginLeft: 8,
   },
   statusText: {
     fontSize: 14,

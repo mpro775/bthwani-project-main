@@ -47,19 +47,22 @@ export class AmaniService {
     return await doc.save();
   }
 
-  async findAll(opts: { cursor?: string; status?: string }) {
+  async findAll(opts: { cursor?: string; status?: string; populateDriver?: boolean }) {
     const limit = 25;
     const filter: Record<string, unknown> = {};
     if (opts?.status) {
       filter.status = opts.status;
     }
-    const query = this.model.find(filter).sort({ _id: -1 }).limit(limit);
+    let query = this.model.find(filter).sort({ _id: -1 }).limit(limit);
     if (opts?.cursor) {
       try {
-        query.where('_id').lt(new Types.ObjectId(opts.cursor) as any);
+        query = query.where('_id').lt(new Types.ObjectId(opts.cursor) as any);
       } catch {
         // تجاهل cursor غير صالح
       }
+    }
+    if (opts?.populateDriver) {
+      query = query.populate('driver', 'fullName phone email');
     }
     const items = await query.exec();
     const nextCursor = items.length === limit ? String(items[items.length - 1]._id) : null;
@@ -109,6 +112,17 @@ export class AmaniService {
     // التحقق من توفر السائق
     if (!driver.isAvailable || driver.isBanned) {
       throw new BadRequestException('السائق غير متاح حالياً');
+    }
+
+    // لطلبات سائقة أنثى فقط: التحقق من أن السائق مؤهل
+    if (amani.metadata?.womenOnly === true) {
+      const isFemaleDriver =
+        driver.role === 'women_driver' || driver.isFemaleDriver === true;
+      if (!isFemaleDriver) {
+        throw new BadRequestException(
+          'هذا الطلب يتطلب سائقة أنثى فقط. يرجى اختيار سائقة أنثى.',
+        );
+      }
     }
 
     // تعيين السائق

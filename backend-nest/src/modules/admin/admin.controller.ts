@@ -143,12 +143,14 @@ export class AdminController {
   async getAllDrivers(
     @Query('status') status?: string,
     @Query('isAvailable') isAvailable?: boolean,
+    @Query('role') role?: string,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 20,
   ) {
     return this.adminService.getAllDrivers({
       status,
       isAvailable,
+      role,
       page,
       limit,
     });

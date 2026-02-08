@@ -18,7 +18,7 @@ import UpdateAmaniStatusDto from './dto/update-status.dto';
 import { Amani } from './entities/amani.entity';
 import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
-import { Auth, CurrentUser, Roles } from '../../common/decorators/auth.decorator';
+import { Auth, CurrentUser, CurrentDriver, Roles } from '../../common/decorators/auth.decorator';
 import { AuthType } from '../../common/guards/unified-auth.guard';
 
 @ApiTags('آماني — النقل النسائي للعائلات')
@@ -247,7 +247,7 @@ export class AmaniController {
     description: 'يجب تسجيل الدخول كسائق'
   })
   async getMyDriverOrders(
-    @CurrentUser('id') driverId: string,
+    @CurrentDriver() driverId: string,
     @Query('status') status?: string,
   ) {
     const items = await this.service.getDriverOrders(driverId, status);
@@ -554,7 +554,7 @@ export class AmaniController {
   })
   async acceptByDriver(
     @Param('id') id: string,
-    @CurrentUser('id') driverId: string,
+    @CurrentDriver() driverId: string,
   ) {
     return this.service.acceptByDriver(id, driverId);
   }

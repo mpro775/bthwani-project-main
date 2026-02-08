@@ -18,6 +18,10 @@ export class GetAllDriversQueryDto {
   isAvailable?: boolean;
 
   @IsOptional()
+  @IsEnum(['rider_driver', 'light_driver', 'women_driver'])
+  role?: string;
+
+  @IsOptional()
   @IsNumber()
   page?: number = 1;
 

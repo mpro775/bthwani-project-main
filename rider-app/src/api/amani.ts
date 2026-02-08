@@ -20,6 +20,7 @@ export interface AmaniOrder {
     passengers?: number;
     luggage?: boolean;
     specialRequests?: string;
+    womenOnly?: boolean;
   };
   status: 'draft' | 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
   driver?: string;
@@ -54,16 +55,16 @@ export const getMyAmaniOrders = async (
   const response = await axios.get("/amani/driver/my-orders", {
     params: status ? { status } : {},
   });
-  return response.data;
+  return response.data?.items ?? [];
 };
 
 /**
- * قبول طلب أماني (تعيين تلقائي)
+ * قبول طلب أماني (تعيين ذاتي للسائقة)
  */
 export const acceptAmaniOrder = async (
   amaniId: string
 ): Promise<AmaniOrder> => {
-  const response = await axios.post(`/amani/${amaniId}/assign-driver/auto`, {});
+  const response = await axios.post(`/amani/${amaniId}/accept`, {});
   return response.data;
 };
 

@@ -1,3 +1,11 @@
+// بيانات السائق في طلب أماني
+export interface AmaniDriverInfo {
+  _id: string;
+  fullName: string;
+  phone?: string;
+  email?: string;
+}
+
 // أنواع بيانات قسم الأماني
 export interface AmaniItem {
   _id: string;
@@ -16,6 +24,8 @@ export interface AmaniItem {
   };
   metadata: Record<string, any>;
   status: AmaniStatus;
+  driver?: AmaniDriverInfo | string;
+  assignedAt?: string;
   createdAt: string;
   updatedAt: string;
 }

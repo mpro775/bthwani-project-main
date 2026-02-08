@@ -667,6 +667,8 @@ export interface AmaniMetadata {
   passengers?: number;
   luggage?: boolean;
   specialRequests?: string;
+  /** سائقة أنثى فقط */
+  womenOnly?: boolean;
   [key: string]: any;
 }
 

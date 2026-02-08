@@ -2,6 +2,7 @@ interface JWTPayload {
   sub: string;
   email?: string;
   role?: string;
+  driverId?: string; // لرموز السائق (driver token)
 }
 
 interface VendorJWTPayload {
@@ -118,11 +119,13 @@ export class UnifiedAuthGuard implements CanActivate {
     const payload = await this.jwtService.verifyAsync<JWTPayload>(token, {
       secret,
     });
+    const driverId = payload.driverId ?? (payload.role === 'driver' ? payload.sub : undefined);
     return {
       id: payload.sub,
       email: payload.email,
       role: payload.role,
       authType: 'jwt',
+      ...(driverId && { driverId }),
     };
   }
 

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "../api/axios";
 import * as Location from "expo-location";
 
 export const triggerSOS = async () => {
@@ -10,10 +10,12 @@ export const triggerSOS = async () => {
     }
 
     const location = await Location.getCurrentPositionAsync({});
-    await axios.post("/rides/sos", {
-      reason: "حالة طارئة أثناء الرحلة",
-      lat: location.coords.latitude,
-      lng: location.coords.longitude,
+    await axios.post("/drivers/sos", {
+      message: "حالة طارئة أثناء الرحلة - أماني",
+      location: {
+        lat: location.coords.latitude,
+        lng: location.coords.longitude,
+      },
     });
 
     alert("🚨 تم إرسال نداء الطوارئ");

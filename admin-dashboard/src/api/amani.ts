@@ -1,6 +1,16 @@
 import { api } from '../services/api';
 
 // أنواع البيانات
+export interface AmaniDriver {
+  _id: string;
+  fullName: string;
+  phone?: string;
+  email?: string;
+  role?: string;
+  isFemaleDriver?: boolean;
+  isAvailable?: boolean;
+}
+
 export interface AmaniItem {
   _id: string;
   ownerId: string;
@@ -18,6 +28,8 @@ export interface AmaniItem {
   };
   metadata: Record<string, any>;
   status: 'draft' | 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
+  driver?: AmaniDriver | string;
+  assignedAt?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -30,12 +42,15 @@ export interface UpdateAmaniStatusRequest {
 export const getAmaniList = async (params?: {
   cursor?: string;
   limit?: number;
+  status?: string;
 }): Promise<{
   items: AmaniItem[];
   nextCursor?: string;
 }> => {
   try {
-    const response = await api.get('/admin/amani', { params });
+    const response = await api.get('/admin/amani', {
+      params: { cursor: params?.cursor, limit: params?.limit, status: params?.status },
+    });
     return response.data;
   } catch (error) {
     console.error('خطأ في جلب قائمة الأماني:', error);
@@ -72,6 +87,50 @@ export const deleteAmani = async (id: string): Promise<void> => {
     return response.data;
   } catch (error) {
     console.error('خطأ في حذف طلب الأماني:', error);
+    throw error;
+  }
+};
+
+// تعيين سائق للطلب
+export const assignAmaniDriver = async (
+  amaniId: string,
+  driverId: string,
+  note?: string
+): Promise<AmaniItem> => {
+  try {
+    const response = await api.post(`/admin/amani/${amaniId}/assign-driver`, {
+      driverId,
+      note,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('خطأ في تعيين السائق:', error);
+    throw error;
+  }
+};
+
+// جلب السائقات (لطلبات womenOnly)
+export const getWomenDrivers = async (): Promise<AmaniDriver[]> => {
+  try {
+    const response = await api.get('/admin/drivers', {
+      params: { role: 'women_driver', isAvailable: true, page: 1, limit: 100 },
+    });
+    return response.data?.data ?? response.data?.drivers ?? [];
+  } catch (error) {
+    console.error('خطأ في جلب السائقات:', error);
+    throw error;
+  }
+};
+
+// جلب جميع السائقين المتاحين (للطلبات العادية)
+export const getAvailableDrivers = async (): Promise<AmaniDriver[]> => {
+  try {
+    const response = await api.get('/admin/drivers', {
+      params: { isAvailable: true, page: 1, limit: 100 },
+    });
+    return response.data?.data ?? response.data?.drivers ?? [];
+  } catch (error) {
+    console.error('خطأ في جلب السائقين:', error);
     throw error;
   }
 };

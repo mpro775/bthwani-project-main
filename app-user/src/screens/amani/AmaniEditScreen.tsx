@@ -10,7 +10,12 @@ import {
   ActivityIndicator,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect, useNavigation, useRoute, RouteProp } from "@react-navigation/native";
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+  RouteProp,
+} from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -21,7 +26,10 @@ import { useAuth } from "@/auth/AuthContext";
 import COLORS from "@/constants/colors";
 
 type RouteProps = RouteProp<RootStackParamList, "AmaniEdit">;
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, "AmaniEdit">;
+type NavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "AmaniEdit"
+>;
 
 const AmaniEditScreen = () => {
   const navigation = useNavigation<NavigationProp>();
@@ -34,8 +42,8 @@ const AmaniEditScreen = () => {
   const [originalItem, setOriginalItem] = useState<AmaniItem | null>(null);
 
   const [formData, setFormData] = useState<UpdateAmaniPayload>({
-    title: '',
-    description: '',
+    title: "",
+    description: "",
     origin: undefined,
     destination: undefined,
     metadata: {},
@@ -51,7 +59,7 @@ const AmaniEditScreen = () => {
       // Initialize form with existing data
       setFormData({
         title: itemData.title,
-        description: itemData.description || '',
+        description: itemData.description || "",
         origin: itemData.origin,
         destination: itemData.destination,
         metadata: itemData.metadata || {},
@@ -72,39 +80,41 @@ const AmaniEditScreen = () => {
 
   const handleSubmit = async () => {
     if (!formData.title?.trim()) {
-      Alert.alert('خطأ', 'يرجى إدخال عنوان الطلب');
+      Alert.alert("خطأ", "يرجى إدخال عنوان الطلب");
       return;
     }
 
     setSaving(true);
     try {
       await updateAmani(itemId, formData);
-      Alert.alert(
-        'نجح',
-        'تم تحديث طلب النقل بنجاح',
-        [
-          {
-            text: 'موافق',
-            onPress: () => navigation.goBack(),
-          },
-        ]
-      );
+      Alert.alert("نجح", "تم تحديث طلب النقل بنجاح", [
+        {
+          text: "موافق",
+          onPress: () => navigation.goBack(),
+        },
+      ]);
     } catch (error) {
-      console.error('خطأ في تحديث طلب النقل:', error);
-      Alert.alert('خطأ', 'حدث خطأ أثناء تحديث طلب النقل. يرجى المحاولة مرة أخرى.');
+      console.error("خطأ في تحديث طلب النقل:", error);
+      Alert.alert(
+        "خطأ",
+        "حدث خطأ أثناء تحديث طلب النقل. يرجى المحاولة مرة أخرى."
+      );
     } finally {
       setSaving(false);
     }
   };
 
   const updateFormData = (field: keyof UpdateAmaniPayload, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
   };
 
-  const setLocation = (type: 'origin' | 'destination', location: AmaniLocation) => {
+  const setLocation = (
+    type: "origin" | "destination",
+    location: AmaniLocation
+  ) => {
     updateFormData(type, location);
   };
 
@@ -115,26 +125,42 @@ const AmaniEditScreen = () => {
         try {
           const originRaw = await AsyncStorage.getItem("amani_origin");
           if (mounted && originRaw) {
-            const payload = JSON.parse(originRaw) as { lat: number; lng: number; address?: string };
+            const payload = JSON.parse(originRaw) as {
+              lat: number;
+              lng: number;
+              address?: string;
+            };
             setFormData((prev) => ({
               ...prev,
               origin: {
                 lat: payload.lat,
                 lng: payload.lng,
-                address: payload.address || `إحداثيات: ${payload.lat.toFixed(5)}, ${payload.lng.toFixed(5)}`,
+                address:
+                  payload.address ||
+                  `إحداثيات: ${payload.lat.toFixed(5)}, ${payload.lng.toFixed(
+                    5
+                  )}`,
               },
             }));
             await AsyncStorage.removeItem("amani_origin");
           }
           const destRaw = await AsyncStorage.getItem("amani_destination");
           if (mounted && destRaw) {
-            const payload = JSON.parse(destRaw) as { lat: number; lng: number; address?: string };
+            const payload = JSON.parse(destRaw) as {
+              lat: number;
+              lng: number;
+              address?: string;
+            };
             setFormData((prev) => ({
               ...prev,
               destination: {
                 lat: payload.lat,
                 lng: payload.lng,
-                address: payload.address || `إحداثيات: ${payload.lat.toFixed(5)}, ${payload.lng.toFixed(5)}`,
+                address:
+                  payload.address ||
+                  `إحداثيات: ${payload.lat.toFixed(5)}, ${payload.lng.toFixed(
+                    5
+                  )}`,
               },
             }));
             await AsyncStorage.removeItem("amani_destination");
@@ -143,36 +169,52 @@ const AmaniEditScreen = () => {
           // ignore
         }
       })();
-      return () => { mounted = false; };
+      return () => {
+        mounted = false;
+      };
     }, [])
   );
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'draft': return COLORS.gray;
-      case 'pending': return COLORS.orangeDark;
-      case 'confirmed': return COLORS.primary;
-      case 'in_progress': return COLORS.info;
-      case 'completed': return COLORS.success;
-      case 'cancelled': return COLORS.danger;
-      default: return COLORS.gray;
+      case "draft":
+        return COLORS.gray;
+      case "pending":
+        return COLORS.orangeDark;
+      case "confirmed":
+        return COLORS.primary;
+      case "in_progress":
+        return COLORS.info;
+      case "completed":
+        return COLORS.success;
+      case "cancelled":
+        return COLORS.danger;
+      default:
+        return COLORS.gray;
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'draft': return 'مسودة';
-      case 'pending': return 'في الانتظار';
-      case 'confirmed': return 'مؤكد';
-      case 'in_progress': return 'قيد التنفيذ';
-      case 'completed': return 'مكتمل';
-      case 'cancelled': return 'ملغي';
-      default: return status;
+      case "draft":
+        return "مسودة";
+      case "pending":
+        return "في الانتظار";
+      case "confirmed":
+        return "مؤكد";
+      case "in_progress":
+        return "قيد التنفيذ";
+      case "completed":
+        return "مكتمل";
+      case "cancelled":
+        return "ملغي";
+      default:
+        return status;
     }
   };
 
   const selectStatus = (status: string) => {
-    updateFormData('status', status);
+    updateFormData("status", status);
   };
 
   if (loading) {
@@ -208,20 +250,30 @@ const AmaniEditScreen = () => {
         <View style={styles.headerSpacer} />
       </View>
 
-      <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.formContainer}>
           {/* حالة الطلب */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>حالة الطلب</Text>
             <View style={styles.statusSelector}>
-              {['draft', 'pending', 'confirmed', 'in_progress', 'completed', 'cancelled'].map((status) => (
+              {[
+                "draft",
+                "pending",
+                "confirmed",
+                "in_progress",
+                "completed",
+                "cancelled",
+              ].map((status) => (
                 <TouchableOpacity
                   key={status}
                   style={[
                     styles.statusOption,
                     formData.status === status && [
                       styles.statusOptionSelected,
-                      { borderColor: getStatusColor(status) }
+                      { borderColor: getStatusColor(status) },
                     ],
                   ]}
                   onPress={() => selectStatus(status)}
@@ -229,7 +281,8 @@ const AmaniEditScreen = () => {
                   <Text
                     style={[
                       styles.statusOptionText,
-                      formData.status === status && styles.statusOptionTextSelected,
+                      formData.status === status &&
+                        styles.statusOptionTextSelected,
                     ]}
                   >
                     {getStatusText(status)}
@@ -245,7 +298,7 @@ const AmaniEditScreen = () => {
             <TextInput
               style={styles.textInput}
               value={formData.title}
-              onChangeText={(value) => updateFormData('title', value)}
+              onChangeText={(value) => updateFormData("title", value)}
               placeholder="عنوان الطلب"
               placeholderTextColor={COLORS.textLight}
               maxLength={100}
@@ -258,7 +311,7 @@ const AmaniEditScreen = () => {
             <TextInput
               style={[styles.textInput, styles.textArea]}
               value={formData.description}
-              onChangeText={(value) => updateFormData('description', value)}
+              onChangeText={(value) => updateFormData("description", value)}
               placeholder="وصف تفصيلي لطلب النقل..."
               placeholderTextColor={COLORS.textLight}
               multiline
@@ -273,7 +326,9 @@ const AmaniEditScreen = () => {
             {formData.origin ? (
               <View style={styles.locationDisplay}>
                 <Ionicons name="location" size={20} color={COLORS.primary} />
-                <Text style={styles.locationText}>{formData.origin.address}</Text>
+                <Text style={styles.locationText}>
+                  {formData.origin.address}
+                </Text>
                 <TouchableOpacity
                   style={styles.editLocationButton}
                   onPress={() =>
@@ -296,8 +351,14 @@ const AmaniEditScreen = () => {
                   })
                 }
               >
-                <Ionicons name="location-outline" size={24} color={COLORS.primary} />
-                <Text style={styles.locationPickerText}>اختر موقع الانطلاق</Text>
+                <Ionicons
+                  name="location-outline"
+                  size={24}
+                  color={COLORS.primary}
+                />
+                <Text style={styles.locationPickerText}>
+                  اختر موقع الانطلاق
+                </Text>
               </TouchableOpacity>
             )}
           </View>
@@ -308,7 +369,9 @@ const AmaniEditScreen = () => {
             {formData.destination ? (
               <View style={styles.locationDisplay}>
                 <Ionicons name="navigate" size={20} color={COLORS.success} />
-                <Text style={styles.locationText}>{formData.destination.address}</Text>
+                <Text style={styles.locationText}>
+                  {formData.destination.address}
+                </Text>
                 <TouchableOpacity
                   style={styles.editLocationButton}
                   onPress={() =>
@@ -331,7 +394,11 @@ const AmaniEditScreen = () => {
                   })
                 }
               >
-                <Ionicons name="navigate-outline" size={24} color={COLORS.success} />
+                <Ionicons
+                  name="navigate-outline"
+                  size={24}
+                  color={COLORS.success}
+                />
                 <Text style={styles.locationPickerText}>اختر الوجهة</Text>
               </TouchableOpacity>
             )}
@@ -343,12 +410,13 @@ const AmaniEditScreen = () => {
 
             <TextInput
               style={styles.textInput}
-              value={formData.metadata?.passengers?.toString() || ''}
+              value={formData.metadata?.passengers?.toString() || ""}
               onChangeText={(value) => {
                 const passengers = value ? parseInt(value) : undefined;
-                updateFormData('metadata', {
+                updateFormData("metadata", {
                   ...formData.metadata,
-                  passengers: passengers && passengers > 0 ? passengers : undefined
+                  passengers:
+                    passengers && passengers > 0 ? passengers : undefined,
                 });
               }}
               placeholder="عدد الركاب"
@@ -359,16 +427,18 @@ const AmaniEditScreen = () => {
             <TouchableOpacity
               style={styles.checkboxContainer}
               onPress={() => {
-                updateFormData('metadata', {
+                updateFormData("metadata", {
                   ...formData.metadata,
-                  luggage: !formData.metadata?.luggage
+                  luggage: !formData.metadata?.luggage,
                 });
               }}
             >
-              <View style={[
-                styles.checkbox,
-                formData.metadata?.luggage && styles.checkboxChecked
-              ]}>
+              <View
+                style={[
+                  styles.checkbox,
+                  formData.metadata?.luggage && styles.checkboxChecked,
+                ]}
+              >
                 {formData.metadata?.luggage && (
                   <Ionicons name="checkmark" size={16} color={COLORS.white} />
                 )}
@@ -376,13 +446,40 @@ const AmaniEditScreen = () => {
               <Text style={styles.checkboxText}>يوجد أمتعة</Text>
             </TouchableOpacity>
 
+            <TouchableOpacity
+              style={styles.checkboxContainer}
+              onPress={() => {
+                updateFormData("metadata", {
+                  ...formData.metadata,
+                  womenOnly: !formData.metadata?.womenOnly,
+                });
+              }}
+            >
+              <View
+                style={[
+                  styles.checkbox,
+                  formData.metadata?.womenOnly && styles.checkboxChecked,
+                ]}
+              >
+                {formData.metadata?.womenOnly && (
+                  <Ionicons name="checkmark" size={16} color={COLORS.white} />
+                )}
+              </View>
+              <Text style={styles.checkboxText}>سائقة أنثى فقط</Text>
+            </TouchableOpacity>
+            {formData.metadata?.womenOnly && (
+              <Text style={styles.helperText}>
+                سيتم تعيين سائقة مؤهلة للطلب لراحة العائلات
+              </Text>
+            )}
+
             <TextInput
               style={[styles.textInput, styles.textArea]}
-              value={formData.metadata?.specialRequests || ''}
+              value={formData.metadata?.specialRequests || ""}
               onChangeText={(value) =>
-                updateFormData('metadata', {
+                updateFormData("metadata", {
                   ...formData.metadata,
-                  specialRequests: value
+                  specialRequests: value,
                 })
               }
               placeholder="طلبات خاصة"
@@ -422,26 +519,26 @@ const styles = StyleSheet.create({
   },
   centerContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: COLORS.background,
   },
   loadingText: {
     marginTop: 16,
     fontSize: 16,
     color: COLORS.textLight,
-    fontFamily: 'Cairo-Regular',
+    fontFamily: "Cairo-Regular",
   },
   errorText: {
     fontSize: 16,
     color: COLORS.danger,
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 16,
-    fontFamily: 'Cairo-Regular',
+    fontFamily: "Cairo-Regular",
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: COLORS.white,
@@ -454,10 +551,10 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.text,
-    textAlign: 'center',
-    fontFamily: 'Cairo-SemiBold',
+    textAlign: "center",
+    fontFamily: "Cairo-SemiBold",
   },
   headerSpacer: {
     width: 40,
@@ -473,14 +570,14 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.text,
     marginBottom: 12,
-    fontFamily: 'Cairo-SemiBold',
+    fontFamily: "Cairo-SemiBold",
   },
   statusSelector: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8,
   },
   statusOption: {
@@ -496,13 +593,13 @@ const styles = StyleSheet.create({
   },
   statusOptionText: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
     color: COLORS.text,
-    fontFamily: 'Cairo-Regular',
+    fontFamily: "Cairo-Regular",
   },
   statusOptionTextSelected: {
-    fontWeight: '600',
-    fontFamily: 'Cairo-SemiBold',
+    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
   },
   textInput: {
     borderWidth: 1,
@@ -514,19 +611,19 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     backgroundColor: COLORS.white,
     marginBottom: 8,
-    fontFamily: 'Cairo-Regular',
+    fontFamily: "Cairo-Regular",
   },
   textArea: {
     height: 80,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
   },
   locationPicker: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     borderWidth: 2,
     borderColor: COLORS.primary,
-    borderStyle: 'dashed',
+    borderStyle: "dashed",
     borderRadius: 8,
     paddingVertical: 20,
     backgroundColor: COLORS.lightGray,
@@ -535,12 +632,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.primary,
     marginLeft: 12,
-    fontWeight: '500',
-    fontFamily: 'Cairo-SemiBold',
+    fontWeight: "500",
+    fontFamily: "Cairo-SemiBold",
   },
   locationDisplay: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: COLORS.lightGray,
     borderRadius: 8,
     padding: 12,
@@ -550,14 +647,14 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     marginLeft: 8,
     flex: 1,
-    fontFamily: 'Cairo-Regular',
+    fontFamily: "Cairo-Regular",
   },
   editLocationButton: {
     padding: 4,
   },
   checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 12,
   },
   checkbox: {
@@ -566,8 +663,8 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     borderWidth: 2,
     borderColor: COLORS.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: 8,
   },
   checkboxChecked: {
@@ -576,7 +673,14 @@ const styles = StyleSheet.create({
   checkboxText: {
     fontSize: 16,
     color: COLORS.text,
-    fontFamily: 'Cairo-Regular',
+    fontFamily: "Cairo-Regular",
+  },
+  helperText: {
+    fontSize: 13,
+    color: COLORS.textLight,
+    marginBottom: 12,
+    marginRight: 32,
+    fontFamily: "Cairo-Regular",
   },
   footer: {
     padding: 16,
@@ -585,9 +689,9 @@ const styles = StyleSheet.create({
     borderTopColor: COLORS.border,
   },
   submitButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: COLORS.primary,
     paddingVertical: 16,
     borderRadius: 12,
@@ -598,9 +702,9 @@ const styles = StyleSheet.create({
   submitButtonText: {
     color: COLORS.white,
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     marginLeft: 8,
-    fontFamily: 'Cairo-SemiBold',
+    fontFamily: "Cairo-SemiBold",
   },
 });
 

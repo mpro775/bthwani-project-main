@@ -20,7 +20,10 @@ import { createAmani } from "@/api/amaniApi";
 import { useAuth } from "@/auth/AuthContext";
 import COLORS from "@/constants/colors";
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, "AmaniCreate">;
+type NavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "AmaniCreate"
+>;
 
 const AmaniCreateScreen = () => {
   const navigation = useNavigation<NavigationProp>();
@@ -28,65 +31,67 @@ const AmaniCreateScreen = () => {
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState<CreateAmaniPayload>({
-    ownerId: user?.uid || '',
-    title: '',
-    description: '',
+    ownerId: user?.uid || "",
+    title: "",
+    description: "",
     origin: undefined,
     destination: undefined,
     metadata: {},
-    status: 'draft',
+    status: "draft",
   });
 
   const handleSubmit = async () => {
     if (!formData.title.trim()) {
-      Alert.alert('خطأ', 'يرجى إدخال عنوان الطلب');
+      Alert.alert("خطأ", "يرجى إدخال عنوان الطلب");
       return;
     }
 
     if (!formData.origin) {
-      Alert.alert('خطأ', 'يرجى تحديد موقع الانطلاق');
+      Alert.alert("خطأ", "يرجى تحديد موقع الانطلاق");
       return;
     }
 
     if (!formData.destination) {
-      Alert.alert('خطأ', 'يرجى تحديد الوجهة');
+      Alert.alert("خطأ", "يرجى تحديد الوجهة");
       return;
     }
 
     if (!formData.ownerId) {
-      Alert.alert('خطأ', 'يجب تسجيل الدخول أولاً');
+      Alert.alert("خطأ", "يجب تسجيل الدخول أولاً");
       return;
     }
 
     setLoading(true);
     try {
       await createAmani(formData);
-      Alert.alert(
-        'نجح',
-        'تم إنشاء طلب النقل بنجاح',
-        [
-          {
-            text: 'موافق',
-            onPress: () => navigation.goBack(),
-          },
-        ]
-      );
+      Alert.alert("نجح", "تم إنشاء طلب النقل بنجاح", [
+        {
+          text: "موافق",
+          onPress: () => navigation.goBack(),
+        },
+      ]);
     } catch (error) {
-      console.error('خطأ في إنشاء طلب النقل:', error);
-      Alert.alert('خطأ', 'حدث خطأ أثناء إنشاء طلب النقل. يرجى المحاولة مرة أخرى.');
+      console.error("خطأ في إنشاء طلب النقل:", error);
+      Alert.alert(
+        "خطأ",
+        "حدث خطأ أثناء إنشاء طلب النقل. يرجى المحاولة مرة أخرى."
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const updateFormData = (field: keyof CreateAmaniPayload, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
   };
 
-  const setLocation = (type: 'origin' | 'destination', location: AmaniLocation) => {
+  const setLocation = (
+    type: "origin" | "destination",
+    location: AmaniLocation
+  ) => {
     updateFormData(type, location);
   };
 
@@ -97,26 +102,42 @@ const AmaniCreateScreen = () => {
         try {
           const originRaw = await AsyncStorage.getItem("amani_origin");
           if (mounted && originRaw) {
-            const payload = JSON.parse(originRaw) as { lat: number; lng: number; address?: string };
+            const payload = JSON.parse(originRaw) as {
+              lat: number;
+              lng: number;
+              address?: string;
+            };
             setFormData((prev) => ({
               ...prev,
               origin: {
                 lat: payload.lat,
                 lng: payload.lng,
-                address: payload.address || `إحداثيات: ${payload.lat.toFixed(5)}, ${payload.lng.toFixed(5)}`,
+                address:
+                  payload.address ||
+                  `إحداثيات: ${payload.lat.toFixed(5)}, ${payload.lng.toFixed(
+                    5
+                  )}`,
               },
             }));
             await AsyncStorage.removeItem("amani_origin");
           }
           const destRaw = await AsyncStorage.getItem("amani_destination");
           if (mounted && destRaw) {
-            const payload = JSON.parse(destRaw) as { lat: number; lng: number; address?: string };
+            const payload = JSON.parse(destRaw) as {
+              lat: number;
+              lng: number;
+              address?: string;
+            };
             setFormData((prev) => ({
               ...prev,
               destination: {
                 lat: payload.lat,
                 lng: payload.lng,
-                address: payload.address || `إحداثيات: ${payload.lat.toFixed(5)}, ${payload.lng.toFixed(5)}`,
+                address:
+                  payload.address ||
+                  `إحداثيات: ${payload.lat.toFixed(5)}, ${payload.lng.toFixed(
+                    5
+                  )}`,
               },
             }));
             await AsyncStorage.removeItem("amani_destination");
@@ -125,7 +146,9 @@ const AmaniCreateScreen = () => {
           // ignore
         }
       })();
-      return () => { mounted = false; };
+      return () => {
+        mounted = false;
+      };
     }, [])
   );
 
@@ -142,7 +165,10 @@ const AmaniCreateScreen = () => {
         <View style={styles.headerSpacer} />
       </View>
 
-      <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.formContainer}>
           {/* العنوان */}
           <View style={styles.section}>
@@ -150,7 +176,7 @@ const AmaniCreateScreen = () => {
             <TextInput
               style={styles.textInput}
               value={formData.title}
-              onChangeText={(value) => updateFormData('title', value)}
+              onChangeText={(value) => updateFormData("title", value)}
               placeholder="مثال: نقل عائلي من صنعاء إلى عدن"
               placeholderTextColor={COLORS.lightText}
               maxLength={100}
@@ -163,7 +189,7 @@ const AmaniCreateScreen = () => {
             <TextInput
               style={[styles.textInput, styles.textArea]}
               value={formData.description}
-              onChangeText={(value) => updateFormData('description', value)}
+              onChangeText={(value) => updateFormData("description", value)}
               placeholder="وصف تفصيلي لطلب النقل..."
               placeholderTextColor={COLORS.lightText}
               multiline
@@ -178,7 +204,9 @@ const AmaniCreateScreen = () => {
             {formData.origin ? (
               <View style={styles.locationDisplay}>
                 <Ionicons name="location" size={20} color={COLORS.primary} />
-                <Text style={styles.locationText}>{formData.origin.address}</Text>
+                <Text style={styles.locationText}>
+                  {formData.origin.address}
+                </Text>
                 <TouchableOpacity
                   style={styles.editLocationButton}
                   onPress={() =>
@@ -201,8 +229,14 @@ const AmaniCreateScreen = () => {
                   })
                 }
               >
-                <Ionicons name="location-outline" size={24} color={COLORS.primary} />
-                <Text style={styles.locationPickerText}>اختر موقع الانطلاق</Text>
+                <Ionicons
+                  name="location-outline"
+                  size={24}
+                  color={COLORS.primary}
+                />
+                <Text style={styles.locationPickerText}>
+                  اختر موقع الانطلاق
+                </Text>
               </TouchableOpacity>
             )}
           </View>
@@ -213,7 +247,9 @@ const AmaniCreateScreen = () => {
             {formData.destination ? (
               <View style={styles.locationDisplay}>
                 <Ionicons name="navigate" size={20} color={COLORS.success} />
-                <Text style={styles.locationText}>{formData.destination.address}</Text>
+                <Text style={styles.locationText}>
+                  {formData.destination.address}
+                </Text>
                 <TouchableOpacity
                   style={styles.editLocationButton}
                   onPress={() =>
@@ -236,7 +272,11 @@ const AmaniCreateScreen = () => {
                   })
                 }
               >
-                <Ionicons name="navigate-outline" size={24} color={COLORS.success} />
+                <Ionicons
+                  name="navigate-outline"
+                  size={24}
+                  color={COLORS.success}
+                />
                 <Text style={styles.locationPickerText}>اختر الوجهة</Text>
               </TouchableOpacity>
             )}
@@ -248,12 +288,13 @@ const AmaniCreateScreen = () => {
 
             <TextInput
               style={styles.textInput}
-              value={formData.metadata?.passengers?.toString() || ''}
+              value={formData.metadata?.passengers?.toString() || ""}
               onChangeText={(value) => {
                 const passengers = value ? parseInt(value) : undefined;
-                updateFormData('metadata', {
+                updateFormData("metadata", {
                   ...formData.metadata,
-                  passengers: passengers && passengers > 0 ? passengers : undefined
+                  passengers:
+                    passengers && passengers > 0 ? passengers : undefined,
                 });
               }}
               placeholder="عدد الركاب (مثال: 4)"
@@ -264,30 +305,67 @@ const AmaniCreateScreen = () => {
             <TouchableOpacity
               style={styles.checkboxContainer}
               onPress={() => {
-                updateFormData('metadata', {
+                updateFormData("metadata", {
                   ...formData.metadata,
-                  luggage: !formData.metadata?.luggage
+                  luggage: !formData.metadata?.luggage,
                 });
               }}
             >
-              <View style={[
-                styles.checkbox,
-                formData.metadata?.luggage && styles.checkboxChecked
-              ]}>
+              <View
+                style={[
+                  styles.checkbox,
+                  formData.metadata?.luggage && styles.checkboxChecked,
+                ]}
+              >
                 {formData.metadata?.luggage && (
-                  <Ionicons name="checkmark" size={16} color={COLORS.background} />
+                  <Ionicons
+                    name="checkmark"
+                    size={16}
+                    color={COLORS.background}
+                  />
                 )}
               </View>
               <Text style={styles.checkboxText}>يوجد أمتعة</Text>
             </TouchableOpacity>
 
+            <TouchableOpacity
+              style={styles.checkboxContainer}
+              onPress={() => {
+                updateFormData("metadata", {
+                  ...formData.metadata,
+                  womenOnly: !formData.metadata?.womenOnly,
+                });
+              }}
+            >
+              <View
+                style={[
+                  styles.checkbox,
+                  formData.metadata?.womenOnly && styles.checkboxChecked,
+                ]}
+              >
+                {formData.metadata?.womenOnly && (
+                  <Ionicons
+                    name="checkmark"
+                    size={16}
+                    color={COLORS.background}
+                  />
+                )}
+              </View>
+              <Text style={styles.checkboxText}>سائقة أنثى فقط</Text>
+            </TouchableOpacity>
+            {formData.metadata?.womenOnly && (
+              <Text style={styles.helperText}>
+                سيتم تعيين سائقة مؤهلة للطلب لراحة العائلات
+              </Text>
+            )}
+
             <TextInput
               style={[styles.textInput, styles.textArea]}
-              value={formData.metadata?.specialRequests || ''}
+              value={formData.metadata?.specialRequests || ""}
               onChangeText={(value) =>
-                updateFormData('metadata', {
+                updateFormData("metadata", {
                   ...formData.metadata,
-                  specialRequests: value
+                  specialRequests: value,
                 })
               }
               placeholder="طلبات خاصة (مثال: كرسي أطفال، مساعدات إضافية)"
@@ -326,8 +404,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: COLORS.background,
@@ -340,10 +418,10 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.text,
-    textAlign: 'center',
-    fontFamily: 'Cairo-SemiBold',
+    textAlign: "center",
+    fontFamily: "Cairo-SemiBold",
   },
   headerSpacer: {
     width: 40,
@@ -359,10 +437,10 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.text,
     marginBottom: 12,
-    fontFamily: 'Cairo-SemiBold',
+    fontFamily: "Cairo-SemiBold",
   },
   textInput: {
     borderWidth: 1,
@@ -374,19 +452,19 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     backgroundColor: COLORS.background,
     marginBottom: 8,
-    fontFamily: 'Cairo-Regular',
+    fontFamily: "Cairo-Regular",
   },
   textArea: {
     height: 80,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
   },
   locationPicker: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     borderWidth: 2,
     borderColor: COLORS.primary,
-    borderStyle: 'dashed',
+    borderStyle: "dashed",
     borderRadius: 8,
     paddingVertical: 20,
     backgroundColor: COLORS.lightGray,
@@ -395,12 +473,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.primary,
     marginLeft: 12,
-    fontWeight: '500',
-    fontFamily: 'Cairo-SemiBold',
+    fontWeight: "500",
+    fontFamily: "Cairo-SemiBold",
   },
   locationDisplay: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: COLORS.lightGray,
     borderRadius: 8,
     padding: 12,
@@ -410,14 +488,14 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     marginLeft: 8,
     flex: 1,
-    fontFamily: 'Cairo-Regular',
+    fontFamily: "Cairo-Regular",
   },
   editLocationButton: {
     padding: 4,
   },
   checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 12,
   },
   checkbox: {
@@ -426,8 +504,8 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     borderWidth: 2,
     borderColor: COLORS.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: 8,
   },
   checkboxChecked: {
@@ -436,7 +514,14 @@ const styles = StyleSheet.create({
   checkboxText: {
     fontSize: 16,
     color: COLORS.text,
-    fontFamily: 'Cairo-Regular',
+    fontFamily: "Cairo-Regular",
+  },
+  helperText: {
+    fontSize: 13,
+    color: COLORS.lightText,
+    marginBottom: 12,
+    marginRight: 32,
+    fontFamily: "Cairo-Regular",
   },
   footer: {
     padding: 16,
@@ -445,9 +530,9 @@ const styles = StyleSheet.create({
     borderTopColor: COLORS.gray,
   },
   submitButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: COLORS.primary,
     paddingVertical: 16,
     borderRadius: 12,
@@ -458,9 +543,9 @@ const styles = StyleSheet.create({
   submitButtonText: {
     color: COLORS.background,
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     marginLeft: 8,
-    fontFamily: 'Cairo-SemiBold',
+    fontFamily: "Cairo-SemiBold",
   },
 });
 

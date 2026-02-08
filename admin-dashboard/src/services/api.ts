@@ -1,8 +1,15 @@
 import axios from "axios";
 
-export const api = axios.create({
+const api = axios.create({
   baseURL: "https://api.bthwani.com/api/v1", // dev via Vite proxy; set prod via env
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  },
 });
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+export { api };

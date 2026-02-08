@@ -7,6 +7,7 @@ import {
   Query,
   UseGuards,
   Body,
+  Post,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';
@@ -19,6 +20,7 @@ import {
 import { AuthType } from '../../common/guards/unified-auth.guard';
 import { CursorPaginationDto } from '../../common/dto/pagination.dto';
 import { AmaniService } from '../amani/amani.service';
+import AssignDriverDto from '../amani/dto/assign-driver.dto';
 
 @ApiTags('Admin:Amani')
 @ApiBearerAuth()
@@ -31,8 +33,11 @@ export class AdminAmaniController {
 
   @Get()
   @ApiOperation({ summary: 'إدارة العناصر' })
-  list(@Query() q: CursorPaginationDto) {
-    return this.service.findAll({ cursor: q.cursor });
+  list(
+    @Query() q: CursorPaginationDto,
+    @Query('status') status?: string,
+  ) {
+    return this.service.findAll({ cursor: q.cursor, status, populateDriver: true });
   }
 
   @Get('pricing')
@@ -58,6 +63,32 @@ export class AdminAmaniController {
     @CurrentUser('id') adminId?: string,
   ) {
     return this.service.updatePricingSettings(body, adminId);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'جلب تفاصيل الطلب' })
+  getOne(@Param('id') id: string) {
+    return this.service.findOne(id);
+  }
+
+  @Post(':id/assign-driver')
+  @ApiOperation({ summary: 'تعيين سائق للطلب يدوياً' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['driverId'],
+      properties: {
+        driverId: { type: 'string', description: 'معرف السائق' },
+        note: { type: 'string', description: 'ملاحظة اختيارية' },
+      },
+    },
+  })
+  assignDriver(
+    @Param('id') id: string,
+    @Body() dto: AssignDriverDto,
+    @CurrentUser('id') adminId?: string,
+  ) {
+    return this.service.assignDriver(id, dto, adminId);
   }
 
   @Patch(':id/status')

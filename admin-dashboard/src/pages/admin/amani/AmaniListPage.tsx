@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -27,8 +27,7 @@ import {
   DialogContent,
   DialogActions,
   CircularProgress,
-
-} from '@mui/material';
+} from "@mui/material";
 import {
   Edit as EditIcon,
   Delete as DeleteIcon,
@@ -36,101 +35,123 @@ import {
   LocationOn as LocationIcon,
   Person as PersonIcon,
   AccessTime as TimeIcon,
-} from '@mui/icons-material';
-import { getAmaniList, updateAmaniStatus, deleteAmani, type AmaniItem as ApiAmaniItem } from '../../../api/amani';
-import { AmaniStatus, AmaniStatusLabels, AmaniStatusColors, type AmaniItem } from '../../../types/amani';
-import RequireAdminPermission from '../../../components/RequireAdminPermission';
+} from "@mui/icons-material";
+import {
+  getAmaniList,
+  updateAmaniStatus,
+  deleteAmani,
+  type AmaniItem as ApiAmaniItem,
+} from "../../../api/amani";
+import {
+  AmaniStatus,
+  AmaniStatusLabels,
+  AmaniStatusColors,
+  type AmaniItem,
+} from "../../../types/amani";
+import RequireAdminPermission from "../../../components/RequireAdminPermission";
 
 const AmaniListPage: React.FC = () => {
   const navigate = useNavigate();
   const [amaniItems, setAmaniItems] = useState<AmaniItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(false);
 
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     amani: AmaniItem | null;
-    action: 'update_status' | 'delete';
+    action: "update_status" | "delete";
     newStatus?: AmaniStatus;
   }>({
     open: false,
     amani: null,
-    action: 'update_status',
+    action: "update_status",
   });
 
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
-    severity: 'success' | 'error';
+    severity: "success" | "error";
   }>({
     open: false,
-    message: '',
-    severity: 'success',
+    message: "",
+    severity: "success",
   });
 
   // جلب قائمة الأماني
-  const fetchAmaniItems = useCallback(async (cursor?: string, append: boolean = false) => {
-    try {
-      setLoading(true);
-      const params: any = { limit: 25 };
-      if (cursor) params.cursor = cursor;
+  const fetchAmaniItems = useCallback(
+    async (cursor?: string, append: boolean = false) => {
+      try {
+        setLoading(true);
+        const params: any = { limit: 25 };
+        if (cursor) params.cursor = cursor;
+        if (statusFilter && statusFilter !== "all")
+          params.status = statusFilter;
 
-      const response = await getAmaniList(params);
-      const apiItems: ApiAmaniItem[] = response.items || [];
-      
-      // Convert string status to AmaniStatus enum
-      const statusMap: Record<string, AmaniStatus> = {
-        'draft': AmaniStatus.DRAFT,
-        'pending': AmaniStatus.PENDING,
-        'confirmed': AmaniStatus.CONFIRMED,
-        'in_progress': AmaniStatus.IN_PROGRESS,
-        'completed': AmaniStatus.COMPLETED,
-        'cancelled': AmaniStatus.CANCELLED,
-      };
-      
-      const newItems: AmaniItem[] = apiItems.map((item: ApiAmaniItem): AmaniItem => ({
-        ...item,
-        status: statusMap[item.status] || AmaniStatus.DRAFT,
-      }));
+        const response = await getAmaniList(params);
+        const apiItems: ApiAmaniItem[] = response.items || [];
 
-      setAmaniItems((prev: AmaniItem[]) => append ? [...prev, ...newItems] : newItems);
-      setNextCursor(response.nextCursor || null);
-      setHasMore(!!response.nextCursor && newItems.length === 25);
-    } catch (error) {
-      console.error('خطأ في جلب قائمة الأماني:', error);
-      setSnackbar({
-        open: true,
-        message: 'فشل في تحميل قائمة الأماني',
-        severity: 'error',
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+        // Convert string status to AmaniStatus enum
+        const statusMap: Record<string, AmaniStatus> = {
+          draft: AmaniStatus.DRAFT,
+          pending: AmaniStatus.PENDING,
+          confirmed: AmaniStatus.CONFIRMED,
+          in_progress: AmaniStatus.IN_PROGRESS,
+          completed: AmaniStatus.COMPLETED,
+          cancelled: AmaniStatus.CANCELLED,
+        };
+
+        const newItems: AmaniItem[] = apiItems.map(
+          (item: ApiAmaniItem): AmaniItem => ({
+            ...item,
+            status: statusMap[item.status] || AmaniStatus.DRAFT,
+          })
+        );
+
+        setAmaniItems((prev: AmaniItem[]) =>
+          append ? [...prev, ...newItems] : newItems
+        );
+        setNextCursor(response.nextCursor || null);
+        setHasMore(!!response.nextCursor && newItems.length === 25);
+      } catch (error) {
+        console.error("خطأ في جلب قائمة الأماني:", error);
+        setSnackbar({
+          open: true,
+          message: "فشل في تحميل قائمة الأماني",
+          severity: "error",
+        });
+      } finally {
+        setLoading(false);
+      }
+    },
+    [statusFilter]
+  );
 
   useEffect(() => {
     fetchAmaniItems();
-  }, [fetchAmaniItems]);
+  }, [fetchAmaniItems, statusFilter]);
 
   // تحديث حالة الطلب
-  const handleStatusUpdate = async (amani: AmaniItem, newStatus: AmaniStatus) => {
+  const handleStatusUpdate = async (
+    amani: AmaniItem,
+    newStatus: AmaniStatus
+  ) => {
     try {
       await updateAmaniStatus(amani._id, newStatus as string);
       setSnackbar({
         open: true,
         message: `تم تحديث حالة الطلب بنجاح`,
-        severity: 'success',
+        severity: "success",
       });
       fetchAmaniItems();
     } catch (error) {
-      console.error('خطأ في تحديث حالة الطلب:', error);
+      console.error("خطأ في تحديث حالة الطلب:", error);
       setSnackbar({
         open: true,
-        message: 'فشل في تحديث حالة الطلب',
-        severity: 'error',
+        message: "فشل في تحديث حالة الطلب",
+        severity: "error",
       });
     }
   };
@@ -141,28 +162,32 @@ const AmaniListPage: React.FC = () => {
       await deleteAmani(amani._id);
       setSnackbar({
         open: true,
-        message: 'تم حذف الطلب بنجاح',
-        severity: 'success',
+        message: "تم حذف الطلب بنجاح",
+        severity: "success",
       });
       fetchAmaniItems();
     } catch (error) {
-      console.error('خطأ في حذف الطلب:', error);
+      console.error("خطأ في حذف الطلب:", error);
       setSnackbar({
         open: true,
-        message: 'فشل في حذف الطلب',
-        severity: 'error',
+        message: "فشل في حذف الطلب",
+        severity: "error",
       });
     }
   };
 
   // فتح نافذة التأكيد
-  const openConfirmDialog = (amani: AmaniItem, action: 'update_status' | 'delete', newStatus?: AmaniStatus) => {
+  const openConfirmDialog = (
+    amani: AmaniItem,
+    action: "update_status" | "delete",
+    newStatus?: AmaniStatus
+  ) => {
     setConfirmDialog({ open: true, amani, action, newStatus });
   };
 
   // إغلاق نافذة التأكيد
   const closeConfirmDialog = () => {
-    setConfirmDialog({ open: false, amani: null, action: 'update_status' });
+    setConfirmDialog({ open: false, amani: null, action: "update_status" });
   };
 
   // تأكيد العملية
@@ -172,10 +197,10 @@ const AmaniListPage: React.FC = () => {
     const { amani, action, newStatus } = confirmDialog;
 
     switch (action) {
-      case 'update_status':
+      case "update_status":
         if (newStatus) await handleStatusUpdate(amani, newStatus);
         break;
-      case 'delete':
+      case "delete":
         await handleDeleteAmani(amani);
         break;
     }
@@ -183,15 +208,15 @@ const AmaniListPage: React.FC = () => {
     closeConfirmDialog();
   };
 
-  // فلترة العناصر محلياً للبحث
+  // فلترة العناصر محلياً للبحث (الحالة تُطبق من السيرفر)
   const filteredItems = amaniItems.filter((item) => {
-    const matchesSearch = searchTerm === '' ||
+    const matchesSearch =
+      searchTerm === "" ||
       item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (item.description && item.description.toLowerCase().includes(searchTerm.toLowerCase()));
+      (item.description &&
+        item.description.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
-
-    return matchesSearch && matchesStatus;
+    return matchesSearch;
   });
 
   // تحميل المزيد
@@ -203,13 +228,20 @@ const AmaniListPage: React.FC = () => {
 
   // الحصول على لون الحالة
   const getStatusColor = (status: AmaniStatus) => {
-    return AmaniStatusColors[status] || 'default';
+    return AmaniStatusColors[status] || "default";
   };
 
   return (
     <RequireAdminPermission permission="read">
       <Box sx={{ p: 3 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 3,
+          }}
+        >
           <Box>
             <Typography variant="h4" gutterBottom>
               إدارة الأماني
@@ -222,7 +254,11 @@ const AmaniListPage: React.FC = () => {
 
         {/* فلاتر البحث */}
         <Paper sx={{ p: 3, mb: 3 }}>
-          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems="center">
+          <Stack
+            direction={{ xs: "column", md: "row" }}
+            spacing={2}
+            alignItems="center"
+          >
             <TextField
               fullWidth
               placeholder="البحث في الأماني..."
@@ -262,6 +298,8 @@ const AmaniListPage: React.FC = () => {
               <TableRow>
                 <TableCell>الطلب</TableCell>
                 <TableCell>الحالة</TableCell>
+                <TableCell>سائقة أنثى</TableCell>
+                <TableCell>السائق</TableCell>
                 <TableCell>الموقع</TableCell>
                 <TableCell>تاريخ الإنشاء</TableCell>
                 <TableCell align="center">الإجراءات</TableCell>
@@ -270,13 +308,13 @@ const AmaniListPage: React.FC = () => {
             <TableBody>
               {loading && amaniItems.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} align="center">
+                  <TableCell colSpan={7} align="center">
                     <CircularProgress size={24} />
                   </TableCell>
                 </TableRow>
               ) : filteredItems.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} align="center">
+                  <TableCell colSpan={7} align="center">
                     <Typography color="text.secondary">
                       لا توجد طلبات متاحة
                     </Typography>
@@ -286,18 +324,23 @@ const AmaniListPage: React.FC = () => {
                 filteredItems.map((item) => (
                   <TableRow key={item._id} hover>
                     <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 2 }}
+                      >
                         <PersonIcon color="action" />
                         <Box>
                           <Typography variant="body2" fontWeight="medium">
                             {item.title}
                           </Typography>
                           {item.description && (
-                            <Typography variant="caption" color="text.secondary" display="block">
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                              display="block"
+                            >
                               {item.description.length > 50
                                 ? `${item.description.substring(0, 50)}...`
-                                : item.description
-                              }
+                                : item.description}
                             </Typography>
                           )}
                         </Box>
@@ -314,25 +357,65 @@ const AmaniListPage: React.FC = () => {
                     </TableCell>
 
                     <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      {item.metadata?.womenOnly ? (
+                        <Chip
+                          label="سائقة أنثى"
+                          size="small"
+                          color="secondary"
+                          variant="outlined"
+                        />
+                      ) : (
+                        <Typography variant="body2" color="text.secondary">
+                          —
+                        </Typography>
+                      )}
+                    </TableCell>
+
+                    <TableCell>
+                      {item.driver ? (
+                        <Typography variant="body2">
+                          {typeof item.driver === "object"
+                            ? (item.driver as { fullName?: string }).fullName ||
+                              "—"
+                            : "—"}
+                        </Typography>
+                      ) : (
+                        <Typography variant="body2" color="text.secondary">
+                          —
+                        </Typography>
+                      )}
+                    </TableCell>
+
+                    <TableCell>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
                         <LocationIcon fontSize="small" color="action" />
                         <Typography variant="body2">
-                          {item.origin?.address || item.destination?.address || 'غير محدد'}
+                          {item.origin?.address ||
+                            item.destination?.address ||
+                            "غير محدد"}
                         </Typography>
                       </Box>
                     </TableCell>
 
                     <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
                         <TimeIcon fontSize="small" color="action" />
                         <Typography variant="body2">
-                          {new Date(item.createdAt).toLocaleDateString('ar-SA')}
+                          {new Date(item.createdAt).toLocaleDateString("ar-SA")}
                         </Typography>
                       </Box>
                     </TableCell>
 
                     <TableCell align="center">
-                      <Stack direction="row" spacing={1} justifyContent="center">
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        justifyContent="center"
+                      >
                         <Tooltip title="عرض التفاصيل">
                           <IconButton
                             size="small"
@@ -346,7 +429,13 @@ const AmaniListPage: React.FC = () => {
                           <IconButton
                             size="small"
                             color="primary"
-                            onClick={() => openConfirmDialog(item, 'update_status', AmaniStatus.CONFIRMED)}
+                            onClick={() =>
+                              openConfirmDialog(
+                                item,
+                                "update_status",
+                                AmaniStatus.CONFIRMED
+                              )
+                            }
                           >
                             <EditIcon />
                           </IconButton>
@@ -356,7 +445,7 @@ const AmaniListPage: React.FC = () => {
                           <IconButton
                             size="small"
                             color="error"
-                            onClick={() => openConfirmDialog(item, 'delete')}
+                            onClick={() => openConfirmDialog(item, "delete")}
                           >
                             <DeleteIcon />
                           </IconButton>
@@ -371,14 +460,14 @@ const AmaniListPage: React.FC = () => {
 
           {/* زر تحميل المزيد */}
           {hasMore && (
-            <Box sx={{ p: 2, textAlign: 'center' }}>
+            <Box sx={{ p: 2, textAlign: "center" }}>
               <Button
                 variant="outlined"
                 onClick={loadMore}
                 disabled={loading}
                 startIcon={loading ? <CircularProgress size={16} /> : null}
               >
-                {loading ? 'جاري التحميل...' : 'تحميل المزيد'}
+                {loading ? "جاري التحميل..." : "تحميل المزيد"}
               </Button>
             </Box>
           )}
@@ -386,19 +475,22 @@ const AmaniListPage: React.FC = () => {
 
         {/* نافذة التأكيد */}
         <Dialog open={confirmDialog.open} onClose={closeConfirmDialog}>
-          <DialogTitle>
-            تأكيد العملية
-          </DialogTitle>
+          <DialogTitle>تأكيد العملية</DialogTitle>
           <DialogContent>
             <Typography>
-              {confirmDialog.action === 'update_status' && confirmDialog.newStatus && (
-                <>هل أنت متأكد من تغيير حالة الطلب "{confirmDialog.amani?.title}" إلى "{AmaniStatusLabels[confirmDialog.newStatus]}"؟</>
-              )}
-              {confirmDialog.action === 'delete' && (
+              {confirmDialog.action === "update_status" &&
+                confirmDialog.newStatus && (
+                  <>
+                    هل أنت متأكد من تغيير حالة الطلب "
+                    {confirmDialog.amani?.title}" إلى "
+                    {AmaniStatusLabels[confirmDialog.newStatus]}"؟
+                  </>
+                )}
+              {confirmDialog.action === "delete" && (
                 <>هل أنت متأكد من حذف الطلب "{confirmDialog.amani?.title}"؟</>
               )}
             </Typography>
-            {confirmDialog.action === 'delete' && (
+            {confirmDialog.action === "delete" && (
               <Alert severity="error" sx={{ mt: 2 }}>
                 هذا الإجراء لا يمكن التراجع عنه
               </Alert>
@@ -409,7 +501,7 @@ const AmaniListPage: React.FC = () => {
             <Button
               onClick={confirmAction}
               variant="contained"
-              color={confirmDialog.action === 'delete' ? 'error' : 'primary'}
+              color={confirmDialog.action === "delete" ? "error" : "primary"}
             >
               تأكيد
             </Button>

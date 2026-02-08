@@ -452,6 +452,7 @@ export class AdminService {
     if (query?.status) matchQuery.status = query.status;
     if (query?.isAvailable !== undefined)
       matchQuery.isAvailable = query.isAvailable;
+    if (query?.role) matchQuery.role = query.role;
 
     const page = query?.page || 1;
     const limit = query?.limit || 20;

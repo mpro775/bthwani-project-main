@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -8,14 +8,17 @@ import {
   ActivityIndicator,
   Alert,
   Linking,
-} from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+} from "react-native";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import * as Location from "expo-location";
 import {
   getAmaniDetails,
   updateAmaniStatus,
   AmaniOrder,
-} from '../../api/amani';
+} from "../../api/amani";
+import { triggerSOS } from "../../componant/triggerSOS";
+import { useAmaniDriverSocket } from "../../hooks/useAmaniDriverSocket";
 
 export default function AmaniDetailsScreen() {
   const router = useRouter();
@@ -23,6 +26,10 @@ export default function AmaniDetailsScreen() {
   const [order, setOrder] = useState<AmaniOrder | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const { sendLocation } = useAmaniDriverSocket();
+  const locationIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
+    null
+  );
 
   const loadOrder = useCallback(async () => {
     if (!id) return;
@@ -31,8 +38,14 @@ export default function AmaniDetailsScreen() {
       const data = await getAmaniDetails(id);
       setOrder(data);
     } catch (error: any) {
-      console.error('Error loading order:', error);
-      Alert.alert('خطأ', 'فشل في تحميل تفاصيل الطلب');
+      console.error("Error loading order:", error);
+      const msg =
+        error?.response?.data?.userMessage ?? error?.response?.data?.message;
+      if (error?.response?.status === 401 || error?.response?.status === 403) {
+        Alert.alert("يجب تسجيل الدخول", "يرجى تسجيل الدخول كسائقة للوصول");
+      } else {
+        Alert.alert("خطأ", msg ?? "فشل في تحميل تفاصيل الطلب");
+      }
       router.back();
     } finally {
       setLoading(false);
@@ -43,16 +56,54 @@ export default function AmaniDetailsScreen() {
     loadOrder();
   }, [loadOrder]);
 
+  // إرسال الموقع عند وجود طلب قيد التنفيذ (السائقة معينة لهذا الطلب)
+  useEffect(() => {
+    if (!id || order?.status !== "in_progress") {
+      if (locationIntervalRef.current) {
+        clearInterval(locationIntervalRef.current);
+        locationIntervalRef.current = null;
+      }
+      return;
+    }
+
+    const sendCurrentLocation = async () => {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") return;
+
+        const loc = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+        });
+        sendLocation(id, loc.coords.latitude, loc.coords.longitude);
+      } catch (e) {
+        // تجاهل أخطاء الموقع
+      }
+    };
+
+    sendCurrentLocation(); // إرسال فوري
+    locationIntervalRef.current = setInterval(sendCurrentLocation, 10000); // كل 10 ثواني
+
+    return () => {
+      if (locationIntervalRef.current) {
+        clearInterval(locationIntervalRef.current);
+        locationIntervalRef.current = null;
+      }
+    };
+  }, [id, order?.status, sendLocation]);
+
   const handleStatusUpdate = async (newStatus: string, note?: string) => {
     if (!id) return;
 
     setUpdating(true);
     try {
       await updateAmaniStatus(id, newStatus, note);
-      Alert.alert('نجح', 'تم تحديث الحالة بنجاح');
+      Alert.alert("نجح", "تم تحديث الحالة بنجاح");
       loadOrder();
     } catch (error: any) {
-      Alert.alert('خطأ', error?.response?.data?.message || 'فشل في تحديث الحالة');
+      Alert.alert(
+        "خطأ",
+        error?.response?.data?.message || "فشل في تحديث الحالة"
+      );
     } finally {
       setUpdating(false);
     }
@@ -60,28 +111,40 @@ export default function AmaniDetailsScreen() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return '#f59e0b';
-      case 'confirmed': return '#3b82f6';
-      case 'in_progress': return '#8b5cf6';
-      case 'completed': return '#10b981';
-      case 'cancelled': return '#ef4444';
-      default: return '#6b7280';
+      case "pending":
+        return "#f59e0b";
+      case "confirmed":
+        return "#3b82f6";
+      case "in_progress":
+        return "#8b5cf6";
+      case "completed":
+        return "#10b981";
+      case "cancelled":
+        return "#ef4444";
+      default:
+        return "#6b7280";
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'pending': return 'في الانتظار';
-      case 'confirmed': return 'مؤكد';
-      case 'in_progress': return 'قيد التنفيذ';
-      case 'completed': return 'مكتمل';
-      case 'cancelled': return 'ملغي';
-      default: return status;
+      case "pending":
+        return "في الانتظار";
+      case "confirmed":
+        return "مؤكد";
+      case "in_progress":
+        return "قيد التنفيذ";
+      case "completed":
+        return "مكتمل";
+      case "cancelled":
+        return "ملغي";
+      default:
+        return status;
     }
   };
 
   const canUpdateStatus = (currentStatus: string) => {
-    return ['confirmed', 'in_progress'].includes(currentStatus);
+    return ["confirmed", "in_progress"].includes(currentStatus);
   };
 
   if (loading) {
@@ -104,17 +167,38 @@ export default function AmaniDetailsScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
           <Ionicons name="arrow-back" size={24} color="#111827" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>تفاصيل الطلب</Text>
         <View style={styles.headerSpacer} />
       </View>
 
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
-        {/* Status Badge */}
-        <View style={[styles.statusBadge, { backgroundColor: getStatusColor(order.status) }]}>
-          <Text style={styles.statusText}>{getStatusText(order.status)}</Text>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+      >
+        {/* Status Badges */}
+        <View style={styles.badgesRow}>
+          <View
+            style={[
+              styles.statusBadge,
+              { backgroundColor: getStatusColor(order.status) },
+            ]}
+          >
+            <Text style={styles.statusText}>{getStatusText(order.status)}</Text>
+          </View>
+          {order.metadata?.womenOnly && (
+            <View style={[styles.statusBadge, styles.womenOnlyBadge]}>
+              <Ionicons name="woman" size={14} color="#fff" />
+              <Text style={[styles.statusText, { marginLeft: 4 }]}>
+                سائقة أنثى
+              </Text>
+            </View>
+          )}
         </View>
 
         {/* Title */}
@@ -134,7 +218,9 @@ export default function AmaniDetailsScreen() {
                 <Ionicons name="location" size={20} color="#3b82f6" />
                 <View style={styles.locationInfo}>
                   <Text style={styles.locationLabel}>من</Text>
-                  <Text style={styles.locationAddress}>{order.origin.address}</Text>
+                  <Text style={styles.locationAddress}>
+                    {order.origin.address}
+                  </Text>
                 </View>
               </View>
             )}
@@ -143,7 +229,9 @@ export default function AmaniDetailsScreen() {
                 <Ionicons name="navigate" size={20} color="#10b981" />
                 <View style={styles.locationInfo}>
                   <Text style={styles.locationLabel}>إلى</Text>
-                  <Text style={styles.locationAddress}>{order.destination.address}</Text>
+                  <Text style={styles.locationAddress}>
+                    {order.destination.address}
+                  </Text>
                 </View>
               </View>
             )}
@@ -157,7 +245,9 @@ export default function AmaniDetailsScreen() {
             {order.metadata.passengers && (
               <View style={styles.metadataItem}>
                 <Ionicons name="people" size={16} color="#6b7280" />
-                <Text style={styles.metadataText}>{order.metadata.passengers} أشخاص</Text>
+                <Text style={styles.metadataText}>
+                  {order.metadata.passengers} أشخاص
+                </Text>
               </View>
             )}
             {order.metadata.luggage && (
@@ -169,7 +259,15 @@ export default function AmaniDetailsScreen() {
             {order.metadata.specialRequests && (
               <View style={styles.metadataItem}>
                 <Ionicons name="information-circle" size={16} color="#6b7280" />
-                <Text style={styles.metadataText}>{order.metadata.specialRequests}</Text>
+                <Text style={styles.metadataText}>
+                  {order.metadata.specialRequests}
+                </Text>
+              </View>
+            )}
+            {order.metadata.womenOnly && (
+              <View style={styles.metadataItem}>
+                <Ionicons name="woman" size={16} color="#8b5cf6" />
+                <Text style={styles.metadataText}>سائقة أنثى فقط</Text>
               </View>
             )}
           </View>
@@ -179,10 +277,12 @@ export default function AmaniDetailsScreen() {
         {canUpdateStatus(order.status) && (
           <View style={styles.actionsSection}>
             <Text style={styles.sectionTitle}>الإجراءات</Text>
-            {order.status === 'confirmed' && (
+            {order.status === "confirmed" && (
               <TouchableOpacity
                 style={[styles.actionButton, styles.startButton]}
-                onPress={() => handleStatusUpdate('in_progress', 'بدأ السائق الرحلة')}
+                onPress={() =>
+                  handleStatusUpdate("in_progress", "بدأ السائق الرحلة")
+                }
                 disabled={updating}
               >
                 {updating ? (
@@ -195,10 +295,12 @@ export default function AmaniDetailsScreen() {
                 )}
               </TouchableOpacity>
             )}
-            {order.status === 'in_progress' && (
+            {order.status === "in_progress" && (
               <TouchableOpacity
                 style={[styles.actionButton, styles.completeButton]}
-                onPress={() => handleStatusUpdate('completed', 'تم إكمال الرحلة')}
+                onPress={() =>
+                  handleStatusUpdate("completed", "تم إكمال الرحلة")
+                }
                 disabled={updating}
               >
                 {updating ? (
@@ -214,20 +316,31 @@ export default function AmaniDetailsScreen() {
           </View>
         )}
 
+        {/* SOS Button - للسائقة أثناء الرحلة */}
+        {canUpdateStatus(order.status) && (
+          <TouchableOpacity
+            style={[styles.actionButton, styles.sosButton]}
+            onPress={triggerSOS}
+          >
+            <Ionicons name="warning" size={20} color="#fff" />
+            <Text style={styles.actionButtonText}>نداء طوارئ SOS</Text>
+          </TouchableOpacity>
+        )}
+
         {/* Dates */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>التواريخ</Text>
           <View style={styles.dateRow}>
             <Text style={styles.dateLabel}>تاريخ الإنشاء:</Text>
             <Text style={styles.dateValue}>
-              {new Date(order.createdAt).toLocaleDateString('ar-SA')}
+              {new Date(order.createdAt).toLocaleDateString("ar-SA")}
             </Text>
           </View>
           {order.assignedAt && (
             <View style={styles.dateRow}>
               <Text style={styles.dateLabel}>تاريخ التعيين:</Text>
               <Text style={styles.dateValue}>
-                {new Date(order.assignedAt).toLocaleDateString('ar-SA')}
+                {new Date(order.assignedAt).toLocaleDateString("ar-SA")}
               </Text>
             </View>
           )}
@@ -235,7 +348,7 @@ export default function AmaniDetailsScreen() {
             <View style={styles.dateRow}>
               <Text style={styles.dateLabel}>تاريخ الإكمال:</Text>
               <Text style={styles.dateValue}>
-                {new Date(order.completedAt).toLocaleDateString('ar-SA')}
+                {new Date(order.completedAt).toLocaleDateString("ar-SA")}
               </Text>
             </View>
           )}
@@ -248,28 +361,28 @@ export default function AmaniDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: "#f9fafb",
   },
   centerContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   loadingText: {
     marginTop: 16,
-    color: '#6b7280',
+    color: "#6b7280",
   },
   errorText: {
     fontSize: 16,
-    color: '#ef4444',
+    color: "#ef4444",
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: "#e5e7eb",
   },
   backButton: {
     padding: 8,
@@ -277,9 +390,9 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     fontSize: 18,
-    fontWeight: '600',
-    color: '#111827',
-    textAlign: 'center',
+    fontWeight: "600",
+    color: "#111827",
+    textAlign: "center",
   },
   headerSpacer: {
     width: 40,
@@ -290,27 +403,37 @@ const styles = StyleSheet.create({
   content: {
     padding: 16,
   },
+  badgesRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap",
+    marginBottom: 16,
+  },
   statusBadge: {
-    alignSelf: 'flex-start',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    marginBottom: 16,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  womenOnlyBadge: {
+    backgroundColor: "#8b5cf6",
+    marginLeft: 8,
   },
   statusText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#111827',
+    fontWeight: "bold",
+    color: "#111827",
     marginBottom: 8,
   },
   description: {
     fontSize: 16,
-    color: '#6b7280',
+    color: "#6b7280",
     marginBottom: 24,
     lineHeight: 24,
   },
@@ -319,17 +442,17 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#111827',
+    fontWeight: "600",
+    color: "#111827",
     marginBottom: 12,
   },
   locationCard: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
+    flexDirection: "row",
+    backgroundColor: "#fff",
     borderRadius: 8,
     padding: 12,
     marginBottom: 8,
-    alignItems: 'center',
+    alignItems: "center",
   },
   locationInfo: {
     marginLeft: 12,
@@ -337,58 +460,62 @@ const styles = StyleSheet.create({
   },
   locationLabel: {
     fontSize: 12,
-    color: '#6b7280',
+    color: "#6b7280",
     marginBottom: 4,
   },
   locationAddress: {
     fontSize: 14,
-    color: '#111827',
+    color: "#111827",
   },
   metadataItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 8,
   },
   metadataText: {
     fontSize: 14,
-    color: '#6b7280',
+    color: "#6b7280",
     marginLeft: 8,
   },
   actionsSection: {
     marginBottom: 24,
   },
   actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: 14,
     borderRadius: 8,
     marginBottom: 12,
   },
   startButton: {
-    backgroundColor: '#8b5cf6',
+    backgroundColor: "#8b5cf6",
   },
   completeButton: {
-    backgroundColor: '#10b981',
+    backgroundColor: "#10b981",
+  },
+  sosButton: {
+    backgroundColor: "#ef4444",
+    marginBottom: 24,
   },
   actionButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     marginLeft: 8,
   },
   dateRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 8,
   },
   dateLabel: {
     fontSize: 14,
-    color: '#6b7280',
+    color: "#6b7280",
   },
   dateValue: {
     fontSize: 14,
-    color: '#111827',
-    fontWeight: '500',
+    color: "#111827",
+    fontWeight: "500",
   },
 });

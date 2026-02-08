@@ -29,3 +29,13 @@ export const CurrentUser = createParamDecorator(
     return data ? user[data] : user;
   },
 );
+
+// Current Driver Decorator - يستخرج driverId من التوكن (للمسارات المحمية بـ @Roles('driver'))
+export const CurrentDriver = createParamDecorator(
+  (_data: unknown, ctx: ExecutionContext): string | undefined => {
+    const request = ctx.switchToHttp().getRequest<{ user?: { id?: string; driverId?: string; role?: string } }>();
+    const user = request.user;
+    if (!user) return undefined;
+    return (user as any).driverId ?? (user.role === 'driver' ? user.id : undefined);
+  },
+);

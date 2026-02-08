@@ -298,8 +298,10 @@ export class AuthService {
 
   // توليد token للسائق
   private generateDriverToken(driver: Driver) {
+    const driverId = String(driver._id);
     const payload = {
-      sub: String(driver._id),
+      sub: driverId,
+      driverId, // للتوافق مع Gateway و @CurrentDriver
       email: driver.email,
       role: 'driver',
       type: 'driver',
