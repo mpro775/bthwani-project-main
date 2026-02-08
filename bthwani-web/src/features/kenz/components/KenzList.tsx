@@ -22,6 +22,7 @@ import {
   Search as SearchIcon,
   Favorite as FavoriteIcon,
   ChatBubbleOutline as ChatIcon,
+  AccountBalanceWallet as EscrowIcon,
 } from "@mui/icons-material";
 import KenzCard from "./KenzCard";
 import { useKenzList, type KenzSortOption } from "../hooks/useKenzList";
@@ -42,6 +43,7 @@ interface KenzListProps {
   isFavorited?: (id: string) => boolean;
   onFavoriteToggle?: (item: KenzItem) => void;
   onNavigateToFavorites?: () => void;
+  onNavigateToDeals?: () => void;
 }
 
 const KenzList: React.FC<KenzListProps> = ({
@@ -50,7 +52,7 @@ const KenzList: React.FC<KenzListProps> = ({
   isFavorited,
   onFavoriteToggle,
   onNavigateToFavorites,
-  onNavigateToChat,
+  onNavigateToDeals,
 }) => {
   const {
     items,
@@ -127,6 +129,16 @@ const KenzList: React.FC<KenzListProps> = ({
               title="إعلاناتي المفضلة"
             >
               <FavoriteIcon sx={{ fontSize: 26, color: "primary.main" }} />
+            </Button>
+          )}
+          {onNavigateToDeals && (
+            <Button
+              variant="text"
+              onClick={onNavigateToDeals}
+              sx={{ p: 0.5, minWidth: 0 }}
+              title="صفقاتي (الإيكرو)"
+            >
+              <EscrowIcon sx={{ fontSize: 26, color: "primary.main" }} />
             </Button>
           )}
           <Button

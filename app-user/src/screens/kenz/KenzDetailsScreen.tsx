@@ -30,6 +30,10 @@ import {
   getKenzFavorites,
   addKenzFavorite,
   removeKenzFavorite,
+  buyWithEscrow,
+  placeBid,
+  getKenzBids,
+  type KenzBidItem,
 } from "@/api/kenzApi";
 import { createConversation } from "@/api/kenzChatApi";
 import { fetchUserProfile } from "@/api/userApi";
@@ -63,6 +67,15 @@ const KenzDetailsScreen = () => {
   const [reportSubmitting, setReportSubmitting] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
   const [favoriteLoading, setFavoriteLoading] = useState(false);
+  const [escrowModalVisible, setEscrowModalVisible] = useState(false);
+  const [escrowAmount, setEscrowAmount] = useState("");
+  const [escrowSubmitting, setEscrowSubmitting] = useState(false);
+  const [bidModalVisible, setBidModalVisible] = useState(false);
+  const [bidAmount, setBidAmount] = useState("");
+  const [bidSubmitting, setBidSubmitting] = useState(false);
+  const [bids, setBids] = useState<KenzBidItem[]>([]);
+  const [bidsLoading, setBidsLoading] = useState(false);
+  const [countdown, setCountdown] = useState<string | null>(null);
 
   // استنتاج هوية المستخدم الحالي (لإخفاء زر التواصل عن صاحب الإعلان)
   useEffect(() => {
@@ -113,6 +126,39 @@ const KenzDetailsScreen = () => {
       })
       .catch(() => setIsFavorited(false));
   }, [itemId, isLoggedIn]);
+
+  useEffect(() => {
+    if (item?.isAuction && item?._id) {
+      setBidsLoading(true);
+      getKenzBids(item._id)
+        .then((res) => setBids(res.items ?? []))
+        .catch(() => setBids([]))
+        .finally(() => setBidsLoading(false));
+    } else {
+      setBids([]);
+    }
+  }, [item?._id, item?.isAuction]);
+
+  useEffect(() => {
+    if (!item?.isAuction || !item?.auctionEndAt) return;
+    const end = new Date(item.auctionEndAt).getTime();
+    const tick = () => {
+      const now = Date.now();
+      if (now >= end) {
+        setCountdown("انتهى المزاد");
+        return;
+      }
+      const diff = end - now;
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      setCountdown(`${d}يوم ${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`);
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [item?.isAuction, item?.auctionEndAt]);
 
   const handleFavoriteToggle = async () => {
     if (!item) return;
@@ -593,6 +639,21 @@ const KenzDetailsScreen = () => {
                   {item.category || "غير مصنف"}
                 </Text>
               </View>
+              {item.isAuction && (
+                <View
+                  style={[
+                    styles.boostBadge,
+                    { backgroundColor: COLORS.info || "#0ea5e9" },
+                  ]}
+                >
+                  <Ionicons
+                    name="hammer-outline"
+                    size={14}
+                    color={COLORS.background}
+                  />
+                  <Text style={styles.boostBadgeText}>مزاد</Text>
+                </View>
+              )}
               {item.isBoosted && (
                 <View style={styles.boostBadge}>
                   <Ionicons
@@ -679,12 +740,85 @@ const KenzDetailsScreen = () => {
           )}
 
           {/* Price */}
-          {item.price != null && (
+          {(item.price != null || item.startingPrice != null || item.winningBidAmount != null) && (
             <View style={styles.priceSection}>
-              <Text style={styles.sectionTitle}>السعر</Text>
-              <Text style={styles.priceText}>
-                {formatCurrency(item.price, item.currency)}
+              <Text style={styles.sectionTitle}>
+                {item.isAuction ? "المزاد" : "السعر"}
               </Text>
+              <Text style={styles.priceText}>
+                {item.isAuction && item.winningBidAmount != null
+                  ? formatCurrency(item.winningBidAmount, item.currency)
+                  : item.isAuction
+                  ? formatCurrency(item.startingPrice ?? item.price, item.currency)
+                  : formatCurrency(item.price, item.currency)}
+              </Text>
+              {item.isAuction && countdown && (
+                <View
+                  style={{
+                    marginTop: 8,
+                    backgroundColor: COLORS.info || "#0ea5e9",
+                    paddingHorizontal: 12,
+                    paddingVertical: 6,
+                    borderRadius: 8,
+                    alignSelf: "flex-start",
+                  }}
+                >
+                  <Text style={{ color: COLORS.white, fontFamily: "Cairo-SemiBold", fontSize: 14 }}>
+                    {countdown}
+                  </Text>
+                </View>
+              )}
+              {item.isAuction && item.winnerId && (
+                <Text
+                  style={{
+                    marginTop: 8,
+                    fontSize: 14,
+                    color: COLORS.success,
+                    fontFamily: "Cairo-SemiBold",
+                  }}
+                >
+                  الفائز:{" "}
+                  {typeof item.winnerId === "object" && item.winnerId
+                    ? item.winnerId.fullName || item.winnerId.phone || "—"
+                    : "—"}
+                </Text>
+              )}
+            </View>
+          )}
+
+          {/* Bids list (for auctions) */}
+          {item.isAuction && (
+            <View style={[styles.priceSection, { marginTop: 16 }]}>
+              <Text style={styles.sectionTitle}>المزايدات</Text>
+              {bidsLoading ? (
+                <ActivityIndicator size="small" color={COLORS.primary} />
+              ) : bids.length === 0 ? (
+                <Text style={styles.postedOnBehalfText}>لا توجد مزايدات حتى الآن</Text>
+              ) : (
+                bids.map((bid) => (
+                  <View
+                    key={bid._id}
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      paddingVertical: 8,
+                      borderBottomWidth: 1,
+                      borderBottomColor: COLORS.lightGray,
+                    }}
+                  >
+                    <Text style={styles.metaChipText}>
+                      {typeof bid.bidderId === "object" && bid.bidderId
+                        ? bid.bidderId.fullName || bid.bidderId.phone || "—"
+                        : "—"}
+                    </Text>
+                    <Text
+                      style={[styles.priceText, { fontSize: 14, marginLeft: 0 }]}
+                    >
+                      {formatCurrency(bid.amount, item.currency)}
+                    </Text>
+                  </View>
+                ))
+              )}
             </View>
           )}
 
@@ -794,11 +928,60 @@ const KenzDetailsScreen = () => {
             </View>
           )}
 
-          {/* للزائر: التواصل (محادثة + اتصال) */}
+          {/* للزائر: التواصل (محادثة + اتصال + شراء بالإيكرو) */}
           {!isOwner && (
             <View style={styles.contactSection}>
               <Text style={styles.sectionTitle}>التواصل</Text>
               <View style={styles.contactActions}>
+                {item.isAuction &&
+                  item.status !== "completed" &&
+                  item.status !== "cancelled" &&
+                  !item.winnerId &&
+                  countdown !== "انتهى المزاد" &&
+                  (currentUserId || user) && (
+                    <TouchableOpacity
+                      style={[
+                        styles.contactButton,
+                        { backgroundColor: COLORS.info || "#0ea5e9" },
+                      ]}
+                      onPress={() => {
+                        const min =
+                          bids.length > 0 && bids[0]
+                            ? bids[0].amount + 1
+                            : (item.startingPrice ?? item.price ?? 0) + 1;
+                        setBidAmount(String(min));
+                        setBidModalVisible(true);
+                      }}
+                    >
+                      <Ionicons
+                        name="hammer-outline"
+                        size={18}
+                        color={COLORS.white}
+                      />
+                      <Text style={styles.contactButtonText}>مزايدة</Text>
+                    </TouchableOpacity>
+                  )}
+                {item.acceptsEscrow &&
+                  item.status !== "completed" &&
+                  item.status !== "cancelled" &&
+                  (currentUserId || user) && (
+                    <TouchableOpacity
+                      style={[styles.contactButton, styles.escrowButton]}
+                      onPress={() => {
+                        setEscrowAmount(String(item.price ?? ""));
+                        setEscrowModalVisible(true);
+                      }}
+                    >
+                      <Ionicons
+                        name="wallet-outline"
+                        size={18}
+                        color={COLORS.white}
+                      />
+                      <Text style={styles.contactButtonText}>
+                        شراء بالإيكرو
+                      </Text>
+                    </TouchableOpacity>
+                  )}
                 {(currentUserId || user) && (
                   <TouchableOpacity
                     style={[styles.contactButton, styles.chatButton]}
@@ -850,6 +1033,169 @@ const KenzDetailsScreen = () => {
               )}
             </View>
           )}
+
+          {/* Escrow modal */}
+          <Modal
+            visible={escrowModalVisible}
+            transparent
+            animationType="fade"
+            onRequestClose={() =>
+              !escrowSubmitting && setEscrowModalVisible(false)
+            }
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>شراء بالإيكرو</Text>
+                <Text style={styles.modalHint}>
+                  سيتم حجز المبلغ من محفظتك حتى تؤكد استلام السلعة.
+                </Text>
+                <TextInput
+                  style={styles.modalInput}
+                  placeholder="المبلغ"
+                  placeholderTextColor={COLORS.textLight}
+                  value={escrowAmount}
+                  onChangeText={setEscrowAmount}
+                  keyboardType="numeric"
+                />
+                <View style={styles.modalActions}>
+                  <TouchableOpacity
+                    style={styles.modalCancelButton}
+                    onPress={() => setEscrowModalVisible(false)}
+                    disabled={escrowSubmitting}
+                  >
+                    <Text style={styles.modalCancelText}>إلغاء</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.modalConfirmButton,
+                      escrowSubmitting && styles.modalButtonDisabled,
+                    ]}
+                    onPress={async () => {
+                      const amt = parseFloat(escrowAmount);
+                      if (!amt || amt < 1) {
+                        Alert.alert("خطأ", "أدخل مبلغاً صحيحاً");
+                        return;
+                      }
+                      setEscrowSubmitting(true);
+                      try {
+                        await buyWithEscrow(item._id, amt);
+                        setEscrowModalVisible(false);
+                        Alert.alert(
+                          "تم",
+                          "تم إنشاء الصفقة. يمكنك متابعة الصفقة من صفقاتي."
+                        );
+                        navigation.navigate("KenzDeals");
+                      } catch (e: any) {
+                        const msg =
+                          e?.response?.data?.userMessage ||
+                          e?.message ||
+                          "فشل في إنشاء الصفقة. تحقق من رصيد المحفظة.";
+                        Alert.alert("خطأ", msg);
+                      } finally {
+                        setEscrowSubmitting(false);
+                      }
+                    }}
+                    disabled={escrowSubmitting}
+                  >
+                    {escrowSubmitting ? (
+                      <ActivityIndicator size="small" color={COLORS.white} />
+                    ) : (
+                      <Text style={styles.modalConfirmText}>تأكيد الشراء</Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
+
+          {/* Bid modal */}
+          <Modal
+            visible={bidModalVisible}
+            transparent
+            animationType="fade"
+            onRequestClose={() =>
+              !bidSubmitting && setBidModalVisible(false)
+            }
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>مزايدة</Text>
+                <Text style={styles.modalHint}>
+                  السعر الابتدائي:{" "}
+                  {formatCurrency(
+                    item.startingPrice ?? item.price,
+                    item.currency
+                  )}
+                </Text>
+                {bids.length > 0 && bids[0] && (
+                  <Text style={styles.modalHint}>
+                    أعلى مزايدة حالياً:{" "}
+                    {formatCurrency(bids[0].amount, item.currency)}
+                  </Text>
+                )}
+                <TextInput
+                  style={styles.modalInput}
+                  placeholder="المبلغ"
+                  placeholderTextColor={COLORS.textLight}
+                  value={bidAmount}
+                  onChangeText={setBidAmount}
+                  keyboardType="numeric"
+                />
+                <View style={styles.modalActions}>
+                  <TouchableOpacity
+                    style={styles.modalCancelButton}
+                    onPress={() => setBidModalVisible(false)}
+                    disabled={bidSubmitting}
+                  >
+                    <Text style={styles.modalCancelText}>إلغاء</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.modalConfirmButton,
+                      bidSubmitting && styles.modalButtonDisabled,
+                    ]}
+                    onPress={async () => {
+                      const amt = parseFloat(bidAmount);
+                      const min =
+                        bids.length > 0 && bids[0]
+                          ? bids[0].amount + 1
+                          : (item.startingPrice ?? item.price ?? 0) + 1;
+                      if (!amt || amt < min) {
+                        Alert.alert(
+                          "خطأ",
+                          `المبلغ يجب أن يكون أكبر من ${min}`
+                        );
+                        return;
+                      }
+                      setBidSubmitting(true);
+                      try {
+                        await placeBid(item._id, amt);
+                        setBidModalVisible(false);
+                        setBidAmount("");
+                        Alert.alert("تم", "تمت المزايدة بنجاح");
+                        loadItem();
+                      } catch (e: any) {
+                        const msg =
+                          e?.response?.data?.message ||
+                          e?.message ||
+                          "فشل في المزايدة. تأكد أن المبلغ أكبر من أعلى مزايدة.";
+                        Alert.alert("خطأ", msg);
+                      } finally {
+                        setBidSubmitting(false);
+                      }
+                    }}
+                    disabled={bidSubmitting}
+                  >
+                    {bidSubmitting ? (
+                      <ActivityIndicator size="small" color={COLORS.white} />
+                    ) : (
+                      <Text style={styles.modalConfirmText}>تأكيد المزايدة</Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
 
           {/* Metadata */}
           {item.metadata && Object.keys(item.metadata).length > 0 && (
@@ -1233,6 +1579,70 @@ const styles = StyleSheet.create({
   },
   callButton: {
     backgroundColor: COLORS.success ?? "#22c55e",
+  },
+  escrowButton: {
+    backgroundColor: "#059669",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    padding: 24,
+    width: "85%",
+    maxWidth: 400,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontFamily: "Cairo-SemiBold",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  modalHint: {
+    fontSize: 14,
+    color: COLORS.textLight,
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    marginBottom: 20,
+  },
+  modalActions: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 12,
+  },
+  modalCancelButton: {
+    padding: 12,
+  },
+  modalCancelText: {
+    fontSize: 15,
+    color: COLORS.textLight,
+  },
+  modalConfirmButton: {
+    backgroundColor: COLORS.primary,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    minWidth: 120,
+    alignItems: "center",
+  },
+  modalButtonDisabled: {
+    opacity: 0.6,
+  },
+  modalConfirmText: {
+    fontSize: 15,
+    fontFamily: "Cairo-SemiBold",
+    color: COLORS.white,
   },
   contactButtonText: {
     fontSize: 15,

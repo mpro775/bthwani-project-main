@@ -11,6 +11,8 @@ import {
   Favorite,
   FavoriteBorder,
   TrendingUp,
+  AccountBalanceWallet as EscrowIcon,
+  Gavel as AuctionIcon,
 } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
 import type { KenzItem } from "../types";
@@ -93,6 +95,48 @@ const KenzCard: React.FC<KenzCardProps> = ({
           >
             <ImageIcon sx={{ fontSize: 40, color: "grey.500" }} />
           </Box>
+        )}
+        {item.isAuction && (
+          <Chip
+            icon={<AuctionIcon sx={{ fontSize: 14 }} />}
+            label="مزاد"
+            size="small"
+            sx={{
+              position: "absolute",
+              top: 8,
+              right: 8,
+              backgroundColor: "info.light",
+              color: "info.dark",
+            }}
+          />
+        )}
+        {item.acceptsEscrow && !item.isAuction && (
+          <Chip
+            icon={<EscrowIcon sx={{ fontSize: 14 }} />}
+            label="إيكرو"
+            size="small"
+            sx={{
+              position: "absolute",
+              top: 8,
+              right: 8,
+              backgroundColor: "success.light",
+              color: "success.dark",
+            }}
+          />
+        )}
+        {item.acceptsEscrow && item.isAuction && (
+          <Chip
+            icon={<EscrowIcon sx={{ fontSize: 14 }} />}
+            label="إيكرو"
+            size="small"
+            sx={{
+              position: "absolute",
+              top: 8,
+              right: 56,
+              backgroundColor: "success.light",
+              color: "success.dark",
+            }}
+          />
         )}
         {item.isBoosted && (
           <Chip
@@ -237,11 +281,15 @@ const KenzCard: React.FC<KenzCardProps> = ({
         )}
 
         {/* Price */}
-        {item.price != null && (
+        {(item.price != null || item.startingPrice != null || item.winningBidAmount != null) && (
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 1 }}>
             <AttachMoney sx={{ fontSize: 16, color: "success.main" }} />
             <Typography variant="body2" fontWeight={700} color="success.main">
-              {formatCurrency(item.price, item.currency)}
+              {item.isAuction
+                ? item.winningBidAmount != null
+                  ? formatCurrency(item.winningBidAmount, item.currency)
+                  : `من ${formatCurrency(item.startingPrice ?? item.price, item.currency)}`
+                : formatCurrency(item.price, item.currency)}
             </Typography>
           </Box>
         )}

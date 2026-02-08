@@ -244,6 +244,8 @@ export interface KenzAdminQuery {
   category?: string;
   condition?: 'new' | 'used' | 'refurbished';
   deliveryOption?: 'meetup' | 'delivery' | 'both';
+  acceptsEscrow?: boolean;
+  isAuction?: boolean;
   createdAfter?: Date;
   createdBefore?: Date;
   priceMin?: number;

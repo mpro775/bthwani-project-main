@@ -1,5 +1,5 @@
 // مطابق لـ app-user KenzDetailsScreen
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -30,9 +30,12 @@ import {
   Favorite,
   FavoriteBorder,
   TrendingUp,
+  AccountBalanceWallet as EscrowIcon,
+  Gavel as AuctionIcon,
 } from "@mui/icons-material";
 import type { KenzItem } from "../types";
 import { KenzStatusLabels, KenzStatusColors } from "../types";
+import { getKenzBids, type KenzBidItem } from "../api";
 
 interface KenzDetailsProps {
   item: KenzItem;
@@ -50,6 +53,12 @@ interface KenzDetailsProps {
   ) => void | Promise<void>;
   isFavorited?: boolean;
   onFavoriteToggle?: (item: KenzItem) => void;
+  /** شراء بالإيكرو — يُستدعى عند الضغط على الزر */
+  onBuyWithEscrow?: (item: KenzItem, amount: number) => void | Promise<void>;
+  /** مزايدة — يُستدعى عند الضغط على زر المزايدة */
+  onPlaceBid?: (item: KenzItem, amount: number) => void | Promise<void>;
+  /** مفتاح لتحديث قائمة المزايدات (يُزيد بعد مزايدة ناجحة) */
+  bidsRefreshKey?: number;
 }
 
 const normalizePhoneNumber = (phone: string): string | null => {
@@ -78,8 +87,20 @@ const KenzDetails: React.FC<KenzDetailsProps> = ({
   onReport,
   isFavorited,
   onFavoriteToggle,
+  onBuyWithEscrow,
+  onPlaceBid,
+  bidsRefreshKey,
 }) => {
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
+  const [bidDialogOpen, setBidDialogOpen] = useState(false);
+  const [bidAmount, setBidAmount] = useState<number | "">("");
+  const [bidSubmitting, setBidSubmitting] = useState(false);
+  const [bids, setBids] = useState<KenzBidItem[]>([]);
+  const [bidsLoading, setBidsLoading] = useState(false);
+  const [countdown, setCountdown] = useState<string | null>(null);
+  const [escrowDialogOpen, setEscrowDialogOpen] = useState(false);
+  const [escrowAmount, setEscrowAmount] = useState<number | "">("");
+  const [escrowSubmitting, setEscrowSubmitting] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const [reportNotes, setReportNotes] = useState("");
   const [reportSubmitting, setReportSubmitting] = useState(false);
@@ -106,6 +127,45 @@ const KenzDetails: React.FC<KenzDetailsProps> = ({
   };
 
   const hasContact = !!item?.metadata?.contact;
+
+  const minBidAmount = item?.isAuction
+    ? (bids.length > 0 && bids[0]
+        ? bids[0].amount
+        : item?.winningBidAmount ?? item?.startingPrice ?? item?.price ?? 0) + 1
+    : 0;
+
+  useEffect(() => {
+    if (item?.isAuction && item?._id) {
+      setBidsLoading(true);
+      getKenzBids(item._id)
+        .then((res) => setBids(res.items ?? []))
+        .catch(() => setBids([]))
+        .finally(() => setBidsLoading(false));
+    } else {
+      setBids([]);
+    }
+  }, [item?._id, item?.isAuction, bidsRefreshKey]);
+
+  useEffect(() => {
+    if (!item?.isAuction || !item?.auctionEndAt) return;
+    const end = new Date(item.auctionEndAt).getTime();
+    const tick = () => {
+      const now = Date.now();
+      if (now >= end) {
+        setCountdown("انتهى المزاد");
+        return;
+      }
+      const diff = end - now;
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      setCountdown(`${d}يوم ${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`);
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [item?.isAuction, item?.auctionEndAt]);
 
   const handleShare = async () => {
     if (!item) return;
@@ -268,6 +328,28 @@ const KenzDetails: React.FC<KenzDetailsProps> = ({
               label={item.category || "غير مصنف"}
               sx={{ backgroundColor: "primary.light", color: "primary.main" }}
             />
+            {item.isAuction && (
+              <Chip
+                icon={<AuctionIcon sx={{ fontSize: 18 }} />}
+                label="مزاد"
+                size="small"
+                sx={{
+                  backgroundColor: "info.light",
+                  color: "info.dark",
+                }}
+              />
+            )}
+            {item.acceptsEscrow && (
+              <Chip
+                icon={<EscrowIcon sx={{ fontSize: 18 }} />}
+                label="إيكرو"
+                size="small"
+                sx={{
+                  backgroundColor: "success.light",
+                  color: "success.dark",
+                }}
+              />
+            )}
             {item.isBoosted && (
               <Chip
                 icon={<TrendingUp sx={{ fontSize: 18 }} />}
@@ -356,15 +438,94 @@ const KenzDetails: React.FC<KenzDetailsProps> = ({
         )}
 
         {/* Price */}
-        {item.price != null && (
+        {(item.price != null || item.startingPrice != null || item.winningBidAmount != null) && (
           <Paper sx={{ p: 2, mb: 3, backgroundColor: "success.light" }}>
             <Typography variant="overline" color="text.secondary">
-              السعر
+              {item.isAuction ? "المزاد" : "السعر"}
             </Typography>
             <Typography variant="h4" fontWeight={700} color="success.dark">
-              {formatCurrency(item.price, item.currency)}
+              {item.isAuction && item.winningBidAmount != null
+                ? formatCurrency(item.winningBidAmount, item.currency)
+                : item.isAuction
+                ? formatCurrency(item.startingPrice ?? item.price, item.currency)
+                : formatCurrency(item.price, item.currency)}
             </Typography>
+            {item.isAuction && (
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                {item.winningBidAmount != null
+                  ? "السعر الحالي (آخر مزايدة)"
+                  : "السعر الابتدائي"}
+              </Typography>
+            )}
+            {item.isAuction && countdown && (
+              <Chip
+                label={countdown}
+                size="small"
+                sx={{ mt: 1, backgroundColor: "info.main", color: "white" }}
+              />
+            )}
+            {item.isAuction && item.winnerId && (
+              <Typography variant="body2" color="success.dark" sx={{ mt: 1 }}>
+                الفائز:{" "}
+                {typeof item.winnerId === "object" && item.winnerId
+                  ? item.winnerId.fullName || item.winnerId.phone || "—"
+                  : "—"}
+              </Typography>
+            )}
           </Paper>
+        )}
+
+        {/* قائمة المزايدات (للمزادات) */}
+        {item.isAuction && (
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
+              المزايدات
+            </Typography>
+            {bidsLoading ? (
+              <Typography variant="body2" color="text.secondary">
+                جاري التحميل...
+              </Typography>
+            ) : bids.length === 0 ? (
+              <Typography variant="body2" color="text.secondary">
+                لا توجد مزايدات حتى الآن
+              </Typography>
+            ) : (
+              <Box
+                sx={{
+                  maxHeight: 200,
+                  overflowY: "auto",
+                  border: 1,
+                  borderColor: "divider",
+                  borderRadius: 1,
+                  p: 1,
+                }}
+              >
+                {bids.map((bid, i) => (
+                  <Box
+                    key={bid._id}
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      py: 0.5,
+                      borderBottom:
+                        i < bids.length - 1 ? 1 : 0,
+                      borderColor: "divider",
+                    }}
+                  >
+                    <Typography variant="body2">
+                      {typeof bid.bidderId === "object" && bid.bidderId
+                        ? bid.bidderId.fullName || bid.bidderId.phone || "—"
+                        : "—"}
+                    </Typography>
+                    <Typography variant="body2" fontWeight={600}>
+                      {formatCurrency(bid.amount, item.currency)}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            )}
+          </Box>
         )}
 
         {/* Keywords */}
@@ -461,6 +622,40 @@ const KenzDetails: React.FC<KenzDetailsProps> = ({
               التواصل
             </Typography>
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+              {item.isAuction &&
+                item.status !== "completed" &&
+                item.status !== "cancelled" &&
+                !item.winnerId &&
+                countdown !== "انتهى المزاد" &&
+                onPlaceBid && (
+                  <Button
+                    variant="contained"
+                    color="info"
+                    startIcon={<AuctionIcon />}
+                    onClick={() => {
+                      setBidAmount(minBidAmount || "");
+                      setBidDialogOpen(true);
+                    }}
+                  >
+                    مزايدة
+                  </Button>
+                )}
+              {item.acceptsEscrow &&
+                item.status !== "completed" &&
+                item.status !== "cancelled" &&
+                onBuyWithEscrow && (
+                  <Button
+                    variant="contained"
+                    color="success"
+                    startIcon={<EscrowIcon />}
+                    onClick={() => {
+                      setEscrowAmount(item.price ?? "");
+                      setEscrowDialogOpen(true);
+                    }}
+                  >
+                    شراء بالإيكرو
+                  </Button>
+                )}
               {onChat && (
                 <Button
                   variant="contained"
@@ -537,6 +732,76 @@ const KenzDetails: React.FC<KenzDetailsProps> = ({
         </Box>
       </Box>
 
+      {/* Escrow buy dialog */}
+      <Dialog
+        open={escrowDialogOpen}
+        onClose={() => !escrowSubmitting && setEscrowDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>شراء بالإيكرو</DialogTitle>
+        <DialogContent>
+          {item?.price != null && (
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+              سعر الإعلان: {item.price.toLocaleString("ar-SA")}{" "}
+              {item.currency ?? "ريال يمني"}
+            </Typography>
+          )}
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            سيتم حجز المبلغ من محفظتك حتى تؤكد استلام السلعة. عند التأكيد يُحوّل
+            المبلغ للبائع.
+          </Typography>
+          <TextField
+            autoFocus
+            fullWidth
+            type="number"
+            label="المبلغ (ريال يمني)"
+            value={escrowAmount}
+            onChange={(e) =>
+              setEscrowAmount(
+                e.target.value === "" ? "" : Number(e.target.value)
+              )
+            }
+            inputProps={{ min: 1 }}
+            sx={{ mt: 1 }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setEscrowDialogOpen(false)}
+            disabled={escrowSubmitting}
+          >
+            إلغاء
+          </Button>
+          <Button
+            variant="contained"
+            color="success"
+            disabled={
+              escrowSubmitting ||
+              (typeof escrowAmount === "number" ? escrowAmount < 1 : true)
+            }
+            onClick={async () => {
+              if (
+                !onBuyWithEscrow ||
+                typeof escrowAmount !== "number" ||
+                escrowAmount < 1
+              )
+                return;
+              setEscrowSubmitting(true);
+              try {
+                await onBuyWithEscrow(item, escrowAmount);
+                setEscrowDialogOpen(false);
+                setEscrowAmount("");
+              } finally {
+                setEscrowSubmitting(false);
+              }
+            }}
+          >
+            {escrowSubmitting ? "جاري التنفيذ..." : "تأكيد الشراء"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       {/* Report dialog */}
       <Dialog
         open={reportDialogOpen}
@@ -589,6 +854,79 @@ const KenzDetails: React.FC<KenzDetailsProps> = ({
             }}
           >
             إرسال البلاغ
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Bid dialog */}
+      <Dialog
+        open={bidDialogOpen}
+        onClose={() => !bidSubmitting && setBidDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>مزايدة</DialogTitle>
+        <DialogContent>
+          {(item?.startingPrice != null || item?.price != null) && (
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+              السعر الابتدائي: {formatCurrency(item?.startingPrice ?? item?.price, item?.currency)}
+            </Typography>
+          )}
+          {bids.length > 0 && bids[0] && (
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              أعلى مزايدة حالياً: {formatCurrency(bids[0].amount, item?.currency)}
+            </Typography>
+          )}
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            أدخل المبلغ الذي تريد المزايدة به (يجب أن يكون أكبر من أعلى مزايدة حالياً).
+          </Typography>
+          <TextField
+            autoFocus
+            fullWidth
+            type="number"
+            label="المبلغ"
+            value={bidAmount}
+            onChange={(e) =>
+              setBidAmount(
+                e.target.value === "" ? "" : Number(e.target.value)
+              )
+            }
+            inputProps={{ min: minBidAmount }}
+            sx={{ mt: 1 }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setBidDialogOpen(false)}
+            disabled={bidSubmitting}
+          >
+            إلغاء
+          </Button>
+          <Button
+            variant="contained"
+            color="info"
+            disabled={
+              bidSubmitting ||
+              (typeof bidAmount === "number" ? bidAmount < minBidAmount : true)
+            }
+            onClick={async () => {
+              if (
+                !onPlaceBid ||
+                typeof bidAmount !== "number" ||
+                bidAmount < minBidAmount
+              )
+                return;
+              setBidSubmitting(true);
+              try {
+                await onPlaceBid(item, bidAmount);
+                setBidDialogOpen(false);
+                setBidAmount("");
+              } finally {
+                setBidSubmitting(false);
+              }
+            }}
+          >
+            {bidSubmitting ? "جاري التنفيذ..." : "تأكيد المزايدة"}
           </Button>
         </DialogActions>
       </Dialog>

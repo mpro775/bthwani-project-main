@@ -505,6 +505,13 @@ export interface KenzItem {
   postedOnBehalfOfUserId?: string | { _id: string; name?: string; phone?: string };
   deliveryOption?: 'meetup' | 'delivery' | 'both';
   deliveryFee?: number;
+  /** يقبل الدفع بالإيكرو */
+  acceptsEscrow?: boolean;
+  isAuction?: boolean;
+  auctionEndAt?: Date | string;
+  startingPrice?: number;
+  winnerId?: string | { _id: string; fullName?: string; phone?: string };
+  winningBidAmount?: number;
 }
 
 export interface CreateKenzPayload {
@@ -537,6 +544,10 @@ export interface UpdateKenzPayload {
   postedOnBehalfOfPhone?: string;
   deliveryOption?: 'meetup' | 'delivery' | 'both';
   deliveryFee?: number;
+  acceptsEscrow?: boolean;
+  isAuction?: boolean;
+  auctionEndAt?: string;
+  startingPrice?: number;
 }
 
 export interface KenzListResponse {

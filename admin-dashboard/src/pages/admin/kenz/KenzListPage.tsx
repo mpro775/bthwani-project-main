@@ -70,6 +70,10 @@ const KenzListPage: React.FC = () => {
   const [deliveryOptionFilter, setDeliveryOptionFilter] = useState<
     "meetup" | "delivery" | "both" | ""
   >("");
+  const [acceptsEscrowFilter, setAcceptsEscrowFilter] = useState<boolean | "">(
+    ""
+  );
+  const [isAuctionFilter, setIsAuctionFilter] = useState<boolean | "">("");
   const [priceMinFilter, setPriceMinFilter] = useState("");
   const [priceMaxFilter, setPriceMaxFilter] = useState("");
   const [sortFilter, setSortFilter] = useState<KenzSortOption>("newest");
@@ -114,6 +118,8 @@ const KenzListPage: React.FC = () => {
           if (conditionFilter) params.condition = conditionFilter;
           if (deliveryOptionFilter)
             params.deliveryOption = deliveryOptionFilter;
+          if (acceptsEscrowFilter === true) params.acceptsEscrow = true;
+          if (isAuctionFilter === true) params.isAuction = true;
           if (priceMinFilter) params.priceMin = parseFloat(priceMinFilter);
           if (priceMaxFilter) params.priceMax = parseFloat(priceMaxFilter);
           if (sortFilter) params.sort = sortFilter;
@@ -151,6 +157,8 @@ const KenzListPage: React.FC = () => {
       priceMaxFilter,
       sortFilter,
       nextCursor,
+      acceptsEscrowFilter,
+      isAuctionFilter,
     ]
   );
 
@@ -358,6 +366,48 @@ const KenzListPage: React.FC = () => {
               </FormControl>
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+              <FormControl fullWidth>
+                <InputLabel>الإيكرو</InputLabel>
+                <Select
+                  value={
+                    acceptsEscrowFilter === ""
+                      ? ""
+                      : acceptsEscrowFilter
+                      ? "yes"
+                      : "no"
+                  }
+                  label="الإيكرو"
+                  onChange={(e) =>
+                    setAcceptsEscrowFilter(
+                      e.target.value === "" ? "" : e.target.value === "yes"
+                    )
+                  }
+                >
+                  <MenuItem value="">الكل</MenuItem>
+                  <MenuItem value="yes">يقبل الإيكرو فقط</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+              <FormControl fullWidth>
+                <InputLabel>المزاد</InputLabel>
+                <Select
+                  value={
+                    isAuctionFilter === "" ? "" : isAuctionFilter ? "yes" : "no"
+                  }
+                  label="المزاد"
+                  onChange={(e) =>
+                    setIsAuctionFilter(
+                      e.target.value === "" ? "" : e.target.value === "yes"
+                    )
+                  }
+                >
+                  <MenuItem value="">الكل</MenuItem>
+                  <MenuItem value="yes">مزادات فقط</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
               <TextField
                 fullWidth
                 label="السعر من"
@@ -405,6 +455,8 @@ const KenzListPage: React.FC = () => {
                   setCategoryFilter("");
                   setConditionFilter("");
                   setDeliveryOptionFilter("");
+                  setAcceptsEscrowFilter("");
+                  setIsAuctionFilter("");
                   setSortFilter("newest");
                   setPriceMinFilter("");
                   setPriceMaxFilter("");
@@ -427,6 +479,8 @@ const KenzListPage: React.FC = () => {
                 <TableCell>نشر بالنيابة</TableCell>
                 <TableCell>السعر</TableCell>
                 <TableCell>الفئة</TableCell>
+                <TableCell>الإيكرو</TableCell>
+                <TableCell>مزاد</TableCell>
                 <TableCell>الحالة</TableCell>
                 <TableCell>تاريخ الإنشاء</TableCell>
                 <TableCell>الإجراءات</TableCell>
@@ -435,13 +489,13 @@ const KenzListPage: React.FC = () => {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={8} align="center">
+                  <TableCell colSpan={10} align="center">
                     <CircularProgress />
                   </TableCell>
                 </TableRow>
               ) : kenzItems.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} align="center">
+                  <TableCell colSpan={10} align="center">
                     <Typography variant="body2" color="text.secondary">
                       لا توجد إعلانات كنز
                     </Typography>
@@ -531,6 +585,34 @@ const KenzListPage: React.FC = () => {
                           {item.category || "غير مصنف"}
                         </Typography>
                       </Box>
+                    </TableCell>
+                    <TableCell>
+                      {item.acceptsEscrow ? (
+                        <Chip
+                          label="إيكرو"
+                          size="small"
+                          color="success"
+                          variant="outlined"
+                        />
+                      ) : (
+                        <Typography variant="body2" color="text.secondary">
+                          —
+                        </Typography>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {item.isAuction ? (
+                        <Chip
+                          label="مزاد"
+                          size="small"
+                          color="info"
+                          variant="outlined"
+                        />
+                      ) : (
+                        <Typography variant="body2" color="text.secondary">
+                          —
+                        </Typography>
+                      )}
                     </TableCell>
                     <TableCell>
                       <FormControl size="small" fullWidth>

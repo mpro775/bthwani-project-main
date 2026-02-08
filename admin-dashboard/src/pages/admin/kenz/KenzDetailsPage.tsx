@@ -36,9 +36,11 @@ import {
 } from "@mui/icons-material";
 import {
   getKenz,
+  getKenzBids,
   updateKenzStatus,
   deleteKenz,
   type KenzItem as ApiKenzItem,
+  type KenzBidItem,
 } from "../../../api/kenz";
 import {
   KenzStatus,
@@ -52,6 +54,8 @@ const KenzDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [kenz, setKenz] = useState<KenzItem | null>(null);
+  const [bids, setBids] = useState<KenzBidItem[]>([]);
+  const [bidsLoading, setBidsLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [updatingStatus, setUpdatingStatus] = useState(false);
 
@@ -80,6 +84,18 @@ const KenzDetailsPage: React.FC = () => {
     }
   }, [id]);
 
+  const loadBids = async (kenzId: string) => {
+    try {
+      setBidsLoading(true);
+      const res = await getKenzBids(kenzId);
+      setBids(res.items ?? []);
+    } catch {
+      setBids([]);
+    } finally {
+      setBidsLoading(false);
+    }
+  };
+
   const loadKenz = async () => {
     try {
       setLoading(true);
@@ -98,6 +114,11 @@ const KenzDetailsPage: React.FC = () => {
       };
       setKenz(convertedData);
       setNewStatus(statusMap[data.status] || KenzStatus.DRAFT);
+      if (data.isAuction && id) {
+        loadBids(id);
+      } else {
+        setBids([]);
+      }
     } catch (error) {
       console.error("خطأ في تحميل إعلان الكنز:", error);
       setSnackbar({
@@ -307,10 +328,20 @@ const KenzDetailsPage: React.FC = () => {
                 >
                   <MoneyIcon fontSize="small" color="action" />
                   <Typography variant="h6">السعر</Typography>
+                  {kenz.isAuction && (
+                    <Chip label="مزاد" color="info" size="small" sx={{ mr: 1 }} />
+                  )}
                 </Box>
                 <Typography variant="h4" color="primary" fontWeight="bold">
-                  {formatCurrency(kenz.price)}
+                  {kenz.isAuction
+                    ? formatCurrency(kenz.winningBidAmount ?? kenz.startingPrice ?? kenz.price)
+                    : formatCurrency(kenz.price)}
                 </Typography>
+                {kenz.isAuction && kenz.auctionEndAt && (
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                    ينتهي المزاد: {formatDate(kenz.auctionEndAt)}
+                  </Typography>
+                )}
               </Box>
 
               {Object.keys(kenz.metadata).length > 0 && (
@@ -328,6 +359,59 @@ const KenzDetailsPage: React.FC = () => {
                       />
                     ))}
                   </Box>
+                </Box>
+              )}
+
+              {/* جدول المزايدات (للمزادات) */}
+              {kenz.isAuction && (
+                <Box sx={{ mt: 3 }}>
+                  <Typography variant="h6" gutterBottom>
+                    المزايدات
+                  </Typography>
+                  <Divider sx={{ mb: 2 }} />
+                  {bidsLoading ? (
+                    <CircularProgress size={24} />
+                  ) : bids.length === 0 ? (
+                    <Typography variant="body2" color="text.secondary">
+                      لا توجد مزايدات حتى الآن
+                    </Typography>
+                  ) : (
+                    <Table size="small">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>المزايد</TableCell>
+                          <TableCell>المبلغ</TableCell>
+                          <TableCell>التاريخ</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {bids.map((bid) => (
+                          <TableRow key={bid._id}>
+                            <TableCell>
+                              {typeof bid.bidderId === "object" && bid.bidderId
+                                ? bid.bidderId.fullName || bid.bidderId.phone || "—"
+                                : "—"}
+                            </TableCell>
+                            <TableCell>{formatCurrency(bid.amount)}</TableCell>
+                            <TableCell>{formatDate(bid.createdAt)}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  )}
+                  {kenz.winnerId && (
+                    <Box sx={{ mt: 2 }}>
+                      <Chip
+                        label={`الفائز: ${
+                          typeof kenz.winnerId === "object" && kenz.winnerId
+                            ? kenz.winnerId.fullName || kenz.winnerId.phone || "—"
+                            : "—"
+                        }`}
+                        color="success"
+                        size="small"
+                      />
+                    </Box>
+                  )}
                 </Box>
               )}
             </Paper>
@@ -380,6 +464,44 @@ const KenzDetailsPage: React.FC = () => {
                 </Box>
               </CardContent>
             </Card>
+
+            {/* المزاد */}
+            {kenz.isAuction && (
+              <Card sx={{ mb: 3 }}>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    المزاد
+                  </Typography>
+                  <Chip label="إعلان مزاد" color="info" size="small" sx={{ mb: 1 }} />
+                  {kenz.auctionEndAt && (
+                    <Typography variant="body2" color="text.secondary">
+                      ينتهي: {formatDate(kenz.auctionEndAt)}
+                    </Typography>
+                  )}
+                  {kenz.startingPrice != null && (
+                    <Typography variant="body2" color="text.secondary">
+                      السعر الابتدائي: {formatCurrency(kenz.startingPrice)}
+                    </Typography>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* الإيكرو */}
+            {kenz.acceptsEscrow && (
+              <Card sx={{ mb: 3 }}>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    الدفع بالإيكرو
+                  </Typography>
+                  <Chip
+                    label="يقبل الدفع بالإيكرو"
+                    color="success"
+                    size="small"
+                  />
+                </CardContent>
+              </Card>
+            )}
 
             {/* نشر بالنيابة */}
             {(kenz.postedOnBehalfOfPhone ||

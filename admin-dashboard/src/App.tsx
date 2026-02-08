@@ -195,6 +195,7 @@ import KenzDetailsPage from "./pages/admin/kenz/KenzDetailsPage";
 import KenzReportsPage from "./pages/admin/kenz/KenzReportsPage";
 import KenzCategoriesPage from "./pages/admin/kenz/KenzCategoriesPage";
 import KenzBoostPage from "./pages/admin/kenz/KenzBoostPage";
+import KenzDealsPage from "./pages/admin/kenz/KenzDealsPage";
 
 // ==================== MAAROUF ====================
 import MaaroufListPage from "./pages/admin/maarouf/MaaroufListPage";
@@ -539,6 +540,7 @@ export default function App() {
           <Route path="kenz/reports" element={<KenzReportsPage />} />
           <Route path="kenz/categories" element={<KenzCategoriesPage />} />
           <Route path="kenz/boosts" element={<KenzBoostPage />} />
+          <Route path="kenz/deals" element={<KenzDealsPage />} />
           <Route path="kenz/:id" element={<KenzDetailsPage />} />
 
           {/* ==================== MAAROUF ==================== */}

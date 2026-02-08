@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsNumber, IsObject, IsEnum, IsArray, Min, IsIn } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsObject, IsEnum, IsArray, Min, IsIn, IsBoolean, IsDateString } from 'class-validator';
 
 export enum KenzStatus {
   DRAFT = 'draft',
@@ -100,4 +100,24 @@ export default class CreateKenzDto {
   @IsOptional()
   @IsNumber()
   deliveryFee?: number;
+
+  @ApiProperty({ description: 'يقبل الدفع بالإيكرو', required: false, default: false })
+  @IsOptional()
+  @IsBoolean()
+  acceptsEscrow?: boolean;
+
+  @ApiProperty({ description: 'هل الإعلان مزاداً', required: false, default: false })
+  @IsOptional()
+  @IsBoolean()
+  isAuction?: boolean;
+
+  @ApiProperty({ description: 'وقت انتهاء المزاد (مطلوب إن كان isAuction)', required: false, example: '2025-03-01T20:00:00.000Z' })
+  @IsOptional()
+  @IsDateString()
+  auctionEndAt?: string;
+
+  @ApiProperty({ description: 'سعر الافتتاح (للمزاد)', required: false, example: 1000 })
+  @IsOptional()
+  @IsNumber()
+  startingPrice?: number;
 }

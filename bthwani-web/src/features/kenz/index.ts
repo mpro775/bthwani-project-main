@@ -21,3 +21,4 @@ export { default as KenzList } from './components/KenzList';
 export { default as KenzDetails } from './components/KenzDetails';
 export { default as KenzForm } from './components/KenzForm';
 export { default as KenzFavoritesView } from './components/KenzFavoritesView';
+export { default as KenzDealsView } from './components/KenzDealsView';

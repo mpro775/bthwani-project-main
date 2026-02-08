@@ -38,6 +38,10 @@ export interface CreateKenzPayload {
   postedOnBehalfOfPhone?: string;
   deliveryOption?: 'meetup' | 'delivery' | 'both';
   deliveryFee?: number;
+  acceptsEscrow?: boolean;
+  isAuction?: boolean;
+  auctionEndAt?: string;
+  startingPrice?: number;
 }
 
 export interface UpdateKenzPayload {
@@ -55,6 +59,7 @@ export interface UpdateKenzPayload {
   postedOnBehalfOfPhone?: string;
   deliveryOption?: 'meetup' | 'delivery' | 'both';
   deliveryFee?: number;
+  acceptsEscrow?: boolean;
 }
 
 export interface KenzItem {
@@ -78,6 +83,39 @@ export interface KenzItem {
   postedOnBehalfOfUserId?: string | { _id: string; name?: string; phone?: string };
   deliveryOption?: 'meetup' | 'delivery' | 'both';
   deliveryFee?: number;
+  acceptsEscrow?: boolean;
+  isAuction?: boolean;
+  auctionEndAt?: string;
+  startingPrice?: number;
+  winnerId?: string | { _id: string; fullName?: string; phone?: string };
+  winningBidAmount?: number;
+}
+
+export interface KenzBidItem {
+  _id: string;
+  kenzId: string;
+  bidderId: string | { _id: string; fullName?: string; phone?: string };
+  amount: number;
+  createdAt: string;
+}
+
+export type KenzDealStatus = 'pending' | 'completed' | 'cancelled';
+
+export interface KenzDealItem {
+  _id: string;
+  kenzId: string | { _id: string; title?: string; price?: number };
+  buyerId: string | { _id: string; fullName?: string; phone?: string };
+  sellerId: string | { _id: string; fullName?: string; phone?: string };
+  amount: number;
+  status: KenzDealStatus;
+  createdAt: string;
+  completedAt?: string;
+  cancelledAt?: string;
+}
+
+export interface KenzDealsResponse {
+  items: KenzDealItem[];
+  nextCursor?: string | null;
 }
 
 export interface KenzListResponse {
@@ -339,5 +377,87 @@ export const getKenzFavorites = async (
     headers,
     params,
   });
+  return unwrap(response.data);
+};
+
+// ========== صفقات الإيكرو ==========
+
+export const buyWithEscrow = async (
+  kenzId: string,
+  amount: number
+): Promise<{ success: boolean; deal: KenzDealItem; message?: string }> => {
+  const headers = await getAuthHeaders();
+  const response = await axiosInstance.post(
+    `/kenz/${kenzId}/buy-with-escrow`,
+    { amount },
+    { headers }
+  );
+  return unwrap(response.data);
+};
+
+export const getMyKenzDeals = async (
+  params?: { cursor?: string; role?: 'buyer' | 'seller' }
+): Promise<KenzDealsResponse> => {
+  const headers = await getAuthHeaders();
+  const response = await axiosInstance.get("/kenz/deals", {
+    headers,
+    params: params ?? {},
+  });
+  const data = unwrap(response.data);
+  return Array.isArray(data?.items) ? data : { items: data?.items ?? [], nextCursor: data?.nextCursor };
+};
+
+export const confirmKenzDealReceived = async (
+  dealId: string
+): Promise<{ success: boolean; deal: KenzDealItem }> => {
+  const headers = await getAuthHeaders();
+  const response = await axiosInstance.post(
+    `/kenz/deals/${dealId}/confirm-received`,
+    {},
+    { headers }
+  );
+  return unwrap(response.data);
+};
+
+export const cancelKenzDeal = async (
+  dealId: string
+): Promise<{ success: boolean; deal: KenzDealItem }> => {
+  const headers = await getAuthHeaders();
+  const response = await axiosInstance.post(
+    `/kenz/deals/${dealId}/cancel`,
+    {},
+    { headers }
+  );
+  return unwrap(response.data);
+};
+
+// ========== المزادات ==========
+
+export interface KenzBidsResponse {
+  items: KenzBidItem[];
+  nextCursor?: string | null;
+  highestBid?: number | null;
+  bidCount?: number;
+}
+
+export const placeBid = async (
+  kenzId: string,
+  amount: number
+): Promise<{ success: boolean; bid: KenzBidItem; message?: string }> => {
+  const headers = await getAuthHeaders();
+  const response = await axiosInstance.post(
+    `/kenz/${kenzId}/bid`,
+    { amount },
+    { headers }
+  );
+  return unwrap(response.data);
+};
+
+export const getKenzBids = async (
+  kenzId: string,
+  cursor?: string
+): Promise<KenzBidsResponse> => {
+  const params = cursor ? { cursor } : {};
+  const response = await axiosInstance.get(`/kenz/${kenzId}/bids`, { params });
   return unwrap(response.data);
 };

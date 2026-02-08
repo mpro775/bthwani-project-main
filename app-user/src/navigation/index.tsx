@@ -107,6 +107,7 @@ import {
 // كنز (Marketplace)
 import KenzListScreen from "@/screens/kenz/KenzListScreen";
 import KenzFavoritesScreen from "@/screens/kenz/KenzFavoritesScreen";
+import KenzDealsScreen from "@/screens/kenz/KenzDealsScreen";
 import KenzCreateScreen from "@/screens/kenz/KenzCreateScreen";
 import KenzDetailsScreen from "@/screens/kenz/KenzDetailsScreen";
 import KenzEditScreen from "@/screens/kenz/KenzEditScreen";
@@ -895,6 +896,7 @@ function AppStackNavigator() {
       {/* كنز (Marketplace) */}
       <AppStack.Screen name="KenzList" component={KenzListScreen} />
       <AppStack.Screen name="KenzFavorites" component={KenzFavoritesScreen} />
+      <AppStack.Screen name="KenzDeals" component={KenzDealsScreen} />
       <AppStack.Screen name="KenzCreate" component={KenzCreateScreen} />
       <AppStack.Screen name="KenzDetails" component={KenzDetailsScreen} />
       <AppStack.Screen name="KenzEdit" component={KenzEditScreen} />

@@ -9,6 +9,7 @@ import {
   Alert,
   ActivityIndicator,
   Image,
+  Switch,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
@@ -85,6 +86,10 @@ const KenzEditScreen = () => {
     postedOnBehalfOfPhone: "",
     deliveryOption: undefined as "meetup" | "delivery" | "both" | undefined,
     deliveryFee: undefined as number | undefined,
+    acceptsEscrow: false,
+    isAuction: false,
+    auctionEndAt: undefined as string | undefined,
+    startingPrice: undefined as number | undefined,
   });
   const [keywordsText, setKeywordsText] = useState("");
   const [imageUrls, setImageUrls] = useState<string[]>([]);
@@ -117,6 +122,12 @@ const KenzEditScreen = () => {
         postedOnBehalfOfPhone: itemData.postedOnBehalfOfPhone ?? "",
         deliveryOption: itemData.deliveryOption,
         deliveryFee: itemData.deliveryFee,
+        acceptsEscrow: itemData.acceptsEscrow ?? false,
+        isAuction: itemData.isAuction ?? false,
+        auctionEndAt: itemData.auctionEndAt
+          ? new Date(itemData.auctionEndAt).toISOString().slice(0, 16)
+          : undefined,
+        startingPrice: itemData.startingPrice ?? itemData.price,
       });
       setKeywordsText((itemData.keywords ?? []).join("، "));
       setImageUrls(itemData.images ?? []);
@@ -206,6 +217,12 @@ const KenzEditScreen = () => {
           formData.deliveryOption === "both"
             ? formData.deliveryFee
             : undefined,
+        acceptsEscrow: formData.acceptsEscrow,
+        isAuction: formData.isAuction,
+        auctionEndAt: formData.isAuction && formData.auctionEndAt
+          ? new Date(formData.auctionEndAt).toISOString()
+          : undefined,
+        startingPrice: formData.isAuction ? formData.startingPrice : undefined,
       };
       await updateKenz(itemId, payload);
       Alert.alert("نجح", "تم تحديث الإعلان بنجاح", [
@@ -510,6 +527,66 @@ const KenzEditScreen = () => {
                   placeholderTextColor={COLORS.lightText}
                   keyboardType="number-pad"
                 />
+              </>
+            )}
+            <View style={[styles.section, { marginTop: 12 }]}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Text style={styles.sectionTitle}>يقبل الدفع بالإيكرو</Text>
+                <Switch
+                  value={formData.acceptsEscrow}
+                  onValueChange={(v) => updateFormData("acceptsEscrow", v)}
+                />
+              </View>
+              <Text style={styles.helperText}>
+                حجز المبلغ حتى تأكيد الاستلام
+              </Text>
+            </View>
+            <View style={[styles.section, { marginTop: 12 }]}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Text style={styles.sectionTitle}>إعلان مزاد</Text>
+                <Switch
+                  value={formData.isAuction}
+                  onValueChange={(v) => updateFormData("isAuction", v)}
+                />
+              </View>
+            </View>
+            {formData.isAuction && (
+              <>
+                <View style={[styles.section, { marginTop: 12 }]}>
+                  <Text style={styles.sectionTitle}>السعر الابتدائي</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={formData.startingPrice?.toString() ?? ""}
+                    onChangeText={(v) =>
+                      updateFormData("startingPrice", v ? parseFloat(v) : undefined)
+                    }
+                    placeholder="مثال: 1000"
+                    placeholderTextColor={COLORS.textLight}
+                    keyboardType="number-pad"
+                  />
+                </View>
+                <View style={[styles.section, { marginTop: 12 }]}>
+                  <Text style={styles.sectionTitle}>تاريخ انتهاء المزاد</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={formData.auctionEndAt ?? ""}
+                    onChangeText={(v) => updateFormData("auctionEndAt", v || undefined)}
+                    placeholder="2025-03-15T20:00:00"
+                    placeholderTextColor={COLORS.textLight}
+                  />
+                </View>
               </>
             )}
           </View>

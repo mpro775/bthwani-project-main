@@ -95,6 +95,30 @@ export class Kenz extends Document {
   @ApiProperty({ description: 'رسوم التوصيل (عند خيار توصيل)', required: false, example: 500 })
   @Prop()
   deliveryFee?: number;
+
+  @ApiProperty({ description: 'يقبل الدفع بالإيكرو (حجز المبلغ حتى تأكيد الاستلام)', required: false, default: false })
+  @Prop({ default: false })
+  acceptsEscrow?: boolean;
+
+  @ApiProperty({ description: 'هل الإعلان مزاداً', required: false, default: false })
+  @Prop({ default: false })
+  isAuction?: boolean;
+
+  @ApiProperty({ description: 'وقت انتهاء المزاد (مطلوب إن كان isAuction)', required: false })
+  @Prop({ type: Date })
+  auctionEndAt?: Date;
+
+  @ApiProperty({ description: 'سعر الافتتاح (للمزاد)', required: false })
+  @Prop()
+  startingPrice?: number;
+
+  @ApiProperty({ description: 'معرف الفائز (عند إغلاق المزاد)', required: false })
+  @Prop({ type: Types.ObjectId, ref: 'User' })
+  winnerId?: Types.ObjectId;
+
+  @ApiProperty({ description: 'مبلغ المزايدة الفائزة', required: false })
+  @Prop()
+  winningBidAmount?: number;
 }
 
 export const KenzSchema = SchemaFactory.createForClass(Kenz);

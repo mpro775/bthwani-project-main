@@ -30,6 +30,8 @@ export async function getKenzList(params?: {
   deliveryOption?: 'meetup' | 'delivery' | 'both';
   search?: string;
   sort?: KenzSortOption;
+  acceptsEscrow?: boolean;
+  isAuction?: boolean;
 }): Promise<KenzListResponse> {
   const response = await axiosInstance.get("/kenz", { params });
   const data = response.data;
@@ -113,4 +115,80 @@ export async function getKenzFavorites(params?: { cursor?: string }): Promise<Ke
   const response = await axiosInstance.get("/kenz/favorites", { params });
   const data = response.data;
   return Array.isArray(data) ? { items: data, nextCursor: undefined } : data;
+}
+
+// ========== صفقات الإيكرو ==========
+export type KenzDealStatus = 'pending' | 'completed' | 'cancelled';
+
+export interface KenzDealItem {
+  _id: string;
+  kenzId: string | { _id: string; title?: string; price?: number; images?: string[]; status?: string };
+  buyerId: string | { _id: string; fullName?: string; phone?: string };
+  sellerId: string | { _id: string; fullName?: string; phone?: string };
+  amount: number;
+  status: KenzDealStatus;
+  createdAt: string;
+  completedAt?: string;
+  cancelledAt?: string;
+}
+
+export interface KenzDealsResponse {
+  items: KenzDealItem[];
+  nextCursor?: string | null;
+}
+
+/** شراء بالإيكرو (يتطلب مصادقة) */
+export async function buyWithEscrow(kenzId: string, amount: number): Promise<{ success: boolean; deal: KenzDealItem; message?: string }> {
+  const response = await axiosInstance.post(`/kenz/${kenzId}/buy-with-escrow`, { amount });
+  return response.data;
+}
+
+/** قائمة صفقاتي (يتطلب مصادقة) */
+export async function getMyKenzDeals(params?: {
+  cursor?: string;
+  role?: 'buyer' | 'seller';
+}): Promise<KenzDealsResponse> {
+  const response = await axiosInstance.get("/kenz/deals", { params });
+  const data = response.data;
+  return Array.isArray(data?.items) ? data : { items: data?.items ?? [], nextCursor: data?.nextCursor };
+}
+
+/** تأكيد الاستلام (للمشتري فقط) */
+export async function confirmKenzDealReceived(dealId: string): Promise<{ success: boolean; deal: KenzDealItem }> {
+  const response = await axiosInstance.post(`/kenz/deals/${dealId}/confirm-received`);
+  return response.data;
+}
+
+/** إلغاء صفقة (المشتري أو البائع) */
+export async function cancelKenzDeal(dealId: string): Promise<{ success: boolean; deal: KenzDealItem }> {
+  const response = await axiosInstance.post(`/kenz/deals/${dealId}/cancel`);
+  return response.data;
+}
+
+// ========== المزادات ==========
+export interface KenzBidItem {
+  _id: string;
+  kenzId: string;
+  bidderId: string | { _id: string; fullName?: string; phone?: string };
+  amount: number;
+  createdAt: string;
+}
+
+export interface KenzBidsResponse {
+  items: KenzBidItem[];
+  nextCursor?: string | null;
+  highestBid?: number | null;
+  bidCount?: number;
+}
+
+/** إضافة مزايدة (يتطلب مصادقة) */
+export async function placeBid(kenzId: string, amount: number): Promise<{ success: boolean; bid: KenzBidItem; message?: string }> {
+  const response = await axiosInstance.post(`/kenz/${kenzId}/bid`, { amount });
+  return response.data;
+}
+
+/** جلب مزايدات إعلان مزاد */
+export async function getKenzBids(kenzId: string, cursor?: string): Promise<KenzBidsResponse> {
+  const response = await axiosInstance.get(`/kenz/${kenzId}/bids`, { params: cursor ? { cursor } : {} });
+  return response.data;
 }

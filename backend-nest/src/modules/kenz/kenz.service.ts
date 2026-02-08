@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, ConflictException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import type { Model } from 'mongoose';
@@ -31,6 +31,15 @@ export class KenzService {
   ) {}
 
   async create(dto: CreateKenzDto) {
+    if (dto.isAuction === true && !dto.auctionEndAt) {
+      throw new BadRequestException('يجب تحديد تاريخ انتهاء المزاد عند إنشاء إعلان مزاد');
+    }
+    if (dto.isAuction === true) {
+      const end = new Date(dto.auctionEndAt!).getTime();
+      if (end <= Date.now()) {
+        throw new BadRequestException('تاريخ انتهاء المزاد يجب أن يكون في المستقبل');
+      }
+    }
     const doc = new this.model(dto);
     return await doc.save();
   }
@@ -52,6 +61,7 @@ export class KenzService {
       .findByIdAndUpdate(id, { $inc: { viewCount: 1 } }, { new: true })
       .populate('ownerId', 'name email phone')
       .populate('postedOnBehalfOfUserId', 'name phone')
+      .populate('winnerId', 'fullName phone')
       .exec();
     if (!doc) throw new NotFoundException('Not found');
     const boostMap = await this.getActiveBoostsForKenzIds([id]);
@@ -106,6 +116,12 @@ export class KenzService {
       } else {
         query.where('deliveryOption').equals(filters.deliveryOption);
       }
+    }
+    if (filters.acceptsEscrow === true) {
+      query.where('acceptsEscrow').equals(true);
+    }
+    if (filters.isAuction === true) {
+      query.where('isAuction').equals(true);
     }
     if (filters.priceMin != null) query.where('price').gte(filters.priceMin);
     if (filters.priceMax != null) query.where('price').lte(filters.priceMax);

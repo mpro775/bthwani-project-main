@@ -14,6 +14,8 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import {
   ArrowBack,
@@ -65,6 +67,10 @@ const KenzForm: React.FC<KenzFormProps> = ({
     postedOnBehalfOfPhone: "" as string,
     deliveryOption: undefined as "meetup" | "delivery" | "both" | undefined,
     deliveryFee: undefined as number | undefined,
+    acceptsEscrow: false,
+    isAuction: false,
+    auctionEndAt: undefined as string | undefined,
+    startingPrice: undefined as number | undefined,
   });
   const [keywordsText, setKeywordsText] = useState("");
   const [imageUrls, setImageUrls] = useState<string[]>([]);
@@ -97,6 +103,12 @@ const KenzForm: React.FC<KenzFormProps> = ({
         postedOnBehalfOfPhone: item.postedOnBehalfOfPhone ?? "",
         deliveryOption: item.deliveryOption,
         deliveryFee: item.deliveryFee,
+        acceptsEscrow: item.acceptsEscrow ?? false,
+        isAuction: item.isAuction ?? false,
+        auctionEndAt: item.auctionEndAt
+          ? new Date(item.auctionEndAt).toISOString().slice(0, 16)
+          : undefined,
+        startingPrice: item.startingPrice ?? item.price,
       });
       setKeywordsText((item.keywords ?? []).join("، "));
       setImageUrls(item.images ?? []);
@@ -144,6 +156,14 @@ const KenzForm: React.FC<KenzFormProps> = ({
     }
     if (mode === "create" && !ownerId) {
       setError("يجب تسجيل الدخول أولاً");
+      return;
+    }
+    if (formData.isAuction && !formData.auctionEndAt) {
+      setError("يرجى تحديد تاريخ انتهاء المزاد");
+      return;
+    }
+    if (formData.isAuction && (!formData.startingPrice || formData.startingPrice < 0)) {
+      setError("يرجى إدخال السعر الابتدائي للمزاد");
       return;
     }
     const qty = formData.quantity ?? 1;
@@ -197,6 +217,13 @@ const KenzForm: React.FC<KenzFormProps> = ({
           formData.deliveryOption === "both"
             ? formData.deliveryFee
             : undefined,
+        acceptsEscrow: formData.acceptsEscrow,
+        isAuction: formData.isAuction || undefined,
+        auctionEndAt: formData.isAuction && formData.auctionEndAt
+          ? new Date(formData.auctionEndAt).toISOString()
+          : undefined,
+        startingPrice: formData.isAuction ? formData.startingPrice : undefined,
+        price: formData.isAuction ? formData.startingPrice : formData.price,
       };
 
       if (mode === "create") {
@@ -417,6 +444,70 @@ const KenzForm: React.FC<KenzFormProps> = ({
                   placeholder="مثال: 500"
                 />
               </Grid>
+            )}
+
+            <Grid size={{ xs: 12 }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={formData.acceptsEscrow}
+                    onChange={(e) =>
+                      updateForm("acceptsEscrow", e.target.checked)
+                    }
+                  />
+                }
+                label="يقبل الدفع بالإيكرو (حجز المبلغ حتى تأكيد الاستلام)"
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12 }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={formData.isAuction}
+                    onChange={(e) =>
+                      updateForm("isAuction", e.target.checked)
+                    }
+                  />
+                }
+                label="إعلان مزاد (مزايدة على السعر)"
+              />
+            </Grid>
+
+            {formData.isAuction && (
+              <>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    fullWidth
+                    label="السعر الابتدائي *"
+                    type="number"
+                    value={formData.startingPrice ?? ""}
+                    onChange={(e) =>
+                      updateForm(
+                        "startingPrice",
+                        e.target.value ? parseFloat(e.target.value) : undefined
+                      )
+                    }
+                    placeholder="مثال: 1000"
+                    inputProps={{ min: 0 }}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    fullWidth
+                    label="تاريخ انتهاء المزاد *"
+                    type="datetime-local"
+                    value={formData.auctionEndAt ?? ""}
+                    onChange={(e) =>
+                      updateForm("auctionEndAt", e.target.value || undefined)
+                    }
+                    InputLabelProps={{ shrink: true }}
+                    inputProps={{
+                      min: new Date().toISOString().slice(0, 16),
+                    }}
+                  />
+                </Grid>
+              </>
             )}
 
             <Grid size={{ xs: 12, sm: 6 }}>

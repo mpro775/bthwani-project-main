@@ -321,6 +321,77 @@ export class WalletService {
     }
   }
 
+  /**
+   * إكمال صفقة إيكرو: إطلاق الحجز من المشتري وتحويل المبلغ للبائع
+   */
+  async completeEscrowTransfer(
+    buyerId: string,
+    sellerId: string,
+    amount: number,
+    orderId?: string,
+  ) {
+    return TransactionHelper.executeInTransaction(
+      this.connection,
+      async (session) => {
+        const buyer = await this.userModel.findById(buyerId).session(session);
+        if (!buyer) {
+          throw new NotFoundException({
+            code: 'USER_NOT_FOUND',
+            message: 'User not found',
+            userMessage: 'المشتري غير موجود',
+          });
+        }
+
+        const seller = await this.userModel.findById(sellerId).session(session);
+        if (!seller) {
+          throw new NotFoundException({
+            code: 'USER_NOT_FOUND',
+            message: 'User not found',
+            userMessage: 'البائع غير موجود',
+          });
+        }
+
+        // تحديث المحفظة: خصم من المشتري (إطلاق الحجز)
+        await this.userModel.findByIdAndUpdate(
+          buyerId,
+          {
+            $inc: {
+              'wallet.onHold': -amount,
+              'wallet.balance': -amount,
+              'wallet.totalSpent': amount,
+            },
+            $set: { 'wallet.lastUpdated': new Date() },
+          },
+          { new: true, session },
+        );
+
+        // تحديث معاملة الحجز
+        await this.walletTransactionModel.findOneAndUpdate(
+          {
+            userId: new Types.ObjectId(buyerId),
+            method: 'escrow',
+            status: 'pending',
+            ...(orderId ? { 'meta.orderId': orderId } : {}),
+          },
+          { status: 'completed' },
+          { session },
+        );
+
+        // ائتمان للبائع
+        await this.credit(
+          sellerId,
+          amount,
+          'escrow',
+          'استلام مبلغ صفقة كنز بالإيكرو',
+          orderId ? { orderId, source: 'kenz_deal' } : { source: 'kenz_deal' },
+          session,
+        );
+
+        return { success: true };
+      },
+    );
+  }
+
   // إرجاع المبلغ المحجوز - مع Transaction
   async refundHeldFunds(userId: string, amount: number, orderId?: string) {
     const session = await this.connection.startSession();

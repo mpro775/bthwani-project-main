@@ -530,6 +530,14 @@ const KenzListScreen = () => {
               <Ionicons name="heart" size={26} color={COLORS.primary} />
             </TouchableOpacity>
           )}
+          {isLoggedIn && (
+            <TouchableOpacity
+              style={styles.headerIconButton}
+              onPress={() => navigation.navigate("KenzDeals" as never)}
+            >
+              <Ionicons name="wallet" size={26} color={COLORS.primary} />
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
             style={styles.createIconButton}
             onPress={handleCreatePress}

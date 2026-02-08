@@ -9,12 +9,15 @@ import {
   KenzDetails,
   KenzForm,
   KenzFavoritesView,
+  KenzDealsView,
   useKenz,
   useKenzList,
   useKenzFavoriteIds,
   markKenzAsSold,
   reportKenz,
   createKenzConversation,
+  buyWithEscrow,
+  placeBid,
   type KenzItem,
   type CreateKenzPayload,
   type UpdateKenzPayload,
@@ -27,6 +30,7 @@ const KenzPage: React.FC = () => {
   const currentUserId = user?._id ?? user?.id ?? null;
   const favorites = useKenzFavoriteIds(!!currentUserId);
 
+  const [bidsRefreshKey, setBidsRefreshKey] = useState(0);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -147,6 +151,17 @@ const KenzPage: React.FC = () => {
       );
     }
 
+    // صفحة صفقاتي (الإيكرو)
+    if (id === "deals") {
+      if (!currentUserId) {
+        navigate("/login", { state: { from: "/kenz/deals" } });
+        return null;
+      }
+      return (
+        <KenzDealsView onViewKenz={(kenzId) => navigate(`/kenz/${kenzId}`)} />
+      );
+    }
+
     // Show details page
     if (id && !action) {
       const ownerIdStr =
@@ -218,6 +233,54 @@ const KenzPage: React.FC = () => {
           onFavoriteToggle={
             currentUserId ? (it) => favorites.toggle(it._id) : undefined
           }
+          onBuyWithEscrow={
+            currentUserId
+              ? async (it, amount) => {
+                  try {
+                    await buyWithEscrow(it._id, amount);
+                    setSnackbar({
+                      open: true,
+                      message:
+                        "تم إنشاء الصفقة بنجاح. يمكنك متابعة الصفقة من صفقاتي.",
+                      severity: "success",
+                    });
+                    navigate("/kenz/deals");
+                  } catch (e) {
+                    setSnackbar({
+                      open: true,
+                      message: "فشل في إنشاء الصفقة. تحقق من رصيد المحفظة.",
+                      severity: "error",
+                    });
+                  }
+                }
+              : undefined
+          }
+          onPlaceBid={
+            currentUserId
+              ? async (it, amount) => {
+                  try {
+                    await placeBid(it._id, amount);
+                    setSnackbar({
+                      open: true,
+                      message: "تمت المزايدة بنجاح",
+                      severity: "success",
+                    });
+                    refetchItem?.();
+                    setBidsRefreshKey((k) => k + 1);
+                  } catch (e) {
+                    setSnackbar({
+                      open: true,
+                      message:
+                        e instanceof Error
+                          ? e.message
+                          : "فشل في المزايدة. تأكد أن المبلغ أكبر من أعلى مزايدة.",
+                      severity: "error",
+                    });
+                  }
+                }
+              : undefined
+          }
+          bidsRefreshKey={bidsRefreshKey}
         />
       );
     }
@@ -250,8 +313,8 @@ const KenzPage: React.FC = () => {
         onNavigateToFavorites={
           currentUserId ? () => navigate("/kenz/favorites") : undefined
         }
-        onNavigateToChat={
-          currentUserId ? () => navigate("/kenz/chat") : undefined
+        onNavigateToDeals={
+          currentUserId ? () => navigate("/kenz/deals") : undefined
         }
       />
     );

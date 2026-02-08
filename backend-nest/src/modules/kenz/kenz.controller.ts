@@ -13,9 +13,13 @@ import {
 import { Request } from 'express';
 import { KenzService, KenzSortOption } from './kenz.service';
 import { KenzCategoryService } from './kenz-category.service';
+import { KenzDealService } from './kenz-deal.service';
+import { KenzBidService } from './kenz-bid.service';
 import CreateKenzDto from './dto/create-kenz.dto';
 import UpdateKenzDto from './dto/update-kenz.dto';
 import ReportKenzDto from './dto/report-kenz.dto';
+import BuyWithEscrowDto from './dto/buy-with-escrow.dto';
+import PlaceBidDto from './dto/place-bid.dto';
 import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';
 
 interface AuthenticatedRequest extends Request {
@@ -31,6 +35,8 @@ export class KenzController {
   constructor(
     private readonly service: KenzService,
     private readonly categoryService: KenzCategoryService,
+    private readonly dealService: KenzDealService,
+    private readonly bidService: KenzBidService,
   ) {}
 
   @Post()
@@ -72,6 +78,8 @@ export class KenzController {
   @ApiQuery({ name: 'city', required: false, description: 'المدينة', example: 'صنعاء' })
   @ApiQuery({ name: 'condition', required: false, description: 'حالة السلعة', enum: ['new', 'used', 'refurbished'] })
   @ApiQuery({ name: 'deliveryOption', required: false, description: 'طريقة التسليم', enum: ['meetup', 'delivery', 'both'] })
+  @ApiQuery({ name: 'acceptsEscrow', required: false, description: 'إعلانات تقبل الإيكرو فقط', type: Boolean })
+  @ApiQuery({ name: 'isAuction', required: false, description: 'إعلانات المزادات فقط', type: Boolean })
   @ApiQuery({ name: 'search', required: false, description: 'بحث في العنوان والوصف والكلمات المفتاحية' })
   @ApiQuery({ name: 'sort', required: false, description: 'الترتيب', enum: ['newest', 'price_asc', 'price_desc', 'views_desc'] })
   @ApiResponse({ status: HttpStatus.OK, description: 'تم الاسترجاع بنجاح' })
@@ -83,6 +91,8 @@ export class KenzController {
     @Query('city') city?: string,
     @Query('condition') condition?: string,
     @Query('deliveryOption') deliveryOption?: string,
+    @Query('acceptsEscrow') acceptsEscrow?: string,
+    @Query('isAuction') isAuction?: string,
     @Query('search') search?: string,
     @Query('sort') sort?: string,
   ) {
@@ -93,6 +103,8 @@ export class KenzController {
     if (city) filters.city = city;
     if (condition && ['new', 'used', 'refurbished'].includes(condition)) filters.condition = condition;
     if (deliveryOption && ['meetup', 'delivery', 'both'].includes(deliveryOption)) filters.deliveryOption = deliveryOption;
+    if (acceptsEscrow === 'true' || acceptsEscrow === '1') filters.acceptsEscrow = true;
+    if (isAuction === 'true' || isAuction === '1') filters.isAuction = true;
     if (search) filters.search = search;
     const sortOption: KenzSortOption = ['newest', 'price_asc', 'price_desc', 'views_desc'].includes(sort || '')
       ? (sort as KenzSortOption)
@@ -142,6 +154,111 @@ export class KenzController {
   removeFavorite(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const userId = req.user?._id ?? req.user?.id ?? '';
     return this.service.removeFavorite(id, String(userId));
+  }
+
+  // ——— صفقات الإيكرو (يجب أن تأتي قبل :id) ———
+  @Get('deals')
+  @UseGuards(UnifiedAuthGuard)
+  @ApiOperation({ summary: 'صفقاتي', description: 'قائمة صفقات المستخدم (كمشتري أو بائع)' })
+  @ApiQuery({ name: 'cursor', required: false })
+  @ApiQuery({ name: 'role', required: false, enum: ['buyer', 'seller'] })
+  @ApiResponse({ status: HttpStatus.OK })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
+  getMyDeals(
+    @Query('cursor') cursor: string | undefined,
+    @Query('role') role: 'buyer' | 'seller' | undefined,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const userId = req.user?._id ?? req.user?.id ?? '';
+    return this.dealService.listMyDeals(String(userId), cursor, 25, role);
+  }
+
+  @Get('deals/:dealId')
+  @UseGuards(UnifiedAuthGuard)
+  @ApiOperation({ summary: 'تفاصيل صفقة', description: 'تفاصيل صفقة إيكرو' })
+  @ApiParam({ name: 'dealId', description: 'معرف الصفقة' })
+  @ApiResponse({ status: HttpStatus.OK })
+  @ApiResponse({ status: HttpStatus.FORBIDDEN })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND })
+  getDealById(
+    @Param('dealId') dealId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const userId = req.user?._id ?? req.user?.id ?? '';
+    return this.dealService.getDealById(dealId, String(userId));
+  }
+
+  @Post(':id/buy-with-escrow')
+  @UseGuards(UnifiedAuthGuard)
+  @ApiOperation({ summary: 'شراء بالإيكرو', description: 'إنشاء صفقة وحجز المبلغ من المحفظة' })
+  @ApiParam({ name: 'id', description: 'معرف الإعلان' })
+  @ApiBody({ type: BuyWithEscrowDto })
+  @ApiResponse({ status: HttpStatus.CREATED })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND })
+  buyWithEscrow(
+    @Param('id') id: string,
+    @Body() dto: BuyWithEscrowDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const userId = req.user?._id ?? req.user?.id ?? '';
+    return this.dealService.buyWithEscrow(id, String(userId), dto);
+  }
+
+  @Post('deals/:dealId/confirm-received')
+  @UseGuards(UnifiedAuthGuard)
+  @ApiOperation({ summary: 'تأكيد الاستلام', description: 'للمشتري فقط — تحويل المبلغ للبائع' })
+  @ApiParam({ name: 'dealId', description: 'معرف الصفقة' })
+  @ApiResponse({ status: HttpStatus.OK })
+  @ApiResponse({ status: HttpStatus.FORBIDDEN })
+  confirmReceived(
+    @Param('dealId') dealId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const userId = req.user?._id ?? req.user?.id ?? '';
+    return this.dealService.confirmReceived(dealId, String(userId));
+  }
+
+  @Post('deals/:dealId/cancel')
+  @UseGuards(UnifiedAuthGuard)
+  @ApiOperation({ summary: 'إلغاء صفقة', description: 'إلغاء الصفقة وإرجاع المبلغ (المشتري أو البائع)' })
+  @ApiParam({ name: 'dealId', description: 'معرف الصفقة' })
+  @ApiResponse({ status: HttpStatus.OK })
+  @ApiResponse({ status: HttpStatus.FORBIDDEN })
+  cancelDeal(
+    @Param('dealId') dealId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const userId = req.user?._id ?? req.user?.id ?? '';
+    return this.dealService.cancelDeal(dealId, String(userId));
+  }
+
+  @Post(':id/bid')
+  @UseGuards(UnifiedAuthGuard)
+  @ApiOperation({ summary: 'مزايدة', description: 'إضافة مزايدة على إعلان مزاد' })
+  @ApiParam({ name: 'id', description: 'معرف الإعلان (المزاد)' })
+  @ApiBody({ type: PlaceBidDto })
+  @ApiResponse({ status: HttpStatus.CREATED })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST })
+  placeBid(
+    @Param('id') id: string,
+    @Body() dto: PlaceBidDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const userId = req.user?._id ?? req.user?.id ?? '';
+    return this.bidService.placeBid(id, String(userId), dto);
+  }
+
+  @Get(':id/bids')
+  @ApiOperation({ summary: 'مزايدات إعلان', description: 'جلب مزايدات إعلان مزاد' })
+  @ApiParam({ name: 'id', description: 'معرف الإعلان' })
+  @ApiQuery({ name: 'cursor', required: false })
+  @ApiResponse({ status: HttpStatus.OK })
+  getBids(
+    @Param('id') id: string,
+    @Query('cursor') cursor?: string,
+  ) {
+    return this.bidService.getBids(id, cursor, 25);
   }
 
   @Get(':id')

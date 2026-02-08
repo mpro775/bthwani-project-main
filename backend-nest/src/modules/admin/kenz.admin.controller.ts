@@ -6,6 +6,8 @@ import { Auth, Roles, CurrentUser } from '../../common/decorators/auth.decorator
 import { AuthType } from '../../common/guards/unified-auth.guard';
 import { CursorPaginationDto } from '../../common/dto/pagination.dto';
 import { KenzService } from '../kenz/kenz.service';
+import { KenzDealService } from '../kenz/kenz-deal.service';
+import { KenzBidService } from '../kenz/kenz-bid.service';
 import CreateKenzBoostDto from '../kenz/dto/create-kenz-boost.dto';
 import {
   KenzAdminQueryDto,
@@ -23,7 +25,11 @@ import { KenzStatus, KenzWithOwner } from './interfaces/admin.interfaces';
 @Auth(AuthType.JWT)
 @Roles('admin','superadmin')
 export class AdminKenzController {
-  constructor(private readonly service: KenzService) { }
+  constructor(
+    private readonly service: KenzService,
+    private readonly dealService: KenzDealService,
+    private readonly bidService: KenzBidService,
+  ) {}
 
   @Get()
   @ApiOperation({
@@ -82,6 +88,24 @@ export class AdminKenzController {
   @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'غير مسموح' })
   getStats() {
     return this.service.getStats();
+  }
+
+  @Get('deals')
+  @ApiOperation({
+    summary: 'قائمة صفقات كنز (الإيكرو)',
+    description: 'استرجاع قائمة صفقات الإيكرو مع الفلترة'
+  })
+  @ApiQuery({ name: 'cursor', required: false })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'status', required: false, enum: ['pending', 'completed', 'cancelled'] })
+  @ApiResponse({ status: HttpStatus.OK, description: 'تم الاسترجاع بنجاح' })
+  listDeals(
+    @Query('cursor') cursor?: string,
+    @Query('limit') limit?: string,
+    @Query('status') status?: string,
+  ) {
+    const limitNum = limit ? parseInt(limit, 10) : 25;
+    return this.dealService.listAllDeals({ status }, cursor, limitNum);
   }
 
   @Get('boosts')
@@ -179,6 +203,17 @@ export class AdminKenzController {
   @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'غير مسموح' })
   remove(@Param('id') id: string) {
     return this.service.remove(id);
+  }
+
+  @Get(':id/bids')
+  @ApiOperation({
+    summary: 'قائمة مزايدات إعلان مزاد',
+    description: 'استرجاع مزايدات إعلان كنز (للمزادات فقط)'
+  })
+  @ApiParam({ name: 'id', description: 'معرف إعلان الكنز' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'تم الاسترجاع بنجاح' })
+  getBids(@Param('id') id: string) {
+    return this.bidService.getBids(id);
   }
 
   @Get(':id')

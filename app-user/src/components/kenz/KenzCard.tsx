@@ -159,6 +159,36 @@ const KenzCard: React.FC<KenzCardProps> = ({
         >
           <Text style={styles.statusText}>{getStatusText(item.status)}</Text>
         </View>
+        {item.isAuction && (
+          <View
+            style={[
+              styles.statusBadge,
+              {
+                backgroundColor: COLORS.info || "#0ea5e9",
+                flexDirection: "row",
+                alignItems: "center",
+              },
+            ]}
+          >
+            <Ionicons name="hammer-outline" size={12} color={COLORS.white} />
+            <Text style={[styles.statusText, { marginLeft: 4 }]}>مزاد</Text>
+          </View>
+        )}
+        {item.acceptsEscrow && (
+          <View
+            style={[
+              styles.statusBadge,
+              {
+                backgroundColor: "#059669",
+                flexDirection: "row",
+                alignItems: "center",
+              },
+            ]}
+          >
+            <Ionicons name="wallet-outline" size={12} color={COLORS.white} />
+            <Text style={[styles.statusText, { marginLeft: 4 }]}>إيكرو</Text>
+          </View>
+        )}
       </View>
 
       <Text style={styles.title} numberOfLines={2}>
@@ -208,11 +238,15 @@ const KenzCard: React.FC<KenzCardProps> = ({
         </View>
       )}
 
-      {item.price != null && (
+      {(item.price != null || item.startingPrice != null || item.winningBidAmount != null) && (
         <View style={styles.priceContainer}>
           <Ionicons name="cash-outline" size={16} color={COLORS.success} />
           <Text style={styles.priceText}>
-            {formatCurrency(item.price, item.currency)}
+            {item.isAuction && item.winningBidAmount != null
+              ? formatCurrency(item.winningBidAmount, item.currency)
+              : item.isAuction
+              ? `من ${formatCurrency(item.startingPrice ?? item.price, item.currency)}`
+              : formatCurrency(item.price, item.currency)}
           </Text>
         </View>
       )}

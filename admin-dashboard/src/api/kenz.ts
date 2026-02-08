@@ -22,6 +22,11 @@ export interface KenzItem {
   postedOnBehalfOfPhone?: string;
   /** نشر بالنيابة: المستخدم (مُعبأ من الباك اند) */
   postedOnBehalfOfUserId?: string | { _id: string; name?: string; phone?: string };
+  isAuction?: boolean;
+  auctionEndAt?: string;
+  startingPrice?: number;
+  winnerId?: string | { _id: string; fullName?: string; phone?: string };
+  winningBidAmount?: number;
 }
 
 export interface KenzStats {
@@ -64,12 +69,38 @@ export const getKenzList = async (params?: {
   createdBefore?: string;
   search?: string;
   sort?: KenzSortOption;
+  acceptsEscrow?: boolean;
+  isAuction?: boolean;
 }): Promise<KenzListResponse> => {
   try {
     const response = await api.get('/admin/kenz', { params });
     return response.data;
   } catch (error) {
     console.error('خطأ في جلب قائمة إعلانات الكنز:', error);
+    throw error;
+  }
+};
+
+export interface KenzBidItem {
+  _id: string;
+  kenzId: string;
+  bidderId: string | { _id: string; fullName?: string; phone?: string };
+  amount: number;
+  createdAt: string;
+}
+
+// جلب مزايدات إعلان مزاد
+export const getKenzBids = async (kenzId: string): Promise<{
+  items: KenzBidItem[];
+  nextCursor?: string | null;
+  highestBid?: number | null;
+  bidCount?: number;
+}> => {
+  try {
+    const response = await api.get(`/admin/kenz/${kenzId}/bids`);
+    return response.data;
+  } catch (error) {
+    console.error('خطأ في جلب المزايدات:', error);
     throw error;
   }
 };
@@ -293,6 +324,40 @@ export const cancelKenzBoost = async (id: string): Promise<{ success: boolean }>
     return response.data;
   } catch (error) {
     console.error('خطأ في إلغاء ترويج الكنز:', error);
+    throw error;
+  }
+};
+
+// ========== صفقات الإيكرو (للأدمن) ==========
+export type KenzDealStatus = 'pending' | 'completed' | 'cancelled';
+
+export interface KenzDealItem {
+  _id: string;
+  kenzId: { _id: string; title?: string; price?: number; status?: string };
+  buyerId: { _id: string; fullName?: string; phone?: string };
+  sellerId: { _id: string; fullName?: string; phone?: string };
+  amount: number;
+  status: KenzDealStatus;
+  createdAt: string;
+  completedAt?: string;
+  cancelledAt?: string;
+}
+
+export interface KenzDealsResponse {
+  items: KenzDealItem[];
+  nextCursor?: string;
+}
+
+export const getKenzDeals = async (params?: {
+  cursor?: string;
+  limit?: number;
+  status?: KenzDealStatus;
+}): Promise<KenzDealsResponse> => {
+  try {
+    const response = await api.get('/admin/kenz/deals', { params });
+    return response.data;
+  } catch (error) {
+    console.error('خطأ في جلب صفقات كنز:', error);
     throw error;
   }
 };

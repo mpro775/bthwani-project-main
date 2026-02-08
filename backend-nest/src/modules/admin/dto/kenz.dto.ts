@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsEnum, IsDateString, IsNumber, IsMongoId } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsString, IsOptional, IsEnum, IsDateString, IsNumber, IsMongoId, IsBoolean } from 'class-validator';
+import { Type, Transform } from 'class-transformer';
 import { KenzStatus, KenzListResponse, KenzStats, KenzAdminQuery, KenzStatusUpdateDto, KenzSortOption } from '../interfaces/admin.interfaces';
 import { Types } from 'mongoose';
 import { IsIn } from 'class-validator';
@@ -30,6 +30,18 @@ export class KenzAdminQueryDto implements KenzAdminQuery {
   @IsOptional()
   @IsIn(['meetup', 'delivery', 'both'])
   deliveryOption?: 'meetup' | 'delivery' | 'both';
+
+  @ApiProperty({ required: false, description: 'إعلانات تقبل الإيكرو فقط' })
+  @IsOptional()
+  @Transform(({ value }) => (value === 'true' || value === '1' ? true : value === 'false' || value === '0' ? false : undefined))
+  @IsBoolean()
+  acceptsEscrow?: boolean;
+
+  @ApiProperty({ required: false, description: 'إعلانات المزادات فقط' })
+  @IsOptional()
+  @Transform(({ value }) => (value === 'true' || value === '1' ? true : value === 'false' || value === '0' ? false : undefined))
+  @IsBoolean()
+  isAuction?: boolean;
 
   @ApiProperty({ required: false, example: '2024-01-01T00:00:00.000Z' })
   @IsOptional()

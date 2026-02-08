@@ -18,6 +18,12 @@ export interface KenzItem {
   };
   postedOnBehalfOfPhone?: string;
   postedOnBehalfOfUserId?: string | { _id: string; name?: string; phone?: string };
+  isAuction?: boolean;
+  auctionEndAt?: string;
+  startingPrice?: number;
+  winnerId?: string | { _id: string; fullName?: string; phone?: string };
+  winningBidAmount?: number;
+  acceptsEscrow?: boolean;
 }
 
 export enum KenzStatus {

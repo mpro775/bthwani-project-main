@@ -9,6 +9,7 @@ import {
   Alert,
   ActivityIndicator,
   Image,
+  Switch,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -62,6 +63,10 @@ const KenzCreateScreen = () => {
     postedOnBehalfOfPhone: "",
     deliveryOption: undefined as "meetup" | "delivery" | "both" | undefined,
     deliveryFee: undefined as number | undefined,
+    acceptsEscrow: false,
+    isAuction: false,
+    auctionEndAt: undefined as string | undefined,
+    startingPrice: undefined as number | undefined,
   });
   const [imageUris, setImageUris] = useState<string[]>([]);
   const [keywordsText, setKeywordsText] = useState("");
@@ -129,6 +134,14 @@ const KenzCreateScreen = () => {
       Alert.alert("خطأ", "الكمية يجب أن تكون 1 على الأقل");
       return;
     }
+    if (formData.isAuction && !formData.auctionEndAt) {
+      Alert.alert("خطأ", "يرجى تحديد تاريخ انتهاء المزاد");
+      return;
+    }
+    if (formData.isAuction && (!formData.startingPrice || formData.startingPrice < 0)) {
+      Alert.alert("خطأ", "يرجى إدخال السعر الابتدائي للمزاد");
+      return;
+    }
 
     setLoading(true);
     try {
@@ -161,6 +174,13 @@ const KenzCreateScreen = () => {
           formData.deliveryOption === "both"
             ? formData.deliveryFee
             : undefined,
+        acceptsEscrow: formData.acceptsEscrow,
+        isAuction: formData.isAuction || undefined,
+        auctionEndAt: formData.isAuction && formData.auctionEndAt
+          ? new Date(formData.auctionEndAt).toISOString()
+          : undefined,
+        startingPrice: formData.isAuction ? formData.startingPrice : undefined,
+        price: formData.isAuction ? formData.startingPrice : formData.price,
       };
       await createKenz(payload);
       Alert.alert("نجح", "تم إنشاء الإعلان بنجاح", [
@@ -407,6 +427,72 @@ const KenzCreateScreen = () => {
                   placeholderTextColor={COLORS.textLight}
                   keyboardType="number-pad"
                 />
+              </>
+            )}
+            <View style={[styles.section, { marginTop: 12 }]}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Text style={styles.sectionTitle}>يقبل الدفع بالإيكرو</Text>
+                <Switch
+                  value={formData.acceptsEscrow}
+                  onValueChange={(v) => updateFormData("acceptsEscrow", v)}
+                />
+              </View>
+              <Text style={styles.helperText}>
+                حجز المبلغ حتى تأكيد الاستلام
+              </Text>
+            </View>
+            <View style={[styles.section, { marginTop: 12 }]}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Text style={styles.sectionTitle}>إعلان مزاد</Text>
+                <Switch
+                  value={formData.isAuction}
+                  onValueChange={(v) => updateFormData("isAuction", v)}
+                />
+              </View>
+              <Text style={styles.helperText}>
+                مزايدة على السعر — يُحدد تاريخ انتهاء وسعر ابتدائي
+              </Text>
+            </View>
+            {formData.isAuction && (
+              <>
+                <View style={[styles.section, { marginTop: 12 }]}>
+                  <Text style={styles.sectionTitle}>السعر الابتدائي *</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={formData.startingPrice?.toString() ?? ""}
+                    onChangeText={(v) =>
+                      updateFormData("startingPrice", v ? parseFloat(v) : undefined)
+                    }
+                    placeholder="مثال: 1000"
+                    placeholderTextColor={COLORS.textLight}
+                    keyboardType="number-pad"
+                  />
+                </View>
+                <View style={[styles.section, { marginTop: 12 }]}>
+                  <Text style={styles.sectionTitle}>تاريخ انتهاء المزاد *</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={formData.auctionEndAt ?? ""}
+                    onChangeText={(v) => updateFormData("auctionEndAt", v || undefined)}
+                    placeholder="2025-03-15T20:00:00"
+                    placeholderTextColor={COLORS.textLight}
+                  />
+                  <Text style={styles.helperText}>
+                    تنسيق: YYYY-MM-DDTHH:mm:ss
+                  </Text>
+                </View>
               </>
             )}
           </View>

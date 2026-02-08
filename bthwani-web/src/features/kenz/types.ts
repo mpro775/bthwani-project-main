@@ -37,6 +37,18 @@ export interface KenzItem {
   deliveryOption?: 'meetup' | 'delivery' | 'both';
   /** رسوم التوصيل */
   deliveryFee?: number;
+  /** يقبل الدفع بالإيكرو */
+  acceptsEscrow?: boolean;
+  /** إعلان مزاد */
+  isAuction?: boolean;
+  /** تاريخ انتهاء المزاد */
+  auctionEndAt?: Date | string;
+  /** السعر الابتدائي للمزاد */
+  startingPrice?: number;
+  /** معرف الفائز (عند إغلاق المزاد) */
+  winnerId?: string | { _id: string; fullName?: string; phone?: string };
+  /** مبلغ الفوز */
+  winningBidAmount?: number;
 }
 
 export type KenzCondition = 'new' | 'used' | 'refurbished';
@@ -59,6 +71,10 @@ export interface CreateKenzPayload {
   postedOnBehalfOfPhone?: string;
   deliveryOption?: 'meetup' | 'delivery' | 'both';
   deliveryFee?: number;
+  acceptsEscrow?: boolean;
+  isAuction?: boolean;
+  auctionEndAt?: string;
+  startingPrice?: number;
 }
 
 export interface UpdateKenzPayload {
@@ -77,6 +93,10 @@ export interface UpdateKenzPayload {
   postedOnBehalfOfPhone?: string;
   deliveryOption?: 'meetup' | 'delivery' | 'both';
   deliveryFee?: number;
+  acceptsEscrow?: boolean;
+  isAuction?: boolean;
+  auctionEndAt?: string;
+  startingPrice?: number;
 }
 
 export interface KenzFilters {
