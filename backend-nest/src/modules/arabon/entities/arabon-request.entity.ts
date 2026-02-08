@@ -16,6 +16,9 @@ export class ArabonRequest extends Document {
 
   @Prop({ default: 'pending' })
   status: ArabonRequestStatus;
+
+  @Prop({ type: Types.ObjectId, ref: 'Booking' })
+  bookingId?: Types.ObjectId;
 }
 
 export const ArabonRequestSchema = SchemaFactory.createForClass(ArabonRequest);

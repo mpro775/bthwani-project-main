@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
-export class ConfirmBookingDto {
+export class AcceptRequestDto {
   @ApiProperty({
-    description: 'معرف الـ slot المراد حجزه',
+    description: 'معرف الـ slot المراد تعيينه للحجز',
     example: '507f1f77bcf86cd799439012',
   })
   @IsString()
@@ -19,20 +19,12 @@ export class ConfirmBookingDto {
   @Min(0)
   depositAmount?: number;
 
-  @ApiProperty({
-    description: 'كود الكوبون (اختياري؛ للخصم عند الحجز، أو أول حجز)',
-    example: 'FIRST10',
-    required: false,
-  })
+  @ApiProperty({ description: 'كود الكوبون (اختياري)', example: 'FIRST10', required: false })
   @IsOptional()
   @IsString()
   couponCode?: string;
 
-  @ApiProperty({
-    description: 'معرف الكوبون (بديل لكود الكوبون)',
-    example: '507f1f77bcf86cd799439013',
-    required: false,
-  })
+  @ApiProperty({ description: 'معرف الكوبون (اختياري)', required: false })
   @IsOptional()
   @IsString()
   couponId?: string;

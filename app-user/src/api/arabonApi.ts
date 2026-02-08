@@ -347,3 +347,111 @@ export const getArabonRequests = async (
   const d = response.data;
   return d?.data ?? [];
 };
+
+// ==================== Slots والحجوزات (المرحلة 5) ====================
+
+export interface BookingSlotItem {
+  _id: string;
+  arabonId: string;
+  datetime: string;
+  isBooked: boolean;
+  durationMinutes?: number;
+}
+
+export const validateBookingCoupon = async (
+  arabonId: string,
+  code: string,
+  amount: number
+): Promise<{ valid: boolean; message?: string; discountAmount?: number; finalAmount?: number }> => {
+  const headers = await getAuthHeaders();
+  const response = await axiosInstance.get(
+    `/arabon/${arabonId}/validate-coupon`,
+    { headers, params: { code, amount: String(amount) } }
+  );
+  const d = response.data;
+  return (d?.data ?? d) as { valid: boolean; message?: string; discountAmount?: number; finalAmount?: number };
+};
+
+export const getArabonSlots = async (
+  arabonId: string,
+  from?: string,
+  to?: string
+): Promise<{ data: BookingSlotItem[] }> => {
+  const headers = await getAuthHeaders();
+  const params: Record<string, string> = {};
+  if (from) params.from = from;
+  if (to) params.to = to;
+  const response = await axiosInstance.get(`/arabon/${arabonId}/slots`, {
+    headers,
+    params: Object.keys(params).length ? params : undefined,
+  });
+  const d = response.data;
+  return { data: d?.data ?? [] };
+};
+
+export interface ConfirmBookingPayload {
+  slotId: string;
+  depositAmount?: number;
+  couponCode?: string;
+  couponId?: string;
+}
+
+export interface BookingItem {
+  _id: string;
+  userId: string;
+  arabonId: string | { _id: string; title?: string; depositAmount?: number };
+  slotId: string | { _id: string; datetime?: string; durationMinutes?: number };
+  status: 'pending_payment' | 'confirmed' | 'completed' | 'cancelled' | 'no_show';
+  depositAmount: number;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export const confirmBooking = async (
+  arabonId: string,
+  payload: ConfirmBookingPayload
+): Promise<BookingItem> => {
+  const headers = await getAuthHeaders();
+  const response = await axiosInstance.post(`/arabon/${arabonId}/book`, payload, {
+    headers,
+  });
+  const raw = response.data;
+  return (raw?.data ?? raw) as BookingItem;
+};
+
+export interface MyBookingsResponse {
+  data: BookingItem[];
+  nextCursor?: string;
+  hasMore?: boolean;
+}
+
+export const getMyBookings = async (
+  opts?: { status?: string; from?: string; to?: string; cursor?: string; limit?: number }
+): Promise<MyBookingsResponse> => {
+  const headers = await getAuthHeaders();
+  const params: Record<string, string> = {};
+  if (opts?.status) params.status = opts.status;
+  if (opts?.from) params.from = opts.from;
+  if (opts?.to) params.to = opts.to;
+  if (opts?.cursor) params.cursor = opts.cursor;
+  if (opts?.limit) params.limit = String(opts.limit);
+  const response = await axiosInstance.get('/arabon/bookings/my', {
+    headers,
+    params: Object.keys(params).length ? params : undefined,
+  });
+  const d = response.data;
+  return {
+    data: d?.data ?? d?.items ?? [],
+    nextCursor: d?.nextCursor,
+    hasMore: d?.hasMore ?? !!d?.nextCursor,
+  };
+};
+
+export const getBookingDetails = async (bookingId: string): Promise<BookingItem> => {
+  const headers = await getAuthHeaders();
+  const response = await axiosInstance.get(`/arabon/bookings/${bookingId}`, {
+    headers,
+  });
+  const raw = response.data;
+  return (raw?.data ?? raw) as BookingItem;
+};

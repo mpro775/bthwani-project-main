@@ -58,8 +58,8 @@ export default class CreateAmaniDto {
   destination?: any;
 
   @ApiProperty({
-    description: 'بيانات إضافية للطلب',
-    example: { passengers: 4, luggage: true, specialRequests: 'كرسي أطفال' },
+    description: 'بيانات إضافية للطلب (womenOnly: سائقة أنثى فقط)',
+    example: { passengers: 4, luggage: true, specialRequests: 'كرسي أطفال', womenOnly: false },
     required: false,
     type: Object
   })

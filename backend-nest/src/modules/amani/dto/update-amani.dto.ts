@@ -50,11 +50,12 @@ export default class UpdateAmaniDto {
   destination?: any;
 
   @ApiProperty({
-    description: 'البيانات الإضافية المحدثة',
+    description: 'البيانات الإضافية المحدثة (womenOnly: سائقة أنثى فقط)',
     example: {
       passengers: 4,
       luggage: true,
       specialRequests: 'كرسي أطفال، مساعدات إضافية',
+      womenOnly: false,
     },
     required: false,
   })

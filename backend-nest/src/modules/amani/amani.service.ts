@@ -47,9 +47,13 @@ export class AmaniService {
     return await doc.save();
   }
 
-  async findAll(opts: { cursor?: string }) {
+  async findAll(opts: { cursor?: string; status?: string }) {
     const limit = 25;
-    const query = this.model.find().sort({ _id: -1 }).limit(limit);
+    const filter: Record<string, unknown> = {};
+    if (opts?.status) {
+      filter.status = opts.status;
+    }
+    const query = this.model.find(filter).sort({ _id: -1 }).limit(limit);
     if (opts?.cursor) {
       try {
         query.where('_id').lt(new Types.ObjectId(opts.cursor) as any);
@@ -136,6 +140,50 @@ export class AmaniService {
   }
 
   /**
+   * قبول الطلب من السائق (تعيين ذاتي)
+   */
+  async acceptByDriver(amaniId: string, driverId: string): Promise<Amani> {
+    const amani = await this.model.findById(amaniId);
+    if (!amani) {
+      throw new NotFoundException('الطلب غير موجود');
+    }
+
+    if (amani.status !== AmaniStatus.PENDING) {
+      throw new BadRequestException(
+        `لا يمكن قبول الطلب في الحالة "${amani.status}". يجب أن يكون الطلب في حالة pending`,
+      );
+    }
+
+    const driver = await this.driverModel.findById(driverId);
+    if (!driver) {
+      throw new NotFoundException('السائق غير موجود');
+    }
+
+    if (!driver.isAvailable || driver.isBanned) {
+      throw new BadRequestException('أنت غير متاح لاستقبال طلبات جديدة');
+    }
+
+    if (amani.metadata?.womenOnly === true) {
+      const isFemaleDriver =
+        driver.role === 'women_driver' || driver.isFemaleDriver === true;
+      if (!isFemaleDriver) {
+        throw new BadRequestException(
+          'هذا الطلب يتطلب سائقة أنثى فقط',
+        );
+      }
+    }
+
+    return this.assignDriver(
+      amaniId,
+      {
+        driverId,
+        note: 'قبول الطلب من السائقة',
+      },
+      driverId,
+    );
+  }
+
+  /**
    * تعيين سائق تلقائياً (أقرب سائق متاح)
    */
   async assignDriverAuto(id: string): Promise<Amani> {
@@ -149,14 +197,28 @@ export class AmaniService {
     }
 
     // البحث عن السائقين المتاحين
-    const availableDrivers = await this.driverModel.find({
+    const driverFilter: Record<string, unknown> = {
       isAvailable: true,
       isBanned: false,
       currentLocation: { $exists: true },
-    }).exec();
+    };
+
+    // عند طلب سائقة أنثى فقط: فلترة حسب role أو isFemaleDriver
+    if (amani.metadata?.womenOnly === true) {
+      driverFilter.$or = [
+        { role: 'women_driver' },
+        { isFemaleDriver: true },
+      ];
+    }
+
+    const availableDrivers = await this.driverModel.find(driverFilter).exec();
 
     if (availableDrivers.length === 0) {
-      throw new NotFoundException('لا يوجد سائقون متاحون حالياً');
+      throw new NotFoundException(
+        amani.metadata?.womenOnly
+          ? 'لا توجد سائقات متاحات حالياً'
+          : 'لا يوجد سائقون متاحون حالياً',
+      );
     }
 
     // حساب المسافة لكل سائق

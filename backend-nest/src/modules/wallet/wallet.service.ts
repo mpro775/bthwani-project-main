@@ -219,7 +219,13 @@ export class WalletService {
   }
 
   // حجز مبلغ (Escrow) - مع Transaction
-  async holdFunds(userId: string, amount: number, orderId?: string) {
+  // refType: نوع المرجع للتتبع (مثل booking_deposit للحجوزات)
+  async holdFunds(
+    userId: string,
+    amount: number,
+    orderId?: string,
+    refType?: string,
+  ) {
     return TransactionHelper.executeInTransaction(
       this.connection,
       async (session) => {
@@ -247,6 +253,10 @@ export class WalletService {
           session,
         });
 
+        const meta: Record<string, unknown> = orderId
+          ? { orderId, refId: orderId, ...(refType ? { refType } : {}) }
+          : {};
+
         // إنشاء معاملة حجز
         const [transaction] = await this.walletTransactionModel.create(
           [
@@ -257,8 +267,8 @@ export class WalletService {
               type: 'debit',
               method: 'escrow',
               status: 'pending',
-              description: 'حجز مبلغ للطلب',
-              meta: orderId ? { orderId } : {},
+              description: refType === 'booking_deposit' ? 'حجز مبلغ للحجز' : 'حجز مبلغ للطلب',
+              meta,
             },
           ],
           { session },
@@ -323,12 +333,14 @@ export class WalletService {
 
   /**
    * إكمال صفقة إيكرو: إطلاق الحجز من المشتري وتحويل المبلغ للبائع
+   * refType: نوع المرجع للتتبع (مثل booking_complete للحجوزات، kenz_deal للصفقات)
    */
   async completeEscrowTransfer(
     buyerId: string,
     sellerId: string,
     amount: number,
     orderId?: string,
+    refType?: string,
   ) {
     return TransactionHelper.executeInTransaction(
       this.connection,
@@ -377,13 +389,17 @@ export class WalletService {
           { session },
         );
 
+        const sourceType = refType || 'kenz_deal';
+
         // ائتمان للبائع
         await this.credit(
           sellerId,
           amount,
           'escrow',
-          'استلام مبلغ صفقة كنز بالإيكرو',
-          orderId ? { orderId, source: 'kenz_deal' } : { source: 'kenz_deal' },
+          sourceType === 'booking_complete'
+            ? 'استلام مبلغ حجز مكتمل'
+            : 'استلام مبلغ صفقة كنز بالإيكرو',
+          orderId ? { orderId, refId: orderId, refType: sourceType } : { refType: sourceType },
           session,
         );
 
@@ -393,7 +409,12 @@ export class WalletService {
   }
 
   // إرجاع المبلغ المحجوز - مع Transaction
-  async refundHeldFunds(userId: string, amount: number, orderId?: string) {
+  async refundHeldFunds(
+    userId: string,
+    amount: number,
+    orderId?: string,
+    refType?: string,
+  ) {
     const session = await this.connection.startSession();
     session.startTransaction();
 
@@ -418,15 +439,17 @@ export class WalletService {
         { new: true, session },
       );
 
-      // تحديث حالة المعاملة
+      // تحديث حالة المعاملة (مع refType للتتبع عند الاسترداد للحجوزات)
       await this.walletTransactionModel.findOneAndUpdate(
         {
           userId: new Types.ObjectId(userId),
           method: 'escrow',
           status: 'pending',
-          'meta.orderId': orderId,
+          ...(orderId ? { 'meta.orderId': orderId } : {}),
         },
-        { status: 'reversed' },
+        refType
+          ? { $set: { status: 'reversed', 'meta.refType': refType } }
+          : { status: 'reversed' },
         { session },
       );
 
@@ -1170,6 +1193,14 @@ export class WalletService {
     // البحث في الوصف
     if (filters.search) {
       query.description = { $regex: filters.search, $options: 'i' };
+    }
+
+    // فلترة حسب معاملات الحجوزات (orderId / refType)
+    if (filters.orderId) {
+      query['meta.orderId'] = filters.orderId;
+    }
+    if (filters.refType) {
+      query['meta.refType'] = filters.refType;
     }
 
     // استخدام cursor pagination

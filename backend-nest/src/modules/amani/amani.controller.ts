@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query, Patch, Delete, HttpStatus, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, Patch, Delete, HttpStatus, UseGuards } from '@nestjs/common';
 import { 
   ApiTags, 
   ApiOperation, 
@@ -16,6 +16,10 @@ import UpdateAmaniDto from './dto/update-amani.dto';
 import AssignDriverDto from './dto/assign-driver.dto';
 import UpdateAmaniStatusDto from './dto/update-status.dto';
 import { Amani } from './entities/amani.entity';
+import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { Auth, CurrentUser, Roles } from '../../common/decorators/auth.decorator';
+import { AuthType } from '../../common/guards/unified-auth.guard';
 
 @ApiTags('آماني — النقل النسائي للعائلات')
 @ApiBearerAuth()
@@ -171,6 +175,13 @@ export class AmaniController {
     example: '507f1f77bcf86cd799439012',
     schema: { type: 'string' }
   })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    description: 'فلترة حسب الحالة (pending, confirmed, in_progress, completed, cancelled)',
+    example: 'pending',
+    schema: { type: 'string' }
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'تم استرجاع القائمة بنجاح',
@@ -208,8 +219,39 @@ export class AmaniController {
     status: HttpStatus.UNAUTHORIZED,
     description: 'غير مخول للوصول'
   })
-  findAll(@Query('cursor') cursor?: string) {
-    return this.service.findAll({ cursor });
+  findAll(@Query('cursor') cursor?: string, @Query('status') status?: string) {
+    return this.service.findAll({ cursor, status });
+  }
+
+  @Get('driver/my-orders')
+  @UseGuards(UnifiedAuthGuard, RolesGuard)
+  @Auth(AuthType.JWT)
+  @Roles('driver')
+  @ApiOperation({ 
+    summary: 'جلب طلبات السائق',
+    description: 'استرجاع قائمة بطلبات أماني المعينة للسائق (يتطلب تسجيل دخول السائق)'
+  })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    description: 'فلترة حسب الحالة',
+    example: 'in_progress',
+    schema: { type: 'string' }
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'تم استرجاع الطلبات بنجاح'
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'يجب تسجيل الدخول كسائق'
+  })
+  async getMyDriverOrders(
+    @CurrentUser('id') driverId: string,
+    @Query('status') status?: string,
+  ) {
+    const items = await this.service.getDriverOrders(driverId, status);
+    return { items };
   }
 
   @Get(':id')
@@ -484,26 +526,37 @@ export class AmaniController {
     return this.service.updateStatus(id, dto);
   }
 
-  @Get('driver/my-orders')
+  @Post(':id/accept')
+  @UseGuards(UnifiedAuthGuard, RolesGuard)
+  @Auth(AuthType.JWT)
+  @Roles('driver')
   @ApiOperation({ 
-    summary: 'جلب طلبات السائق',
-    description: 'استرجاع قائمة بطلبات السائق المعينة له'
+    summary: 'قبول الطلب (للسائق)',
+    description: 'السائق يقبل الطلب ويُعيَّن له. يتطلب أن يكون السائق سائقة أنثى لطلبات womenOnly'
   })
-  @ApiQuery({
-    name: 'status',
-    required: false,
-    description: 'فلترة حسب الحالة',
-    example: 'in_progress',
+  @ApiParam({
+    name: 'id',
+    description: 'معرف طلب النقل النسائي',
+    example: '507f1f77bcf86cd799439012',
     schema: { type: 'string' }
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'تم استرجاع الطلبات بنجاح'
+    description: 'تم تعيين السائق للطلب بنجاح'
   })
-  async getMyDriverOrders(@Query('status') status?: string) {
-    // TODO: Get driverId from @CurrentUser decorator when auth is implemented
-    // For now, this is a placeholder
-    throw new BadRequestException('يجب تسجيل الدخول كسائق');
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'الطلب غير موجود'
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'حالة الطلب لا تسمح بالقبول أو السائق غير مؤهل'
+  })
+  async acceptByDriver(
+    @Param('id') id: string,
+    @CurrentUser('id') driverId: string,
+  ) {
+    return this.service.acceptByDriver(id, driverId);
   }
 
   @Post(':id/cancel')

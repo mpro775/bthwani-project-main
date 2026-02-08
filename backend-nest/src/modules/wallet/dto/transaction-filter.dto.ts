@@ -113,6 +113,21 @@ export class TransactionFilterDto {
   search?: string;
 
   @ApiPropertyOptional({
+    description: 'معرف الطلب/الحجز (meta.orderId أو meta.refId)',
+    example: '507f1f77bcf86cd799439011',
+  })
+  @IsOptional()
+  @IsString()
+  orderId?: string;
+
+  @ApiPropertyOptional({
+    description: 'نوع المرجع للحجوزات (booking_deposit, booking_refund, booking_complete)',
+  })
+  @IsOptional()
+  @IsString()
+  refType?: string;
+
+  @ApiPropertyOptional({
     description: 'Cursor للصفحة التالية',
   })
   @IsOptional()

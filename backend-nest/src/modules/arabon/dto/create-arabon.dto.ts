@@ -15,6 +15,14 @@ export enum ArabonBookingPeriod {
   WEEK = 'week'
 }
 
+export enum ArabonOfferType {
+  CLINIC = 'clinic',
+  SALON = 'salon',
+  EVENT = 'event',
+  VENUE = 'venue',
+  OTHER = 'other',
+}
+
 export default class CreateArabonDto {
   @ApiProperty({ description: 'معرف صاحب العربون', example: '507f1f77bcf86cd799439011' })
   @IsString()
@@ -55,6 +63,12 @@ export default class CreateArabonDto {
   @IsString({ each: true })
   images?: string[];
 
+  @ApiProperty({ description: 'روابط فيديو للمكان', required: false, example: ['https://cdn.bthwani.com/arabon/1-video.mp4'], type: [String] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  videos?: string[];
+
   @ApiProperty({ description: 'رقم التواصل للحجز', required: false, example: '+967771234567' })
   @IsOptional()
   @IsString()
@@ -73,6 +87,16 @@ export default class CreateArabonDto {
   @IsOptional()
   @IsString()
   category?: string;
+
+  @ApiProperty({
+    description: 'فئة العرض: عيادة، صالون، فعالية، منشأة، أخرى',
+    required: false,
+    example: 'salon',
+    enum: ArabonOfferType,
+  })
+  @IsOptional()
+  @IsEnum(ArabonOfferType)
+  offerType?: ArabonOfferType;
 
   @ApiProperty({ description: 'قيمة الحجز الكاملة (ريال)', required: false, example: 1500 })
   @IsOptional()

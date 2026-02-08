@@ -251,6 +251,8 @@ export async function getAllTransactions(params?: {
   startDate?: string;
   endDate?: string;
   search?: string;
+  orderId?: string;
+  refType?: string;
   cursor?: string;
   limit?: number;
 }): Promise<{

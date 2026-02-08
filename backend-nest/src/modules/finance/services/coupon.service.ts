@@ -59,9 +59,14 @@ export class CouponService {
 
   /**
    * التحقق من صلاحية كوبون وحساب الخصم
+   * @param options.hasPreviousBooking - عند true وكوبون أول حجز: يعتبر غير صالح
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async validate(dto: ValidateCouponDto, _userId?: string) {
+  async validate(
+    dto: ValidateCouponDto,
+    _userId?: string,
+    options?: { hasPreviousBooking?: boolean },
+  ) {
     const coupon = await this.couponModel.findOne({
       code: dto.code.toUpperCase(),
       isActive: true,
@@ -71,6 +76,14 @@ export class CouponService {
       return {
         valid: false,
         message: 'الكوبون غير موجود أو غير نشط',
+      };
+    }
+
+    // كوبون أول حجز: يقتصر على المستخدمين الذين لم يحجزوا مسبقاً
+    if (coupon.applicableTo === 'first_order' && options?.hasPreviousBooking) {
+      return {
+        valid: false,
+        message: 'هذا الكوبون خاص بأول حجز فقط',
       };
     }
 
@@ -177,6 +190,13 @@ export class CouponService {
       throw new NotFoundException('الكوبون غير موجود');
     }
     return coupon;
+  }
+
+  /**
+   * الحصول على كوبون بالمعرف
+   */
+  async findById(id: string): Promise<FinancialCoupon | null> {
+    return this.couponModel.findById(id).exec();
   }
 
   /**

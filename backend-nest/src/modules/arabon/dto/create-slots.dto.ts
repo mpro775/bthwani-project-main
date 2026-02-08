@@ -72,7 +72,7 @@ export class CreateSlotsDto {
     type: [SlotItemDto],
     required: false,
   })
-  @ValidateIf((o) => !o.start)
+  @ValidateIf((o) => !o.range)
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => SlotItemDto)

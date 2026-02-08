@@ -27,7 +27,10 @@ const STATUS_FILTERS: { key: ArabonStatus | ""; label: string }[] = [
   { key: "cancelled", label: "ملغي" },
 ];
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, "ArabonList">;
+type NavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "ArabonList"
+>;
 
 const ArabonListScreen = () => {
   const navigation = useNavigation<NavigationProp>();
@@ -92,7 +95,7 @@ const ArabonListScreen = () => {
   const renderItem = ({ item }: { item: ArabonItem }) => (
     <ArabonCard
       item={item}
-      onPress={() => navigation.navigate('ArabonDetails', { itemId: item._id })}
+      onPress={() => navigation.navigate("ArabonDetails", { itemId: item._id })}
     />
   );
 
@@ -118,9 +121,14 @@ const ArabonListScreen = () => {
 
   const getStats = () => {
     const total = items.length;
-    const completed = items.filter(item => item.status === 'completed').length;
-    const pending = items.filter(item => item.status === 'pending').length;
-    const totalAmount = items.reduce((sum, item) => sum + (item.depositAmount || 0), 0);
+    const completed = items.filter(
+      (item) => item.status === "completed"
+    ).length;
+    const pending = items.filter((item) => item.status === "pending").length;
+    const totalAmount = items.reduce(
+      (sum, item) => sum + (item.depositAmount || 0),
+      0
+    );
 
     return { total, completed, pending, totalAmount };
   };
@@ -150,6 +158,17 @@ const ArabonListScreen = () => {
           >
             <Ionicons name="person-outline" size={18} color={COLORS.primary} />
             <Text style={styles.secondaryButtonText}>عربوناتي</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.secondaryButton}
+            onPress={() => navigation.navigate("ArabonMyBookings")}
+          >
+            <Ionicons
+              name="calendar-outline"
+              size={18}
+              color={COLORS.primary}
+            />
+            <Text style={styles.secondaryButtonText}>حجوزاتي</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.secondaryButton}
@@ -203,7 +222,9 @@ const ArabonListScreen = () => {
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{(stats.totalAmount ?? 0).toFixed(0)}</Text>
+            <Text style={styles.statValue}>
+              {(stats.totalAmount ?? 0).toFixed(0)}
+            </Text>
             <Text style={styles.statLabel}>إجمالي ريال</Text>
           </View>
         </View>
@@ -237,8 +258,8 @@ const styles = StyleSheet.create({
   },
   centerContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: COLORS.background,
   },
   loadingText: {
@@ -267,9 +288,9 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
     marginTop: 16,
     paddingVertical: 12,
     paddingHorizontal: 16,
@@ -277,7 +298,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   statItem: {
-    alignItems: 'center',
+    alignItems: "center",
     flex: 1,
   },
   statValue: {
@@ -297,15 +318,15 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.border,
   },
   actionsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8,
     marginTop: 12,
-    alignItems: 'center',
+    alignItems: "center",
   },
   secondaryButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: 10,
     paddingHorizontal: 14,
     borderRadius: 8,
@@ -319,9 +340,9 @@ const styles = StyleSheet.create({
     marginLeft: 6,
   },
   addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: COLORS.primary,
     paddingVertical: 10,
     paddingHorizontal: 16,
@@ -334,8 +355,8 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   filterRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8,
     marginTop: 12,
   },
@@ -365,8 +386,8 @@ const styles = StyleSheet.create({
   },
   emptyContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingVertical: 60,
   },
   emptyTitle: {
@@ -385,7 +406,7 @@ const styles = StyleSheet.create({
   },
   footerLoader: {
     paddingVertical: 16,
-    alignItems: 'center',
+    alignItems: "center",
   },
   footerText: {
     fontSize: 14,

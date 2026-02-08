@@ -8,6 +8,7 @@ import { BookingSlot, BookingSlotSchema } from './entities/booking-slot.entity';
 import { Booking, BookingSchema } from './entities/booking.entity';
 import { User, UserSchema } from '../auth/entities/user.entity';
 import { WalletModule } from '../wallet/wallet.module';
+import { FinanceModule } from '../finance/finance.module';
 import { ArabonController } from './arabon.controller';
 import { ArabonService } from './arabon.service';
 import { BookingSlotService } from './booking-slot.service';
@@ -25,6 +26,7 @@ import { BookingService } from './booking.service';
     ]),
     JwtModule.register({}),
     WalletModule,
+    FinanceModule,
   ],
   controllers: [ArabonController],
   providers: [ArabonService, BookingSlotService, BookingService],

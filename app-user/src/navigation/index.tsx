@@ -89,10 +89,12 @@ import AmaniEditScreen from "@/screens/amani/AmaniEditScreen";
 // العربون (Deposits)
 import ArabonListScreen from "@/screens/arabon/ArabonListScreen";
 import ArabonMyListScreen from "@/screens/arabon/ArabonMyListScreen";
+import ArabonMyBookingsScreen from "@/screens/arabon/ArabonMyBookingsScreen";
 import ArabonSearchScreen from "@/screens/arabon/ArabonSearchScreen";
 import ArabonCreateScreen from "@/screens/arabon/ArabonCreateScreen";
 import ArabonDetailsScreen from "@/screens/arabon/ArabonDetailsScreen";
 import ArabonEditScreen from "@/screens/arabon/ArabonEditScreen";
+import ArabonBookScreen from "@/screens/arabon/ArabonBookScreen";
 
 // الكوادر (Professional Services)
 import KawaderListScreen from "@/screens/kawader/KawaderListScreen";
@@ -888,10 +890,15 @@ function AppStackNavigator() {
       {/* العربون (Deposits) */}
       <AppStack.Screen name="ArabonList" component={ArabonListScreen} />
       <AppStack.Screen name="ArabonMyList" component={ArabonMyListScreen} />
+      <AppStack.Screen
+        name="ArabonMyBookings"
+        component={ArabonMyBookingsScreen}
+      />
       <AppStack.Screen name="ArabonSearch" component={ArabonSearchScreen} />
       <AppStack.Screen name="ArabonCreate" component={ArabonCreateScreen} />
       <AppStack.Screen name="ArabonDetails" component={ArabonDetailsScreen} />
       <AppStack.Screen name="ArabonEdit" component={ArabonEditScreen} />
+      <AppStack.Screen name="ArabonBook" component={ArabonBookScreen} />
 
       {/* كنز (Marketplace) */}
       <AppStack.Screen name="KenzList" component={KenzListScreen} />

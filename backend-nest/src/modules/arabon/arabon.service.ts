@@ -12,6 +12,7 @@ import { ArabonStatusLog } from './entities/arabon-status-log.entity';
 import { ArabonRequest } from './entities/arabon-request.entity';
 import type CreateArabonDto from './dto/create-arabon.dto';
 import type UpdateArabonDto from './dto/update-arabon.dto';
+import { BookingService } from './booking.service';
 
 const LIST_LIMIT = 25;
 const VALID_STATUSES = Object.values(ArabonStatus);
@@ -30,6 +31,7 @@ export class ArabonService {
     private readonly statusLogModel: Model<ArabonStatusLog>,
     @InjectModel(ArabonRequest.name)
     private readonly requestModel: Model<ArabonRequest>,
+    private readonly bookingService: BookingService,
   ) {}
 
   async create(dto: CreateArabonDto) {
@@ -37,7 +39,7 @@ export class ArabonService {
     return await doc.save();
   }
 
-  async findAll(opts: { cursor?: string; status?: string; ownerId?: string }) {
+  async findAll(opts: { cursor?: string; status?: string; ownerId?: string; offerType?: string }) {
     const filter: Record<string, unknown> = {};
     if (opts?.status && VALID_STATUSES.includes(opts.status as ArabonStatus)) {
       filter.status = opts.status;
@@ -46,6 +48,10 @@ export class ArabonService {
       if (Types.ObjectId.isValid(opts.ownerId)) {
         filter.ownerId = new Types.ObjectId(opts.ownerId);
       }
+    }
+    const validOfferTypes = ['clinic', 'salon', 'event', 'venue', 'other'];
+    if (opts?.offerType && validOfferTypes.includes(opts.offerType)) {
+      filter.offerType = opts.offerType;
     }
 
     const cursorId = parseCursor(opts?.cursor);
@@ -100,7 +106,7 @@ export class ArabonService {
     return { items: resultItems, nextCursor };
   }
 
-  async search(q: string, opts: { cursor?: string; status?: string } = {}) {
+  async search(q: string, opts: { cursor?: string; status?: string; offerType?: string } = {}) {
     const searchFilter: Record<string, unknown> = {
       $or: [
         { title: { $regex: q, $options: 'i' } },
@@ -109,6 +115,10 @@ export class ArabonService {
     };
     if (opts?.status && VALID_STATUSES.includes(opts.status as ArabonStatus)) {
       searchFilter.status = opts.status;
+    }
+    const validOfferTypes = ['clinic', 'salon', 'event', 'venue', 'other'];
+    if (opts?.offerType && validOfferTypes.includes(opts.offerType)) {
+      searchFilter.offerType = opts.offerType;
     }
 
     const cursorId = parseCursor(opts?.cursor);
@@ -344,5 +354,67 @@ export class ArabonService {
       .lean()
       .exec();
     return { items };
+  }
+
+  /**
+   * قبول طلب عربون: إنشاء حجز مؤكد مع slot، حجز المبلغ من المحفظة، ربط الطلب بالحجز
+   */
+  async acceptRequest(
+    arabonId: string,
+    requestId: string,
+    ownerId: string,
+    dto: { slotId: string; depositAmount?: number; couponCode?: string; couponId?: string },
+  ) {
+    const arabon = await this.model.findById(arabonId).lean<{ ownerId: Types.ObjectId }>().exec();
+    if (!arabon) throw new NotFoundException('العربون غير موجود');
+    if (String(arabon.ownerId) !== String(ownerId)) {
+      throw new ForbiddenException('قبول الطلب مسموح لصاحب المنشأة فقط');
+    }
+
+    const request = await this.requestModel
+      .findById(requestId)
+      .lean<{ arabonId: Types.ObjectId; requesterId: Types.ObjectId; status: string }>()
+      .exec();
+    if (!request) throw new NotFoundException('الطلب غير موجود');
+    if (String(request.arabonId) !== String(arabonId)) {
+      throw new BadRequestException('الطلب لا يتبع هذا العربون');
+    }
+    if (request.status !== 'pending') {
+      throw new BadRequestException('الطلب تم معالجته مسبقاً');
+    }
+
+    const requesterId = String(request.requesterId);
+    const booking = await this.bookingService.confirmBooking(arabonId, requesterId, dto);
+
+    await this.requestModel.findByIdAndUpdate(requestId, {
+      status: 'accepted',
+      bookingId: booking._id,
+    });
+
+    return { request: { ...request, status: 'accepted', bookingId: booking._id }, booking };
+  }
+
+  /** رفض طلب عربون */
+  async rejectRequest(arabonId: string, requestId: string, ownerId: string) {
+    const arabon = await this.model.findById(arabonId).lean<{ ownerId: Types.ObjectId }>().exec();
+    if (!arabon) throw new NotFoundException('العربون غير موجود');
+    if (String(arabon.ownerId) !== String(ownerId)) {
+      throw new ForbiddenException('رفض الطلب مسموح لصاحب المنشأة فقط');
+    }
+
+    const request = await this.requestModel
+      .findById(requestId)
+      .lean<{ arabonId: Types.ObjectId; status: string }>()
+      .exec();
+    if (!request) throw new NotFoundException('الطلب غير موجود');
+    if (String(request.arabonId) !== String(arabonId)) {
+      throw new BadRequestException('الطلب لا يتبع هذا العربون');
+    }
+    if (request.status !== 'pending') {
+      throw new BadRequestException('الطلب تم معالجته مسبقاً');
+    }
+
+    await this.requestModel.findByIdAndUpdate(requestId, { status: 'rejected' });
+    return { request: { ...request, status: 'rejected' } };
   }
 }

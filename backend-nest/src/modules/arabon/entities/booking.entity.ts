@@ -3,6 +3,7 @@ import { Document, Types } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 
 export enum BookingStatus {
+  PENDING_PAYMENT = 'pending_payment',
   CONFIRMED = 'confirmed',
   COMPLETED = 'completed',
   CANCELLED = 'cancelled',

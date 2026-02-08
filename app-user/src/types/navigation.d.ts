@@ -62,10 +62,12 @@ export type RootStackParamList = {
   // العربون (العروض والحجوزات بعربون)
   ArabonList: undefined;
   ArabonMyList: undefined;
+  ArabonMyBookings: undefined;
   ArabonSearch: undefined;
   ArabonCreate: undefined;
   ArabonDetails: { itemId: string };
   ArabonEdit: { itemId: string };
+  ArabonBook: { itemId: string };
 
   // الكوادر (الخدمات المهنية)
   KawaderList: undefined;

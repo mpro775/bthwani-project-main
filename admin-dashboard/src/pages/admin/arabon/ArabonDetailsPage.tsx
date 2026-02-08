@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -24,7 +24,7 @@ import {
   MenuItem,
   Breadcrumbs,
   Link,
-} from '@mui/material';
+} from "@mui/material";
 import {
   ArrowBack as ArrowBackIcon,
   Person as PersonIcon,
@@ -33,10 +33,25 @@ import {
   Delete as DeleteIcon,
   Event as EventIcon,
   Phone as PhoneIcon,
-} from '@mui/icons-material';
-import { getArabon, updateArabonStatus, deleteArabon, type ArabonItem as ApiArabonItem } from '../../../api/arabon';
-import { ArabonStatus, ArabonStatusLabels, ArabonStatusColors, type ArabonItem } from '../../../types/arabon';
-import RequireAdminPermission from '../../../components/RequireAdminPermission';
+} from "@mui/icons-material";
+import {
+  getArabon,
+  updateArabonStatus,
+  deleteArabon,
+  getArabonBookings,
+  getBookingsKpis,
+  updateBookingStatus,
+  type ArabonItem as ApiArabonItem,
+  type BookingItem,
+  type BookingsKpis,
+} from "../../../api/arabon";
+import {
+  ArabonStatus,
+  ArabonStatusLabels,
+  ArabonStatusColors,
+  type ArabonItem,
+} from "../../../types/arabon";
+import RequireAdminPermission from "../../../components/RequireAdminPermission";
 
 const ArabonDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -47,22 +62,31 @@ const ArabonDetailsPage: React.FC = () => {
 
   const [statusDialog, setStatusDialog] = useState<{
     open: boolean;
-    newStatus: ArabonStatus | '';
+    newStatus: ArabonStatus | "";
   }>({
     open: false,
-    newStatus: '',
+    newStatus: "",
   });
 
   const [deleteDialog, setDeleteDialog] = useState(false);
 
+  const [bookings, setBookings] = useState<BookingItem[]>([]);
+  const [bookingsLoading, setBookingsLoading] = useState(false);
+  const [kpis, setKpis] = useState<BookingsKpis | null>(null);
+  const [bookingStatusDialog, setBookingStatusDialog] = useState<{
+    open: boolean;
+    booking: BookingItem | null;
+    newStatus: "completed" | "cancelled" | "no_show" | "";
+  }>({ open: false, booking: null, newStatus: "" });
+
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
-    severity: 'success' | 'error';
+    severity: "success" | "error";
   }>({
     open: false,
-    message: '',
-    severity: 'success',
+    message: "",
+    severity: "success",
   });
 
   // جلب بيانات الطلب
@@ -74,11 +98,11 @@ const ArabonDetailsPage: React.FC = () => {
       const data: ApiArabonItem = await getArabon(id);
       // Convert string status to ArabonStatus enum
       const statusMap: Record<string, ArabonStatus> = {
-        'draft': ArabonStatus.DRAFT,
-        'pending': ArabonStatus.PENDING,
-        'confirmed': ArabonStatus.CONFIRMED,
-        'completed': ArabonStatus.COMPLETED,
-        'cancelled': ArabonStatus.CANCELLED,
+        draft: ArabonStatus.DRAFT,
+        pending: ArabonStatus.PENDING,
+        confirmed: ArabonStatus.CONFIRMED,
+        completed: ArabonStatus.COMPLETED,
+        cancelled: ArabonStatus.CANCELLED,
       };
       const convertedData: ArabonItem = {
         ...data,
@@ -86,20 +110,78 @@ const ArabonDetailsPage: React.FC = () => {
       };
       setArabon(convertedData);
     } catch (error) {
-      console.error('خطأ في جلب بيانات الطلب:', error);
+      console.error("خطأ في جلب بيانات الطلب:", error);
       setSnackbar({
         open: true,
-        message: 'فشل في تحميل بيانات الطلب',
-        severity: 'error',
+        message: "فشل في تحميل بيانات الطلب",
+        severity: "error",
       });
     } finally {
       setLoading(false);
     }
   };
 
+  const fetchBookings = async () => {
+    if (!id) return;
+    try {
+      setBookingsLoading(true);
+      const res = await getArabonBookings(id);
+      setBookings(res.data ?? []);
+    } catch {
+      setBookings([]);
+    } finally {
+      setBookingsLoading(false);
+    }
+  };
+
+  const fetchKpis = async () => {
+    if (!id) return;
+    try {
+      const data = await getBookingsKpis(id);
+      setKpis(data);
+    } catch {
+      setKpis(null);
+    }
+  };
+
   useEffect(() => {
     fetchArabon();
   }, [id]);
+
+  useEffect(() => {
+    if (id && arabon?._id) fetchBookings();
+  }, [id, arabon?._id]);
+
+  useEffect(() => {
+    if (id) fetchKpis();
+  }, [id]);
+
+  const handleBookingStatusUpdate = async () => {
+    if (!bookingStatusDialog.booking || !bookingStatusDialog.newStatus) return;
+    try {
+      setUpdating(true);
+      await updateBookingStatus(
+        bookingStatusDialog.booking._id,
+        bookingStatusDialog.newStatus
+      );
+      setSnackbar({
+        open: true,
+        message: "تم تحديث حالة الحجز بنجاح",
+        severity: "success",
+      });
+      setBookingStatusDialog({ open: false, booking: null, newStatus: "" });
+      fetchBookings();
+      fetchKpis();
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: "فشل في تحديث حالة الحجز",
+        severity: "error",
+      });
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   // تحديث الحالة
   const handleStatusUpdate = async () => {
@@ -110,17 +192,17 @@ const ArabonDetailsPage: React.FC = () => {
       await updateArabonStatus(arabon._id, statusDialog.newStatus);
       setSnackbar({
         open: true,
-        message: 'تم تحديث حالة الطلب بنجاح',
-        severity: 'success',
+        message: "تم تحديث حالة الطلب بنجاح",
+        severity: "success",
       });
-      setStatusDialog({ open: false, newStatus: '' });
+      setStatusDialog({ open: false, newStatus: "" });
       fetchArabon(); // إعادة جلب البيانات
     } catch (error) {
-      console.error('خطأ في تحديث الحالة:', error);
+      console.error("خطأ في تحديث الحالة:", error);
       setSnackbar({
         open: true,
-        message: 'فشل في تحديث حالة الطلب',
-        severity: 'error',
+        message: "فشل في تحديث حالة الطلب",
+        severity: "error",
       });
     } finally {
       setUpdating(false);
@@ -136,16 +218,16 @@ const ArabonDetailsPage: React.FC = () => {
       await deleteArabon(arabon._id);
       setSnackbar({
         open: true,
-        message: 'تم حذف الطلب بنجاح',
-        severity: 'success',
+        message: "تم حذف الطلب بنجاح",
+        severity: "success",
       });
-      navigate('/admin/arabon');
+      navigate("/admin/arabon");
     } catch (error) {
-      console.error('خطأ في حذف الطلب:', error);
+      console.error("خطأ في حذف الطلب:", error);
       setSnackbar({
         open: true,
-        message: 'فشل في حذف الطلب',
-        severity: 'error',
+        message: "فشل في حذف الطلب",
+        severity: "error",
       });
     } finally {
       setUpdating(false);
@@ -155,12 +237,12 @@ const ArabonDetailsPage: React.FC = () => {
 
   // الحصول على لون الحالة
   const getStatusColor = (status: ArabonStatus) => {
-    return ArabonStatusColors[status] || 'default';
+    return ArabonStatusColors[status] || "default";
   };
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
         <CircularProgress />
       </Box>
     );
@@ -169,9 +251,7 @@ const ArabonDetailsPage: React.FC = () => {
   if (!arabon) {
     return (
       <Box sx={{ p: 3 }}>
-        <Alert severity="error">
-          لم يتم العثور على الطلب المطلوب
-        </Alert>
+        <Alert severity="error">لم يتم العثور على الطلب المطلوب</Alert>
       </Box>
     );
   }
@@ -186,7 +266,7 @@ const ArabonDetailsPage: React.FC = () => {
             href="#"
             onClick={(e) => {
               e.preventDefault();
-              navigate('/admin/arabon');
+              navigate("/admin/arabon");
             }}
           >
             العربون
@@ -195,11 +275,18 @@ const ArabonDetailsPage: React.FC = () => {
         </Breadcrumbs>
 
         {/* Header */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 3,
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <Button
               startIcon={<ArrowBackIcon />}
-              onClick={() => navigate('/admin/arabon')}
+              onClick={() => navigate("/admin/arabon")}
               variant="outlined"
             >
               العودة
@@ -214,11 +301,13 @@ const ArabonDetailsPage: React.FC = () => {
             </Box>
           </Box>
 
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{ display: "flex", gap: 1 }}>
             <Button
               variant="contained"
               startIcon={<EditIcon />}
-              onClick={() => setStatusDialog({ open: true, newStatus: arabon.status })}
+              onClick={() =>
+                setStatusDialog({ open: true, newStatus: arabon.status })
+              }
             >
               تحديث الحالة
             </Button>
@@ -234,28 +323,37 @@ const ArabonDetailsPage: React.FC = () => {
         </Box>
 
         {/* Status Chip */}
-        <Box sx={{ mb: 3, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+        <Box sx={{ mb: 3, display: "flex", gap: 1, flexWrap: "wrap" }}>
           <Chip
             label={ArabonStatusLabels[arabon.status]}
             size="medium"
             color={getStatusColor(arabon.status)}
             variant="outlined"
           />
-          {arabon.category && <Chip label={arabon.category} size="medium" variant="outlined" />}
+          {arabon.category && (
+            <Chip label={arabon.category} size="medium" variant="outlined" />
+          )}
         </Box>
 
         {/* Images */}
         {arabon.images && arabon.images.length > 0 && (
           <Box sx={{ mb: 3 }}>
-            <Typography variant="h6" gutterBottom>صور العقار</Typography>
-            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+            <Typography variant="h6" gutterBottom>
+              صور العقار
+            </Typography>
+            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
               {arabon.images.map((url, i) => (
                 <Box
                   key={i}
                   component="img"
                   src={url}
                   alt=""
-                  sx={{ width: 200, height: 150, objectFit: 'cover', borderRadius: 1 }}
+                  sx={{
+                    width: 200,
+                    height: 150,
+                    objectFit: "cover",
+                    borderRadius: 1,
+                  }}
                 />
               ))}
             </Box>
@@ -265,18 +363,48 @@ const ArabonDetailsPage: React.FC = () => {
         {/* Contact */}
         {(arabon.contactPhone || arabon.socialLinks) && (
           <Box sx={{ mb: 3 }}>
-            <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography
+              variant="h6"
+              gutterBottom
+              sx={{ display: "flex", alignItems: "center" }}
+            >
               <PhoneIcon sx={{ mr: 1 }} />
               التواصل والحجز
             </Typography>
             {arabon.contactPhone && (
-              <Typography variant="body1" sx={{ mb: 1 }}>{arabon.contactPhone}</Typography>
+              <Typography variant="body1" sx={{ mb: 1 }}>
+                {arabon.contactPhone}
+              </Typography>
             )}
             {arabon.socialLinks && (
-              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                {arabon.socialLinks.whatsapp && <Chip label="واتساب" component="a" href={arabon.socialLinks.whatsapp} target="_blank" clickable />}
-                {arabon.socialLinks.facebook && <Chip label="فيسبوك" component="a" href={arabon.socialLinks.facebook} target="_blank" clickable />}
-                {arabon.socialLinks.instagram && <Chip label="إنستغرام" component="a" href={arabon.socialLinks.instagram} target="_blank" clickable />}
+              <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                {arabon.socialLinks.whatsapp && (
+                  <Chip
+                    label="واتساب"
+                    component="a"
+                    href={arabon.socialLinks.whatsapp}
+                    target="_blank"
+                    clickable
+                  />
+                )}
+                {arabon.socialLinks.facebook && (
+                  <Chip
+                    label="فيسبوك"
+                    component="a"
+                    href={arabon.socialLinks.facebook}
+                    target="_blank"
+                    clickable
+                  />
+                )}
+                {arabon.socialLinks.instagram && (
+                  <Chip
+                    label="إنستغرام"
+                    component="a"
+                    href={arabon.socialLinks.instagram}
+                    target="_blank"
+                    clickable
+                  />
+                )}
               </Box>
             )}
           </Box>
@@ -285,7 +413,7 @@ const ArabonDetailsPage: React.FC = () => {
         {/* Main Content */}
         <Grid container spacing={3}>
           {/* Basic Information */}
-          <Grid  size={{xs: 12, md: 8}}>
+          <Grid size={{ xs: 12, md: 8 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
@@ -294,8 +422,15 @@ const ArabonDetailsPage: React.FC = () => {
                 <Divider sx={{ mb: 2 }} />
 
                 <Grid container spacing={2}>
-                  <Grid  size={{xs: 12}}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                  <Grid size={{ xs: 12 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        mb: 1,
+                      }}
+                    >
                       <PersonIcon color="action" />
                       <Typography variant="body2" color="text.secondary">
                         المالك
@@ -307,8 +442,12 @@ const ArabonDetailsPage: React.FC = () => {
                   </Grid>
 
                   {arabon.description && (
-                    <Grid  size={{xs: 12}}>
-                      <Typography variant="body2" color="text.secondary" gutterBottom>
+                    <Grid size={{ xs: 12 }}>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        gutterBottom
+                      >
                         الوصف
                       </Typography>
                       <Typography variant="body1">
@@ -317,23 +456,39 @@ const ArabonDetailsPage: React.FC = () => {
                     </Grid>
                   )}
 
-                  {(arabon.pricePerPeriod || arabon.bookingPrice || arabon.depositAmount) && (
+                  {(arabon.pricePerPeriod ||
+                    arabon.bookingPrice ||
+                    arabon.depositAmount) && (
                     <Grid size={{ xs: 12 }}>
-                      <Typography variant="body2" color="text.secondary" gutterBottom>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        gutterBottom
+                      >
                         التسعير
                       </Typography>
                       <Stack spacing={1}>
                         {arabon.pricePerPeriod && (
                           <Typography variant="body1">
                             السعر لكل فترة: {arabon.pricePerPeriod} ريال
-                            {arabon.bookingPeriod === 'hour' ? '/ساعة' : arabon.bookingPeriod === 'day' ? '/يوم' : '/أسبوع'}
+                            {arabon.bookingPeriod === "hour"
+                              ? "/ساعة"
+                              : arabon.bookingPeriod === "day"
+                              ? "/يوم"
+                              : "/أسبوع"}
                           </Typography>
                         )}
                         {arabon.bookingPrice && (
-                          <Typography variant="body1">قيمة الحجز: {arabon.bookingPrice} ريال</Typography>
+                          <Typography variant="body1">
+                            قيمة الحجز: {arabon.bookingPrice} ريال
+                          </Typography>
                         )}
                         {arabon.depositAmount && (
-                          <Typography variant="body1" fontWeight="medium" color="primary">
+                          <Typography
+                            variant="body1"
+                            fontWeight="medium"
+                            color="primary"
+                          >
                             قيمة العربون: {arabon.depositAmount} ريال
                           </Typography>
                         )}
@@ -342,46 +497,281 @@ const ArabonDetailsPage: React.FC = () => {
                   )}
 
                   {arabon.scheduleAt && (
-                    <Grid  size={{xs: 12, sm: 6}}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
+                          mb: 1,
+                        }}
+                      >
                         <EventIcon color="action" />
                         <Typography variant="body2" color="text.secondary">
                           موعد التنفيذ
                         </Typography>
                       </Box>
                       <Typography variant="body1">
-                        {new Date(arabon.scheduleAt).toLocaleDateString('ar-SA', {
-                          weekday: 'long',
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
+                        {new Date(arabon.scheduleAt).toLocaleDateString(
+                          "ar-SA",
+                          {
+                            weekday: "long",
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }
+                        )}
                       </Typography>
                     </Grid>
                   )}
 
                   {/* Metadata */}
-                  {arabon.metadata && Object.keys(arabon.metadata).length > 0 && (
-                    <Grid  size={{xs: 12}}>
-                      <Typography variant="body2" color="text.secondary" gutterBottom>
-                        بيانات إضافية
-                      </Typography>
-                      <Paper sx={{ p: 2, bgcolor: 'grey.50' }}>
-                        <pre style={{ fontSize: '0.875rem', margin: 0 }}>
-                          {JSON.stringify(arabon.metadata, null, 2)}
-                        </pre>
-                      </Paper>
-                    </Grid>
-                  )}
+                  {arabon.metadata &&
+                    Object.keys(arabon.metadata).length > 0 && (
+                      <Grid size={{ xs: 12 }}>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          gutterBottom
+                        >
+                          بيانات إضافية
+                        </Typography>
+                        <Paper sx={{ p: 2, bgcolor: "grey.50" }}>
+                          <pre style={{ fontSize: "0.875rem", margin: 0 }}>
+                            {JSON.stringify(arabon.metadata, null, 2)}
+                          </pre>
+                        </Paper>
+                      </Grid>
+                    )}
                 </Grid>
               </CardContent>
             </Card>
           </Grid>
 
+          {/* مؤشرات أداء الحجوزات (المرحلة 6) */}
+          {kpis && (
+            <Grid size={{ xs: 12 }}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    مؤشرات أداء الحجوزات (KPIs)
+                  </Typography>
+                  <Divider sx={{ mb: 2 }} />
+                  <Grid container spacing={2}>
+                    <Grid size={{ xs: 6, sm: 3 }}>
+                      <Paper
+                        variant="outlined"
+                        sx={{ p: 2, textAlign: "center" }}
+                      >
+                        <Typography variant="h4" color="primary">
+                          {kpis.paidBookingsCount}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          حجوزات مدفوعة
+                        </Typography>
+                      </Paper>
+                    </Grid>
+                    <Grid size={{ xs: 6, sm: 3 }}>
+                      <Paper
+                        variant="outlined"
+                        sx={{ p: 2, textAlign: "center" }}
+                      >
+                        <Typography variant="h4">
+                          {kpis.conversionRate}%
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          معدل التحويل
+                        </Typography>
+                      </Paper>
+                    </Grid>
+                    <Grid size={{ xs: 6, sm: 3 }}>
+                      <Paper
+                        variant="outlined"
+                        sx={{ p: 2, textAlign: "center" }}
+                      >
+                        <Typography variant="h4">
+                          {kpis.calendarAccuracy}%
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          دقة التقويم (حضور)
+                        </Typography>
+                      </Paper>
+                    </Grid>
+                    <Grid size={{ xs: 6, sm: 3 }}>
+                      <Paper
+                        variant="outlined"
+                        sx={{ p: 2, textAlign: "center" }}
+                      >
+                        <Typography variant="h4">{kpis.noShowRate}%</Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          معدل عدم الحضور
+                        </Typography>
+                      </Paper>
+                    </Grid>
+                  </Grid>
+                </CardContent>
+              </Card>
+            </Grid>
+          )}
+
+          {/* حجوزات العربون (المرحلة 5) */}
+          <Grid size={{ xs: 12 }}>
+            <Card>
+              <CardContent>
+                <Typography
+                  variant="h6"
+                  gutterBottom
+                  sx={{ display: "flex", alignItems: "center" }}
+                >
+                  <EventIcon sx={{ mr: 1 }} />
+                  حجوزات العربون
+                </Typography>
+                <Divider sx={{ mb: 2 }} />
+                {bookingsLoading ? (
+                  <Box
+                    sx={{ py: 3, display: "flex", justifyContent: "center" }}
+                  >
+                    <CircularProgress size={32} />
+                  </Box>
+                ) : bookings.length === 0 ? (
+                  <Typography variant="body2" color="text.secondary">
+                    لا توجد حجوزات
+                  </Typography>
+                ) : (
+                  <Box sx={{ overflowX: "auto" }}>
+                    <table
+                      style={{ width: "100%", borderCollapse: "collapse" }}
+                    >
+                      <thead>
+                        <tr style={{ borderBottom: "1px solid #eee" }}>
+                          <th style={{ textAlign: "right", padding: 8 }}>
+                            الموعد
+                          </th>
+                          <th style={{ textAlign: "right", padding: 8 }}>
+                            المستخدم
+                          </th>
+                          <th style={{ textAlign: "right", padding: 8 }}>
+                            المبلغ
+                          </th>
+                          <th style={{ textAlign: "right", padding: 8 }}>
+                            الحالة
+                          </th>
+                          <th style={{ textAlign: "right", padding: 8 }}>
+                            إجراء
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {bookings.map((b) => {
+                          const slot =
+                            typeof b.slotId === "object" ? b.slotId : null;
+                          const user =
+                            typeof b.userId === "object" ? b.userId : null;
+                          const statusLabels: Record<string, string> = {
+                            confirmed: "مؤكد",
+                            completed: "مكتمل",
+                            cancelled: "ملغي",
+                            no_show: "لم يحضر",
+                            pending_payment: "بانتظار الدفع",
+                          };
+                          return (
+                            <tr
+                              key={b._id}
+                              style={{ borderBottom: "1px solid #f5f5f5" }}
+                            >
+                              <td style={{ padding: 8 }}>
+                                {slot?.datetime
+                                  ? new Date(slot.datetime).toLocaleString(
+                                      "ar-SA"
+                                    )
+                                  : "—"}
+                              </td>
+                              <td style={{ padding: 8 }}>
+                                {user
+                                  ? `${user.fullName || ""} ${
+                                      user.phone || ""
+                                    }`.trim() || user._id
+                                  : "—"}
+                              </td>
+                              <td style={{ padding: 8 }}>
+                                {b.depositAmount ?? 0} ريال
+                              </td>
+                              <td style={{ padding: 8 }}>
+                                <Chip
+                                  label={statusLabels[b.status] || b.status}
+                                  size="small"
+                                  color={
+                                    b.status === "completed"
+                                      ? "success"
+                                      : b.status === "cancelled" ||
+                                        b.status === "no_show"
+                                      ? "error"
+                                      : "default"
+                                  }
+                                />
+                              </td>
+                              <td style={{ padding: 8 }}>
+                                {b.status === "confirmed" && (
+                                  <Stack direction="row" spacing={0.5}>
+                                    <Button
+                                      size="small"
+                                      variant="outlined"
+                                      color="success"
+                                      onClick={() =>
+                                        setBookingStatusDialog({
+                                          open: true,
+                                          booking: b,
+                                          newStatus: "completed",
+                                        })
+                                      }
+                                    >
+                                      مكتمل
+                                    </Button>
+                                    <Button
+                                      size="small"
+                                      variant="outlined"
+                                      color="error"
+                                      onClick={() =>
+                                        setBookingStatusDialog({
+                                          open: true,
+                                          booking: b,
+                                          newStatus: "no_show",
+                                        })
+                                      }
+                                    >
+                                      لم يحضر
+                                    </Button>
+                                    <Button
+                                      size="small"
+                                      variant="outlined"
+                                      onClick={() =>
+                                        setBookingStatusDialog({
+                                          open: true,
+                                          booking: b,
+                                          newStatus: "cancelled",
+                                        })
+                                      }
+                                    >
+                                      إلغاء
+                                    </Button>
+                                  </Stack>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </Box>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+
           {/* Timestamps */}
-            <Grid  size={{xs: 12, md: 4}}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
@@ -391,34 +781,45 @@ const ArabonDetailsPage: React.FC = () => {
 
                 <Stack spacing={2}>
                   <Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        mb: 1,
+                      }}
+                    >
                       <TimeIcon color="action" fontSize="small" />
                       <Typography variant="body2" color="text.secondary">
                         تاريخ الإنشاء
                       </Typography>
                     </Box>
                     <Typography variant="body2">
-                      {new Date(arabon.createdAt).toLocaleDateString('ar-SA', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
+                      {new Date(arabon.createdAt).toLocaleDateString("ar-SA", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
                       })}
                     </Typography>
                   </Box>
 
                   <Box>
-                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      gutterBottom
+                    >
                       آخر تحديث
                     </Typography>
                     <Typography variant="body2">
-                      {new Date(arabon.updatedAt).toLocaleDateString('ar-SA', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
+                      {new Date(arabon.updatedAt).toLocaleDateString("ar-SA", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
                       })}
                     </Typography>
                   </Box>
@@ -429,14 +830,22 @@ const ArabonDetailsPage: React.FC = () => {
         </Grid>
 
         {/* Status Update Dialog */}
-        <Dialog open={statusDialog.open} onClose={() => setStatusDialog({ open: false, newStatus: '' })}>
+        <Dialog
+          open={statusDialog.open}
+          onClose={() => setStatusDialog({ open: false, newStatus: "" })}
+        >
           <DialogTitle>تحديث حالة الطلب</DialogTitle>
           <DialogContent>
             <FormControl fullWidth sx={{ mt: 1 }}>
               <InputLabel>الحالة الجديدة</InputLabel>
               <Select
                 value={statusDialog.newStatus}
-                onChange={(e) => setStatusDialog({ ...statusDialog, newStatus: e.target.value as ArabonStatus })}
+                onChange={(e) =>
+                  setStatusDialog({
+                    ...statusDialog,
+                    newStatus: e.target.value as ArabonStatus,
+                  })
+                }
                 label="الحالة الجديدة"
               >
                 {Object.values(ArabonStatus).map((status) => (
@@ -448,7 +857,9 @@ const ArabonDetailsPage: React.FC = () => {
             </FormControl>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setStatusDialog({ open: false, newStatus: '' })}>
+            <Button
+              onClick={() => setStatusDialog({ open: false, newStatus: "" })}
+            >
               إلغاء
             </Button>
             <Button
@@ -456,7 +867,52 @@ const ArabonDetailsPage: React.FC = () => {
               variant="contained"
               disabled={updating || !statusDialog.newStatus}
             >
-              {updating ? <CircularProgress size={16} /> : 'تحديث'}
+              {updating ? <CircularProgress size={16} /> : "تحديث"}
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* تأكيد تحديث حالة الحجز */}
+        <Dialog
+          open={bookingStatusDialog.open}
+          onClose={() =>
+            setBookingStatusDialog({
+              open: false,
+              booking: null,
+              newStatus: "",
+            })
+          }
+        >
+          <DialogTitle>تحديث حالة الحجز</DialogTitle>
+          <DialogContent>
+            <Typography>
+              هل تريد تحديث الحجز إلى "
+              {bookingStatusDialog.newStatus === "completed"
+                ? "مكتمل"
+                : bookingStatusDialog.newStatus === "no_show"
+                ? "لم يحضر"
+                : "ملغي"}
+              "؟
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={() =>
+                setBookingStatusDialog({
+                  open: false,
+                  booking: null,
+                  newStatus: "",
+                })
+              }
+            >
+              إلغاء
+            </Button>
+            <Button
+              onClick={handleBookingStatusUpdate}
+              variant="contained"
+              disabled={updating}
+            >
+              {updating ? <CircularProgress size={16} /> : "تحديث"}
             </Button>
           </DialogActions>
         </Dialog>
@@ -465,9 +921,7 @@ const ArabonDetailsPage: React.FC = () => {
         <Dialog open={deleteDialog} onClose={() => setDeleteDialog(false)}>
           <DialogTitle>تأكيد الحذف</DialogTitle>
           <DialogContent>
-            <Typography>
-              هل أنت متأكد من حذف الطلب "{arabon.title}"؟
-            </Typography>
+            <Typography>هل أنت متأكد من حذف الطلب "{arabon.title}"؟</Typography>
             <Alert severity="error" sx={{ mt: 2 }}>
               هذا الإجراء لا يمكن التراجع عنه
             </Alert>
@@ -480,7 +934,7 @@ const ArabonDetailsPage: React.FC = () => {
               color="error"
               disabled={updating}
             >
-              {updating ? <CircularProgress size={16} /> : 'حذف'}
+              {updating ? <CircularProgress size={16} /> : "حذف"}
             </Button>
           </DialogActions>
         </Dialog>

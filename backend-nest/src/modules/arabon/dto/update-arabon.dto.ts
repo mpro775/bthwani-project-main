@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsOptional, IsNumber, IsObject, IsEnum, IsISO8601, IsArray } from 'class-validator';
-import { ArabonStatus, ArabonBookingPeriod } from './create-arabon.dto';
+import { ArabonStatus, ArabonBookingPeriod, ArabonOfferType } from './create-arabon.dto';
 
 export default class UpdateArabonDto {
   @ApiProperty({ description: 'عنوان العربون', required: false, example: 'عربون محدث' })
@@ -39,6 +39,12 @@ export default class UpdateArabonDto {
   @IsString({ each: true })
   images?: string[];
 
+  @ApiProperty({ description: 'روابط فيديو للمكان', required: false, type: [String] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  videos?: string[];
+
   @ApiProperty({ description: 'رقم التواصل للحجز', required: false })
   @IsOptional()
   @IsString()
@@ -53,6 +59,11 @@ export default class UpdateArabonDto {
   @IsOptional()
   @IsString()
   category?: string;
+
+  @ApiProperty({ description: 'فئة العرض: عيادة، صالون، فعالية، منشأة، أخرى', required: false, enum: ArabonOfferType })
+  @IsOptional()
+  @IsEnum(ArabonOfferType)
+  offerType?: ArabonOfferType;
 
   @ApiProperty({ description: 'قيمة الحجز الكاملة (ريال)', required: false })
   @IsOptional()

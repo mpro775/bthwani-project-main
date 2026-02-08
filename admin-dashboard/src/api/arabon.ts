@@ -74,3 +74,61 @@ export const deleteArabon = async (id: string): Promise<void> => {
     throw error;
   }
 };
+
+// ==================== الحجوزات (المرحلة 5) ====================
+
+export interface BookingItem {
+  _id: string;
+  userId: string | { _id: string; fullName?: string; phone?: string };
+  arabonId: string;
+  slotId: string | { _id: string; datetime?: string; durationMinutes?: number };
+  status: 'pending_payment' | 'confirmed' | 'completed' | 'cancelled' | 'no_show';
+  depositAmount: number;
+  createdAt: string;
+}
+
+export const getArabonBookings = async (arabonId: string): Promise<{
+  data: BookingItem[];
+  nextCursor?: string;
+  hasMore?: boolean;
+}> => {
+  try {
+    const response = await api.get(`/admin/arabon/${arabonId}/bookings`);
+    return response.data;
+  } catch (error) {
+    console.error('خطأ في جلب حجوزات العربون:', error);
+    throw error;
+  }
+};
+
+export interface BookingsKpis {
+  paidBookingsCount: number;
+  conversionRate: number;
+  noShowRate: number;
+  calendarAccuracy: number;
+  byStatus: { confirmed: number; completed: number; cancelled: number; no_show: number };
+}
+
+export const getBookingsKpis = async (arabonId?: string): Promise<BookingsKpis> => {
+  try {
+    const params = arabonId ? { arabonId } : undefined;
+    const response = await api.get('/admin/arabon/bookings/kpis', { params });
+    return response.data;
+  } catch (error) {
+    console.error('خطأ في جلب مؤشرات الحجوزات:', error);
+    throw error;
+  }
+};
+
+export const updateBookingStatus = async (
+  bookingId: string,
+  status: 'completed' | 'cancelled' | 'no_show'
+): Promise<BookingItem> => {
+  try {
+    const response = await api.patch(`/admin/arabon/bookings/${bookingId}/status`, { status });
+    return response.data;
+  } catch (error) {
+    console.error('خطأ في تحديث حالة الحجز:', error);
+    throw error;
+  }
+};

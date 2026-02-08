@@ -75,6 +75,15 @@ export class Arabon extends Document {
   images: string[];
 
   @ApiProperty({
+    description: 'روابط فيديو للمكان (اختياري)',
+    required: false,
+    example: ['https://cdn.bthwani.com/arabon/1-video.mp4'],
+    type: [String],
+  })
+  @Prop({ type: [String], default: [] })
+  videos: string[];
+
+  @ApiProperty({
     description: 'رقم التواصل للحجز',
     required: false,
     example: '+967771234567',
@@ -97,6 +106,15 @@ export class Arabon extends Document {
   })
   @Prop()
   category?: string;
+
+  @ApiProperty({
+    description: 'فئة العرض: عيادة، صالون، فعالية، منشأة، أخرى',
+    required: false,
+    example: 'صالون',
+    enum: ['clinic', 'salon', 'event', 'venue', 'other'],
+  })
+  @Prop({ enum: ['clinic', 'salon', 'event', 'venue', 'other'] })
+  offerType?: 'clinic' | 'salon' | 'event' | 'venue' | 'other';
 
   @ApiProperty({
     description: 'قيمة الحجز الكاملة (ريال)',
