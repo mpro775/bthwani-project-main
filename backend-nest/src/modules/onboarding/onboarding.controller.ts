@@ -226,7 +226,7 @@ export class OnboardingController {
   async submitOnboarding(
     @CurrentUser('id') marketerId: string,
     @Param('id') id: string,
-  ) {
+  ): Promise<{ success: boolean; data: Record<string, unknown>; message: string }> {
     const data = await this.marketerService.submitOnboardingByMarketer(
       id,
       marketerId,

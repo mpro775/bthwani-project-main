@@ -13,8 +13,10 @@ import {
   Chip,
 } from "@mui/material";
 import { ArrowBack, Save as SaveIcon } from "@mui/icons-material";
-import type { MaaroufItem, MaaroufKind } from "../types";
+import type { MaaroufItem, MaaroufKind, MaaroufCategory } from "../types";
 import type { CreateMaaroufPayload, UpdateMaaroufPayload } from "../types";
+import { MAAROUF_CATEGORIES } from "../types";
+import { uploadMaaroufImage } from "../api";
 
 interface MaaroufFormProps {
   item?: MaaroufItem;
@@ -49,9 +51,13 @@ const MaaroufForm: React.FC<MaaroufFormProps> = ({
       contact: "",
     } as Record<string, string>,
     status: "draft" as string,
+    mediaUrls: [] as string[],
+    category: "other" as MaaroufCategory,
+    reward: 0 as number,
   });
   const [tagsInput, setTagsInput] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [uploadingImages, setUploadingImages] = useState(false);
 
   useEffect(() => {
     if (item && mode === "edit") {
@@ -67,6 +73,9 @@ const MaaroufForm: React.FC<MaaroufFormProps> = ({
           contact: item.metadata?.contact || "",
         },
         status: item.status,
+        mediaUrls: item.mediaUrls || [],
+        category: (item.category || "other") as MaaroufCategory,
+        reward: item.reward || 0,
       });
       setTagsInput((item.tags || []).join(", "));
     }
@@ -100,10 +109,14 @@ const MaaroufForm: React.FC<MaaroufFormProps> = ({
       .filter((s) => s.length > 0);
 
     const metadata: Record<string, string> = {};
-    if (formData.metadata.color?.trim()) metadata.color = formData.metadata.color.trim();
-    if (formData.metadata.location?.trim()) metadata.location = formData.metadata.location.trim();
-    if (formData.metadata.date?.trim()) metadata.date = formData.metadata.date.trim();
-    if (formData.metadata.contact?.trim()) metadata.contact = formData.metadata.contact.trim();
+    if (formData.metadata.color?.trim())
+      metadata.color = formData.metadata.color.trim();
+    if (formData.metadata.location?.trim())
+      metadata.location = formData.metadata.location.trim();
+    if (formData.metadata.date?.trim())
+      metadata.date = formData.metadata.date.trim();
+    if (formData.metadata.contact?.trim())
+      metadata.contact = formData.metadata.contact.trim();
 
     try {
       setError(null);
@@ -113,6 +126,9 @@ const MaaroufForm: React.FC<MaaroufFormProps> = ({
         kind: formData.kind,
         tags: processedTags.length ? processedTags : undefined,
         metadata: Object.keys(metadata).length ? metadata : undefined,
+        mediaUrls: formData.mediaUrls.length ? formData.mediaUrls : undefined,
+        category: formData.category,
+        reward: formData.reward > 0 ? formData.reward : undefined,
       };
       if (mode === "create") {
         (payload as CreateMaaroufPayload).ownerId = ownerId;
@@ -152,12 +168,139 @@ const MaaroufForm: React.FC<MaaroufFormProps> = ({
       <Paper sx={{ p: 3 }}>
         <form onSubmit={handleSubmit}>
           {error && (
-            <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
+            <Alert
+              severity="error"
+              sx={{ mb: 2 }}
+              onClose={() => setError(null)}
+            >
               {error}
             </Alert>
           )}
 
           <Grid container spacing={3}>
+            <Grid size={{ xs: 12 }}>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                الصور (حتى 5)
+              </Typography>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 2 }}>
+                {formData.mediaUrls.map((url, idx) => (
+                  <Box key={idx} sx={{ position: "relative" }}>
+                    <Box
+                      component="img"
+                      src={url}
+                      sx={{
+                        width: 80,
+                        height: 80,
+                        borderRadius: 1,
+                        objectFit: "cover",
+                      }}
+                    />
+                    <IconButton
+                      size="small"
+                      sx={{
+                        position: "absolute",
+                        top: -8,
+                        right: -8,
+                        bgcolor: "error.main",
+                        color: "white",
+                        "&:hover": { bgcolor: "error.dark" },
+                      }}
+                      onClick={() =>
+                        handleInputChange(
+                          "mediaUrls",
+                          formData.mediaUrls.filter((_, i) => i !== idx)
+                        )
+                      }
+                    >
+                      ×
+                    </IconButton>
+                  </Box>
+                ))}
+                {formData.mediaUrls.length < 5 && (
+                  <Button
+                    variant="outlined"
+                    component="label"
+                    disabled={uploadingImages}
+                    sx={{ width: 80, height: 80, minWidth: 0 }}
+                  >
+                    {uploadingImages ? (
+                      <CircularProgress size={24} />
+                    ) : (
+                      "+ إضافة صورة"
+                    )}
+                    <input
+                      type="file"
+                      hidden
+                      accept="image/*"
+                      multiple
+                      onChange={async (e) => {
+                        const files = e.target.files;
+                        if (!files?.length) return;
+                        setUploadingImages(true);
+                        try {
+                          const urls: string[] = [];
+                          for (
+                            let i = 0;
+                            i <
+                            Math.min(
+                              files.length,
+                              5 - formData.mediaUrls.length
+                            );
+                            i++
+                          ) {
+                            const url = await uploadMaaroufImage(files[i]);
+                            if (url) urls.push(url);
+                          }
+                          handleInputChange("mediaUrls", [
+                            ...formData.mediaUrls,
+                            ...urls,
+                          ]);
+                        } finally {
+                          setUploadingImages(false);
+                          e.target.value = "";
+                        }
+                      }}
+                    />
+                  </Button>
+                )}
+              </Box>
+            </Grid>
+
+            <Grid size={{ xs: 12 }}>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                التصنيف
+              </Typography>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                {MAAROUF_CATEGORIES.map((c) => (
+                  <Chip
+                    key={c.value}
+                    label={c.label}
+                    onClick={() => handleInputChange("category", c.value)}
+                    color={
+                      formData.category === c.value ? "primary" : "default"
+                    }
+                    variant={
+                      formData.category === c.value ? "filled" : "outlined"
+                    }
+                  />
+                ))}
+              </Box>
+            </Grid>
+
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                type="number"
+                label="مكافأة اختيارية (ريال)"
+                value={formData.reward || ""}
+                onChange={(e) =>
+                  handleInputChange("reward", parseInt(e.target.value, 10) || 0)
+                }
+                placeholder="0 = بدون مكافأة"
+                inputProps={{ min: 0 }}
+              />
+            </Grid>
+
             <Grid size={{ xs: 12 }}>
               <Typography variant="subtitle2" sx={{ mb: 1 }}>
                 نوع الإعلان *
@@ -196,7 +339,9 @@ const MaaroufForm: React.FC<MaaroufFormProps> = ({
                 fullWidth
                 label="تفاصيل الإعلان"
                 value={formData.description}
-                onChange={(e) => handleInputChange("description", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("description", e.target.value)
+                }
                 placeholder="وصف تفصيلي للشيء المفقود أو الموجود..."
                 multiline
                 rows={4}
@@ -212,7 +357,11 @@ const MaaroufForm: React.FC<MaaroufFormProps> = ({
                 onChange={(e) => setTagsInput(e.target.value)}
                 placeholder="مثال: محفظة، سوداء، بطاقات، نرجس"
               />
-              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block" }}>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ mt: 0.5, display: "block" }}
+              >
                 استخدم علامات لتسهيل البحث عن إعلانك
               </Typography>
             </Grid>
@@ -233,7 +382,9 @@ const MaaroufForm: React.FC<MaaroufFormProps> = ({
                 fullWidth
                 label="الموقع"
                 value={formData.metadata.location}
-                onChange={(e) => handleMetadataChange("location", e.target.value)}
+                onChange={(e) =>
+                  handleMetadataChange("location", e.target.value)
+                }
                 placeholder="مثال: النرجس، الروضة"
                 sx={{ mb: 2 }}
               />
@@ -249,7 +400,9 @@ const MaaroufForm: React.FC<MaaroufFormProps> = ({
                 fullWidth
                 label="معلومات التواصل"
                 value={formData.metadata.contact}
-                onChange={(e) => handleMetadataChange("contact", e.target.value)}
+                onChange={(e) =>
+                  handleMetadataChange("contact", e.target.value)
+                }
                 placeholder="رقم هاتف أو بريد إلكتروني"
               />
             </Grid>
@@ -271,8 +424,12 @@ const MaaroufForm: React.FC<MaaroufFormProps> = ({
                       key={opt.key}
                       label={opt.label}
                       onClick={() => handleInputChange("status", opt.key)}
-                      color={formData.status === opt.key ? "primary" : "default"}
-                      variant={formData.status === opt.key ? "filled" : "outlined"}
+                      color={
+                        formData.status === opt.key ? "primary" : "default"
+                      }
+                      variant={
+                        formData.status === opt.key ? "filled" : "outlined"
+                      }
                     />
                   ))}
                 </Box>

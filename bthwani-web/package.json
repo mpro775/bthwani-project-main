@@ -11,7 +11,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "npx tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "optimize-images": "node scripts/optimize-images.mjs",
@@ -23,7 +23,7 @@
     "@fontsource/cairo": "^5.2.7",
     "@googlemaps/js-api-loader": "^1.16.10",
     "@hookform/resolvers": "^5.2.2",
-    "@mui/icons-material": "^7.3.3",
+    "@mui/icons-material": "^7.3.7",
     "@mui/lab": "^7.0.0",
     "@mui/material": "^7.3.3",
     "@sentry/react": "^10.19.0",

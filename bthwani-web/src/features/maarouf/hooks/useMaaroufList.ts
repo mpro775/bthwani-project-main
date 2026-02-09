@@ -1,9 +1,9 @@
-// مطابق لـ app-user - بدون فلاتر، cursor فقط
+// مطابق لـ app-user - مع فلاتر category و hasReward
 import { useState, useEffect, useCallback } from "react";
 import { getMaaroufList } from "../api";
-import type { MaaroufItem, MaaroufListResponse } from "../types";
+import type { MaaroufItem, MaaroufListResponse, MaaroufFilters } from "../types";
 
-export function useMaaroufList(limit = 25) {
+export function useMaaroufList(limit = 25, filters?: MaaroufFilters) {
   const [items, setItems] = useState<MaaroufItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -44,7 +44,7 @@ export function useMaaroufList(limit = 25) {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [limit]);
+  }, [limit, filters?.category, filters?.hasReward]);
 
   const loadMore = useCallback(() => {
     if (!loadingMore && hasMore && nextCursor) {

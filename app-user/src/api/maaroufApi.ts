@@ -24,6 +24,8 @@ export type MaaroufStatus = 'draft' | 'pending' | 'confirmed' | 'completed' | 'c
 
 export type MaaroufKind = 'lost' | 'found';
 
+export type MaaroufCategory = 'phone' | 'pet' | 'id' | 'wallet' | 'keys' | 'bag' | 'other';
+
 export interface MaaroufMetadata {
   color?: string;
   location?: string;
@@ -40,6 +42,13 @@ export interface CreateMaaroufPayload {
   tags?: string[];
   metadata?: MaaroufMetadata;
   status?: MaaroufStatus;
+  mediaUrls?: string[];
+  category?: MaaroufCategory;
+  reward?: number;
+  location?: { type: 'Point'; coordinates: [number, number] };
+  deliveryToggle?: boolean;
+  isAnonymous?: boolean;
+  expiresAt?: string;
 }
 
 export interface UpdateMaaroufPayload {
@@ -49,6 +58,13 @@ export interface UpdateMaaroufPayload {
   tags?: string[];
   metadata?: MaaroufMetadata;
   status?: MaaroufStatus;
+  mediaUrls?: string[];
+  category?: MaaroufCategory;
+  reward?: number;
+  location?: { type: 'Point'; coordinates: [number, number] };
+  deliveryToggle?: boolean;
+  isAnonymous?: boolean;
+  expiresAt?: string;
 }
 
 export interface MaaroufItem {
@@ -60,8 +76,15 @@ export interface MaaroufItem {
   tags?: string[];
   metadata?: MaaroufMetadata;
   status: MaaroufStatus;
-  createdAt: Date;
-  updatedAt: Date;
+  mediaUrls?: string[];
+  category?: MaaroufCategory;
+  reward?: number;
+  location?: { type: 'Point'; coordinates: [number, number] };
+  deliveryToggle?: boolean;
+  isAnonymous?: boolean;
+  expiresAt?: Date | string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
 }
 
 export interface MaaroufListResponse {
@@ -86,17 +109,39 @@ export const createMaarouf = async (
 };
 
 /**
+ * رفع صورة لإعلان معروف
+ */
+export const uploadMaaroufImage = async (imageUri: string): Promise<string> => {
+  const headers = await getAuthHeaders();
+  const formData = new FormData();
+  formData.append('file', {
+    uri: imageUri,
+    type: 'image/jpeg',
+    name: `maarouf-${Date.now()}.jpg`,
+  } as any);
+  const response = await axiosInstance.post("/maarouf/upload", formData, {
+    headers: { ...headers } as any,
+  });
+  const result = unwrap(response.data) as { url?: string };
+  return result?.url || '';
+};
+
+/**
  * جلب قائمة الإعلانات
  * الباكند يغلّف الاستجابة بـ { success, data: { items, nextCursor } } — نستخرج بـ unwrap ثم نُوحّد إلى { data, nextCursor, hasMore }
  */
 export const getMaaroufList = async (
-  cursor?: string
+  cursor?: string,
+  params?: { category?: MaaroufCategory; hasReward?: boolean }
 ): Promise<MaaroufListResponse> => {
   const headers = await getAuthHeaders();
-  const params = cursor ? { cursor } : {};
+  const query: Record<string, string | boolean> = {};
+  if (cursor) query.cursor = cursor;
+  if (params?.category) query.category = params.category;
+  if (params?.hasReward === true) query.hasReward = true;
   const response = await axiosInstance.get("/maarouf", {
     headers,
-    params,
+    params: query,
   });
   const raw = unwrap(response.data) as { items?: MaaroufItem[]; data?: MaaroufItem[]; nextCursor?: string; hasMore?: boolean };
   const list = Array.isArray(raw?.data) ? raw.data : Array.isArray(raw?.items) ? raw.items : [];

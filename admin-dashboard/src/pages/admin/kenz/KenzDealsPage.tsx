@@ -20,7 +20,6 @@ import {
   Snackbar,
 } from "@mui/material";
 import {
-  AccountBalanceWallet as EscrowIcon,
   Visibility as ViewIcon,
 } from "@mui/icons-material";
 import {

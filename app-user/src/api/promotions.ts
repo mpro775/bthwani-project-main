@@ -17,19 +17,24 @@ export interface AppPromotion {
   endDate?: string;
 }
 
+/** استجابة الباكند: إما مصفوفة مباشرة أو غلاف { data } */
+type PromotionsByPlacementResponse =
+  | AppPromotion[]
+  | { data?: AppPromotion[] };
+
 // Get promotions by placement
 export const getPromotionsByPlacement = async (
   placement?: string,
   channel = "app"
-) => {
-  const params: any = { channel };
+): Promise<AppPromotion[]> => {
+  const params: Record<string, string> = { channel };
   if (placement) params.placement = placement;
 
-  const { data } = await axiosInstance.get<AppPromotion[]>(
+  const { data } = await axiosInstance.get<PromotionsByPlacementResponse>(
     "/promotions/by-placement",
     { params }
   );
-  return data.data || data;
+  return Array.isArray(data) ? data : (data?.data ?? []);
 };
 
 // Record click on promotion

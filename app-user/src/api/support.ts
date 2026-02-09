@@ -2,7 +2,7 @@
  * Support API - app-user
  */
 
-import { axiosInstance } from './axiosInstance';
+import axiosInstance from '../utils/api/axiosInstance';
 
 export interface SupportTicket {
   id: string;

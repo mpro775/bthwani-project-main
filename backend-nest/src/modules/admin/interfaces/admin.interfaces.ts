@@ -273,6 +273,16 @@ export enum MaaroufStatus {
   CANCELLED = 'cancelled'
 }
 
+export enum MaaroufCategory {
+  PHONE = 'phone',
+  PET = 'pet',
+  ID = 'id',
+  WALLET = 'wallet',
+  KEYS = 'keys',
+  BAG = 'bag',
+  OTHER = 'other',
+}
+
 export interface MaaroufDocument {
   _id: Types.ObjectId;
   ownerId: Types.ObjectId;
@@ -282,6 +292,14 @@ export interface MaaroufDocument {
   tags?: string[];
   metadata: Record<string, any>;
   status: MaaroufStatus;
+  mediaUrls?: string[];
+  category?: MaaroufCategory;
+  reward?: number;
+  location?: { type: 'Point'; coordinates: [number, number] };
+  deliveryToggle?: boolean;
+  matchedToId?: Types.ObjectId;
+  isAnonymous?: boolean;
+  expiresAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -316,6 +334,8 @@ export interface MaaroufAdminQuery {
   kind?: MaaroufKind;
   ownerId?: Types.ObjectId;
   tags?: string[];
+  category?: MaaroufCategory;
+  hasReward?: boolean;
   createdAfter?: Date;
   createdBefore?: Date;
   search?: string;

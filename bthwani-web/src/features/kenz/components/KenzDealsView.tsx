@@ -98,18 +98,6 @@ const KenzDealsView: React.FC<KenzDealsViewProps> = ({ onViewKenz }) => {
       ? (item.kenzId as { title?: string }).title || "—"
       : "—";
 
-  const getOtherParty = (item: KenzDealItem, as: "buyer" | "seller") => {
-    const party = as === "buyer" ? item.buyerId : item.sellerId;
-    if (typeof party === "object" && party !== null) {
-      return (
-        (party as { fullName?: string }).fullName ||
-        (party as { phone?: string }).phone ||
-        "—"
-      );
-    }
-    return "—";
-  };
-
   const formatCurrency = (amount: number) =>
     `${amount.toLocaleString("ar-SA")} ر.ي`;
 
@@ -180,7 +168,6 @@ const KenzDealsView: React.FC<KenzDealsViewProps> = ({ onViewKenz }) => {
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {items.map((item) => {
             const kenzId = getKenzId(item);
-            const isBuyer = true; // يمكن التحقق من السياق إن لزم
             return (
               <Paper key={item._id} sx={{ p: 2 }}>
                 <Box

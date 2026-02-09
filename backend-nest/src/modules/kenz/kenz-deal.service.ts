@@ -199,7 +199,7 @@ export class KenzDealService {
 
     if (cursor) {
       try {
-        q.where('_id').lt(new Types.ObjectId(cursor));
+        q.where({ _id: { $lt: new Types.ObjectId(cursor) } });
       } catch {
         // ignore invalid cursor
       }
@@ -254,7 +254,7 @@ export class KenzDealService {
 
     if (cursor) {
       try {
-        query.where('_id').lt(new Types.ObjectId(cursor));
+        query.where({ _id: { $lt: new Types.ObjectId(cursor) } });
       } catch {
         // ignore
       }

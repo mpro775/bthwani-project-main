@@ -193,7 +193,6 @@ const KenzForm: React.FC<KenzFormProps> = ({
       const payload: CreateKenzPayload | UpdateKenzPayload = {
         title: formData.title,
         description: formData.description || undefined,
-        price: formData.price,
         category: formData.category,
         metadata: {
           ...formData.metadata,

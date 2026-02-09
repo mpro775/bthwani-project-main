@@ -1,24 +1,7 @@
 import { api } from '../services/api';
+import type { MaaroufItem } from '../types/maarouf';
 
-// أنواع البيانات
-export interface MaaroufItem {
-  _id: string;
-  ownerId: string;
-  title: string;
-  description?: string;
-  kind?: 'lost' | 'found';
-  tags?: string[];
-  metadata: Record<string, any>;
-  status: 'draft' | 'pending' | 'confirmed' | 'completed' | 'cancelled';
-  createdAt: string;
-  updatedAt: string;
-  owner?: {
-    _id: string;
-    name: string;
-    email: string;
-    phone?: string;
-  };
-}
+export type { MaaroufItem };
 
 export interface MaaroufStats {
   total: number;
@@ -47,6 +30,8 @@ export const getMaaroufList = async (params?: {
   limit?: number;
   status?: string;
   kind?: string;
+  category?: string;
+  hasReward?: boolean;
   ownerId?: string;
   tags?: string[];
   createdAfter?: string;

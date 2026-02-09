@@ -8,6 +8,18 @@ export type MaaroufStatus =
 
 export type MaaroufKind = "lost" | "found";
 
+export type MaaroufCategory = "phone" | "pet" | "id" | "wallet" | "keys" | "bag" | "other";
+
+export const MAAROUF_CATEGORIES: { value: MaaroufCategory; label: string }[] = [
+  { value: "phone", label: "هاتف" },
+  { value: "pet", label: "حيوان" },
+  { value: "id", label: "هوية" },
+  { value: "wallet", label: "محفظة" },
+  { value: "keys", label: "مفاتيح" },
+  { value: "bag", label: "حقيبة" },
+  { value: "other", label: "أخرى" },
+];
+
 export interface MaaroufMetadata {
   color?: string;
   location?: string;
@@ -25,6 +37,13 @@ export interface MaaroufItem {
   tags?: string[];
   metadata?: MaaroufMetadata;
   status: MaaroufStatus;
+  mediaUrls?: string[];
+  category?: MaaroufCategory;
+  reward?: number;
+  location?: { type: "Point"; coordinates: [number, number] };
+  deliveryToggle?: boolean;
+  isAnonymous?: boolean;
+  expiresAt?: string | Date;
   createdAt: string | Date;
   updatedAt: string | Date;
   owner?: {
@@ -43,6 +62,13 @@ export interface CreateMaaroufPayload {
   tags?: string[];
   metadata?: MaaroufMetadata;
   status?: MaaroufStatus;
+  mediaUrls?: string[];
+  category?: MaaroufCategory;
+  reward?: number;
+  location?: { type: "Point"; coordinates: [number, number] };
+  deliveryToggle?: boolean;
+  isAnonymous?: boolean;
+  expiresAt?: string;
 }
 
 export interface UpdateMaaroufPayload {
@@ -52,11 +78,20 @@ export interface UpdateMaaroufPayload {
   tags?: string[];
   metadata?: MaaroufMetadata;
   status?: MaaroufStatus;
+  mediaUrls?: string[];
+  category?: MaaroufCategory;
+  reward?: number;
+  location?: { type: "Point"; coordinates: [number, number] };
+  deliveryToggle?: boolean;
+  isAnonymous?: boolean;
+  expiresAt?: string;
 }
 
 export interface MaaroufFilters {
   status?: MaaroufStatus;
   kind?: MaaroufKind;
+  category?: MaaroufCategory;
+  hasReward?: boolean;
   search?: string;
   tags?: string[];
 }

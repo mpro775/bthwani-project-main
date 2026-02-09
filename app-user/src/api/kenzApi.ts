@@ -403,8 +403,13 @@ export const getMyKenzDeals = async (
     headers,
     params: params ?? {},
   });
-  const data = unwrap(response.data);
-  return Array.isArray(data?.items) ? data : { items: data?.items ?? [], nextCursor: data?.nextCursor };
+  const data = unwrap<KenzDealsResponse | { items?: KenzDealItem[]; nextCursor?: string | null }>(
+    response.data
+  );
+  return {
+    items: Array.isArray(data?.items) ? data.items : [],
+    nextCursor: data?.nextCursor ?? null,
+  };
 };
 
 export const confirmKenzDealReceived = async (

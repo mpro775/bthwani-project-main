@@ -1,4 +1,16 @@
 // أنواع بيانات قسم معروف
+export type MaaroufCategory = 'phone' | 'pet' | 'id' | 'wallet' | 'keys' | 'bag' | 'other';
+
+export const MaaroufCategoryLabels: Record<MaaroufCategory, string> = {
+  phone: 'هاتف',
+  pet: 'حيوان',
+  id: 'هوية',
+  wallet: 'محفظة',
+  keys: 'مفاتيح',
+  bag: 'حقيبة',
+  other: 'أخرى',
+};
+
 export interface MaaroufItem {
   _id: string;
   ownerId: string;
@@ -8,6 +20,10 @@ export interface MaaroufItem {
   tags?: string[];
   metadata: Record<string, any>;
   status: MaaroufStatus;
+  mediaUrls?: string[];
+  category?: MaaroufCategory;
+  reward?: number;
+  location?: { type: 'Point'; coordinates: [number, number] };
   createdAt: string;
   updatedAt: string;
   owner?: {
@@ -64,6 +80,8 @@ export const MaaroufKindColors: Record<MaaroufKind, 'error' | 'success'> = {
 export interface MaaroufFilters {
   status?: MaaroufStatus;
   kind?: MaaroufKind;
+  category?: MaaroufCategory;
+  hasReward?: boolean;
   ownerId?: string;
   tags?: string[];
   createdAfter?: string;

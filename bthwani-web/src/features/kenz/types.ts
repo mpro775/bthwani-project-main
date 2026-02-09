@@ -53,6 +53,14 @@ export interface KenzItem {
 
 export type KenzCondition = 'new' | 'used' | 'refurbished';
 
+export type KenzDeliveryOption = 'meetup' | 'delivery' | 'both';
+
+export const KenzDeliveryOptionLabels: Record<KenzDeliveryOption, string> = {
+  meetup: 'استلام يدوي',
+  delivery: 'توصيل',
+  both: 'الاثنان',
+};
+
 export interface CreateKenzPayload {
   ownerId: string;
   title: string;
@@ -106,6 +114,7 @@ export interface KenzFilters {
   search?: string;
   priceMin?: number;
   priceMax?: number;
+  deliveryOption?: KenzDeliveryOption;
 }
 
 export interface KenzListResponse {

@@ -24,11 +24,7 @@ import {
   DialogActions,
   TextField,
 } from "@mui/material";
-import {
-  TrendingUp as BoostIcon,
-  Add as AddIcon,
-  Visibility as ViewIcon,
-} from "@mui/icons-material";
+import { Add as AddIcon, Visibility as ViewIcon } from "@mui/icons-material";
 import {
   getKenzBoosts,
   createKenzBoost,
@@ -55,7 +51,7 @@ const KenzBoostPage: React.FC = () => {
   const navigate = useNavigate();
   const [items, setItems] = useState<KenzBoostItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<KenzBoostStatus | "">("");
   const [nextCursor, setNextCursor] = useState<string | undefined>();
   const [loadingMore, setLoadingMore] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
@@ -77,7 +73,11 @@ const KenzBoostPage: React.FC = () => {
       try {
         if (loadMore) setLoadingMore(true);
         else setLoading(true);
-        const params: { cursor?: string; limit?: number; status?: string } = {
+        const params: {
+          cursor?: string;
+          limit?: number;
+          status?: KenzBoostStatus;
+        } = {
           limit: 25,
         };
         if (!loadMore && statusFilter) params.status = statusFilter;
@@ -229,7 +229,9 @@ const KenzBoostPage: React.FC = () => {
             <Select
               value={statusFilter}
               label="حالة الترويج"
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={(e) =>
+                setStatusFilter((e.target.value || "") as KenzBoostStatus | "")
+              }
             >
               <MenuItem value="">الكل</MenuItem>
               {Object.entries(boostStatusLabels).map(([value, label]) => (

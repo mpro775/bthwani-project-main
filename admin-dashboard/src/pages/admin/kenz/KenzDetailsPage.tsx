@@ -23,6 +23,11 @@ import {
   Card,
   CardContent,
   Divider,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
 } from "@mui/material";
 import {
   ArrowBack as ArrowBackIcon,

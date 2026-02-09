@@ -5,6 +5,8 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
+import * as express from 'express';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
@@ -147,9 +149,13 @@ async function bootstrap() {
     prefix: 'v',
   });
 
+  // Static files for uploads (must be before global prefix to serve at /uploads)
+  const uploadPath = join(process.cwd(), process.env.UPLOAD_PATH || 'uploads');
+  app.use('/uploads', express.static(uploadPath));
+
   // API Prefix (for non-versioned routes like /health, /docs)
   app.setGlobalPrefix('api', {
-    exclude: ['health', 'health/*path', 'api/docs*path'],
+    exclude: ['health', 'health/*path', 'api/docs*path', 'uploads', 'uploads/*path'],
   });
 
   // Swagger Documentation

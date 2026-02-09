@@ -156,6 +156,18 @@ export interface DeliveryStore {
 export type MaaroufStatus = 'draft' | 'pending' | 'confirmed' | 'completed' | 'cancelled';
 export type MaaroufKind = 'lost' | 'found';
 
+export type MaaroufCategory = 'phone' | 'pet' | 'id' | 'wallet' | 'keys' | 'bag' | 'other';
+
+export const MAAROUF_CATEGORIES: { value: MaaroufCategory; label: string }[] = [
+  { value: 'phone', label: 'هاتف' },
+  { value: 'pet', label: 'حيوان' },
+  { value: 'id', label: 'هوية' },
+  { value: 'wallet', label: 'محفظة' },
+  { value: 'keys', label: 'مفاتيح' },
+  { value: 'bag', label: 'حقيبة' },
+  { value: 'other', label: 'أخرى' },
+];
+
 export interface MaaroufMetadata {
   color?: string;
   location?: string;
@@ -173,6 +185,14 @@ export interface MaaroufItem {
   tags?: string[];
   metadata?: MaaroufMetadata;
   status: MaaroufStatus;
+  mediaUrls?: string[];
+  category?: MaaroufCategory;
+  reward?: number;
+  location?: { type: 'Point'; coordinates: [number, number] };
+  deliveryToggle?: boolean;
+  matchedToId?: string;
+  isAnonymous?: boolean;
+  expiresAt?: Date | string;
   createdAt: Date | string;
   updatedAt: Date | string;
 }
@@ -185,6 +205,13 @@ export interface CreateMaaroufPayload {
   tags?: string[];
   metadata?: MaaroufMetadata;
   status?: MaaroufStatus;
+  mediaUrls?: string[];
+  category?: MaaroufCategory;
+  reward?: number;
+  location?: { type: 'Point'; coordinates: [number, number] };
+  deliveryToggle?: boolean;
+  isAnonymous?: boolean;
+  expiresAt?: string;
 }
 
 export interface UpdateMaaroufPayload {
@@ -194,6 +221,13 @@ export interface UpdateMaaroufPayload {
   tags?: string[];
   metadata?: MaaroufMetadata;
   status?: MaaroufStatus;
+  mediaUrls?: string[];
+  category?: MaaroufCategory;
+  reward?: number;
+  location?: { type: 'Point'; coordinates: [number, number] };
+  deliveryToggle?: boolean;
+  isAnonymous?: boolean;
+  expiresAt?: string;
 }
 
 export interface MaaroufListResponse {
@@ -672,6 +706,15 @@ export interface AmaniMetadata {
   [key: string]: any;
 }
 
+/** السائق المعين (من الباكند populate driver) */
+export interface AmaniDriver {
+  _id: string;
+  fullName?: string;
+  phone?: string;
+  email?: string;
+  vehicleType?: string;
+}
+
 export interface AmaniItem {
   _id: string;
   ownerId: string;
@@ -681,6 +724,22 @@ export interface AmaniItem {
   destination?: AmaniLocation;
   metadata?: AmaniMetadata;
   status: AmaniStatus;
+  /** السائق المعين: إما ObjectId (string) أو كائن بعد populate */
+  driver?: AmaniDriver | string;
+  assignedAt?: Date | string;
+  pickedUpAt?: Date | string;
+  completedAt?: Date | string;
+  driverLocation?: {
+    lat: number;
+    lng: number;
+    updatedAt: Date | string;
+  };
+  statusHistory?: Array<{
+    status: string;
+    timestamp: Date | string;
+    note?: string;
+    changedBy?: string;
+  }>;
   createdAt: Date | string;
   updatedAt: Date | string;
 }

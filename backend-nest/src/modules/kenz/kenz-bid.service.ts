@@ -80,7 +80,7 @@ export class KenzBidService {
 
     if (cursor) {
       try {
-        query.where('_id').lt(new Types.ObjectId(cursor));
+        query.where({ _id: { $lt: new Types.ObjectId(cursor) } });
       } catch {
         // ignore invalid cursor
       }

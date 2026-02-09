@@ -19,10 +19,7 @@ import {
   Alert,
   Snackbar,
 } from "@mui/material";
-import {
-  Report as ReportIcon,
-  Visibility as ViewIcon,
-} from "@mui/icons-material";
+import { Visibility as ViewIcon } from "@mui/icons-material";
 import { getKenzReports, type KenzReportItem } from "../../../api/kenz";
 import RequireAdminPermission from "../../../components/RequireAdminPermission";
 

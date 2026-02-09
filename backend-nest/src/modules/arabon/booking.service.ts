@@ -133,11 +133,11 @@ export class BookingService {
       .exec();
     if (!doc) throw new NotFoundException('الحجز غير موجود');
     // يمكن السماح لصاحب الحجز أو مالك العربون بعرض التفاصيل
-    const booking = doc as Booking & { userId: Types.ObjectId; arabonId: { ownerId: Types.ObjectId } };
+    const booking = doc as unknown as Booking & { userId: Types.ObjectId; arabonId: { ownerId: Types.ObjectId } };
     if (userId && String(booking.userId) !== userId && String((booking.arabonId as any)?.ownerId) !== userId) {
       throw new ForbiddenException('غير مصرح بعرض هذا الحجز');
     }
-    return doc as Booking;
+    return doc as unknown as Booking;
   }
 
   async getMyBookings(
@@ -174,7 +174,7 @@ export class BookingService {
     const hasMore = items.length > limit;
     const result = hasMore ? items.slice(0, -1) : items;
     const nextCursor = hasMore && result.length ? String((result[result.length - 1] as any)._id) : null;
-    return { items: result as Booking[], nextCursor };
+    return { items: result as unknown as Booking[], nextCursor };
   }
 
   async getBookingsByArabon(arabonId: string, userId: string): Promise<{ items: Booking[]; nextCursor: string | null }> {
@@ -202,7 +202,7 @@ export class BookingService {
     const hasMore = items.length > LIST_LIMIT;
     const result = hasMore ? items.slice(0, -1) : items;
     const nextCursor = hasMore && result.length ? String((result[result.length - 1] as any)._id) : null;
-    return { items: result as Booking[], nextCursor };
+    return { items: result as unknown as Booking[], nextCursor };
   }
 
   /**

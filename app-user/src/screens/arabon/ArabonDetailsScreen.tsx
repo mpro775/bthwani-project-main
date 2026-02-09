@@ -564,10 +564,7 @@ const ArabonDetailsScreen = () => {
                   submittingRequest && styles.submitRequestBtnDisabled,
                 ]}
                 onPress={() =>
-                  navigation.navigate(
-                    "ArabonBook" as never,
-                    { itemId: item._id } as never
-                  )
+                  navigation.navigate("ArabonBook", { itemId: item._id })
                 }
               >
                 <Ionicons name="calendar" size={20} color={COLORS.white} />

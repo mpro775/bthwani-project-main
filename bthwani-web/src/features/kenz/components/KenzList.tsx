@@ -25,7 +25,8 @@ import {
   AccountBalanceWallet as EscrowIcon,
 } from "@mui/icons-material";
 import KenzCard from "./KenzCard";
-import { useKenzList, type KenzSortOption } from "../hooks/useKenzList";
+import { useKenzList } from "../hooks/useKenzList";
+import type { KenzSortOption } from "../api";
 import { useKenzCategories } from "../hooks/useKenzCategories";
 import { KENZ_YEMEN_CITIES } from "../types";
 import type { KenzItem } from "../types";
@@ -44,6 +45,7 @@ interface KenzListProps {
   onFavoriteToggle?: (item: KenzItem) => void;
   onNavigateToFavorites?: () => void;
   onNavigateToDeals?: () => void;
+  onNavigateToChat?: () => void;
 }
 
 const KenzList: React.FC<KenzListProps> = ({
@@ -53,6 +55,7 @@ const KenzList: React.FC<KenzListProps> = ({
   onFavoriteToggle,
   onNavigateToFavorites,
   onNavigateToDeals,
+  onNavigateToChat,
 }) => {
   const {
     items,

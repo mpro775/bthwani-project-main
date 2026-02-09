@@ -13,9 +13,11 @@ import { KenzCategoryService } from './kenz-category.service';
 import { KenzDealService } from './kenz-deal.service';
 import { KenzBidService } from './kenz-bid.service';
 import { WalletModule } from '../wallet/wallet.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
+    AuthModule,
     MongooseModule.forFeature([
       { name: Kenz.name, schema: KenzSchema },
       { name: KenzReport.name, schema: KenzReportSchema },

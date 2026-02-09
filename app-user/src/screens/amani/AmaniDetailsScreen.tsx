@@ -399,23 +399,28 @@ const AmaniDetailsScreen = () => {
                         ? item.driver.fullName
                         : "سائق معين"}
                     </Text>
-                    {typeof item.driver === "object" && item.driver.phone && (
-                      <TouchableOpacity
-                        onPress={() => {
-                          Linking.openURL(`tel:${item.driver.phone}`);
-                        }}
-                        style={styles.phoneButton}
-                      >
-                        <Ionicons
-                          name="call"
-                          size={16}
-                          color={COLORS.primary}
-                        />
-                        <Text style={styles.phoneText}>
-                          {item.driver.phone}
-                        </Text>
-                      </TouchableOpacity>
-                    )}
+                    {typeof item.driver === "object" && item.driver.phone
+                      ? (() => {
+                          const driverPhone = item.driver.phone;
+                          return (
+                            <TouchableOpacity
+                              onPress={() => {
+                                Linking.openURL(`tel:${driverPhone}`);
+                              }}
+                              style={styles.phoneButton}
+                            >
+                              <Ionicons
+                                name="call"
+                                size={16}
+                                color={COLORS.primary}
+                              />
+                              <Text style={styles.phoneText}>
+                                {driverPhone}
+                              </Text>
+                            </TouchableOpacity>
+                          );
+                        })()
+                      : null}
                   </View>
                 </View>
                 {item.assignedAt && (

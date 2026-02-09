@@ -228,7 +228,9 @@ const KenzPage: React.FC = () => {
             }
           }}
           isFavorited={
-            currentUserId ? favorites.isFavorited(currentItem._id) : false
+            currentUserId && currentItem
+              ? favorites.isFavorited(currentItem._id)
+              : false
           }
           onFavoriteToggle={
             currentUserId ? (it) => favorites.toggle(it._id) : undefined

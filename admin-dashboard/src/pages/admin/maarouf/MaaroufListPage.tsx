@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -27,9 +27,8 @@ import {
   DialogContent,
   DialogActions,
   CircularProgress,
-
   Grid,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Add as AddIcon,
   Delete as DeleteIcon,
@@ -39,19 +38,37 @@ import {
   Visibility as ViewIcon,
   Label as TagIcon,
   Category as KindIcon,
-} from '@mui/icons-material';
-import { getMaaroufList, updateMaaroufStatus, deleteMaarouf, type MaaroufItem } from '../../../api/maarouf';
-import { MaaroufStatus, MaaroufKind, MaaroufStatusLabels, MaaroufStatusColors, MaaroufKindLabels, MaaroufKindColors } from '../../../types/maarouf';
-import RequireAdminPermission from '../../../components/RequireAdminPermission';
+} from "@mui/icons-material";
+import {
+  getMaaroufList,
+  updateMaaroufStatus,
+  deleteMaarouf,
+  type MaaroufItem,
+} from "../../../api/maarouf";
+import type { MaaroufCategory } from "../../../types/maarouf";
+import {
+  MaaroufStatus,
+  MaaroufKind,
+  MaaroufStatusLabels,
+  MaaroufStatusColors,
+  MaaroufKindLabels,
+  MaaroufKindColors,
+  MaaroufCategoryLabels,
+} from "../../../types/maarouf";
+import RequireAdminPermission from "../../../components/RequireAdminPermission";
 
 const MaaroufListPage: React.FC = () => {
   const navigate = useNavigate();
   const [maaroufItems, setMaaroufItems] = useState<MaaroufItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<MaaroufStatus | ''>('');
-  const [kindFilter, setKindFilter] = useState<MaaroufKind | ''>('');
-  const [tagsFilter, setTagsFilter] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<MaaroufStatus | "">("");
+  const [kindFilter, setKindFilter] = useState<MaaroufKind | "">("");
+  const [categoryFilter, setCategoryFilter] = useState<MaaroufCategory | "">(
+    ""
+  );
+  const [hasRewardFilter, setHasRewardFilter] = useState(false);
+  const [tagsFilter, setTagsFilter] = useState("");
   const [nextCursor, setNextCursor] = useState<string | undefined>();
   const [loadingMore, setLoadingMore] = useState(false);
 
@@ -66,56 +83,73 @@ const MaaroufListPage: React.FC = () => {
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
-    severity: 'success' | 'error';
+    severity: "success" | "error";
   }>({
     open: false,
-    message: '',
-    severity: 'success',
+    message: "",
+    severity: "success",
   });
 
-  const loadMaaroufItems = useCallback(async (loadMore = false) => {
-    try {
-      if (loadMore) {
-        setLoadingMore(true);
-      } else {
-        setLoading(true);
+  const loadMaaroufItems = useCallback(
+    async (loadMore = false) => {
+      try {
+        if (loadMore) {
+          setLoadingMore(true);
+        } else {
+          setLoading(true);
+        }
+
+        const params: any = {
+          limit: 25,
+        };
+
+        if (!loadMore) {
+          // Only add filters for initial load
+          if (searchTerm) params.search = searchTerm;
+          if (statusFilter) params.status = statusFilter;
+          if (kindFilter) params.kind = kindFilter;
+          if (categoryFilter) params.category = categoryFilter;
+          if (hasRewardFilter) params.hasReward = true;
+          if (tagsFilter)
+            params.tags = tagsFilter
+              .split(",")
+              .map((tag: string) => tag.trim())
+              .filter(Boolean);
+        } else if (nextCursor) {
+          params.cursor = nextCursor;
+        }
+
+        const response = await getMaaroufList(params);
+
+        if (loadMore) {
+          setMaaroufItems((prev) => [...prev, ...response.items]);
+        } else {
+          setMaaroufItems(response.items);
+        }
+
+        setNextCursor(response.nextCursor);
+      } catch (error) {
+        console.error("خطأ في تحميل إعلانات معروف:", error);
+        setSnackbar({
+          open: true,
+          message: "فشل في تحميل إعلانات معروف",
+          severity: "error",
+        });
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
       }
-
-      const params: any = {
-        limit: 25,
-      };
-
-      if (!loadMore) {
-        // Only add filters for initial load
-        if (searchTerm) params.search = searchTerm;
-        if (statusFilter) params.status = statusFilter;
-        if (kindFilter) params.kind = kindFilter;
-        if (tagsFilter) params.tags = tagsFilter.split(',').map((tag: string) => tag.trim()).filter(Boolean);
-      } else if (nextCursor) {
-        params.cursor = nextCursor;
-      }
-
-      const response = await getMaaroufList(params);
-
-      if (loadMore) {
-        setMaaroufItems(prev => [...prev, ...response.items]);
-      } else {
-        setMaaroufItems(response.items);
-      }
-
-      setNextCursor(response.nextCursor);
-    } catch (error) {
-      console.error('خطأ في تحميل إعلانات معروف:', error);
-      setSnackbar({
-        open: true,
-        message: 'فشل في تحميل إعلانات معروف',
-        severity: 'error',
-      });
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  }, [searchTerm, statusFilter, kindFilter, tagsFilter, nextCursor]);
+    },
+    [
+      searchTerm,
+      statusFilter,
+      kindFilter,
+      categoryFilter,
+      hasRewardFilter,
+      tagsFilter,
+      nextCursor,
+    ]
+  );
 
   useEffect(() => {
     loadMaaroufItems();
@@ -127,17 +161,17 @@ const MaaroufListPage: React.FC = () => {
       await updateMaaroufStatus(id, { status: newStatus });
       setSnackbar({
         open: true,
-        message: 'تم تحديث حالة الإعلان بنجاح',
-        severity: 'success',
+        message: "تم تحديث حالة الإعلان بنجاح",
+        severity: "success",
       });
       // Reload the list
       loadMaaroufItems();
     } catch (error) {
-      console.error('خطأ في تحديث الحالة:', error);
+      console.error("خطأ في تحديث الحالة:", error);
       setSnackbar({
         open: true,
-        message: 'فشل في تحديث الحالة',
-        severity: 'error',
+        message: "فشل في تحديث الحالة",
+        severity: "error",
       });
     } finally {
       setUpdatingStatus(null);
@@ -151,18 +185,18 @@ const MaaroufListPage: React.FC = () => {
       await deleteMaarouf(itemToDelete._id);
       setSnackbar({
         open: true,
-        message: 'تم حذف الإعلان بنجاح',
-        severity: 'success',
+        message: "تم حذف الإعلان بنجاح",
+        severity: "success",
       });
       setDeleteDialogOpen(false);
       setItemToDelete(null);
       loadMaaroufItems();
     } catch (error) {
-      console.error('خطأ في الحذف:', error);
+      console.error("خطأ في الحذف:", error);
       setSnackbar({
         open: true,
-        message: 'فشل في حذف الإعلان',
-        severity: 'error',
+        message: "فشل في حذف الإعلان",
+        severity: "error",
       });
     }
   };
@@ -172,24 +206,31 @@ const MaaroufListPage: React.FC = () => {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-SA', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
+    return new Date(dateString).toLocaleDateString("ar-SA", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
   return (
     <RequireAdminPermission>
       <Box sx={{ p: 3 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 3,
+          }}
+        >
           <Typography variant="h4" component="h1">
             إدارة إعلانات معروف
           </Typography>
           <Button
             variant="contained"
             startIcon={<AddIcon />}
-            onClick={() => navigate('/admin/maarouf/new')}
+            onClick={() => navigate("/admin/maarouf/new")}
           >
             إضافة إعلان جديد
           </Button>
@@ -198,7 +239,7 @@ const MaaroufListPage: React.FC = () => {
         {/* Filters */}
         <Paper sx={{ p: 2, mb: 3 }}>
           <Grid container spacing={2} alignItems="center">
-            <Grid  size={{xs: 12, sm: 6, md: 3}}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <TextField
                 fullWidth
                 label="البحث"
@@ -214,13 +255,15 @@ const MaaroufListPage: React.FC = () => {
                 placeholder="ابحث في العناوين والأوصاف..."
               />
             </Grid>
-            <Grid  size={{xs: 12, sm: 6, md: 2}}>
+            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
               <FormControl fullWidth>
                 <InputLabel>الحالة</InputLabel>
                 <Select
                   value={statusFilter}
                   label="الحالة"
-                  onChange={(e) => setStatusFilter(e.target.value as MaaroufStatus)}
+                  onChange={(e) =>
+                    setStatusFilter(e.target.value as MaaroufStatus)
+                  }
                 >
                   <MenuItem value="">الكل</MenuItem>
                   {Object.values(MaaroufStatus).map((status) => (
@@ -231,7 +274,7 @@ const MaaroufListPage: React.FC = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid  size={{xs: 12, sm: 6, md: 2}}>
+            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
               <FormControl fullWidth>
                 <InputLabel>النوع</InputLabel>
                 <Select
@@ -248,7 +291,46 @@ const MaaroufListPage: React.FC = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid  size={{xs: 12, sm: 6, md: 3}}>
+            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+              <FormControl fullWidth>
+                <InputLabel>التصنيف</InputLabel>
+                <Select
+                  value={categoryFilter}
+                  label="التصنيف"
+                  onChange={(e) =>
+                    setCategoryFilter(e.target.value as MaaroufCategory)
+                  }
+                >
+                  <MenuItem value="">الكل</MenuItem>
+                  {(
+                    Object.keys(MaaroufCategoryLabels) as MaaroufCategory[]
+                  ).map((cat) => (
+                    <MenuItem key={cat} value={cat}>
+                      {MaaroufCategoryLabels[cat]}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 1 }}>
+              <FormControl fullWidth>
+                <Box sx={{ display: "flex", alignItems: "center", pt: 1 }}>
+                  <input
+                    type="checkbox"
+                    id="hasReward"
+                    checked={hasRewardFilter}
+                    onChange={(e) => setHasRewardFilter(e.target.checked)}
+                  />
+                  <label
+                    htmlFor="hasReward"
+                    style={{ marginLeft: 8, fontSize: 14 }}
+                  >
+                    مكافأة فقط
+                  </label>
+                </Box>
+              </FormControl>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <TextField
                 fullWidth
                 label="العلامات"
@@ -264,7 +346,7 @@ const MaaroufListPage: React.FC = () => {
                 placeholder="مفصولة بفواصل (محفظة,بطاقات)"
               />
             </Grid>
-            <Grid  size={{xs: 12, sm: 6, md: 1}}>
+            <Grid size={{ xs: 12, sm: 6, md: 1 }}>
               <Stack direction="row" spacing={1}>
                 <Button
                   variant="outlined"
@@ -275,14 +357,16 @@ const MaaroufListPage: React.FC = () => {
                 </Button>
               </Stack>
             </Grid>
-            <Grid  size={{xs: 12, sm: 6, md: 1}}>
+            <Grid size={{ xs: 12, sm: 6, md: 1 }}>
               <Button
                 variant="text"
                 onClick={() => {
-                  setSearchTerm('');
-                  setStatusFilter('');
-                  setKindFilter('');
-                  setTagsFilter('');
+                  setSearchTerm("");
+                  setStatusFilter("");
+                  setKindFilter("");
+                  setCategoryFilter("");
+                  setHasRewardFilter(false);
+                  setTagsFilter("");
                   loadMaaroufItems();
                 }}
               >
@@ -309,13 +393,13 @@ const MaaroufListPage: React.FC = () => {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={7} align="center">
+                  <TableCell colSpan={10} align="center">
                     <CircularProgress />
                   </TableCell>
                 </TableRow>
               ) : maaroufItems.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} align="center">
+                  <TableCell colSpan={10} align="center">
                     <Typography variant="body2" color="text.secondary">
                       لا توجد إعلانات معروف
                     </Typography>
@@ -325,12 +409,50 @@ const MaaroufListPage: React.FC = () => {
                 maaroufItems.map((item) => (
                   <TableRow key={item._id}>
                     <TableCell>
+                      {item.mediaUrls?.[0] ? (
+                        <Box
+                          component="img"
+                          src={item.mediaUrls[0]}
+                          sx={{
+                            width: 50,
+                            height: 50,
+                            borderRadius: 1,
+                            objectFit: "cover",
+                          }}
+                          alt=""
+                        />
+                      ) : (
+                        <Box
+                          sx={{
+                            width: 50,
+                            height: 50,
+                            bgcolor: "grey.200",
+                            borderRadius: 1,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <KindIcon sx={{ color: "grey.400" }} />
+                        </Box>
+                      )}
+                    </TableCell>
+                    <TableCell>
                       <Box>
                         <Typography variant="body1" fontWeight="medium">
                           {item.title}
                         </Typography>
                         {item.description && (
-                          <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 250, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{
+                              maxWidth: 250,
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
                             {item.description}
                           </Typography>
                         )}
@@ -347,14 +469,43 @@ const MaaroufListPage: React.FC = () => {
                       )}
                     </TableCell>
                     <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      {item.category ? (
+                        <Chip
+                          label={MaaroufCategoryLabels[item.category]}
+                          size="small"
+                          variant="outlined"
+                        />
+                      ) : (
+                        <Typography variant="body2" color="text.secondary">
+                          —
+                        </Typography>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {item.reward && item.reward > 0 ? (
+                        <Typography variant="body2">
+                          {item.reward} ريال
+                        </Typography>
+                      ) : (
+                        <Typography variant="body2" color="text.secondary">
+                          —
+                        </Typography>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
                         <PersonIcon fontSize="small" color="action" />
                         <Box>
                           <Typography variant="body2">
-                            {item.owner?.name || 'غير محدد'}
+                            {item.owner?.name || "غير محدد"}
                           </Typography>
                           {item.owner?.email && (
-                            <Typography variant="caption" color="text.secondary">
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
                               {item.owner.email}
                             </Typography>
                           )}
@@ -362,7 +513,7 @@ const MaaroufListPage: React.FC = () => {
                       </Box>
                     </TableCell>
                     <TableCell>
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                         {item.tags?.slice(0, 3).map((tag, index) => (
                           <Chip
                             key={index}
@@ -384,7 +535,12 @@ const MaaroufListPage: React.FC = () => {
                       <FormControl size="small" fullWidth>
                         <Select
                           value={item.status}
-                          onChange={(e) => handleStatusUpdate(item._id, e.target.value as MaaroufStatus)}
+                          onChange={(e) =>
+                            handleStatusUpdate(
+                              item._id,
+                              e.target.value as MaaroufStatus
+                            )
+                          }
                           disabled={updatingStatus === item._id}
                         >
                           {Object.values(MaaroufStatus).map((status) => (
@@ -400,7 +556,9 @@ const MaaroufListPage: React.FC = () => {
                       </FormControl>
                     </TableCell>
                     <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
                         <TimeIcon fontSize="small" color="action" />
                         <Typography variant="body2">
                           {formatDate(item.createdAt)}
@@ -441,14 +599,14 @@ const MaaroufListPage: React.FC = () => {
 
         {/* Load More */}
         {nextCursor && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
             <Button
               variant="outlined"
               onClick={() => loadMaaroufItems(true)}
               disabled={loadingMore}
               startIcon={loadingMore ? <CircularProgress size={16} /> : null}
             >
-              {loadingMore ? 'جاري التحميل...' : 'تحميل المزيد'}
+              {loadingMore ? "جاري التحميل..." : "تحميل المزيد"}
             </Button>
           </Box>
         )}
@@ -468,9 +626,7 @@ const MaaroufListPage: React.FC = () => {
             </Typography>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setDeleteDialogOpen(false)}>
-              إلغاء
-            </Button>
+            <Button onClick={() => setDeleteDialogOpen(false)}>إلغاء</Button>
             <Button onClick={handleDelete} color="error" variant="contained">
               حذف
             </Button>
@@ -486,7 +642,7 @@ const MaaroufListPage: React.FC = () => {
           <Alert
             onClose={() => setSnackbar({ ...snackbar, open: false })}
             severity={snackbar.severity}
-            sx={{ width: '100%' }}
+            sx={{ width: "100%" }}
           >
             {snackbar.message}
           </Alert>

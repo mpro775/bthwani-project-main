@@ -138,7 +138,7 @@ export class BookingSlotService {
       .sort({ datetime: 1 })
       .lean()
       .exec();
-    return items as BookingSlot[];
+    return items as unknown as BookingSlot[];
   }
 
   /**

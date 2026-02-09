@@ -1,5 +1,5 @@
 // src/features/maarouf/components/MaaroufFilters.tsx
-import React from 'react';
+import React from "react";
 import {
   Paper,
   TextField,
@@ -11,17 +11,24 @@ import {
   Button,
   Chip,
   InputAdornment,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Search as SearchIcon,
   FilterList as FilterIcon,
   Clear as ClearIcon,
   Category as KindIcon,
-} from '@mui/icons-material';
-import type { MaaroufFilters } from '../types';
-import type { MaaroufKind } from '../types';
-import type { MaaroufStatus } from '../types';
-import { MaaroufKindLabels, MaaroufKindValues, MaaroufStatusLabels, MaaroufStatusValues } from '../types';
+} from "@mui/icons-material";
+import type { MaaroufFilters } from "../types";
+import type { MaaroufKind } from "../types";
+import type { MaaroufStatus } from "../types";
+import type { MaaroufCategory } from "../types";
+import {
+  MaaroufKindLabels,
+  MaaroufKindValues,
+  MaaroufStatusLabels,
+  MaaroufStatusValues,
+  MAAROUF_CATEGORIES,
+} from "../types";
 
 interface MaaroufFiltersProps {
   filters: MaaroufFilters;
@@ -40,29 +47,43 @@ const MaaroufFiltersComponent: React.FC<MaaroufFiltersProps> = ({
     onFiltersChange({ ...filters, search: value });
   };
 
-  const handleKindChange = (kind: MaaroufKind | '') => {
+  const handleKindChange = (kind: MaaroufKind | "") => {
     onFiltersChange({
       ...filters,
-      kind: kind === '' ? undefined : kind
+      kind: kind === "" ? undefined : kind,
     });
   };
 
-  const handleStatusChange = (status: MaaroufStatus | '') => {
+  const handleStatusChange = (status: MaaroufStatus | "") => {
     onFiltersChange({
       ...filters,
-      status: status === '' ? undefined : status
+      status: status === "" ? undefined : status,
     });
   };
 
   const handleTagsChange = (tagsString: string) => {
     const tags = tagsString
-      .split(',')
-      .map(tag => tag.trim())
-      .filter(tag => tag.length > 0);
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter((tag) => tag.length > 0);
 
     onFiltersChange({
       ...filters,
-      tags: tags.length > 0 ? tags : undefined
+      tags: tags.length > 0 ? tags : undefined,
+    });
+  };
+
+  const handleCategoryChange = (category: MaaroufCategory | "") => {
+    onFiltersChange({
+      ...filters,
+      category: category === "" ? undefined : category,
+    });
+  };
+
+  const handleHasRewardChange = (checked: boolean) => {
+    onFiltersChange({
+      ...filters,
+      hasReward: checked || undefined,
     });
   };
 
@@ -77,9 +98,9 @@ const MaaroufFiltersComponent: React.FC<MaaroufFiltersProps> = ({
 
   return (
     <Paper sx={{ p: 2, mb: 3 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+      <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
         <FilterIcon sx={{ mr: 1 }} />
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <span>فلترة الإعلانات</span>
           {getActiveFiltersCount() > 0 && (
             <Chip
@@ -92,10 +113,12 @@ const MaaroufFiltersComponent: React.FC<MaaroufFiltersProps> = ({
         </Box>
       </Box>
 
-      <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+      <Box
+        sx={{ display: "flex", gap: 2, flexWrap: "wrap", alignItems: "center" }}
+      >
         <TextField
           placeholder="البحث في العناوين والأوصاف..."
-          value={filters.search || ''}
+          value={filters.search || ""}
           onChange={(e) => handleSearchChange(e.target.value)}
           InputProps={{
             startAdornment: (
@@ -111,12 +134,14 @@ const MaaroufFiltersComponent: React.FC<MaaroufFiltersProps> = ({
         <FormControl sx={{ minWidth: 150 }} size="small">
           <InputLabel>النوع</InputLabel>
           <Select
-            value={filters.kind || ''}
+            value={filters.kind || ""}
             label="النوع"
-            onChange={(e) => handleKindChange(e.target.value as MaaroufKind | '')}
+            onChange={(e) =>
+              handleKindChange(e.target.value as MaaroufKind | "")
+            }
           >
             <MenuItem value="">
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
                 <KindIcon sx={{ mr: 1, opacity: 0.5 }} />
                 الكل
               </Box>
@@ -130,11 +155,31 @@ const MaaroufFiltersComponent: React.FC<MaaroufFiltersProps> = ({
         </FormControl>
 
         <FormControl sx={{ minWidth: 150 }} size="small">
+          <InputLabel>التصنيف</InputLabel>
+          <Select
+            value={filters.category || ""}
+            label="التصنيف"
+            onChange={(e) =>
+              handleCategoryChange(e.target.value as MaaroufCategory | "")
+            }
+          >
+            <MenuItem value="">الكل</MenuItem>
+            {MAAROUF_CATEGORIES.map((c) => (
+              <MenuItem key={c.value} value={c.value}>
+                {c.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <FormControl sx={{ minWidth: 150 }} size="small">
           <InputLabel>الحالة</InputLabel>
           <Select
-            value={filters.status || ''}
+            value={filters.status || ""}
             label="الحالة"
-            onChange={(e) => handleStatusChange(e.target.value as MaaroufStatus | '')}
+            onChange={(e) =>
+              handleStatusChange(e.target.value as MaaroufStatus | "")
+            }
           >
             <MenuItem value="">الكل</MenuItem>
             {MaaroufStatusValues.map((status: MaaroufStatus) => (
@@ -145,9 +190,21 @@ const MaaroufFiltersComponent: React.FC<MaaroufFiltersProps> = ({
           </Select>
         </FormControl>
 
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <input
+            type="checkbox"
+            id="hasReward"
+            checked={!!filters.hasReward}
+            onChange={(e) => handleHasRewardChange(e.target.checked)}
+          />
+          <label htmlFor="hasReward" style={{ marginLeft: 8, fontSize: 14 }}>
+            مكافأة فقط
+          </label>
+        </Box>
+
         <TextField
           placeholder="العلامات (مفصولة بفواصل)"
-          value={filters.tags ? filters.tags.join(', ') : ''}
+          value={filters.tags ? filters.tags.join(", ") : ""}
           onChange={(e) => handleTagsChange(e.target.value)}
           sx={{ minWidth: 200 }}
           size="small"

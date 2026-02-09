@@ -1,11 +1,7 @@
 // مطابق لـ app-user - دعم الفلترة حسب الفئة والمدينة
 import { useState, useEffect, useCallback } from "react";
-import { getKenzList } from "../api";
-import type { KenzItem, KenzListResponse, KenzCondition } from "../types";
-
-export type KenzSortOption = 'newest' | 'price_asc' | 'price_desc' | 'views_desc';
-
-export type KenzDeliveryOption = 'meetup' | 'delivery' | 'both';
+import { getKenzList, type KenzSortOption } from "../api";
+import type { KenzItem, KenzListResponse, KenzCondition, KenzDeliveryOption } from "../types";
 
 interface UseKenzListOptions {
   initialCategory?: string | undefined;
@@ -18,7 +14,7 @@ interface UseKenzListOptions {
 }
 
 export function useKenzList(options: UseKenzListOptions = {}) {
-  const { initialCategory, initialCity, initialSearch, initialSort = 'newest', initialCondition, limit = 20 } = options;
+  const { initialCategory, initialCity, initialSearch, initialSort = 'newest', initialCondition, initialDeliveryOption, limit = 20 } = options;
 
   const [items, setItems] = useState<KenzItem[]>([]);
   const [loading, setLoading] = useState(false);

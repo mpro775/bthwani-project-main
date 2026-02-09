@@ -5,7 +5,17 @@ import type {
   CreateMaaroufPayload,
   UpdateMaaroufPayload,
   MaaroufListResponse,
+  MaaroufCategory,
 } from "./types";
+
+export async function uploadMaaroufImage(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await axiosInstance.post("/maarouf/upload", formData);
+  const raw = response.data;
+  const data = raw?.data ?? raw;
+  return data?.url ?? "";
+}
 
 export async function createMaarouf(
   payload: CreateMaaroufPayload
@@ -18,6 +28,8 @@ export async function createMaarouf(
 export async function getMaaroufList(params?: {
   cursor?: string;
   limit?: number;
+  category?: MaaroufCategory;
+  hasReward?: boolean;
 }): Promise<MaaroufListResponse> {
   const response = await axiosInstance.get("/maarouf", { params });
   const raw = response.data;

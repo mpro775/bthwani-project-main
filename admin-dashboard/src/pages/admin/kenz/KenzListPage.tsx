@@ -377,11 +377,10 @@ const KenzListPage: React.FC = () => {
                       : "no"
                   }
                   label="الإيكرو"
-                  onChange={(e) =>
-                    setAcceptsEscrowFilter(
-                      e.target.value === "" ? "" : e.target.value === "yes"
-                    )
-                  }
+                  onChange={(e) => {
+                    const v = e.target.value as string;
+                    setAcceptsEscrowFilter(v === "" ? "" : v === "yes");
+                  }}
                 >
                   <MenuItem value="">الكل</MenuItem>
                   <MenuItem value="yes">يقبل الإيكرو فقط</MenuItem>
@@ -396,11 +395,10 @@ const KenzListPage: React.FC = () => {
                     isAuctionFilter === "" ? "" : isAuctionFilter ? "yes" : "no"
                   }
                   label="المزاد"
-                  onChange={(e) =>
-                    setIsAuctionFilter(
-                      e.target.value === "" ? "" : e.target.value === "yes"
-                    )
-                  }
+                  onChange={(e) => {
+                    const v = e.target.value as string;
+                    setIsAuctionFilter(v === "" ? "" : v === "yes");
+                  }}
                 >
                   <MenuItem value="">الكل</MenuItem>
                   <MenuItem value="yes">مزادات فقط</MenuItem>

@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: 18, fontWeight: "600", color: COLORS.text },
   content: { flex: 1, padding: 16 },
   arabonSummary: {
-    backgroundColor: COLORS.cardBg,
+    backgroundColor: COLORS.background,
     padding: 16,
     borderRadius: 12,
     marginBottom: 20,
@@ -380,7 +380,7 @@ const styles = StyleSheet.create({
   emptySlots: {
     alignItems: "center",
     padding: 32,
-    backgroundColor: COLORS.cardBg,
+    backgroundColor: COLORS.background,
     borderRadius: 12,
   },
   emptyText: { fontSize: 16, color: COLORS.textLight, marginTop: 12 },
@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
-    backgroundColor: COLORS.cardBg,
+    backgroundColor: COLORS.background,
     borderRadius: 12,
     borderWidth: 2,
     borderColor: "transparent",

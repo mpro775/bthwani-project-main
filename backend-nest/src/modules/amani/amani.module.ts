@@ -8,9 +8,11 @@ import { AppSettings, AppSettingsSchema } from '../admin/entities/app-settings.e
 import { BullModule } from '@nestjs/bull';
 import { AmaniNotificationHandler } from './events/handlers/amani-notification.handler';
 import { GatewaysModule } from '../../gateways/gateways.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
+    AuthModule,
     MongooseModule.forFeature([
       { name: Amani.name, schema: AmaniSchema },
       { name: Driver.name, schema: DriverSchema },

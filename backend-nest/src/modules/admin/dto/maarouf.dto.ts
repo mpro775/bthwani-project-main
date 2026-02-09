@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsEnum, IsDateString, IsArray, IsMongoId } from 'class-validator';
-import { Type } from 'class-transformer';
-import { MaaroufStatus, MaaroufKind, MaaroufListResponse, MaaroufStats, MaaroufAdminQuery, MaaroufStatusUpdateDto } from '../interfaces/admin.interfaces';
+import { IsString, IsOptional, IsEnum, IsDateString, IsArray, IsMongoId, IsBoolean } from 'class-validator';
+import { Type, Transform } from 'class-transformer';
+import { MaaroufStatus, MaaroufKind, MaaroufCategory, MaaroufListResponse, MaaroufStats, MaaroufAdminQuery, MaaroufStatusUpdateDto } from '../interfaces/admin.interfaces';
 import { Types } from 'mongoose';
 export class MaaroufAdminQueryDto implements MaaroufAdminQuery {
   @ApiProperty({ required: false, enum: MaaroufStatus })
@@ -39,6 +39,17 @@ export class MaaroufAdminQueryDto implements MaaroufAdminQuery {
   @IsOptional()
   @IsString()
   search?: string;
+
+  @ApiProperty({ required: false, enum: MaaroufCategory, description: 'فلترة حسب التصنيف' })
+  @IsOptional()
+  @IsEnum(MaaroufCategory)
+  category?: MaaroufCategory;
+
+  @ApiProperty({ required: false, type: Boolean, description: 'عرض الإعلانات ذات المكافأة فقط' })
+  @IsOptional()
+  @Transform(({ value }) => (value === 'true' || value === true ? true : undefined))
+  @IsBoolean()
+  hasReward?: boolean;
 }
 
 export class MaaroufStatusUpdateAdminDto implements MaaroufStatusUpdateDto {

@@ -56,7 +56,7 @@ export class KenzService {
     return { items, nextCursor };
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<Record<string, unknown>> {
     const doc = await this.model
       .findByIdAndUpdate(id, { $inc: { viewCount: 1 } }, { new: true })
       .populate('ownerId', 'name email phone')
@@ -66,7 +66,7 @@ export class KenzService {
     if (!doc) throw new NotFoundException('Not found');
     const boostMap = await this.getActiveBoostsForKenzIds([id]);
     const boost = boostMap.get(id);
-    const obj = doc.toObject ? doc.toObject() : { ...doc };
+    const obj = (doc.toObject ? doc.toObject() : { ...doc }) as Record<string, unknown>;
     obj.isBoosted = !!boost;
     obj.boostType = boost?.boostType ?? null;
     return obj;
@@ -147,7 +147,7 @@ export class KenzService {
 
     if (cursor) {
       try {
-        query.where('_id').lt(new Types.ObjectId(cursor));
+        query.where('_id').lt(new Types.ObjectId(cursor) as any);
       } catch {
         // invalid cursor ignored
       }
@@ -258,7 +258,7 @@ export class KenzService {
     if (filters.kenzId) query.where('kenzId').equals(new Types.ObjectId(filters.kenzId));
     if (cursor) {
       try {
-        query.where('_id').lt(new Types.ObjectId(cursor));
+        query.where('_id').lt(new Types.ObjectId(cursor) as any);
       } catch {
         // ignore
       }
@@ -409,7 +409,7 @@ export class KenzService {
       .populate('kenzId');
     if (cursor) {
       try {
-        query.where('_id').lt(new Types.ObjectId(cursor));
+        query.where('_id').lt(new Types.ObjectId(cursor) as any);
       } catch {
         // ignore invalid cursor
       }
@@ -445,7 +445,7 @@ export class KenzService {
     if (filters.status) query.where('status').equals(filters.status);
     if (cursor) {
       try {
-        query.where('_id').lt(new Types.ObjectId(cursor));
+        query.where('_id').lt(new Types.ObjectId(cursor) as any);
       } catch {
         // ignore invalid cursor
       }

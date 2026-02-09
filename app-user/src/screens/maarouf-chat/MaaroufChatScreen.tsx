@@ -16,14 +16,23 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 
 import { RootStackParamList } from "@/types/navigation";
-import { MaaroufMessage, getConversation, getMessages, sendMessage, markAsRead } from "@/api/maaroufChatApi";
+import {
+  MaaroufMessage,
+  getConversation,
+  getMessages,
+  sendMessage,
+  markAsRead,
+} from "@/api/maaroufChatApi";
 import { connectMaaroufChatSocket } from "@/hooks/useMaaroufChatSocket";
 import { useAuth } from "@/auth/AuthContext";
 import { refreshIdToken } from "@/api/authService";
 import COLORS from "@/constants/colors";
 
 type RouteProps = RouteProp<RootStackParamList, "MaaroufChat">;
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, "MaaroufChat">;
+type NavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "MaaroufChat"
+>;
 
 const MaaroufChatScreen = () => {
   const navigation = useNavigation<NavigationProp>();
@@ -38,9 +47,14 @@ const MaaroufChatScreen = () => {
   const [messageText, setMessageText] = useState("");
   const [nextCursor, setNextCursor] = useState<string | undefined>();
   const [loadingMore, setLoadingMore] = useState(false);
-  const [typing, setTyping] = useState<{ userId: string; isTyping: boolean } | null>(null);
+  const [typing, setTyping] = useState<{
+    userId: string;
+    isTyping: boolean;
+  } | null>(null);
 
-  const socketRef = useRef<ReturnType<typeof connectMaaroufChatSocket> | null>(null);
+  const socketRef = useRef<ReturnType<typeof connectMaaroufChatSocket> | null>(
+    null
+  );
   const flatListRef = useRef<FlatList>(null);
   const inputRef = useRef<TextInput>(null);
 
@@ -55,30 +69,33 @@ const MaaroufChatScreen = () => {
     }
   }, [conversationId, navigation]);
 
-  const loadMessages = useCallback(async (cursor?: string, isLoadMore = false) => {
-    try {
-      if (isLoadMore) {
-        setLoadingMore(true);
-      } else {
-        setLoading(true);
+  const loadMessages = useCallback(
+    async (cursor?: string, isLoadMore = false) => {
+      try {
+        if (isLoadMore) {
+          setLoadingMore(true);
+        } else {
+          setLoading(true);
+        }
+
+        const response = await getMessages(conversationId, cursor, 25);
+
+        if (isLoadMore) {
+          setMessages((prev) => [...response.items, ...prev]);
+        } else {
+          setMessages(response.items);
+        }
+
+        setNextCursor(response.nextCursor);
+      } catch (error) {
+        console.error("خطأ في تحميل الرسائل:", error);
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
       }
-
-      const response = await getMessages(conversationId, cursor, 25);
-
-      if (isLoadMore) {
-        setMessages(prev => [...response.items, ...prev]);
-      } else {
-        setMessages(response.items);
-      }
-
-      setNextCursor(response.nextCursor);
-    } catch (error) {
-      console.error("خطأ في تحميل الرسائل:", error);
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  }, [conversationId]);
+    },
+    [conversationId]
+  );
 
   const handleSend = useCallback(async () => {
     if (!messageText.trim() || sending) return;
@@ -94,7 +111,7 @@ const MaaroufChatScreen = () => {
       } else {
         // Fallback إلى REST API
         const newMessage = await sendMessage(conversationId, text);
-        setMessages(prev => [...prev, newMessage]);
+        setMessages((prev) => [...prev, newMessage]);
       }
     } catch (error) {
       console.error("خطأ في إرسال الرسالة:", error);
@@ -119,14 +136,15 @@ const MaaroufChatScreen = () => {
       try {
         const token = await refreshIdToken();
         if (!mounted) return;
+        if (!token) return;
 
         const socket = connectMaaroufChatSocket(
           token,
           conversationId,
           (newMessage) => {
-            setMessages(prev => {
+            setMessages((prev) => {
               // تجنب التكرار
-              if (prev.some(m => m._id === newMessage._id)) return prev;
+              if (prev.some((m) => m._id === newMessage._id)) return prev;
               return [...prev, newMessage];
             });
             // تحديث حالة القراءة
@@ -189,7 +207,10 @@ const MaaroufChatScreen = () => {
   const formatTime = (date?: Date | string) => {
     if (!date) return "";
     const d = typeof date === "string" ? new Date(date) : date;
-    return d.toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" });
+    return d.toLocaleTimeString("ar-SA", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   const renderMessage = ({ item }: { item: MaaroufMessage }) => {
@@ -304,7 +325,10 @@ const MaaroufChatScreen = () => {
           onSubmitEditing={handleSend}
         />
         <TouchableOpacity
-          style={[styles.sendButton, (!messageText.trim() || sending) && styles.sendButtonDisabled]}
+          style={[
+            styles.sendButton,
+            (!messageText.trim() || sending) && styles.sendButtonDisabled,
+          ]}
           onPress={handleSend}
           disabled={!messageText.trim() || sending}
         >

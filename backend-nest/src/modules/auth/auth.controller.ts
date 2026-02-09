@@ -137,7 +137,7 @@ export class AuthController {
       marketerId,
       body.pushToken,
     );
-    return { success: true, ...result };
+    return { ...result, success: true };
   }
 
   // ==================== Local Authentication ====================

@@ -13,6 +13,17 @@ export enum MaaroufStatus {
   CONFIRMED = 'confirmed',
   COMPLETED = 'completed',
   CANCELLED = 'cancelled',
+  EXPIRED = 'expired',
+}
+
+export enum MaaroufCategory {
+  PHONE = 'phone',
+  PET = 'pet',
+  ID = 'id',
+  WALLET = 'wallet',
+  KEYS = 'keys',
+  BAG = 'bag',
+  OTHER = 'other',
 }
 
 @Schema({ timestamps: true })
@@ -73,6 +84,89 @@ export class Maarouf extends Document {
   })
   @Prop({ default: 'draft' })
   status: MaaroufStatus;
+
+  @ApiProperty({
+    description: 'روابط الصور المرفقة',
+    required: false,
+    type: [String],
+    example: ['https://example.com/img1.jpg'],
+  })
+  @Prop({ type: [String], default: [] })
+  mediaUrls?: string[];
+
+  @ApiProperty({
+    description: 'التصنيف',
+    required: false,
+    enum: MaaroufCategory,
+    example: MaaroufCategory.WALLET,
+  })
+  @Prop({ enum: MaaroufCategory, default: MaaroufCategory.OTHER })
+  category?: MaaroufCategory;
+
+  @ApiProperty({
+    description: 'مكافأة اختيارية (بالريال)',
+    required: false,
+    example: 500,
+  })
+  @Prop({ type: Number, default: 0 })
+  reward?: number;
+
+  @ApiProperty({
+    description: 'الموقع الجغرافي (GeoJSON Point)',
+    required: false,
+    example: { type: 'Point', coordinates: [44.2, 15.35] },
+  })
+  @Prop({
+    type: {
+      type: String,
+      enum: ['Point'],
+    },
+    coordinates: [Number],
+  })
+  location?: { type: 'Point'; coordinates: [number, number] };
+
+  @ApiProperty({
+    description: 'خيار التوصيل',
+    required: false,
+    default: false,
+  })
+  @Prop({ default: false })
+  deliveryToggle?: boolean;
+
+  @ApiProperty({
+    description: 'معرف طلب التوصيل المرتبط (إن وُجد)',
+    required: false,
+    type: 'string',
+  })
+  @Prop({ type: Types.ObjectId, ref: 'Delivery' })
+  deliveryId?: Types.ObjectId;
+
+  @ApiProperty({
+    description: 'معرف الإعلان المطابق (lost↔found)',
+    required: false,
+    type: 'string',
+  })
+  @Prop({ type: Types.ObjectId, ref: 'Maarouf' })
+  matchedToId?: Types.ObjectId;
+
+  @ApiProperty({
+    description: 'نشر بدون رقم هاتف',
+    required: false,
+    default: false,
+  })
+  @Prop({ default: false })
+  isAnonymous?: boolean;
+
+  @ApiProperty({
+    description: 'تاريخ انتهاء الإعلان',
+    required: false,
+    type: Date,
+  })
+  @Prop({ type: Date })
+  expiresAt?: Date;
 }
 
 export const MaaroufSchema = SchemaFactory.createForClass(Maarouf);
+
+// فهرس للبحث الجغرافي
+MaaroufSchema.index({ location: '2dsphere' });

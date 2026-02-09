@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: 18, fontWeight: "600", color: COLORS.text },
   listContent: { padding: 16, paddingBottom: 32 },
   card: {
-    backgroundColor: COLORS.cardBg,
+    backgroundColor: COLORS.background,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,

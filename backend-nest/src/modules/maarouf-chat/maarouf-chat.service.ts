@@ -76,7 +76,7 @@ export class MaaroufChatService {
         ],
         status: ConversationStatus.ACTIVE,
       })
-      .populate('maaroufId', 'title kind status description metadata')
+      .populate('maaroufId', 'title kind status description metadata isAnonymous')
       .populate('ownerId', 'name email phone')
       .populate('interestedUserId', 'name email phone')
       .sort({ lastMessageAt: -1, updatedAt: -1 });
@@ -94,13 +94,28 @@ export class MaaroufChatService {
       ? String(resultItems[resultItems.length - 1]._id)
       : null;
 
-    return { items: resultItems, nextCursor };
+    // إخفاء phone عند isAnonymous في قائمة المحادثات
+    const processedItems = resultItems.map((conv: any) => {
+      if (conv.maaroufId?.isAnonymous && conv.ownerId) {
+        const ownerIdStr = typeof conv.ownerId === 'object' && conv.ownerId !== null && '_id' in conv.ownerId
+          ? String(conv.ownerId._id)
+          : String(conv.ownerId);
+        
+        if (typeof conv.ownerId === 'object' && conv.ownerId !== null) {
+          (conv.ownerId as any).phone = undefined;
+          (conv.ownerId as any).name = (conv.ownerId as any).name || 'مستخدم';
+        }
+      }
+      return conv;
+    });
+
+    return { items: processedItems, nextCursor };
   }
 
   async getConversationById(conversationId: string, userId: string) {
     const conversation = await this.conversationModel
       .findById(conversationId)
-      .populate('maaroufId', 'title kind status description metadata tags')
+      .populate('maaroufId', 'title kind status description metadata tags isAnonymous')
       .populate('ownerId', 'name email phone')
       .populate('interestedUserId', 'name email phone')
       .exec();
@@ -121,6 +136,14 @@ export class MaaroufChatService {
         code: 'ACCESS_DENIED',
         userMessage: 'ليس لديك صلاحية للوصول لهذه المحادثة',
       });
+    }
+
+    // إخفاء phone عند isAnonymous
+    if (conversation.maaroufId && typeof conversation.maaroufId === 'object' && (conversation.maaroufId as any).isAnonymous) {
+      if (conversation.ownerId && typeof conversation.ownerId === 'object' && conversation.ownerId !== null) {
+        (conversation.ownerId as any).phone = undefined;
+        (conversation.ownerId as any).name = (conversation.ownerId as any).name || 'مستخدم';
+      }
     }
 
     return conversation;
@@ -169,16 +192,33 @@ export class MaaroufChatService {
 
     await conversation.save();
 
-    // إرجاع الرسالة مع populate
-    return await this.messageModel
+    // إرجاع الرسالة مع populate - إخفاء phone عند isAnonymous
+    const populatedMessage = await this.messageModel
       .findById(savedMessage._id)
       .populate('senderId', 'name email phone')
       .exec();
+
+    // التحقق من isAnonymous وإخفاء phone
+    const maarouf = await this.maaroufModel.findById(conversation.maaroufId).select('isAnonymous ownerId').exec();
+    if (maarouf?.isAnonymous && populatedMessage?.senderId) {
+      const senderIdStr = typeof populatedMessage.senderId === 'object' && populatedMessage.senderId !== null && '_id' in populatedMessage.senderId
+        ? String(populatedMessage.senderId._id)
+        : String(populatedMessage.senderId);
+      const ownerIdStr = String(maarouf.ownerId);
+      
+      // إذا كان المرسل هو صاحب الإعلان (owner) وكان anonymous، أخفِ phone
+      if (senderIdStr === ownerIdStr && typeof populatedMessage.senderId === 'object' && populatedMessage.senderId !== null) {
+        (populatedMessage.senderId as any).phone = undefined;
+        (populatedMessage.senderId as any).name = (populatedMessage.senderId as any).name || 'مستخدم';
+      }
+    }
+
+    return populatedMessage;
   }
 
   async getMessages(conversationId: string, userId: string, cursor?: string, limit: number = 25) {
     // التحقق من الصلاحيات
-    await this.getConversationById(conversationId, userId);
+    const conversation = await this.getConversationById(conversationId, userId);
 
     const query = this.messageModel
       .find({ conversationId: new Types.ObjectId(conversationId) })
@@ -197,6 +237,26 @@ export class MaaroufChatService {
     const nextCursor = hasNextPage
       ? String(resultItems[resultItems.length - 1]._id)
       : null;
+
+    // إخفاء phone عند isAnonymous
+    const maarouf = conversation.maaroufId
+      ? await this.maaroufModel.findById(conversation.maaroufId).select('isAnonymous ownerId').exec()
+      : null;
+    if (maarouf?.isAnonymous) {
+      const ownerIdStr = String(maarouf.ownerId);
+      resultItems.forEach((msg: any) => {
+        if (msg.senderId) {
+          const senderIdStr = typeof msg.senderId === 'object' && msg.senderId !== null && '_id' in msg.senderId
+            ? String(msg.senderId._id)
+            : String(msg.senderId);
+          
+          if (senderIdStr === ownerIdStr && typeof msg.senderId === 'object' && msg.senderId !== null) {
+            (msg.senderId as any).phone = undefined;
+            (msg.senderId as any).name = (msg.senderId as any).name || 'مستخدم';
+          }
+        }
+      });
+    }
 
     return { items: resultItems.reverse(), nextCursor };
   }

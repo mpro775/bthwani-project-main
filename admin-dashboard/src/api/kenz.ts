@@ -27,6 +27,7 @@ export interface KenzItem {
   startingPrice?: number;
   winnerId?: string | { _id: string; fullName?: string; phone?: string };
   winningBidAmount?: number;
+  acceptsEscrow?: boolean;
 }
 
 export interface KenzStats {

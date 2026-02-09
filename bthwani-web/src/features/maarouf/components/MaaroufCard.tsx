@@ -1,11 +1,12 @@
 // مطابق لـ app-user MaaroufCard
 import React from "react";
-import { Card, CardContent, Typography, Box } from "@mui/material";
-import { ChevronRight } from "@mui/icons-material";
+import { Card, CardContent, Typography, Box, CardMedia } from "@mui/material";
+import { ChevronRight, AttachMoney } from "@mui/icons-material";
 import type { MaaroufItem } from "../types";
 import {
   MaaroufStatusLabels,
   MaaroufStatusColors,
+  MAAROUF_CATEGORIES,
 } from "../types";
 
 interface MaaroufCardProps {
@@ -25,6 +26,10 @@ const getKindText = (kind?: string) => {
 };
 
 const MaaroufCard: React.FC<MaaroufCardProps> = ({ item, onView }) => {
+  const firstImage = item.mediaUrls?.[0];
+  const categoryLabel =
+    MAAROUF_CATEGORIES.find((c) => c.value === item.category)?.label || "أخرى";
+
   return (
     <Card
       sx={{
@@ -32,10 +37,20 @@ const MaaroufCard: React.FC<MaaroufCardProps> = ({ item, onView }) => {
         cursor: onView ? "pointer" : "default",
         borderRadius: 2,
         boxShadow: 1,
+        overflow: "hidden",
         "&:hover": onView ? { boxShadow: 3 } : {},
       }}
       onClick={onView ? () => onView(item) : undefined}
     >
+      {firstImage && (
+        <CardMedia
+          component="img"
+          height="120"
+          image={firstImage}
+          alt={item.title}
+          sx={{ objectFit: "cover" }}
+        />
+      )}
       <CardContent sx={{ p: 2 }}>
         <Box
           sx={{
@@ -72,6 +87,37 @@ const MaaroufCard: React.FC<MaaroufCardProps> = ({ item, onView }) => {
               {MaaroufStatusLabels[item.status]}
             </Typography>
           </Box>
+        </Box>
+
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mb: 1 }}>
+          <Box
+            sx={{
+              backgroundColor: "primary.light",
+              color: "primary.main",
+              px: 1,
+              py: 0.25,
+              borderRadius: 1,
+            }}
+          >
+            <Typography variant="caption">{categoryLabel}</Typography>
+          </Box>
+          {item.reward && item.reward > 0 && (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 0.25,
+                backgroundColor: "success.light",
+                color: "success.main",
+                px: 1,
+                py: 0.25,
+                borderRadius: 1,
+              }}
+            >
+              <AttachMoney sx={{ fontSize: 12 }} />
+              <Typography variant="caption">{item.reward} ريال</Typography>
+            </Box>
+          )}
         </Box>
 
         <Typography

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsArray, IsObject, IsEnum, IsIn } from 'class-validator';
+import { IsString, IsOptional, IsArray, IsObject, IsEnum, IsNumber, Min, IsBoolean, IsDateString } from 'class-validator';
 
 export enum MaaroufKind {
   LOST = 'lost',
@@ -12,6 +12,16 @@ export enum MaaroufStatus {
   CONFIRMED = 'confirmed',
   COMPLETED = 'completed',
   CANCELLED = 'cancelled'
+}
+
+export enum MaaroufCategory {
+  PHONE = 'phone',
+  PET = 'pet',
+  ID = 'id',
+  WALLET = 'wallet',
+  KEYS = 'keys',
+  BAG = 'bag',
+  OTHER = 'other',
 }
 
 export default class CreateMaaroufDto {
@@ -48,4 +58,45 @@ export default class CreateMaaroufDto {
   @IsOptional()
   @IsEnum(MaaroufStatus)
   status?: MaaroufStatus;
+
+  @ApiProperty({ description: 'روابط الصور المرفقة', required: false, type: [String], example: ['https://example.com/img1.jpg'] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  mediaUrls?: string[];
+
+  @ApiProperty({ description: 'التصنيف', required: false, enum: MaaroufCategory, example: MaaroufCategory.WALLET })
+  @IsOptional()
+  @IsEnum(MaaroufCategory)
+  category?: MaaroufCategory;
+
+  @ApiProperty({ description: 'مكافأة اختيارية (بالريال)', required: false, example: 500 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  reward?: number;
+
+  @ApiProperty({
+    description: 'الموقع الجغرافي (GeoJSON)',
+    required: false,
+    example: { type: 'Point', coordinates: [44.2, 15.35] },
+  })
+  @IsOptional()
+  @IsObject()
+  location?: { type: 'Point'; coordinates: [number, number] };
+
+  @ApiProperty({ description: 'خيار التوصيل', required: false, default: false })
+  @IsOptional()
+  @IsBoolean()
+  deliveryToggle?: boolean;
+
+  @ApiProperty({ description: 'نشر بدون رقم هاتف', required: false, default: false })
+  @IsOptional()
+  @IsBoolean()
+  isAnonymous?: boolean;
+
+  @ApiProperty({ description: 'تاريخ انتهاء الإعلان', required: false, example: '2025-12-31' })
+  @IsOptional()
+  @IsDateString()
+  expiresAt?: string;
 }

@@ -63,10 +63,6 @@ const KenzChatList: React.FC = () => {
       typeof c.ownerId === "object" && c.ownerId?._id
         ? c.ownerId._id
         : String(c.ownerId);
-    const interestedId =
-      typeof c.interestedUserId === "object" && c.interestedUserId?._id
-        ? c.interestedUserId._id
-        : String(c.interestedUserId);
     if (String(ownerId) === String(uid)) return c.interestedUserId;
     return c.ownerId;
   };
