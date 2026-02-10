@@ -17,7 +17,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.bthwani.marketers",
-      "buildNumber": "3",            
+      "buildNumber": "3",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "نستخدم موقعك لتحديد مكان المتجر بدقة.",
         "NSUserTrackingUsageDescription": "قد نستخدم المعرّف لتحسين الإشعارات.",
@@ -26,7 +26,7 @@
     },
     "android": {
       "package": "com.bthwani.marketers",
-      "versionCode": 3,             
+      "versionCode": 3,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -45,13 +45,16 @@
       ]
     },
     "plugins": [
-      ["expo-notifications", { "icon": "./assets/icon.png", "color": "#0066ff" }],
+      [
+        "expo-notifications",
+        { "icon": "./assets/icon.png", "color": "#0066ff" }
+      ],
       "expo-secure-store",
       "expo-dev-client"
     ],
     "extra": {
       "eas": { "projectId": "ae537f4b-00d3-46ef-a605-c38185eaf24b" },
-      "apiBaseUrl": "https://api.bthwani.com/api/v1"
+      "apiBaseUrl": "https://api-bthwani.smartagency-ye.com/api/v1"
     },
     "owner": "bthwani"
   }

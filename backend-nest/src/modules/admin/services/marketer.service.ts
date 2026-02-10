@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import * as bcrypt from 'bcrypt';
 import { Marketer } from '../../marketer/entities/marketer.entity';
 import { Store } from '../../store/entities/store.entity';
 import { CommissionPlan } from '../../marketer/entities/commission-plan.entity';
@@ -86,32 +87,55 @@ export class MarketerService {
     };
   }
 
+  private readonly SALT_ROUNDS = 12;
+
   async createMarketer(
     data: DTO.CreateMarketerDto,
     _adminId: string,
   ): Promise<DTO.CreateMarketerResponseDto> {
     // Check if marketer with same phone exists
-    const existing = await this.marketerModel.findOne({ phone: data.phone });
-    if (existing) {
+    const existingByPhone = await this.marketerModel.findOne({ phone: data.phone });
+    if (existingByPhone) {
       throw new BadRequestException({
         code: 'MARKETER_EXISTS',
         userMessage: 'مسوق بنفس رقم الهاتف موجود بالفعل',
       });
     }
 
-    const marketer = new this.marketerModel({
+    // عند تعيين كلمة مرور: البريد مطلوب للتسجيل من التطبيق
+    if (data.password) {
+      if (!data.email?.trim()) {
+        throw new BadRequestException({
+          code: 'EMAIL_REQUIRED_FOR_PASSWORD',
+          userMessage: 'البريد الإلكتروني مطلوب عند تعيين كلمة المرور (للتسجيل من التطبيق)',
+        });
+      }
+      const emailNorm = data.email!.toLowerCase().trim();
+      const existingByEmail = await this.marketerModel.findOne({ email: emailNorm });
+      if (existingByEmail) {
+        throw new BadRequestException({
+          code: 'EMAIL_ALREADY_USED',
+          userMessage: 'البريد الإلكتروني مستخدم من قبل مسوق آخر',
+        });
+      }
+    }
+
+    const marketerData: Record<string, any> = {
       fullName: data.name,
       phone: data.phone,
-      email: data.email,
+      email: data.email?.trim() ? data.email.trim().toLowerCase() : undefined,
       status: 'active',
       isActive: true,
-      commissionRate: 0.05, // Default 5%
-    });
+      commissionRate: data.commissionRate ?? 0.05,
+      territory: data.territory,
+    };
 
+    if (data.password) {
+      marketerData.password = await bcrypt.hash(data.password, this.SALT_ROUNDS);
+    }
+
+    const marketer = new this.marketerModel(marketerData);
     await marketer.save();
-
-    // TODO: Create user account
-    // TODO: Send welcome notification
 
     return {
       success: true,
@@ -131,7 +155,34 @@ export class MarketerService {
       });
     }
 
-    Object.assign(marketer, data.updates);
+    const updates = { ...data.updates } as Record<string, any>;
+
+    // تشفير كلمة المرور عند التحديث
+    if (updates.password) {
+      if (typeof updates.password === 'string' && updates.password.length >= 8) {
+        updates.password = await bcrypt.hash(updates.password, this.SALT_ROUNDS);
+      } else {
+        delete updates.password; // تجاهل إذا غير صالحة
+      }
+    }
+
+    // عند تحديث البريد: التحقق من عدم التكرار
+    if (updates.email?.trim()) {
+      const emailNorm = updates.email.trim().toLowerCase();
+      const existingByEmail = await this.marketerModel.findOne({
+        email: emailNorm,
+        _id: { $ne: data.marketerId },
+      });
+      if (existingByEmail) {
+        throw new BadRequestException({
+          code: 'EMAIL_ALREADY_USED',
+          userMessage: 'البريد الإلكتروني مستخدم من قبل مسوق آخر',
+        });
+      }
+      updates.email = emailNorm;
+    }
+
+    Object.assign(marketer, updates);
     await marketer.save();
 
     return {

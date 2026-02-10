@@ -47,3 +47,6 @@ export class Marketer extends Document {
 }
 
 export const MarketerSchema = SchemaFactory.createForClass(Marketer);
+
+// فهرس فريد على البريد (sparse: يسمح بعدة قيم null)
+MarketerSchema.index({ email: 1 }, { unique: true, sparse: true });

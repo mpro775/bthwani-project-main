@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsNumber } from 'class-validator';
+import { IsOptional, IsString, IsNumber, MinLength } from 'class-validator';
 
 export class GetAllMarketersQueryDto {
   @IsOptional()
@@ -31,10 +31,20 @@ export class CreateMarketerDto {
   name: string;
 
   @IsString()
-  email: string;
-
-  @IsString()
   phone: string;
+
+  @IsOptional()
+  @IsString()
+  email?: string;
+
+  /** كلمة مرور لتسجيل الدخول (8 أحرف على الأقل) — مطلوبة مع البريد لتفعيل الدخول */
+  @IsOptional()
+  @IsString()
+  @MinLength(8, { message: 'كلمة المرور 8 أحرف على الأقل' })
+  password?: string;
+
+  @IsOptional()
+  territory?: string;
 
   @IsOptional()
   commissionRate?: number;

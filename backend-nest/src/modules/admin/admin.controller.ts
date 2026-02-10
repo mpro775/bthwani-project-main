@@ -695,8 +695,12 @@ export class AdminController {
       properties: {
         fullName: { type: 'string', example: 'أحمد محمد' },
         phone: { type: 'string', example: '+966501234567' },
-        email: { type: 'string', example: 'marketer@bthwani.com' },
+        email: { type: 'string', example: 'marketer@bthwani.com', description: 'مطلوب مع كلمة المرور — للتسجيل من التطبيق' },
+        password: { type: 'string', example: '********', minLength: 8, description: 'كلمة مرور (8 أحرف على الأقل) — ضرورية للتسجيل من التطبيق' },
         territory: { type: 'string', example: 'الرياض' },
+        team: { type: 'string' },
+        area: { type: 'string' },
+        city: { type: 'string' },
       },
     },
   })
@@ -707,7 +711,11 @@ export class AdminController {
       fullName: string;
       phone: string;
       email?: string;
+      password?: string;
       territory?: string;
+      team?: string;
+      area?: string;
+      city?: string;
     },
     @CurrentUser('id') adminId: string,
   ) {
@@ -716,6 +724,8 @@ export class AdminController {
         name: body.fullName,
         email: body.email || '',
         phone: body.phone,
+        password: body.password,
+        territory: body.territory,
       },
       adminId,
     );
