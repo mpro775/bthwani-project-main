@@ -30,5 +30,8 @@
         "buildType": "apk"
       }
     }
+  },
+  "cli": {
+    "appVersionSource": "remote"
   }
 }
