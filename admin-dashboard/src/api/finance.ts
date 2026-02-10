@@ -301,7 +301,7 @@ export function useFinanceAPI() {
  * جلب رصيد المحفظة
  */
 export async function getWalletBalance(): Promise<WalletBalanceResponse> {
-  const { data } = await axiosInstance.get<WalletBalanceResponse>('/v2/wallet/balance', {
+  const { data } = await axiosInstance.get<WalletBalanceResponse>('/wallet/balance', {
     headers: { 'x-silent-401': '1' }
   });
   return data;
@@ -319,7 +319,7 @@ export async function getWalletStatement(
   }
 ): Promise<WalletStatementResponse> {
   const { data } = await axiosInstance.get<WalletStatementResponse>(
-    `/v2/wallet/statement/${accountId}`,
+    `/wallet/statement/${accountId}`,
     {
       params: {
         date_from: params?.date_from,
@@ -344,7 +344,7 @@ export async function exportWalletStatementToCSV(
   }
 ): Promise<Blob> {
   const response = await axiosInstance.get(
-    `/v2/wallet/statement/${accountId}/export`,
+    `/wallet/statement/${accountId}/export`,
     {
       params: {
         date_from: params?.date_from,

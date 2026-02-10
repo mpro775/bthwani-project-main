@@ -16,6 +16,7 @@ import {
   ApiParam,
   ApiQuery,
   ApiResponse,
+  ApiBody,
 } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import type { Request } from 'express';
@@ -32,6 +33,7 @@ import {
 import { RegisterLocalDto } from './dto/register-local.dto';
 import { LoginLocalDto } from './dto/login-local.dto';
 import { VerifyEmailOtpDto } from './dto/verify-email-otp.dto';
+import { DriverLoginDto } from './dto/driver-login.dto';
 import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';
 import {
   Auth,
@@ -51,12 +53,13 @@ export class AuthController {
   @Public()
   @Throttle({ auth: { ttl: 60000, limit: 5 } })
   @Post('driver/login')
-  @ApiResponse({ status: 201, description: 'Created' })
-  @ApiResponse({ status: 400, description: 'Bad request' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiBody({ type: DriverLoginDto })
+  @ApiResponse({ status: 201, description: 'تم تسجيل الدخول بنجاح' })
+  @ApiResponse({ status: 400, description: 'بيانات غير صالحة (رقم هاتف أو كلمة مرور)' })
+  @ApiResponse({ status: 401, description: 'بيانات الدخول غير صحيحة' })
   @ApiOperation({ summary: 'تسجيل دخول السائق' })
-  async driverLogin(@Body() loginDto: { email: string; password: string }) {
-    return this.authService.driverLogin(loginDto.email, loginDto.password);
+  async driverLogin(@Body() loginDto: DriverLoginDto) {
+    return this.authService.driverLogin(loginDto.phone, loginDto.password);
   }
 
   // ==================== Marketer Authentication ====================

@@ -68,13 +68,13 @@ export async function getWalletTransactions(params?: {
   hasMore: boolean;
   nextCursor?: string;
 }> {
-  // Note: Backend uses /v2/wallet/transactions (not /admin/wallet/transactions)
+  // Note: Backend uses /wallet/transactions (v1)
   // Admin access is controlled by JWT + Roles decorator
   const { data } = await axiosInstance.get<{
     data: WalletTransaction[];
     hasMore: boolean;
     nextCursor?: string;
-  }>("/v2/wallet/transactions", {
+  }>("/wallet/transactions", {
     params: {
       cursor: params?.cursor,
       limit: params?.limit || 20,
@@ -89,7 +89,7 @@ export async function getUserWallet(userId: string): Promise<Wallet> {
   // Note: This requires the admin to impersonate or have special access
   // Current backend doesn't support getting other user's wallet directly
   // May need to add admin-specific endpoint in backend
-  const { data } = await axiosInstance.get<Wallet>(`/v2/wallet/balance`, {
+  const { data } = await axiosInstance.get<Wallet>(`/wallet/balance`, {
     headers: { "x-silent-401": "1" },
     params: { userId } // If backend supports it
   });
@@ -156,7 +156,7 @@ export async function createTransaction(data: {
   description?: string;
 }): Promise<WalletTransaction> {
   const { data: response } = await axiosInstance.post<WalletTransaction>(
-    "/v2/wallet/transaction",
+    "/wallet/transaction",
     data
   );
   return response;
@@ -169,7 +169,7 @@ export async function holdFunds(data: {
   orderId?: string;
 }): Promise<{ success: boolean; message: string }> {
   const { data: response } = await axiosInstance.post(
-    "/v2/wallet/hold",
+    "/wallet/hold",
     data
   );
   return response;
@@ -182,7 +182,7 @@ export async function releaseFunds(data: {
   orderId?: string;
 }): Promise<{ success: boolean; message: string }> {
   const { data: response } = await axiosInstance.post(
-    "/v2/wallet/release",
+    "/wallet/release",
     data
   );
   return response;
@@ -196,7 +196,7 @@ export async function refundFunds(data: {
   reason?: string;
 }): Promise<{ success: boolean; message: string }> {
   const { data: response } = await axiosInstance.post(
-    "/v2/wallet/refund",
+    "/wallet/refund",
     data
   );
   return response;

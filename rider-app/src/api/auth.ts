@@ -8,6 +8,6 @@ export const loginDriver = async ({
   phone: string;
   password: string;
 }) => {
-  const res = await axios.post("/driver/login", { phone, password });
+  const res = await axios.post("/auth/driver/login", { phone, password });
   return res.data;
 };

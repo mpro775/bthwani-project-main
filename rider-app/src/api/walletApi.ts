@@ -54,7 +54,7 @@ export interface WithdrawalRequest {
  * جلب رصيد المحفظة
  */
 export const getWalletBalance = async (): Promise<WalletBalance> => {
-  const response = await axios.get("/v2/wallet/balance");
+  const response = await axios.get("/wallet/balance");
   return response.data;
 };
 
@@ -70,7 +70,7 @@ export const getTransactions = async (params?: {
   status?: string;
   method?: string;
 }): Promise<{ data: Transaction[]; hasMore: boolean; nextCursor?: string }> => {
-  const response = await axios.get("/v2/wallet/transactions", {
+  const response = await axios.get("/wallet/transactions", {
     params,
   });
   return response.data;
@@ -82,7 +82,7 @@ export const getTransactions = async (params?: {
 export const getTransactionDetails = async (
   transactionId: string
 ): Promise<{ transaction: Transaction }> => {
-  const response = await axios.get(`/v2/wallet/transaction/${transactionId}`);
+  const response = await axios.get(`/wallet/transaction/${transactionId}`);
   return response.data;
 };
 
@@ -92,7 +92,7 @@ export const getTransactionDetails = async (
  * الحصول على طرق السحب المتاحة
  */
 export const getWithdrawMethods = async (): Promise<WithdrawMethod[]> => {
-  const response = await axios.get("/v2/wallet/withdraw/methods");
+  const response = await axios.get("/wallet/withdraw/methods");
   return response.data.methods || response.data;
 };
 
@@ -104,7 +104,7 @@ export const requestWithdrawal = async (data: {
   method: string;
   accountInfo: Record<string, unknown>;
 }): Promise<{ success: boolean; withdrawalId: string; message: string }> => {
-  const response = await axios.post("/v2/wallet/withdraw/request", data);
+  const response = await axios.post("/wallet/withdraw/request", data);
   return response.data;
 };
 
@@ -115,7 +115,7 @@ export const getMyWithdrawals = async (params?: {
   cursor?: string;
   limit?: number;
 }): Promise<{ data: WithdrawalRequest[]; hasMore: boolean; nextCursor?: string }> => {
-  const response = await axios.get("/v2/wallet/withdraw/my", { params });
+  const response = await axios.get("/wallet/withdraw/my", { params });
   return response.data;
 };
 
@@ -126,7 +126,7 @@ export const cancelWithdrawal = async (
   withdrawalId: string
 ): Promise<{ success: boolean; message: string }> => {
   const response = await axios.patch(
-    `/v2/wallet/withdraw/${withdrawalId}/cancel`
+    `/wallet/withdraw/${withdrawalId}/cancel`
   );
   return response.data;
 };

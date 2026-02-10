@@ -1,5 +1,5 @@
 // rider-app/notify.ts
-import axiosInstance from "@/utils/api/axiosInstance";
+import axiosInstance from "@/api/axiosInstance";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";

@@ -261,11 +261,11 @@ export class AuthService {
     return bcrypt.compare(plainPassword, hashedPassword);
   }
 
-  // تسجيل دخول السائق
-  async driverLogin(email: string, password: string) {
+  // تسجيل دخول السائق (باستخدام رقم الهاتف)
+  async driverLogin(phone: string, password: string) {
     // البحث عن السائق في مجموعة الـ drivers
     const driver = await this.driverModel
-      .findOne({ email })
+      .findOne({ phone })
       .select('+password');
 
     if (!driver) {
