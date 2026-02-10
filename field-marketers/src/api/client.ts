@@ -8,7 +8,7 @@ import type { ApiResponse } from "../types/api";
 const API_BASE =
   (Constants.expoConfig?.extra as any)?.apiBaseUrl ||
   process.env.EXPO_PUBLIC_API_BASE_URL ||
-  "https://api.bthwani.com/api/v1";
+  "https://api-bthwani.smartagency-ye.com/api/v1";
 
 export const api = axios.create({
   baseURL: API_BASE,

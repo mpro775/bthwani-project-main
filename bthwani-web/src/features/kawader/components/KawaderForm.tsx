@@ -50,6 +50,10 @@ const KawaderForm: React.FC<KawaderFormProps> = ({
     description: "",
     scope: "",
     budget: "" as string | number,
+    offerType: "" as KawaderOfferType | "",
+    jobType: "" as KawaderJobType | "",
+    location: "",
+    salary: "" as string | number,
     metadata: {
       experience: "",
       skills: [] as string[],

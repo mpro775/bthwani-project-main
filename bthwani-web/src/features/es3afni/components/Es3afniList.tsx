@@ -35,7 +35,7 @@ const Es3afniList: React.FC<Es3afniListProps> = ({
     [tab, filters]
   );
 
-  const { items, loading, loadingMore, hasMore, error, loadMore, refresh } =
+  const { items, loading, loadingMore, hasMore, error, loadMore } =
     useEs3afniList(25, effectiveFilters, tab);
 
   const handleResetFilters = () => setFilters({});

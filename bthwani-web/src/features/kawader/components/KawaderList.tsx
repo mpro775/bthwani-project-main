@@ -35,14 +35,14 @@ const KawaderList: React.FC<KawaderListProps> = ({
   const [mode, setMode] = useState<ListMode>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [submittedSearch, setSubmittedSearch] = useState("");
-  const [filters, setFilters] = useState<KawaderFilters>({});
+  const [filters] = useState<KawaderFilters>({});
 
   const effectiveFilters = useMemo(
     () => ({ ...filters, search: submittedSearch || undefined }),
     [filters, submittedSearch]
   );
 
-  const { items, loading, loadingMore, hasMore, error, loadMore, refresh } =
+  const { items, loading, loadingMore, hasMore, error, loadMore } =
     useKawaderList(25, {
       mode: currentUserId ? mode : "all",
       filters: effectiveFilters,

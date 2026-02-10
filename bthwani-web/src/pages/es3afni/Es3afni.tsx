@@ -67,7 +67,7 @@ const Es3afniPage: React.FC = () => {
   };
 
   // Handle delete item
-  const handleDeleteItem = async (item: Es3afniItem) => {
+  const handleDeleteItem = async () => {
     if (
       window.confirm(
         `هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.`

@@ -5,12 +5,19 @@ import type {
   CreateKawaderPayload,
   UpdateKawaderPayload,
   KawaderListResponse,
-  KawaderFilters,
   KawaderApplicationItem,
   KawaderPortfolioItem,
   KawaderReviewItem,
   ReviewsByUserResponse,
 } from "./types";
+
+/** شكل استجابة القائمة من الـ API (قبل التحويل إلى KawaderListResponse) */
+interface KawaderListRaw {
+  items?: KawaderItem[];
+  data?: KawaderItem[];
+  nextCursor?: string;
+  hasMore?: boolean;
+}
 
 const unwrap = <T>(raw: { data?: T } & Record<string, unknown>): T =>
   (raw?.data !== undefined ? raw.data : raw) as T;
@@ -32,19 +39,17 @@ export async function getKawaderList(params?: {
 }): Promise<KawaderListResponse> {
   const response = await axiosInstance.get("/kawader", { params });
   const raw = response.data;
-  const data = unwrap(raw);
+  const data = unwrap(raw) as KawaderListRaw;
   const list = Array.isArray(data?.items)
     ? data.items
-    : Array.isArray((data as any)?.data)
-      ? (data as any).data
-      : Array.isArray(data)
-        ? data
-        : [];
+    : Array.isArray(data?.data)
+      ? data.data
+      : [];
   return {
     items: list,
     data: list,
-    nextCursor: (data as any)?.nextCursor ?? raw?.nextCursor,
-    hasMore: (data as any)?.hasMore ?? raw?.hasMore ?? !!(data as any)?.nextCursor,
+    nextCursor: data?.nextCursor ?? (raw as KawaderListRaw)?.nextCursor,
+    hasMore: data?.hasMore ?? (raw as KawaderListRaw)?.hasMore ?? !!data?.nextCursor,
   };
 }
 
@@ -55,13 +60,13 @@ export async function getMyKawader(params?: {
 }): Promise<KawaderListResponse> {
   const response = await axiosInstance.get("/kawader/my", { params });
   const raw = response.data;
-  const data = unwrap(raw);
+  const data = unwrap(raw) as KawaderListRaw;
   const list = Array.isArray(data?.items) ? data.items : [];
   return {
     items: list,
     data: list,
-    nextCursor: (data as any)?.nextCursor,
-    hasMore: !!(data as any)?.nextCursor,
+    nextCursor: data?.nextCursor,
+    hasMore: !!data?.nextCursor,
   };
 }
 
@@ -79,13 +84,13 @@ export async function searchKawader(params: {
 }): Promise<KawaderListResponse> {
   const response = await axiosInstance.get("/kawader/search", { params });
   const raw = response.data;
-  const data = unwrap(raw);
+  const data = unwrap(raw) as KawaderListRaw;
   const list = Array.isArray(data?.items) ? data.items : [];
   return {
     items: list,
     data: list,
-    nextCursor: (data as any)?.nextCursor,
-    hasMore: !!(data as any)?.nextCursor,
+    nextCursor: data?.nextCursor,
+    hasMore: !!data?.nextCursor,
   };
 }
 
