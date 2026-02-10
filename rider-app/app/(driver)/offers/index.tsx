@@ -79,7 +79,7 @@ export default function OffersScreen() {
           <Text style={styles.addressText}>{item.pickupAddress}</Text>
         </View>
         <View style={styles.addressRow}>
-          <Ionicons name="ellipse" size={8} color={COLORS.error} />
+          <Ionicons name="ellipse" size={8} color={COLORS.danger} />
           <Text style={styles.addressText}>{item.deliveryAddress}</Text>
         </View>
       </View>

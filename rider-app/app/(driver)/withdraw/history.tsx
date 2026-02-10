@@ -15,7 +15,7 @@ export default function WithdrawRequestScreen() {
   const router = useRouter();
   const [amount, setAmount] = useState("");
   const [accountInfo, setAccountInfo] = useState("");
-  const [method, setMethod] = useState("agent");
+  const [method] = useState("agent");
   const [loading, setLoading] = useState(false);
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
 

@@ -1,9 +1,9 @@
 // app/(auth)/login.tsx
 import { loginDriver } from "@/api/auth";
 import { useAuth } from "@/context/AuthContext";
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons";
 import { useFonts } from "expo-font";
-import { LinearGradient } from 'expo-linear-gradient';
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -16,11 +16,11 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { COLORS } from "../../constants/colors";
 
-const { width, height } = Dimensions.get('window');
+const { height } = Dimensions.get("window");
 
 const LoginScreen = () => {
   const [phone, setPhone] = useState("");
@@ -49,7 +49,7 @@ const LoginScreen = () => {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <LinearGradient
         colors={[COLORS.background, COLORS.lightGray, COLORS.background]}
@@ -68,7 +68,6 @@ const LoginScreen = () => {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.logoContainer}>
-           
             <Text style={styles.appName}>تطبيق الكابتن</Text>
             <Text style={styles.subtitle}>مرحباً بك في عالم بثواني</Text>
           </View>
@@ -79,7 +78,12 @@ const LoginScreen = () => {
             <View style={styles.inputContainer}>
               <Text style={styles.inputLabel}>رقم الهاتف</Text>
               <View style={styles.inputWrapper}>
-                <Ionicons name="call" size={20} color={COLORS.gray} style={styles.inputIcon} />
+                <Ionicons
+                  name="call"
+                  size={20}
+                  color={COLORS.gray}
+                  style={styles.inputIcon}
+                />
                 <TextInput
                   placeholder="أدخل رقم الهاتف"
                   placeholderTextColor="rgba(137, 137, 137, 0.6)"
@@ -95,7 +99,12 @@ const LoginScreen = () => {
             <View style={styles.inputContainer}>
               <Text style={styles.inputLabel}>كلمة المرور</Text>
               <View style={styles.inputWrapper}>
-                <Ionicons name="lock-closed" size={20} color={COLORS.gray} style={styles.inputIcon} />
+                <Ionicons
+                  name="lock-closed"
+                  size={20}
+                  color={COLORS.gray}
+                  style={styles.inputIcon}
+                />
                 <TextInput
                   placeholder="أدخل كلمة المرور"
                   placeholderTextColor="rgba(137, 137, 137, 0.6)"
@@ -114,7 +123,11 @@ const LoginScreen = () => {
               activeOpacity={0.8}
             >
               <LinearGradient
-                colors={loading ? [COLORS.lightText, COLORS.gray] : [COLORS.primary, COLORS.orangeDark]}
+                colors={
+                  loading
+                    ? [COLORS.lightText, COLORS.gray]
+                    : [COLORS.primary, COLORS.orangeDark]
+                }
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.buttonGradient}
@@ -124,7 +137,12 @@ const LoginScreen = () => {
                 ) : (
                   <>
                     <Text style={styles.buttonText}>دخول</Text>
-                    <Ionicons name="arrow-forward" size={20} color={COLORS.background} style={styles.buttonIcon} />
+                    <Ionicons
+                      name="arrow-forward"
+                      size={20}
+                      color={COLORS.background}
+                      style={styles.buttonIcon}
+                    />
                   </>
                 )}
               </LinearGradient>
@@ -140,7 +158,6 @@ const LoginScreen = () => {
   );
 };
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -149,7 +166,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   circle1: {
-    position: 'absolute',
+    position: "absolute",
     width: 200,
     height: 200,
     borderRadius: 100,
@@ -159,7 +176,7 @@ const styles = StyleSheet.create({
     right: -50,
   },
   circle2: {
-    position: 'absolute',
+    position: "absolute",
     width: 150,
     height: 150,
     borderRadius: 75,
@@ -169,7 +186,7 @@ const styles = StyleSheet.create({
     left: -75,
   },
   circle3: {
-    position: 'absolute',
+    position: "absolute",
     width: 100,
     height: 100,
     borderRadius: 50,
@@ -180,12 +197,12 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     paddingHorizontal: 24,
     paddingVertical: 40,
   },
   logoContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 50,
   },
   logoPlaceholder: {
@@ -193,10 +210,10 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 40,
     backgroundColor: COLORS.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 20,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -223,7 +240,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
     borderRadius: 20,
     padding: 24,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.1,
     shadowRadius: 16,
@@ -244,15 +261,15 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontFamily: "Cairo-Bold",
     fontSize: 14,
-    textAlign: 'right',
+    textAlign: "right",
 
     color: COLORS.blue,
     marginBottom: 8,
     marginRight: 4,
   },
   inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: COLORS.lightGray,
     borderRadius: 12,
     borderWidth: 1,
@@ -273,9 +290,9 @@ const styles = StyleSheet.create({
   },
   button: {
     borderRadius: 12,
-    overflow: 'hidden',
+    overflow: "hidden",
     marginTop: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -285,9 +302,9 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   buttonGradient: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: 16,
     paddingHorizontal: 24,
   },
@@ -301,7 +318,7 @@ const styles = StyleSheet.create({
     marginRight: 0,
   },
   forgotPassword: {
-    alignSelf: 'center',
+    alignSelf: "center",
     marginTop: 20,
     paddingVertical: 8,
     paddingHorizontal: 16,
@@ -310,7 +327,7 @@ const styles = StyleSheet.create({
     fontFamily: "Cairo-Regular",
     fontSize: 14,
     color: COLORS.primary,
-    textDecorationLine: 'underline',
+    textDecorationLine: "underline",
   },
 });
 

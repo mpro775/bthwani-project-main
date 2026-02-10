@@ -2,6 +2,7 @@
 import { completeOrder, getDriverOrders, updateAvailability } from '@/api/driver';
 import { useAuth } from '@/context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -17,7 +18,7 @@ import {
 } from 'react-native';
 import { COLORS } from '../../constants/colors';
 import ProfileScreen from './profile';
-import { triggerSOS } from './triggerSOS';
+import { triggerSOS } from '@/componant/triggerSOS';
 import WalletScreen from './wallet';
 
 interface OrderType {
@@ -30,16 +31,21 @@ interface OrderType {
 type Tab = 'Orders' | 'Wallet' | 'Profile';
 
 export default function DriverDashboardScreen() {
+  const router = useRouter();
   const [orders, setOrders] = useState<OrderType[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [available, setAvailable] = useState(true);
-  const [activeTab, setActiveTab] = useState<Tab>('Orders');
   const { driver } = useAuth();
+  const [available, setAvailable] = useState(driver?.isAvailable ?? true);
+  const [activeTab, setActiveTab] = useState<Tab>('Orders');
 
   useEffect(() => {
     fetchOrders();
   }, []);
+
+  useEffect(() => {
+    if (driver?.isAvailable !== undefined) setAvailable(driver.isAvailable);
+  }, [driver?.isAvailable]);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -72,7 +78,11 @@ export default function DriverDashboardScreen() {
   };
 
   const renderOrder = ({ item }: { item: OrderType }) => (
-    <View style={styles.orderCard}>
+    <TouchableOpacity
+      style={styles.orderCard}
+      onPress={() => router.push(`/orders/${item._id}` as const)}
+      activeOpacity={0.8}
+    >
       <Text style={styles.orderId}>#{item._id.slice(-6)}</Text>
       <Text style={styles.orderText}>الحالة: {item.status}</Text>
       <Text style={styles.orderText}>العنوان: {item.address?.label || 'غير محدد'}</Text>
@@ -95,7 +105,7 @@ export default function DriverDashboardScreen() {
         <Ionicons name="warning" size={16} color="#fff" style={{ position: 'absolute', right: 16 }} />
         <Text style={styles.sosText}>🚨 نداء طوارئ</Text>
       </TouchableOpacity>
-    </View>
+    </TouchableOpacity>
   );
 
   // Tabs array typed as Tab[] to avoid string assignment errors
@@ -106,6 +116,9 @@ export default function DriverDashboardScreen() {
       <StatusBar backgroundColor={COLORS.primary} barStyle="light-content" />
       {/* Header */}
       <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <Text style={styles.greeting}>مرحباً، {driver?.fullName || 'كابتن'}</Text>
+        </View>
         <TouchableOpacity onPress={onRefresh} style={styles.iconBtn}>
           <Ionicons name="refresh" size={24} color="#fff" />
         </TouchableOpacity>
@@ -216,6 +229,8 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
   },
+  headerLeft: { flex: 1 },
+  greeting: { color: '#fff', fontSize: 16, fontWeight: '600' },
   iconBtn: {
     padding: 10,
     borderRadius: 12,

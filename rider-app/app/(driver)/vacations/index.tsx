@@ -90,7 +90,7 @@ export default function VacationsScreen() {
       case "approved":
         return COLORS.success;
       case "rejected":
-        return COLORS.error;
+        return COLORS.danger;
       case "pending":
         return COLORS.orangeDark;
       default:
@@ -198,7 +198,7 @@ export default function VacationsScreen() {
             <Button
               title="إلغاء"
               onPress={() => setShowForm(false)}
-              color={COLORS.error}
+              color={COLORS.danger}
             />
           </View>
         </View>

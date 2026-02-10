@@ -5,7 +5,7 @@ import { ERROR_MAP } from "../utils/errorMap";
 import type { ApiResponse } from "../types/api";
 
 const instance = axios.create({
-  baseURL: "https://api.bthwani.com/api/v1",
+  baseURL: "https://api-bthwani.smartagency-ye.com/api/v1",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
