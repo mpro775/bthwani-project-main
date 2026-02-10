@@ -301,7 +301,8 @@ export class KawaderService {
     const url = `${baseUrl}/uploads/kawader/${filename}`;
     const doc = new this.mediaModel({ url, userId: new Types.ObjectId(userId) });
     const saved = await doc.save();
-    return { id: saved._id.toString() };
+    // `_id` may be typed as `unknown` on the Mongoose document; cast to `any` for serialization
+    return { id: String((saved as any)._id) };
   }
 
   async addPortfolioItem(userId: string, dto: CreatePortfolioItemDto) {

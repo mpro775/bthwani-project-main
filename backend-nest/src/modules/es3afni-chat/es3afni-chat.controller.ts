@@ -98,7 +98,7 @@ export class Es3afniChatController {
   getConversationById(
     @Param('id') id: string,
     @Req() req: AuthenticatedRequest,
-  ) {
+  ): Promise<any> {
     const userId = req.user?._id ?? req.user?.id ?? '';
     return this.chatService.getConversationById(id, userId);
   }
@@ -115,7 +115,7 @@ export class Es3afniChatController {
     @Param('id') conversationId: string,
     @Body() dto: SendEs3afniMessageDto,
     @Req() req: AuthenticatedRequest,
-  ) {
+  ): Promise<any> {
     const senderId = req.user?._id ?? req.user?.id ?? '';
     return this.chatService.sendMessage(conversationId, senderId, dto);
   }

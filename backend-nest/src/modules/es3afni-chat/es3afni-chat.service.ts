@@ -132,7 +132,10 @@ export class Es3afniChatService {
     return { items: processed, nextCursor };
   }
 
-  async getConversationById(conversationId: string, userId: string) {
+  async getConversationById(
+    conversationId: string,
+    userId: string,
+  ): Promise<any> {
     const conversation = await this.conversationModel
       .findById(conversationId)
       .populate('requestId', 'title bloodType urgency status expiresAt location')
@@ -172,7 +175,7 @@ export class Es3afniChatService {
     conversationId: string,
     senderId: string,
     dto: SendEs3afniMessageDto,
-  ) {
+  ): Promise<any> {
     const conversation = await this.conversationModel.findById(conversationId);
     if (!conversation) {
       throw new NotFoundException({
