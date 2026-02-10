@@ -10,6 +10,19 @@ export enum KawaderStatus {
   CANCELLED = 'cancelled',
 }
 
+/** نوع العرض: إعلان وظيفة أو عرض خدمة */
+export enum KawaderOfferType {
+  JOB = 'job',
+  SERVICE = 'service',
+}
+
+/** نوع الوظيفة: دوام كامل، جزئي، عن بُعد */
+export enum KawaderJobType {
+  FULL_TIME = 'full_time',
+  PART_TIME = 'part_time',
+  REMOTE = 'remote',
+}
+
 @Schema({ timestamps: true })
 export class Kawader extends Document {
   @ApiProperty({
@@ -19,6 +32,14 @@ export class Kawader extends Document {
   })
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   ownerId: Types.ObjectId;
+
+  @ApiProperty({
+    description: 'نوع العرض: وظيفة أو خدمة',
+    enum: KawaderOfferType,
+    default: KawaderOfferType.JOB,
+  })
+  @Prop({ type: String, enum: KawaderOfferType, default: KawaderOfferType.JOB })
+  offerType?: KawaderOfferType;
 
   @ApiProperty({
     description: 'عنوان العرض الوظيفي',
@@ -52,7 +73,31 @@ export class Kawader extends Document {
   budget?: number;
 
   @ApiProperty({
-    description: 'بيانات إضافية',
+    description: 'نوع الوظيفة (للإعلانات الوظيفية): دوام كامل، جزئي، عن بُعد',
+    required: false,
+    enum: KawaderJobType,
+  })
+  @Prop({ type: String, enum: KawaderJobType, default: null })
+  jobType?: KawaderJobType | null;
+
+  @ApiProperty({
+    description: 'الموقع أو المدينة',
+    required: false,
+    example: 'صنعاء',
+  })
+  @Prop()
+  location?: string;
+
+  @ApiProperty({
+    description: 'الراتب (للإعلانات الوظيفية)',
+    required: false,
+    example: 50000,
+  })
+  @Prop()
+  salary?: number;
+
+  @ApiProperty({
+    description: 'بيانات إضافية (مثل experience, skills[], remote)',
     required: false,
     example: { experience: '3+ years', skills: ['React', 'Node.js'] },
   })

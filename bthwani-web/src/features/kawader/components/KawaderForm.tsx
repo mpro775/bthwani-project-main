@@ -15,8 +15,13 @@ import {
   Checkbox,
 } from "@mui/material";
 import { ArrowBack, Save as SaveIcon } from "@mui/icons-material";
-import type { KawaderItem } from "../types";
-import type { CreateKawaderPayload, UpdateKawaderPayload } from "../types";
+import type {
+  KawaderItem,
+  CreateKawaderPayload,
+  UpdateKawaderPayload,
+  KawaderOfferType,
+  KawaderJobType,
+} from "../types";
 import { WORK_SCOPES } from "../types";
 
 interface KawaderFormProps {
@@ -64,6 +69,10 @@ const KawaderForm: React.FC<KawaderFormProps> = ({
         description: item.description || "",
         scope: item.scope || "",
         budget: item.budget ?? "",
+        offerType: item.offerType ?? "",
+        jobType: item.jobType ?? "",
+        location: item.location ?? "",
+        salary: item.salary ?? "",
         metadata: {
           experience: item.metadata?.experience || "",
           skills: item.metadata?.skills || [],
@@ -106,11 +115,21 @@ const KawaderForm: React.FC<KawaderFormProps> = ({
 
     try {
       setError(null);
+      const numBudget = formData.budget
+        ? parseFloat(String(formData.budget))
+        : undefined;
+      const numSalary = formData.salary
+        ? parseFloat(String(formData.salary))
+        : undefined;
       const payload: CreateKawaderPayload | UpdateKawaderPayload = {
         title: formData.title.trim(),
         description: formData.description.trim() || undefined,
         scope: formData.scope.trim() || undefined,
-        budget: formData.budget ? parseFloat(String(formData.budget)) : undefined,
+        budget: numBudget,
+        offerType: formData.offerType || undefined,
+        jobType: formData.jobType || undefined,
+        location: formData.location.trim() || undefined,
+        salary: numSalary,
         metadata: {
           experience: formData.metadata.experience.trim() || undefined,
           skills: processedSkills.length ? processedSkills : undefined,
@@ -157,7 +176,11 @@ const KawaderForm: React.FC<KawaderFormProps> = ({
       <Paper sx={{ p: 3 }}>
         <form onSubmit={handleSubmit}>
           {error && (
-            <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
+            <Alert
+              severity="error"
+              sx={{ mb: 2 }}
+              onClose={() => setError(null)}
+            >
               {error}
             </Alert>
           )}
@@ -179,7 +202,9 @@ const KawaderForm: React.FC<KawaderFormProps> = ({
                 fullWidth
                 label="تفاصيل العرض"
                 value={formData.description}
-                onChange={(e) => handleInputChange("description", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("description", e.target.value)
+                }
                 placeholder="وصف تفصيلي للعرض الوظيفي أو الخدمة المهنية..."
                 multiline
                 rows={4}
@@ -205,17 +230,69 @@ const KawaderForm: React.FC<KawaderFormProps> = ({
             </Grid>
 
             <Grid size={{ xs: 12 }}>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                نوع العرض
+              </Typography>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                {[
+                  { key: "job" as KawaderOfferType, label: "وظيفة" },
+                  { key: "service" as KawaderOfferType, label: "خدمة" },
+                ].map(({ key, label }) => (
+                  <Chip
+                    key={key}
+                    label={label}
+                    onClick={() => handleInputChange("offerType", key)}
+                    color={formData.offerType === key ? "primary" : "default"}
+                    variant={formData.offerType === key ? "filled" : "outlined"}
+                  />
+                ))}
+              </Box>
+            </Grid>
+
+            {formData.offerType === "job" && (
+              <Grid size={{ xs: 12 }}>
+                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                  نوع الوظيفة
+                </Typography>
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                  {[
+                    { key: "full_time" as KawaderJobType, label: "دوام كامل" },
+                    { key: "part_time" as KawaderJobType, label: "جزئي" },
+                    { key: "remote" as KawaderJobType, label: "عن بُعد" },
+                  ].map(({ key, label }) => (
+                    <Chip
+                      key={key}
+                      label={label}
+                      onClick={() => handleInputChange("jobType", key)}
+                      color={formData.jobType === key ? "primary" : "default"}
+                      variant={formData.jobType === key ? "filled" : "outlined"}
+                    />
+                  ))}
+                </Box>
+              </Grid>
+            )}
+
+            <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
-                label="الميزانية (ريال)"
+                label="الموقع"
+                value={formData.location}
+                onChange={(e) => handleInputChange("location", e.target.value)}
+                placeholder="مثال: صنعاء، عدن"
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                label="الميزانية / الراتب (ريال)"
                 type="number"
-                value={formData.budget}
-                onChange={(e) =>
-                  handleInputChange(
-                    "budget",
-                    e.target.value ? parseFloat(e.target.value) : ""
-                  )
-                }
+                value={formData.salary || formData.budget}
+                onChange={(e) => {
+                  const v = e.target.value ? parseFloat(e.target.value) : "";
+                  handleInputChange("salary", v);
+                  handleInputChange("budget", v);
+                }}
                 placeholder="مثال: 15000"
               />
             </Grid>
@@ -298,7 +375,9 @@ const KawaderForm: React.FC<KawaderFormProps> = ({
                     label={opt.label}
                     onClick={() => handleInputChange("status", opt.key)}
                     color={formData.status === opt.key ? "primary" : "default"}
-                    variant={formData.status === opt.key ? "filled" : "outlined"}
+                    variant={
+                      formData.status === opt.key ? "filled" : "outlined"
+                    }
                   />
                 ))}
               </Box>
@@ -318,9 +397,7 @@ const KawaderForm: React.FC<KawaderFormProps> = ({
                 )
               }
             >
-              {mode === "create"
-                ? "إنشاء العرض الوظيفي"
-                : "حفظ التغييرات"}
+              {mode === "create" ? "إنشاء العرض الوظيفي" : "حفظ التغييرات"}
             </Button>
             {onCancel && (
               <Button variant="outlined" onClick={onCancel} disabled={saving}>

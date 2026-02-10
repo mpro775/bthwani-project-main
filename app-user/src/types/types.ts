@@ -326,6 +326,9 @@ export interface KawaderMetadata {
   [key: string]: any;
 }
 
+export type KawaderOfferType = 'job' | 'service';
+export type KawaderJobType = 'full_time' | 'part_time' | 'remote';
+
 export interface KawaderItem {
   _id: string;
   ownerId: string | {
@@ -344,6 +347,10 @@ export interface KawaderItem {
   description?: string;
   scope?: string;
   budget?: number;
+  offerType?: KawaderOfferType;
+  jobType?: KawaderJobType;
+  location?: string;
+  salary?: number;
   metadata?: KawaderMetadata;
   status: KawaderStatus;
   createdAt: Date | string;
@@ -356,6 +363,10 @@ export interface CreateKawaderPayload {
   description?: string;
   scope?: string;
   budget?: number;
+  offerType?: KawaderOfferType;
+  jobType?: KawaderJobType;
+  location?: string;
+  salary?: number;
   metadata?: KawaderMetadata;
   status?: KawaderStatus;
 }
@@ -365,6 +376,10 @@ export interface UpdateKawaderPayload {
   description?: string;
   scope?: string;
   budget?: number;
+  offerType?: KawaderOfferType;
+  jobType?: KawaderJobType;
+  location?: string;
+  salary?: number;
   metadata?: KawaderMetadata;
   status?: KawaderStatus;
 }

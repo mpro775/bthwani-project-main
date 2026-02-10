@@ -13,38 +13,66 @@ interface KawaderCardProps {
 const KawaderCard: React.FC<KawaderCardProps> = ({ item, onPress }) => {
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'draft': return COLORS.gray;
-      case 'pending': return COLORS.orangeDark;
-      case 'confirmed': return COLORS.primary;
-      case 'completed': return COLORS.success;
-      case 'cancelled': return COLORS.danger;
-      default: return COLORS.gray;
+      case "draft":
+        return COLORS.gray;
+      case "pending":
+        return COLORS.orangeDark;
+      case "confirmed":
+        return COLORS.primary;
+      case "completed":
+        return COLORS.success;
+      case "cancelled":
+        return COLORS.danger;
+      default:
+        return COLORS.gray;
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'draft': return 'مسودة';
-      case 'pending': return 'في الانتظار';
-      case 'confirmed': return 'مؤكد';
-      case 'completed': return 'مكتمل';
-      case 'cancelled': return 'ملغي';
-      default: return status;
+      case "draft":
+        return "مسودة";
+      case "pending":
+        return "في الانتظار";
+      case "confirmed":
+        return "مؤكد";
+      case "completed":
+        return "مكتمل";
+      case "cancelled":
+        return "ملغي";
+      default:
+        return status;
     }
   };
 
   const formatCurrency = (amount?: number) => {
-    if (!amount) return 'غير محدد';
-    return `${amount.toLocaleString('ar-SA')} ريال`;
+    if (!amount) return "غير محدد";
+    return `${amount.toLocaleString("ar-SA")} ريال`;
   };
+
+  const locationStr = item.location ?? item.metadata?.location;
+  const amount = item.salary ?? item.budget;
+  const jobTypeLabel =
+    item.jobType === "full_time"
+      ? "دوام كامل"
+      : item.jobType === "part_time"
+      ? "جزئي"
+      : item.jobType === "remote"
+      ? "عن بُعد"
+      : null;
 
   return (
     <TouchableOpacity style={styles.card} onPress={onPress}>
       <View style={styles.header}>
         <View style={styles.budgetContainer}>
-          <Text style={styles.budgetText}>{formatCurrency(item.budget)}</Text>
+          <Text style={styles.budgetText}>{formatCurrency(amount)}</Text>
         </View>
-        <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
+        <View
+          style={[
+            styles.statusBadge,
+            { backgroundColor: getStatusColor(item.status) },
+          ]}
+        >
           <Text style={styles.statusText}>{getStatusText(item.status)}</Text>
         </View>
       </View>
@@ -59,10 +87,12 @@ const KawaderCard: React.FC<KawaderCardProps> = ({ item, onPress }) => {
         </Text>
       )}
 
-      {item.scope && (
+      {(item.scope || jobTypeLabel) && (
         <View style={styles.scopeContainer}>
           <Ionicons name="briefcase-outline" size={14} color={COLORS.primary} />
-          <Text style={styles.scopeText}>{item.scope}</Text>
+          <Text style={styles.scopeText}>
+            {[item.scope, jobTypeLabel].filter(Boolean).join(" · ")}
+          </Text>
         </View>
       )}
 
@@ -76,25 +106,31 @@ const KawaderCard: React.FC<KawaderCardProps> = ({ item, onPress }) => {
               </Text>
             ))}
             {item.metadata.skills.length > 2 && (
-              <Text style={styles.moreSkills}>+{item.metadata.skills.length - 2}</Text>
+              <Text style={styles.moreSkills}>
+                +{item.metadata.skills.length - 2}
+              </Text>
             )}
           </View>
         </View>
       )}
 
-      {item.metadata?.location && (
+      {(locationStr || item.metadata?.remote) && (
         <View style={styles.locationContainer}>
-          <Ionicons name="location-outline" size={14} color={COLORS.lightText} />
+          <Ionicons
+            name="location-outline"
+            size={14}
+            color={COLORS.lightText}
+          />
           <Text style={styles.locationText}>
-            {item.metadata.location}
-            {item.metadata.remote && ' (عن بعد)'}
+            {locationStr || ""}
+            {item.metadata?.remote && (locationStr ? " (عن بعد)" : "عن بعد")}
           </Text>
         </View>
       )}
 
       <View style={styles.footer}>
         <Text style={styles.dateText}>
-          نشر: {new Date(item.createdAt).toLocaleDateString('ar-SA')}
+          نشر: {new Date(item.createdAt).toLocaleDateString("ar-SA")}
         </Text>
         <Ionicons name="chevron-forward" size={16} color={COLORS.gray} />
       </View>
@@ -108,16 +144,16 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 12,
   },
   budgetContainer: {
@@ -128,7 +164,7 @@ const styles = StyleSheet.create({
   },
   budgetText: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: COLORS.success,
   },
   statusBadge: {
@@ -138,12 +174,12 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.background,
   },
   title: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.text,
     marginBottom: 8,
     lineHeight: 24,
@@ -155,14 +191,14 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   scopeContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 8,
   },
   scopeText: {
     fontSize: 14,
     color: COLORS.primary,
-    fontWeight: '500',
+    fontWeight: "500",
     marginLeft: 6,
   },
   skillsContainer: {
@@ -174,8 +210,8 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   skillsList: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
   },
   skill: {
     fontSize: 12,
@@ -193,8 +229,8 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   locationContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   locationText: {
     fontSize: 12,
@@ -202,9 +238,9 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginTop: 12,
   },
   dateText: {

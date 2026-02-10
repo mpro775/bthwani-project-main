@@ -7,6 +7,7 @@ import {
   StyleSheet,
   RefreshControl,
   ActivityIndicator,
+  TextInput,
 } from "react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -14,16 +15,23 @@ import { Ionicons } from "@expo/vector-icons";
 
 import { RootStackParamList } from "@/types/navigation";
 import { KawaderItem, KawaderListResponse } from "@/types/types";
-import { getKawaderList } from "@/api/kawaderApi";
+import { getKawaderList, getMyKawader, searchKawader } from "@/api/kawaderApi";
 import { useAuth } from "@/auth/AuthContext";
 import COLORS from "@/constants/colors";
 import KawaderCard from "@/components/kawader/KawaderCard";
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, "KawaderList">;
+type NavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "KawaderList"
+>;
+
+type TabType = "all" | "my";
 
 const KawaderListScreen = () => {
   const navigation = useNavigation<NavigationProp>();
   const { user } = useAuth();
+  const [tab, setTab] = useState<TabType>("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [items, setItems] = useState<KawaderItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -31,40 +39,56 @@ const KawaderListScreen = () => {
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  const loadItems = useCallback(async (cursor?: string, isLoadMore = false) => {
-    try {
-      if (isLoadMore) {
-        setLoadingMore(true);
-      } else if (!cursor) {
-        setLoading(true);
+  const loadItems = useCallback(
+    async (cursor?: string, isLoadMore = false) => {
+      try {
+        if (isLoadMore) setLoadingMore(true);
+        else if (!cursor) setLoading(true);
+
+        let response: KawaderListResponse;
+        if (searchQuery.trim()) {
+          response = await searchKawader({
+            q: searchQuery.trim(),
+            cursor,
+            limit: 25,
+          });
+        } else if (tab === "my") {
+          response = await getMyKawader(cursor);
+        } else {
+          response = await getKawaderList(cursor);
+        }
+
+        const list = Array.isArray(response?.data) ? response.data : [];
+        if (isLoadMore) {
+          setItems((prev) => [...(Array.isArray(prev) ? prev : []), ...list]);
+        } else {
+          setItems(list);
+        }
+        setNextCursor(response.nextCursor);
+        setHasMore(response.hasMore ?? !!response.nextCursor);
+      } catch (error) {
+        console.error("خطأ في تحميل الكوادر:", error);
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+        setRefreshing(false);
       }
+    },
+    [tab, searchQuery]
+  );
 
-      const response: KawaderListResponse = await getKawaderList(cursor);
-
-      const list = Array.isArray(response?.data) ? response.data : [];
-      if (isLoadMore) {
-        setItems(prev => [...(Array.isArray(prev) ? prev : []), ...list]);
-      } else {
-        setItems(list);
-      }
-
-      setNextCursor(response.nextCursor);
-      setHasMore(response.hasMore);
-    } catch (error) {
-      console.error("خطأ في تحميل الكوادر:", error);
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-      setRefreshing(false);
-    }
-  }, []);
-
-  // إعادة جلب القائمة عند كل تركيز على الشاشة (مثلاً بعد العودة من إنشاء عرض جديد)
+  const prevTabRef = React.useRef<TabType>(tab);
   useFocusEffect(
     useCallback(() => {
       loadItems();
     }, [loadItems])
   );
+  React.useEffect(() => {
+    if (prevTabRef.current !== tab) {
+      prevTabRef.current = tab;
+      loadItems();
+    }
+  }, [tab]);
 
   const handleRefresh = useCallback(() => {
     setRefreshing(true);
@@ -80,7 +104,9 @@ const KawaderListScreen = () => {
   const renderItem = ({ item }: { item: KawaderItem }) => (
     <KawaderCard
       item={item}
-      onPress={() => navigation.navigate('KawaderDetails', { itemId: item._id })}
+      onPress={() =>
+        navigation.navigate("KawaderDetails", { itemId: item._id })
+      }
     />
   );
 
@@ -107,8 +133,8 @@ const KawaderListScreen = () => {
   const getStats = () => {
     const list = Array.isArray(items) ? items : [];
     const total = list.length;
-    const completed = list.filter(item => item.status === 'completed').length;
-    const pending = list.filter(item => item.status === 'pending').length;
+    const completed = list.filter((item) => item.status === "completed").length;
+    const pending = list.filter((item) => item.status === "pending").length;
     const totalBudget = list.reduce((sum, item) => sum + (item.budget || 0), 0);
 
     return { total, completed, pending, totalBudget };
@@ -144,14 +170,65 @@ const KawaderListScreen = () => {
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{stats.totalBudget.toFixed(0)}K</Text>
+            <Text style={styles.statValue}>
+              {stats.totalBudget.toFixed(0)}K
+            </Text>
             <Text style={styles.statLabel}>إجمالي ريال</Text>
           </View>
         </View>
 
+        <View style={styles.tabRow}>
+          <TouchableOpacity
+            style={[styles.tab, tab === "all" && styles.tabActive]}
+            onPress={() => {
+              setTab("all");
+              setSearchQuery("");
+            }}
+          >
+            <Text
+              style={[styles.tabText, tab === "all" && styles.tabTextActive]}
+            >
+              الكل
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, tab === "my" && styles.tabActive]}
+            onPress={() => setTab("my")}
+          >
+            <Text
+              style={[styles.tabText, tab === "my" && styles.tabTextActive]}
+            >
+              عروضي
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.tab}
+            onPress={() =>
+              navigation.navigate("KawaderMyApplications" as never)
+            }
+          >
+            <Text style={styles.tabText}>تقدماتي</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.tab}
+            onPress={() => navigation.navigate("KawaderPortfolio" as never)}
+          >
+            <Text style={styles.tabText}>معرضي</Text>
+          </TouchableOpacity>
+        </View>
+
+        <TextInput
+          style={styles.searchInput}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholder="بحث (عنوان، مهارات...)"
+          placeholderTextColor={COLORS.textLight}
+          onSubmitEditing={() => loadItems()}
+        />
+
         <TouchableOpacity
           style={styles.addButton}
-          onPress={() => navigation.navigate('KawaderCreate')}
+          onPress={() => navigation.navigate("KawaderCreate")}
         >
           <Ionicons name="add" size={20} color={COLORS.white} />
           <Text style={styles.addButtonText}>إضافة عرض وظيفي</Text>
@@ -186,8 +263,8 @@ const styles = StyleSheet.create({
   },
   centerContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: COLORS.background,
   },
   loadingText: {
@@ -203,20 +280,20 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: COLORS.text,
-    textAlign: 'center',
+    textAlign: "center",
   },
   headerSubtitle: {
     fontSize: 14,
     color: COLORS.textLight,
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 4,
   },
   statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
     marginTop: 16,
     paddingVertical: 12,
     paddingHorizontal: 16,
@@ -224,12 +301,12 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   statItem: {
-    alignItems: 'center',
+    alignItems: "center",
     flex: 1,
   },
   statValue: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: COLORS.primary,
   },
   statLabel: {
@@ -242,10 +319,38 @@ const styles = StyleSheet.create({
     height: 30,
     backgroundColor: COLORS.border,
   },
+  tabRow: {
+    flexDirection: "row",
+    marginTop: 12,
+    gap: 8,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 8,
+    backgroundColor: COLORS.lightGray,
+    alignItems: "center",
+  },
+  tabActive: {
+    backgroundColor: COLORS.primary,
+  },
+  tabText: { fontSize: 14, fontWeight: "600", color: COLORS.text },
+  tabTextActive: { color: COLORS.white },
+  searchInput: {
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    fontSize: 15,
+    color: COLORS.text,
+    backgroundColor: COLORS.white,
+  },
   addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: COLORS.primary,
     paddingVertical: 12,
     paddingHorizontal: 20,
@@ -255,7 +360,7 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: COLORS.white,
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     marginLeft: 8,
   },
   listContainer: {
@@ -263,26 +368,26 @@ const styles = StyleSheet.create({
   },
   emptyContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingVertical: 60,
   },
   emptyTitle: {
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.text,
     marginTop: 16,
   },
   emptySubtitle: {
     fontSize: 14,
     color: COLORS.textLight,
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 8,
     paddingHorizontal: 32,
   },
   footerLoader: {
     paddingVertical: 16,
-    alignItems: 'center',
+    alignItems: "center",
   },
   footerText: {
     fontSize: 14,

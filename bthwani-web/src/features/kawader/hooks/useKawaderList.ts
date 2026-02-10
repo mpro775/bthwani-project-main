@@ -1,9 +1,18 @@
-// مطابق لـ app-user - بدون فلاتر، cursor فقط
+// مطابق لـ app-user — يدعم القائمة العامة، عروضي، والبحث
 import { useState, useEffect, useCallback } from "react";
-import { getKawaderList } from "../api";
-import type { KawaderItem, KawaderListResponse } from "../types";
+import { getKawaderList, getMyKawader, searchKawader } from "../api";
+import type {
+  KawaderItem,
+  KawaderListResponse,
+  KawaderFilters,
+} from "../types";
 
-export function useKawaderList(limit = 25) {
+export type ListMode = "all" | "my" | "search";
+
+export function useKawaderList(
+  limit = 25,
+  options?: { mode?: ListMode; filters?: KawaderFilters }
+) {
   const [items, setItems] = useState<KawaderItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -11,40 +20,70 @@ export function useKawaderList(limit = 25) {
   const [hasMore, setHasMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadItems = useCallback(async (cursor?: string, isLoadMore = false) => {
-    try {
-      if (isLoadMore) {
-        setLoadingMore(true);
-      } else {
-        setLoading(true);
-        setError(null);
+  const mode = options?.mode ?? "all";
+  const filters = options?.filters ?? {};
+  const searchQ = filters.search?.trim();
+
+  const loadItems = useCallback(
+    async (cursor?: string, isLoadMore = false) => {
+      try {
+        if (isLoadMore) {
+          setLoadingMore(true);
+        } else {
+          setLoading(true);
+          setError(null);
+        }
+
+        let response: KawaderListResponse;
+
+        if (mode === "my") {
+          response = await getMyKawader({ cursor, limit });
+        } else if (searchQ) {
+          response = await searchKawader({
+            q: searchQ,
+            cursor,
+            limit,
+            status: filters.status,
+            offerType: filters.offerType,
+            jobType: filters.jobType,
+            location: filters.location,
+            budgetMin: filters.budgetMin,
+            budgetMax: filters.budgetMax,
+          });
+        } else {
+          response = await getKawaderList({
+            cursor,
+            limit,
+            status: filters.status,
+            offerType: filters.offerType,
+            jobType: filters.jobType,
+            location: filters.location,
+          });
+        }
+
+        const list =
+          Array.isArray(response?.data) ? response.data : response?.items ?? [];
+
+        if (isLoadMore) {
+          setItems((prev) => [...prev, ...list]);
+        } else {
+          setItems(list);
+        }
+
+        setNextCursor(response.nextCursor);
+        setHasMore(response.hasMore ?? !!response.nextCursor);
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "فشل في تحميل العروض الوظيفية";
+        setError(errorMessage);
+        console.error("خطأ في تحميل الكوادر:", err);
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
       }
-
-      const response: KawaderListResponse = await getKawaderList({
-        cursor,
-        limit,
-      });
-      const list =
-        Array.isArray(response?.data) ? response.data : response?.items ?? [];
-
-      if (isLoadMore) {
-        setItems((prev) => [...prev, ...list]);
-      } else {
-        setItems(list);
-      }
-
-      setNextCursor(response.nextCursor);
-      setHasMore(response.hasMore ?? !!response.nextCursor);
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "فشل في تحميل العروض الوظيفية";
-      setError(errorMessage);
-      console.error("خطأ في تحميل الكوادر:", err);
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  }, [limit]);
+    },
+    [limit, mode, searchQ, filters.status, filters.offerType, filters.jobType, filters.location, filters.budgetMin, filters.budgetMax]
+  );
 
   const loadMore = useCallback(() => {
     if (!loadingMore && hasMore && nextCursor) {

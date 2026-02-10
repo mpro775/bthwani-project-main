@@ -6,6 +6,14 @@ export interface KawaderItem {
   description?: string;
   scope?: string;
   budget?: number;
+  /** نوع العرض: وظيفة أو خدمة */
+  offerType?: 'job' | 'service';
+  /** نوع الوظيفة (للعروض من نوع job) */
+  jobType?: 'full_time' | 'part_time' | 'remote' | null;
+  /** الموقع الصريح (إن وُجد) */
+  location?: string;
+  /** الراتب الصريح (إن وُجد) */
+  salary?: number;
   metadata: Record<string, any>;
   status: KawaderStatus;
   createdAt: string;
@@ -52,6 +60,9 @@ export interface KawaderFilters {
   createdAfter?: string;
   createdBefore?: string;
   search?: string;
+  offerType?: 'job' | 'service';
+  jobType?: 'full_time' | 'part_time' | 'remote';
+  location?: string;
 }
 
 export interface KawaderStats {

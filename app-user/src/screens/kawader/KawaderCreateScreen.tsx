@@ -14,51 +14,64 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 
 import { RootStackParamList } from "@/types/navigation";
-import { CreateKawaderPayload, KawaderStatus, WORK_SCOPES } from "@/types/types";
+import {
+  CreateKawaderPayload,
+  KawaderStatus,
+  WORK_SCOPES,
+  KawaderOfferType,
+  KawaderJobType,
+} from "@/types/types";
 import { createKawader } from "@/api/kawaderApi";
 import { useAuth } from "@/auth/AuthContext";
 import COLORS from "@/constants/colors";
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, "KawaderCreate">;
+type NavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "KawaderCreate"
+>;
 
 const KawaderCreateScreen = () => {
   const navigation = useNavigation<NavigationProp>();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [skillsInput, setSkillsInput] = useState('');
+  const [skillsInput, setSkillsInput] = useState("");
 
   const [formData, setFormData] = useState<CreateKawaderPayload>({
-    ownerId: user?.uid || '',
-    title: '',
-    description: '',
-    scope: '',
+    ownerId: user?.uid || "",
+    title: "",
+    description: "",
+    scope: "",
     budget: undefined,
+    offerType: undefined,
+    jobType: undefined,
+    location: undefined,
+    salary: undefined,
     metadata: {
-      experience: '',
+      experience: "",
       skills: [],
-      location: '',
+      location: "",
       remote: false,
     },
-    status: 'draft',
+    status: "draft",
   });
 
   const handleSubmit = async () => {
     if (!formData.title.trim()) {
-      Alert.alert('خطأ', 'يرجى إدخال عنوان العرض الوظيفي');
+      Alert.alert("خطأ", "يرجى إدخال عنوان العرض الوظيفي");
       return;
     }
 
     if (!formData.ownerId) {
-      Alert.alert('خطأ', 'يجب تسجيل الدخول أولاً');
+      Alert.alert("خطأ", "يجب تسجيل الدخول أولاً");
       return;
     }
 
     setLoading(true);
     try {
       const processedSkills = skillsInput
-        .split(',')
-        .map(skill => skill.trim())
-        .filter(skill => skill.length > 0);
+        .split(",")
+        .map((skill) => skill.trim())
+        .filter((skill) => skill.length > 0);
 
       const payload: CreateKawaderPayload = {
         ...formData,
@@ -69,33 +82,32 @@ const KawaderCreateScreen = () => {
       };
 
       await createKawader(payload);
-      Alert.alert(
-        'نجح',
-        'تم إنشاء العرض الوظيفي بنجاح',
-        [
-          {
-            text: 'موافق',
-            onPress: () => navigation.goBack(),
-          },
-        ]
-      );
+      Alert.alert("نجح", "تم إنشاء العرض الوظيفي بنجاح", [
+        {
+          text: "موافق",
+          onPress: () => navigation.goBack(),
+        },
+      ]);
     } catch (error) {
-      console.error('خطأ في إنشاء العرض الوظيفي:', error);
-      Alert.alert('خطأ', 'حدث خطأ أثناء إنشاء العرض الوظيفي. يرجى المحاولة مرة أخرى.');
+      console.error("خطأ في إنشاء العرض الوظيفي:", error);
+      Alert.alert(
+        "خطأ",
+        "حدث خطأ أثناء إنشاء العرض الوظيفي. يرجى المحاولة مرة أخرى."
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const updateFormData = (field: keyof CreateKawaderPayload, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
   };
 
   const updateMetadata = (field: string, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       metadata: {
         ...prev.metadata,
@@ -117,7 +129,10 @@ const KawaderCreateScreen = () => {
         <View style={styles.headerSpacer} />
       </View>
 
-      <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.formContainer}>
           {/* العنوان */}
           <View style={styles.section}>
@@ -125,7 +140,7 @@ const KawaderCreateScreen = () => {
             <TextInput
               style={styles.textInput}
               value={formData.title}
-              onChangeText={(value) => updateFormData('title', value)}
+              onChangeText={(value) => updateFormData("title", value)}
               placeholder="مثال: مطور Full Stack مطلوب لمشروع تقني"
               placeholderTextColor={COLORS.textLight}
               maxLength={100}
@@ -138,7 +153,7 @@ const KawaderCreateScreen = () => {
             <TextInput
               style={[styles.textInput, styles.textArea]}
               value={formData.description}
-              onChangeText={(value) => updateFormData('description', value)}
+              onChangeText={(value) => updateFormData("description", value)}
               placeholder="وصف تفصيلي للعرض الوظيفي أو الخدمة المهنية..."
               placeholderTextColor={COLORS.textLight}
               multiline
@@ -150,7 +165,11 @@ const KawaderCreateScreen = () => {
           {/* النطاق */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>نطاق العمل</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scopeScroll}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.scopeScroll}
+            >
               <View style={styles.scopeContainer}>
                 {WORK_SCOPES.map((scope) => (
                   <TouchableOpacity
@@ -159,12 +178,13 @@ const KawaderCreateScreen = () => {
                       styles.scopeOption,
                       formData.scope === scope && styles.scopeOptionSelected,
                     ]}
-                    onPress={() => updateFormData('scope', scope)}
+                    onPress={() => updateFormData("scope", scope)}
                   >
                     <Text
                       style={[
                         styles.scopeOptionText,
-                        formData.scope === scope && styles.scopeOptionTextSelected,
+                        formData.scope === scope &&
+                          styles.scopeOptionTextSelected,
                       ]}
                     >
                       {scope}
@@ -175,15 +195,95 @@ const KawaderCreateScreen = () => {
             </ScrollView>
           </View>
 
-          {/* الميزانية */}
+          {/* نوع العرض */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>الميزانية (ريال)</Text>
+            <Text style={styles.sectionTitle}>نوع العرض</Text>
+            <View style={styles.scopeContainer}>
+              {[
+                { key: "job" as KawaderOfferType, label: "وظيفة" },
+                { key: "service" as KawaderOfferType, label: "خدمة" },
+              ].map(({ key, label }) => (
+                <TouchableOpacity
+                  key={key}
+                  style={[
+                    styles.scopeOption,
+                    formData.offerType === key && styles.scopeOptionSelected,
+                  ]}
+                  onPress={() => updateFormData("offerType", key)}
+                >
+                  <Text
+                    style={[
+                      styles.scopeOptionText,
+                      formData.offerType === key &&
+                        styles.scopeOptionTextSelected,
+                    ]}
+                  >
+                    {label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* نوع الوظيفة (عندما النوع = وظيفة) */}
+          {formData.offerType === "job" && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>نوع الوظيفة</Text>
+              <View style={styles.scopeContainer}>
+                {[
+                  { key: "full_time" as KawaderJobType, label: "دوام كامل" },
+                  { key: "part_time" as KawaderJobType, label: "جزئي" },
+                  { key: "remote" as KawaderJobType, label: "عن بُعد" },
+                ].map(({ key, label }) => (
+                  <TouchableOpacity
+                    key={key}
+                    style={[
+                      styles.scopeOption,
+                      formData.jobType === key && styles.scopeOptionSelected,
+                    ]}
+                    onPress={() => updateFormData("jobType", key)}
+                  >
+                    <Text
+                      style={[
+                        styles.scopeOptionText,
+                        formData.jobType === key &&
+                          styles.scopeOptionTextSelected,
+                      ]}
+                    >
+                      {label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* الموقع */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>الموقع</Text>
             <TextInput
               style={styles.textInput}
-              value={formData.budget?.toString() || ''}
+              value={formData.location ?? ""}
+              onChangeText={(value) =>
+                updateFormData("location", value || undefined)
+              }
+              placeholder="مثال: صنعاء، عدن"
+              placeholderTextColor={COLORS.textLight}
+            />
+          </View>
+
+          {/* الميزانية / الراتب */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>الميزانية / الراتب (ريال)</Text>
+            <TextInput
+              style={styles.textInput}
+              value={
+                formData.salary?.toString() ?? formData.budget?.toString() ?? ""
+              }
               onChangeText={(value) => {
                 const numValue = value ? parseFloat(value) : undefined;
-                updateFormData('budget', numValue);
+                updateFormData("salary", numValue);
+                updateFormData("budget", numValue);
               }}
               placeholder="مثال: 15000"
               placeholderTextColor={COLORS.textLight}
@@ -197,8 +297,8 @@ const KawaderCreateScreen = () => {
 
             <TextInput
               style={styles.textInput}
-              value={formData.metadata?.experience || ''}
-              onChangeText={(value) => updateMetadata('experience', value)}
+              value={formData.metadata?.experience || ""}
+              onChangeText={(value) => updateMetadata("experience", value)}
               placeholder="الخبرة المطلوبة (مثال: 3+ سنوات)"
               placeholderTextColor={COLORS.textLight}
             />
@@ -213,16 +313,16 @@ const KawaderCreateScreen = () => {
 
             <TextInput
               style={styles.textInput}
-              value={formData.metadata?.location || ''}
-              onChangeText={(value) => updateMetadata('location', value)}
+              value={formData.metadata?.location || ""}
+              onChangeText={(value) => updateMetadata("location", value)}
               placeholder="الموقع (مثال: صنعاء، عدن)"
               placeholderTextColor={COLORS.textLight}
             />
 
             <TextInput
               style={styles.textInput}
-              value={formData.metadata?.contact || ''}
-              onChangeText={(value) => updateMetadata('contact', value)}
+              value={formData.metadata?.contact || ""}
+              onChangeText={(value) => updateMetadata("contact", value)}
               placeholder="رقم التواصل (اختياري)"
               placeholderTextColor={COLORS.textLight}
               keyboardType="phone-pad"
@@ -230,12 +330,16 @@ const KawaderCreateScreen = () => {
 
             <TouchableOpacity
               style={styles.checkboxContainer}
-              onPress={() => updateMetadata('remote', !formData.metadata?.remote)}
+              onPress={() =>
+                updateMetadata("remote", !formData.metadata?.remote)
+              }
             >
-              <View style={[
-                styles.checkbox,
-                formData.metadata?.remote && styles.checkboxChecked
-              ]}>
+              <View
+                style={[
+                  styles.checkbox,
+                  formData.metadata?.remote && styles.checkboxChecked,
+                ]}
+              >
                 {formData.metadata?.remote && (
                   <Ionicons name="checkmark" size={16} color={COLORS.white} />
                 )}
@@ -249,21 +353,25 @@ const KawaderCreateScreen = () => {
             <Text style={styles.sectionTitle}>الحالة الأولية</Text>
             <View style={styles.statusSelector}>
               {[
-                { key: 'draft', label: 'مسودة' },
-                { key: 'pending', label: 'في الانتظار' },
+                { key: "draft", label: "مسودة" },
+                { key: "pending", label: "في الانتظار" },
               ].map((status) => (
                 <TouchableOpacity
                   key={status.key}
                   style={[
                     styles.statusOption,
-                    formData.status === status.key && styles.statusOptionSelected,
+                    formData.status === status.key &&
+                      styles.statusOptionSelected,
                   ]}
-                  onPress={() => updateFormData('status', status.key as KawaderStatus)}
+                  onPress={() =>
+                    updateFormData("status", status.key as KawaderStatus)
+                  }
                 >
                   <Text
                     style={[
                       styles.statusOptionText,
-                      formData.status === status.key && styles.statusOptionTextSelected,
+                      formData.status === status.key &&
+                        styles.statusOptionTextSelected,
                     ]}
                   >
                     {status.label}
@@ -301,8 +409,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: COLORS.white,
@@ -315,9 +423,9 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.text,
-    textAlign: 'center',
+    textAlign: "center",
   },
   headerSpacer: {
     width: 40,
@@ -333,7 +441,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.text,
     marginBottom: 12,
   },
@@ -350,14 +458,14 @@ const styles = StyleSheet.create({
   },
   textArea: {
     height: 100,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
   },
   scopeScroll: {
     marginHorizontal: -16,
     paddingHorizontal: 16,
   },
   scopeContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingVertical: 8,
   },
   scopeOption: {
@@ -375,16 +483,16 @@ const styles = StyleSheet.create({
   },
   scopeOptionText: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
     color: COLORS.text,
   },
   scopeOptionTextSelected: {
     color: COLORS.primary,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 12,
   },
   checkbox: {
@@ -394,8 +502,8 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: COLORS.border,
     backgroundColor: COLORS.white,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: 12,
   },
   checkboxChecked: {
@@ -407,7 +515,7 @@ const styles = StyleSheet.create({
     color: COLORS.text,
   },
   statusSelector: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 12,
   },
   statusOption: {
@@ -418,7 +526,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.border,
     backgroundColor: COLORS.white,
-    alignItems: 'center',
+    alignItems: "center",
   },
   statusOptionSelected: {
     borderColor: COLORS.primary,
@@ -426,12 +534,12 @@ const styles = StyleSheet.create({
   },
   statusOptionText: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
     color: COLORS.text,
   },
   statusOptionTextSelected: {
     color: COLORS.primary,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   footer: {
     padding: 16,
@@ -440,9 +548,9 @@ const styles = StyleSheet.create({
     borderTopColor: COLORS.border,
   },
   submitButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: COLORS.primary,
     paddingVertical: 16,
     borderRadius: 12,
@@ -453,7 +561,7 @@ const styles = StyleSheet.create({
   submitButtonText: {
     color: COLORS.white,
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     marginLeft: 8,
   },
 });

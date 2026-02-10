@@ -33,6 +33,9 @@ export class AdminKawaderController {
   @ApiQuery({ name: 'limit', required: false, description: 'عدد العناصر في الصفحة', example: 25 })
   @ApiQuery({ name: 'status', required: false, enum: KawaderStatus, description: 'فلترة حسب الحالة' })
   @ApiQuery({ name: 'ownerId', required: false, description: 'فلترة حسب معرف المالك' })
+  @ApiQuery({ name: 'offerType', required: false, description: 'نوع العرض: job أو service', enum: ['job', 'service'] })
+  @ApiQuery({ name: 'jobType', required: false, description: 'نوع الوظيفة', enum: ['full_time', 'part_time', 'remote'] })
+  @ApiQuery({ name: 'location', required: false, description: 'الموقع أو المدينة' })
   @ApiQuery({ name: 'budgetMin', required: false, description: 'فلترة حسب الحد الأدنى للميزانية' })
   @ApiQuery({ name: 'budgetMax', required: false, description: 'فلترة حسب الحد الأقصى للميزانية' })
   @ApiResponse({

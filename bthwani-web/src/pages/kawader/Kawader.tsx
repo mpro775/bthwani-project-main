@@ -30,8 +30,13 @@ const KawaderPage: React.FC = () => {
     severity: "success",
   });
 
-  const { item: currentItem, createItem, updateItem, deleteItem, loading: itemLoading } =
-    useKawader(id);
+  const {
+    item: currentItem,
+    createItem,
+    updateItem,
+    deleteItem,
+    loading: itemLoading,
+  } = useKawader(id);
 
   const handleViewItem = (item: KawaderItem) => {
     navigate(`/kawader/${item._id}`);
@@ -124,7 +129,11 @@ const KawaderPage: React.FC = () => {
     (currentItem.ownerId as { _id?: string })?._id
       ? String((currentItem.ownerId as { _id: string })._id)
       : String(currentItem.ownerId || ""));
-  const isOwner = !!(currentUserId && currentItem && ownerIdStr === currentUserId);
+  const isOwner = !!(
+    currentUserId &&
+    currentItem &&
+    ownerIdStr === currentUserId
+  );
 
   const renderContent = () => {
     if (id && !action) {
@@ -144,7 +153,7 @@ const KawaderPage: React.FC = () => {
       const isEdit = id !== "new" && action === "edit";
       return (
         <KawaderForm
-          item={isEdit ? (currentItem ?? undefined) : undefined}
+          item={isEdit ? currentItem ?? undefined : undefined}
           loading={itemLoading}
           mode={isEdit ? "edit" : "create"}
           onSubmit={handleFormSubmit}
@@ -157,6 +166,7 @@ const KawaderPage: React.FC = () => {
       <KawaderList
         onViewItem={handleViewItem}
         onCreateItem={handleCreateItem}
+        currentUserId={currentUserId}
       />
     );
   };

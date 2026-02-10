@@ -71,6 +71,8 @@ export type RootStackParamList = {
 
   // الكوادر (الخدمات المهنية)
   KawaderList: undefined;
+  KawaderMyApplications: undefined;
+  KawaderPortfolio: undefined;
   KawaderCreate: undefined;
   KawaderDetails: { itemId: string };
   KawaderEdit: { itemId: string };

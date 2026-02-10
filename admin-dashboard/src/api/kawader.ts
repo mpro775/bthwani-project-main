@@ -8,6 +8,10 @@ export interface KawaderItem {
   description?: string;
   scope?: string;
   budget?: number;
+  offerType?: 'job' | 'service';
+  jobType?: 'full_time' | 'part_time' | 'remote' | null;
+  location?: string;
+  salary?: number;
   metadata: Record<string, any>;
   status: 'draft' | 'pending' | 'confirmed' | 'completed' | 'cancelled';
   createdAt: string;
@@ -34,6 +38,15 @@ export interface KawaderListResponse {
   nextCursor?: string;
 }
 
+export interface KawaderApplicationItem {
+  _id: string;
+  kawaderId: string;
+  userId: string | { _id: string; name?: string; email?: string; phone?: string };
+  coverNote?: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  createdAt?: string;
+}
+
 export interface UpdateKawaderStatusRequest {
   status: string;
   notes?: string;
@@ -49,12 +62,30 @@ export const getKawaderList = async (params?: {
   budgetMax?: number;
   createdAfter?: string;
   createdBefore?: string;
+  offerType?: string;
+  jobType?: string;
+  location?: string;
 }): Promise<KawaderListResponse> => {
   try {
     const response = await api.get('/admin/kawader', { params });
     return response.data;
   } catch (error) {
     console.error('خطأ في جلب قائمة الكوادر:', error);
+    throw error;
+  }
+};
+
+// جلب تقديمات عرض كادر واحد (باستخدام مسار الكوادر العام)
+export const getKawaderApplicationsAdmin = async (
+  kawaderId: string,
+): Promise<KawaderApplicationItem[]> => {
+  try {
+    const response = await api.get(`/kawader/${kawaderId}/applications`);
+    const raw = response.data;
+    const data = raw?.data ?? raw;
+    return Array.isArray(data?.items) ? data.items : Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error('خطأ في جلب تقديمات عرض الكادر:', error);
     throw error;
   }
 };

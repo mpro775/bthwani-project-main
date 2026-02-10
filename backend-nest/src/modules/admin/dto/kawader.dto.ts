@@ -14,6 +14,21 @@ export class KawaderAdminQueryDto implements KawaderAdminQuery {
   @IsMongoId()
   ownerId?: Types.ObjectId;
 
+  @ApiProperty({ required: false, description: 'نوع العرض: job أو service', enum: ['job', 'service'] })
+  @IsOptional()
+  @IsString()
+  offerType?: string;
+
+  @ApiProperty({ required: false, description: 'نوع الوظيفة', enum: ['full_time', 'part_time', 'remote'] })
+  @IsOptional()
+  @IsString()
+  jobType?: string;
+
+  @ApiProperty({ required: false, description: 'الموقع أو المدينة' })
+  @IsOptional()
+  @IsString()
+  location?: string;
+
   @ApiProperty({ required: false, example: '2024-01-01T00:00:00.000Z' })
   @IsOptional()
   @IsDateString()

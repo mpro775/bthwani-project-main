@@ -98,6 +98,8 @@ import ArabonBookScreen from "@/screens/arabon/ArabonBookScreen";
 
 // الكوادر (Professional Services)
 import KawaderListScreen from "@/screens/kawader/KawaderListScreen";
+import KawaderMyApplicationsScreen from "@/screens/kawader/KawaderMyApplicationsScreen";
+import KawaderPortfolioScreen from "@/screens/kawader/KawaderPortfolioScreen";
 import KawaderCreateScreen from "@/screens/kawader/KawaderCreateScreen";
 import KawaderDetailsScreen from "@/screens/kawader/KawaderDetailsScreen";
 import KawaderEditScreen from "@/screens/kawader/KawaderEditScreen";
@@ -916,6 +918,14 @@ function AppStackNavigator() {
 
       {/* الكوادر (Professional Services) */}
       <AppStack.Screen name="KawaderList" component={KawaderListScreen} />
+      <AppStack.Screen
+        name="KawaderMyApplications"
+        component={KawaderMyApplicationsScreen}
+      />
+      <AppStack.Screen
+        name="KawaderPortfolio"
+        component={KawaderPortfolioScreen}
+      />
       <AppStack.Screen name="KawaderCreate" component={KawaderCreateScreen} />
       <AppStack.Screen name="KawaderDetails" component={KawaderDetailsScreen} />
       <AppStack.Screen name="KawaderEdit" component={KawaderEditScreen} />

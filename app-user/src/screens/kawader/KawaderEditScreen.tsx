@@ -14,13 +14,23 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 
 import { RootStackParamList } from "@/types/navigation";
-import { KawaderItem, UpdateKawaderPayload, KawaderStatus, WORK_SCOPES } from "@/types/types";
+import {
+  KawaderItem,
+  UpdateKawaderPayload,
+  KawaderStatus,
+  WORK_SCOPES,
+  KawaderOfferType,
+  KawaderJobType,
+} from "@/types/types";
 import { getKawaderDetails, updateKawader } from "@/api/kawaderApi";
 import { useAuth } from "@/auth/AuthContext";
 import COLORS from "@/constants/colors";
 
 type RouteProps = RouteProp<RootStackParamList, "KawaderEdit">;
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, "KawaderEdit">;
+type NavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "KawaderEdit"
+>;
 
 const KawaderEditScreen = () => {
   const navigation = useNavigation<NavigationProp>();
@@ -31,17 +41,17 @@ const KawaderEditScreen = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [originalItem, setOriginalItem] = useState<KawaderItem | null>(null);
-  const [skillsInput, setSkillsInput] = useState('');
+  const [skillsInput, setSkillsInput] = useState("");
 
   const [formData, setFormData] = useState<UpdateKawaderPayload>({
-    title: '',
-    description: '',
-    scope: '',
+    title: "",
+    description: "",
+    scope: "",
     budget: undefined,
     metadata: {
-      experience: '',
+      experience: "",
       skills: [],
-      location: '',
+      location: "",
       remote: false,
     },
     status: undefined,
@@ -56,20 +66,24 @@ const KawaderEditScreen = () => {
       // Initialize form with existing data
       setFormData({
         title: itemData.title,
-        description: itemData.description || '',
-        scope: itemData.scope || '',
+        description: itemData.description || "",
+        scope: itemData.scope || "",
         budget: itemData.budget,
+        offerType: itemData.offerType,
+        jobType: itemData.jobType,
+        location: itemData.location,
+        salary: itemData.salary,
         metadata: itemData.metadata || {
-          experience: '',
+          experience: "",
           skills: [],
-          location: '',
+          location: "",
           remote: false,
         },
         status: itemData.status,
       });
 
       // Set skills input
-      setSkillsInput((itemData.metadata?.skills || []).join(', '));
+      setSkillsInput((itemData.metadata?.skills || []).join(", "));
     } catch (error) {
       console.error("خطأ في تحميل بيانات الكادر:", error);
       Alert.alert("خطأ", "حدث خطأ في تحميل البيانات");
@@ -85,16 +99,16 @@ const KawaderEditScreen = () => {
 
   const handleSubmit = async () => {
     if (!formData.title?.trim()) {
-      Alert.alert('خطأ', 'يرجى إدخال عنوان العرض الوظيفي');
+      Alert.alert("خطأ", "يرجى إدخال عنوان العرض الوظيفي");
       return;
     }
 
     setSaving(true);
     try {
       const processedSkills = skillsInput
-        .split(',')
-        .map(skill => skill.trim())
-        .filter(skill => skill.length > 0);
+        .split(",")
+        .map((skill) => skill.trim())
+        .filter((skill) => skill.length > 0);
 
       const payload: UpdateKawaderPayload = {
         ...formData,
@@ -105,33 +119,32 @@ const KawaderEditScreen = () => {
       };
 
       await updateKawader(itemId, payload);
-      Alert.alert(
-        'نجح',
-        'تم تحديث العرض الوظيفي بنجاح',
-        [
-          {
-            text: 'موافق',
-            onPress: () => navigation.goBack(),
-          },
-        ]
-      );
+      Alert.alert("نجح", "تم تحديث العرض الوظيفي بنجاح", [
+        {
+          text: "موافق",
+          onPress: () => navigation.goBack(),
+        },
+      ]);
     } catch (error) {
-      console.error('خطأ في تحديث العرض الوظيفي:', error);
-      Alert.alert('خطأ', 'حدث خطأ أثناء تحديث العرض الوظيفي. يرجى المحاولة مرة أخرى.');
+      console.error("خطأ في تحديث العرض الوظيفي:", error);
+      Alert.alert(
+        "خطأ",
+        "حدث خطأ أثناء تحديث العرض الوظيفي. يرجى المحاولة مرة أخرى."
+      );
     } finally {
       setSaving(false);
     }
   };
 
   const updateFormData = (field: keyof UpdateKawaderPayload, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
   };
 
   const updateMetadata = (field: string, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       metadata: {
         ...prev.metadata,
@@ -142,23 +155,35 @@ const KawaderEditScreen = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'draft': return COLORS.gray;
-      case 'pending': return COLORS.orangeDark;
-      case 'confirmed': return COLORS.primary;
-      case 'completed': return COLORS.success;
-      case 'cancelled': return COLORS.danger;
-      default: return COLORS.gray;
+      case "draft":
+        return COLORS.gray;
+      case "pending":
+        return COLORS.orangeDark;
+      case "confirmed":
+        return COLORS.primary;
+      case "completed":
+        return COLORS.success;
+      case "cancelled":
+        return COLORS.danger;
+      default:
+        return COLORS.gray;
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'draft': return 'مسودة';
-      case 'pending': return 'في الانتظار';
-      case 'confirmed': return 'مؤكد';
-      case 'completed': return 'مكتمل';
-      case 'cancelled': return 'ملغي';
-      default: return status;
+      case "draft":
+        return "مسودة";
+      case "pending":
+        return "في الانتظار";
+      case "confirmed":
+        return "مؤكد";
+      case "completed":
+        return "مكتمل";
+      case "cancelled":
+        return "ملغي";
+      default:
+        return status;
     }
   };
 
@@ -177,7 +202,9 @@ const KawaderEditScreen = () => {
     return (
       <View style={styles.centerContainer}>
         <Ionicons name="lock-closed" size={64} color={COLORS.danger} />
-        <Text style={styles.errorText}>ليس لديك صلاحية تعديل هذا العرض الوظيفي</Text>
+        <Text style={styles.errorText}>
+          ليس لديك صلاحية تعديل هذا العرض الوظيفي
+        </Text>
       </View>
     );
   }
@@ -195,7 +222,10 @@ const KawaderEditScreen = () => {
         <View style={styles.headerSpacer} />
       </View>
 
-      <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.formContainer}>
           {/* العنوان */}
           <View style={styles.section}>
@@ -203,7 +233,7 @@ const KawaderEditScreen = () => {
             <TextInput
               style={styles.textInput}
               value={formData.title}
-              onChangeText={(value) => updateFormData('title', value)}
+              onChangeText={(value) => updateFormData("title", value)}
               placeholder="عنوان العرض الوظيفي"
               placeholderTextColor={COLORS.textLight}
               maxLength={100}
@@ -216,7 +246,7 @@ const KawaderEditScreen = () => {
             <TextInput
               style={[styles.textInput, styles.textArea]}
               value={formData.description}
-              onChangeText={(value) => updateFormData('description', value)}
+              onChangeText={(value) => updateFormData("description", value)}
               placeholder="وصف تفصيلي للعرض الوظيفي..."
               placeholderTextColor={COLORS.textLight}
               multiline
@@ -228,7 +258,11 @@ const KawaderEditScreen = () => {
           {/* النطاق */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>نطاق العمل</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scopeScroll}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.scopeScroll}
+            >
               <View style={styles.scopeContainer}>
                 {WORK_SCOPES.map((scope) => (
                   <TouchableOpacity
@@ -237,12 +271,13 @@ const KawaderEditScreen = () => {
                       styles.scopeOption,
                       formData.scope === scope && styles.scopeOptionSelected,
                     ]}
-                    onPress={() => updateFormData('scope', scope)}
+                    onPress={() => updateFormData("scope", scope)}
                   >
                     <Text
                       style={[
                         styles.scopeOptionText,
-                        formData.scope === scope && styles.scopeOptionTextSelected,
+                        formData.scope === scope &&
+                          styles.scopeOptionTextSelected,
                       ]}
                     >
                       {scope}
@@ -253,15 +288,95 @@ const KawaderEditScreen = () => {
             </ScrollView>
           </View>
 
-          {/* الميزانية */}
+          {/* نوع العرض */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>الميزانية (ريال)</Text>
+            <Text style={styles.sectionTitle}>نوع العرض</Text>
+            <View style={styles.scopeContainer}>
+              {[
+                { key: "job" as KawaderOfferType, label: "وظيفة" },
+                { key: "service" as KawaderOfferType, label: "خدمة" },
+              ].map(({ key, label }) => (
+                <TouchableOpacity
+                  key={key}
+                  style={[
+                    styles.scopeOption,
+                    formData.offerType === key && styles.scopeOptionSelected,
+                  ]}
+                  onPress={() => updateFormData("offerType", key)}
+                >
+                  <Text
+                    style={[
+                      styles.scopeOptionText,
+                      formData.offerType === key &&
+                        styles.scopeOptionTextSelected,
+                    ]}
+                  >
+                    {label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* نوع الوظيفة (عندما النوع = وظيفة) */}
+          {formData.offerType === "job" && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>نوع الوظيفة</Text>
+              <View style={styles.scopeContainer}>
+                {[
+                  { key: "full_time" as KawaderJobType, label: "دوام كامل" },
+                  { key: "part_time" as KawaderJobType, label: "جزئي" },
+                  { key: "remote" as KawaderJobType, label: "عن بُعد" },
+                ].map(({ key, label }) => (
+                  <TouchableOpacity
+                    key={key}
+                    style={[
+                      styles.scopeOption,
+                      formData.jobType === key && styles.scopeOptionSelected,
+                    ]}
+                    onPress={() => updateFormData("jobType", key)}
+                  >
+                    <Text
+                      style={[
+                        styles.scopeOptionText,
+                        formData.jobType === key &&
+                          styles.scopeOptionTextSelected,
+                      ]}
+                    >
+                      {label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* الموقع */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>الموقع</Text>
             <TextInput
               style={styles.textInput}
-              value={formData.budget?.toString() || ''}
+              value={formData.location ?? ""}
+              onChangeText={(value) =>
+                updateFormData("location", value || undefined)
+              }
+              placeholder="مثال: صنعاء، عدن"
+              placeholderTextColor={COLORS.textLight}
+            />
+          </View>
+
+          {/* الميزانية / الراتب */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>الميزانية / الراتب (ريال)</Text>
+            <TextInput
+              style={styles.textInput}
+              value={
+                formData.salary?.toString() ?? formData.budget?.toString() ?? ""
+              }
               onChangeText={(value) => {
                 const numValue = value ? parseFloat(value) : undefined;
-                updateFormData('budget', numValue);
+                updateFormData("salary", numValue);
+                updateFormData("budget", numValue);
               }}
               placeholder="مثال: 15000"
               placeholderTextColor={COLORS.textLight}
@@ -275,8 +390,8 @@ const KawaderEditScreen = () => {
 
             <TextInput
               style={styles.textInput}
-              value={formData.metadata?.experience || ''}
-              onChangeText={(value) => updateMetadata('experience', value)}
+              value={formData.metadata?.experience || ""}
+              onChangeText={(value) => updateMetadata("experience", value)}
               placeholder="الخبرة المطلوبة (مثال: 3+ سنوات)"
               placeholderTextColor={COLORS.textLight}
             />
@@ -291,16 +406,16 @@ const KawaderEditScreen = () => {
 
             <TextInput
               style={styles.textInput}
-              value={formData.metadata?.location || ''}
-              onChangeText={(value) => updateMetadata('location', value)}
+              value={formData.metadata?.location || ""}
+              onChangeText={(value) => updateMetadata("location", value)}
               placeholder="الموقع (مثال: صنعاء، عدن)"
               placeholderTextColor={COLORS.textLight}
             />
 
             <TextInput
               style={styles.textInput}
-              value={formData.metadata?.contact || ''}
-              onChangeText={(value) => updateMetadata('contact', value)}
+              value={formData.metadata?.contact || ""}
+              onChangeText={(value) => updateMetadata("contact", value)}
               placeholder="رقم التواصل (اختياري)"
               placeholderTextColor={COLORS.textLight}
               keyboardType="phone-pad"
@@ -308,12 +423,16 @@ const KawaderEditScreen = () => {
 
             <TouchableOpacity
               style={styles.checkboxContainer}
-              onPress={() => updateMetadata('remote', !formData.metadata?.remote)}
+              onPress={() =>
+                updateMetadata("remote", !formData.metadata?.remote)
+              }
             >
-              <View style={[
-                styles.checkbox,
-                formData.metadata?.remote && styles.checkboxChecked
-              ]}>
+              <View
+                style={[
+                  styles.checkbox,
+                  formData.metadata?.remote && styles.checkboxChecked,
+                ]}
+              >
                 {formData.metadata?.remote && (
                   <Ionicons name="checkmark" size={16} color={COLORS.white} />
                 )}
@@ -326,28 +445,33 @@ const KawaderEditScreen = () => {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>حالة العرض</Text>
             <View style={styles.statusSelector}>
-              {['draft', 'pending', 'confirmed', 'completed', 'cancelled'].map((status) => (
-                <TouchableOpacity
-                  key={status}
-                  style={[
-                    styles.statusOption,
-                    formData.status === status && [
-                      styles.statusOptionSelected,
-                      { borderColor: getStatusColor(status) }
-                    ],
-                  ]}
-                  onPress={() => updateFormData('status', status as KawaderStatus)}
-                >
-                  <Text
+              {["draft", "pending", "confirmed", "completed", "cancelled"].map(
+                (status) => (
+                  <TouchableOpacity
+                    key={status}
                     style={[
-                      styles.statusOptionText,
-                      formData.status === status && styles.statusOptionTextSelected,
+                      styles.statusOption,
+                      formData.status === status && [
+                        styles.statusOptionSelected,
+                        { borderColor: getStatusColor(status) },
+                      ],
                     ]}
+                    onPress={() =>
+                      updateFormData("status", status as KawaderStatus)
+                    }
                   >
-                    {getStatusText(status)}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+                    <Text
+                      style={[
+                        styles.statusOptionText,
+                        formData.status === status &&
+                          styles.statusOptionTextSelected,
+                      ]}
+                    >
+                      {getStatusText(status)}
+                    </Text>
+                  </TouchableOpacity>
+                )
+              )}
             </View>
           </View>
         </View>
@@ -380,8 +504,8 @@ const styles = StyleSheet.create({
   },
   centerContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: COLORS.background,
   },
   loadingText: {
@@ -392,12 +516,12 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 16,
     color: COLORS.danger,
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 16,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: COLORS.white,
@@ -410,9 +534,9 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.text,
-    textAlign: 'center',
+    textAlign: "center",
   },
   headerSpacer: {
     width: 40,
@@ -428,7 +552,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.text,
     marginBottom: 12,
   },
@@ -445,14 +569,14 @@ const styles = StyleSheet.create({
   },
   textArea: {
     height: 100,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
   },
   scopeScroll: {
     marginHorizontal: -16,
     paddingHorizontal: 16,
   },
   scopeContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingVertical: 8,
   },
   scopeOption: {
@@ -470,16 +594,16 @@ const styles = StyleSheet.create({
   },
   scopeOptionText: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
     color: COLORS.text,
   },
   scopeOptionTextSelected: {
     color: COLORS.primary,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 12,
   },
   checkbox: {
@@ -489,8 +613,8 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: COLORS.border,
     backgroundColor: COLORS.white,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: 12,
   },
   checkboxChecked: {
@@ -502,8 +626,8 @@ const styles = StyleSheet.create({
     color: COLORS.text,
   },
   statusSelector: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8,
   },
   statusOption: {
@@ -519,11 +643,11 @@ const styles = StyleSheet.create({
   },
   statusOptionText: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
     color: COLORS.text,
   },
   statusOptionTextSelected: {
-    fontWeight: '600',
+    fontWeight: "600",
   },
   footer: {
     padding: 16,
@@ -532,9 +656,9 @@ const styles = StyleSheet.create({
     borderTopColor: COLORS.border,
   },
   submitButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: COLORS.primary,
     paddingVertical: 16,
     borderRadius: 12,
@@ -545,7 +669,7 @@ const styles = StyleSheet.create({
   submitButtonText: {
     color: COLORS.white,
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     marginLeft: 8,
   },
 });

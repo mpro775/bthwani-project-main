@@ -6,6 +6,10 @@ export type KawaderStatus =
   | "completed"
   | "cancelled";
 
+export type KawaderOfferType = "job" | "service";
+export type KawaderJobType = "full_time" | "part_time" | "remote";
+export type KawaderApplicationStatus = "pending" | "accepted" | "rejected";
+
 export interface KawaderMetadata {
   experience?: string;
   skills?: string[];
@@ -17,11 +21,15 @@ export interface KawaderMetadata {
 
 export interface KawaderItem {
   _id: string;
-  ownerId: string | { _id: string };
+  ownerId: string | { _id: string; name?: string };
   title: string;
   description?: string;
   scope?: string;
   budget?: number;
+  offerType?: KawaderOfferType;
+  jobType?: KawaderJobType;
+  location?: string;
+  salary?: number;
   metadata?: KawaderMetadata;
   status: KawaderStatus;
   createdAt: string | Date;
@@ -40,6 +48,10 @@ export interface CreateKawaderPayload {
   description?: string;
   scope?: string;
   budget?: number;
+  offerType?: KawaderOfferType;
+  jobType?: KawaderJobType;
+  location?: string;
+  salary?: number;
   metadata?: KawaderMetadata;
   status?: KawaderStatus;
 }
@@ -49,6 +61,10 @@ export interface UpdateKawaderPayload {
   description?: string;
   scope?: string;
   budget?: number;
+  offerType?: KawaderOfferType;
+  jobType?: KawaderJobType;
+  location?: string;
+  salary?: number;
   metadata?: KawaderMetadata;
   status?: KawaderStatus;
 }
@@ -58,6 +74,43 @@ export interface KawaderFilters {
   search?: string;
   budgetMin?: number;
   budgetMax?: number;
+  offerType?: KawaderOfferType;
+  jobType?: KawaderJobType;
+  location?: string;
+}
+
+export interface KawaderApplicationItem {
+  _id: string;
+  kawaderId: string | KawaderItem;
+  userId: string | { _id: string; name?: string };
+  coverNote?: string;
+  status: KawaderApplicationStatus;
+  createdAt?: string;
+}
+
+export interface KawaderPortfolioItem {
+  _id: string;
+  userId: string;
+  mediaIds: (string | { _id: string; url?: string })[];
+  caption?: string;
+  createdAt?: string;
+}
+
+export interface KawaderReviewItem {
+  _id: string;
+  kawaderId: string | { title: string };
+  reviewerId: string | { _id: string; name?: string };
+  revieweeId: string;
+  rating: number;
+  comment?: string;
+  createdAt?: string;
+}
+
+export interface ReviewsByUserResponse {
+  items: KawaderReviewItem[];
+  nextCursor?: string | null;
+  averageRating: number;
+  reviewCount: number;
 }
 
 export interface KawaderListResponse {

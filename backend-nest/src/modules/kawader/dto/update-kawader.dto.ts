@@ -1,8 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsOptional, IsNumber, IsObject, IsEnum } from 'class-validator';
-import { KawaderStatus } from './create-kawader.dto';
+import { KawaderStatus, KawaderOfferType, KawaderJobType } from './create-kawader.dto';
 
 export default class UpdateKawaderDto {
+  @ApiProperty({ description: 'نوع العرض: وظيفة أو خدمة', required: false, enum: KawaderOfferType })
+  @IsOptional()
+  @IsEnum(KawaderOfferType)
+  offerType?: KawaderOfferType;
+
   @ApiProperty({ description: 'عنوان العرض الوظيفي', required: false, example: 'مطور Full Stack محدث' })
   @IsOptional()
   @IsString()
@@ -22,6 +27,21 @@ export default class UpdateKawaderDto {
   @IsOptional()
   @IsNumber()
   budget?: number;
+
+  @ApiProperty({ description: 'نوع الوظيفة: دوام كامل، جزئي، عن بُعد', required: false, enum: KawaderJobType })
+  @IsOptional()
+  @IsEnum(KawaderJobType)
+  jobType?: KawaderJobType;
+
+  @ApiProperty({ description: 'الموقع أو المدينة', required: false, example: 'صنعاء' })
+  @IsOptional()
+  @IsString()
+  location?: string;
+
+  @ApiProperty({ description: 'الراتب', required: false, example: 55000 })
+  @IsOptional()
+  @IsNumber()
+  salary?: number;
 
   @ApiProperty({ description: 'بيانات إضافية', required: false, example: { experience: '5+ years', skills: ['React', 'Node.js', 'TypeScript'] } })
   @IsOptional()

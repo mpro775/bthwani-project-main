@@ -1,5 +1,5 @@
-// مطابق لـ app-user KawaderListScreen
-import React from "react";
+// مطابق لـ app-user KawaderListScreen — يدعم الكل / عروضي والبحث
+import React, { useState, useMemo } from "react";
 import {
   Box,
   Typography,
@@ -7,23 +7,46 @@ import {
   CircularProgress,
   Alert,
   Container,
+  Tabs,
+  Tab,
+  TextField,
+  InputAdornment,
 } from "@mui/material";
-import { Add as AddIcon, Work as WorkIcon } from "@mui/icons-material";
+import {
+  Add as AddIcon,
+  Work as WorkIcon,
+  Search as SearchIcon,
+} from "@mui/icons-material";
 import KawaderCard from "./KawaderCard";
-import { useKawaderList } from "../hooks/useKawaderList";
-import type { KawaderItem } from "../types";
+import { useKawaderList, type ListMode } from "../hooks/useKawaderList";
+import type { KawaderItem, KawaderFilters } from "../types";
 
 interface KawaderListProps {
   onViewItem?: (item: KawaderItem) => void;
   onCreateItem?: () => void;
+  currentUserId?: string | null;
 }
 
 const KawaderList: React.FC<KawaderListProps> = ({
   onViewItem,
   onCreateItem,
+  currentUserId,
 }) => {
-  const { items, loading, loadingMore, hasMore, error, loadMore } =
-    useKawaderList();
+  const [mode, setMode] = useState<ListMode>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [submittedSearch, setSubmittedSearch] = useState("");
+  const [filters, setFilters] = useState<KawaderFilters>({});
+
+  const effectiveFilters = useMemo(
+    () => ({ ...filters, search: submittedSearch || undefined }),
+    [filters, submittedSearch]
+  );
+
+  const { items, loading, loadingMore, hasMore, error, loadMore, refresh } =
+    useKawaderList(25, {
+      mode: currentUserId ? mode : "all",
+      filters: effectiveFilters,
+    });
 
   const stats = {
     total: items.length,
@@ -65,6 +88,37 @@ const KawaderList: React.FC<KawaderListProps> = ({
         >
           الوظائف والخدمات المهنية
         </Typography>
+
+        {currentUserId && (
+          <Tabs
+            value={mode}
+            onChange={(_, v) => setMode(v as ListMode)}
+            sx={{ mt: 2 }}
+            variant="fullWidth"
+          >
+            <Tab label="الكل" value="all" />
+            <Tab label="عروضي" value="my" />
+          </Tabs>
+        )}
+
+        <TextField
+          fullWidth
+          size="small"
+          placeholder="بحث (عنوان، مهارات...)"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") setSubmittedSearch(searchQuery.trim());
+          }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+          sx={{ mt: 2 }}
+        />
 
         <Box
           sx={{

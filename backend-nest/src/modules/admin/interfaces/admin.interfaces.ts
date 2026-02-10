@@ -180,6 +180,9 @@ export interface KawaderStats {
 export interface KawaderAdminQuery {
   status?: KawaderStatus;
   ownerId?: Types.ObjectId;
+  offerType?: string;
+  jobType?: string;
+  location?: string;
   createdAfter?: Date;
   createdBefore?: Date;
   budgetMin?: number;

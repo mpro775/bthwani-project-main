@@ -16,6 +16,17 @@ const KawaderCard: React.FC<KawaderCardProps> = ({ item, onView }) => {
     return `${amount.toLocaleString("ar-SA")} ريال`;
   };
 
+  const amount = item.salary ?? item.budget;
+  const locationStr = item.location ?? item.metadata?.location;
+  const jobTypeLabel =
+    item.jobType === "full_time"
+      ? "دوام كامل"
+      : item.jobType === "part_time"
+      ? "جزئي"
+      : item.jobType === "remote"
+      ? "عن بُعد"
+      : null;
+
   return (
     <Card
       sx={{
@@ -44,8 +55,12 @@ const KawaderCard: React.FC<KawaderCardProps> = ({ item, onView }) => {
               borderRadius: 1,
             }}
           >
-            <Typography variant="body2" fontWeight={700} sx={{ color: "success.dark" }}>
-              {formatCurrency(item.budget)}
+            <Typography
+              variant="body2"
+              fontWeight={700}
+              sx={{ color: "success.dark" }}
+            >
+              {formatCurrency(amount)}
             </Typography>
           </Box>
           <Box
@@ -89,18 +104,22 @@ const KawaderCard: React.FC<KawaderCardProps> = ({ item, onView }) => {
           </Typography>
         )}
 
-        {item.scope && (
+        {(item.scope || jobTypeLabel) && (
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 1 }}>
             <WorkOutline sx={{ fontSize: 14, color: "primary.main" }} />
             <Typography variant="caption" color="primary.main" fontWeight={500}>
-              {item.scope}
+              {[item.scope, jobTypeLabel].filter(Boolean).join(" · ")}
             </Typography>
           </Box>
         )}
 
         {item.metadata?.skills && item.metadata.skills.length > 0 && (
           <Box sx={{ mb: 1 }}>
-            <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: "block" }}>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mb: 0.5, display: "block" }}
+            >
               المهارات:
             </Typography>
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
@@ -128,12 +147,12 @@ const KawaderCard: React.FC<KawaderCardProps> = ({ item, onView }) => {
           </Box>
         )}
 
-        {item.metadata?.location && (
+        {(locationStr || item.metadata?.remote) && (
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
             <LocationOn sx={{ fontSize: 14, color: "text.secondary" }} />
             <Typography variant="caption" color="text.secondary">
-              {item.metadata.location}
-              {item.metadata.remote && " (عن بعد)"}
+              {locationStr || ""}
+              {item.metadata?.remote && (locationStr ? " (عن بعد)" : "عن بعد")}
             </Typography>
           </Box>
         )}
@@ -150,9 +169,7 @@ const KawaderCard: React.FC<KawaderCardProps> = ({ item, onView }) => {
           <Typography variant="caption" color="text.secondary">
             نشر: {new Date(item.createdAt).toLocaleDateString("ar-SA")}
           </Typography>
-          {onView && (
-            <ChevronRight sx={{ fontSize: 16, color: "grey.500" }} />
-          )}
+          {onView && <ChevronRight sx={{ fontSize: 16, color: "grey.500" }} />}
         </Box>
       </CardContent>
     </Card>
