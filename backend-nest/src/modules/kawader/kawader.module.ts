@@ -7,6 +7,7 @@ import { KawaderReview, KawaderReviewSchema } from './entities/kawader-review.en
 import { KawaderMedia, KawaderMediaSchema } from './entities/kawader-media.entity';
 import { KawaderController } from './kawader.controller';
 import { KawaderService } from './kawader.service';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { KawaderService } from './kawader.service';
       { name: KawaderReview.name, schema: KawaderReviewSchema },
       { name: KawaderMedia.name, schema: KawaderMediaSchema },
     ]),
+    AuthModule,
   ],
   controllers: [KawaderController],
   providers: [KawaderService],
