@@ -84,10 +84,14 @@ const KawaderDetails: React.FC<KawaderDetailsProps> = ({
   const [applyModalOpen, setApplyModalOpen] = useState(false);
   const [coverNote, setCoverNote] = useState("");
   const [applying, setApplying] = useState(false);
-  const [applications, setApplications] = useState<KawaderApplicationItem[]>([]);
+  const [applications, setApplications] = useState<KawaderApplicationItem[]>(
+    []
+  );
   const [applicationsVisible, setApplicationsVisible] = useState(false);
   const [loadingApplications, setLoadingApplications] = useState(false);
-  const [portfolioItems, setPortfolioItems] = useState<KawaderPortfolioItem[]>([]);
+  const [portfolioItems, setPortfolioItems] = useState<KawaderPortfolioItem[]>(
+    []
+  );
   const [reviews, setReviews] = useState<KawaderReviewItem[]>([]);
   const [averageRating, setAverageRating] = useState(0);
   const [reviewCount, setReviewCount] = useState(0);
@@ -102,7 +106,7 @@ const KawaderDetails: React.FC<KawaderDetailsProps> = ({
     item &&
     (typeof item.ownerId === "object" && (item.ownerId as { _id?: string })?._id
       ? String((item.ownerId as { _id: string })._id)
-      : String(item?.ownerId ?? "");
+      : String(item?.ownerId ?? ""));
 
   const loadApplications = useCallback(async () => {
     if (!item?._id) return;
@@ -185,7 +189,11 @@ const KawaderDetails: React.FC<KawaderDetailsProps> = ({
     if (!item?._id) return;
     setSubmittingReview(true);
     try {
-      await createKawaderReview(item._id, reviewRating, reviewComment.trim() || undefined);
+      await createKawaderReview(
+        item._id,
+        reviewRating,
+        reviewComment.trim() || undefined
+      );
       setReviewModalOpen(false);
       setReviewComment("");
       setReviewRating(5);
@@ -199,14 +207,16 @@ const KawaderDetails: React.FC<KawaderDetailsProps> = ({
 
   const getApplicantName = (app: KawaderApplicationItem) => {
     const u = app.userId;
-    if (typeof u === "object" && u && "name" in u) return (u as any).name || "مستخدم";
+    if (typeof u === "object" && u && "name" in u)
+      return (u as any).name || "مستخدم";
     return "مستخدم";
   };
 
   const getPortfolioMediaUrl = (p: KawaderPortfolioItem) => {
     const first = p.mediaIds?.[0];
     if (!first) return null;
-    if (typeof first === "object" && first && "url" in first) return (first as any).url ?? null;
+    if (typeof first === "object" && first && "url" in first)
+      return (first as any).url ?? null;
     return null;
   };
 
@@ -218,8 +228,7 @@ const KawaderDetails: React.FC<KawaderDetailsProps> = ({
   const formatDate = (dateInput?: string | Date) => {
     if (!dateInput) return "غير محدد";
     try {
-      const d =
-        dateInput instanceof Date ? dateInput : new Date(dateInput);
+      const d = dateInput instanceof Date ? dateInput : new Date(dateInput);
       return d.toLocaleDateString("ar-SA", {
         year: "numeric",
         month: "long",
@@ -234,7 +243,23 @@ const KawaderDetails: React.FC<KawaderDetailsProps> = ({
 
   const handleShare = async () => {
     if (!item) return;
-    const text = `عرض وظيفي: ${item.title}\n\n${item.description || ""}\n\nالنطاق: ${item.scope || "غير محدد"}\nالميزانية: ${formatCurrency(item.budget)}\n${item.metadata?.location ? `الموقع: ${item.metadata.location}\n` : ""}${item.metadata?.remote ? "متاح العمل عن بعد\n" : ""}${item.metadata?.experience ? `الخبرة المطلوبة: ${item.metadata.experience}\n` : ""}${item.metadata?.skills?.length ? `المهارات: ${item.metadata.skills.join(", ")}\n` : ""}\nالحالة: ${KawaderStatusLabels[item.status]}\n\nتاريخ النشر: ${formatDate(item.createdAt)}`;
+    const text = `عرض وظيفي: ${item.title}\n\n${
+      item.description || ""
+    }\n\nالنطاق: ${item.scope || "غير محدد"}\nالميزانية: ${formatCurrency(
+      item.budget
+    )}\n${
+      item.metadata?.location ? `الموقع: ${item.metadata.location}\n` : ""
+    }${item.metadata?.remote ? "متاح العمل عن بعد\n" : ""}${
+      item.metadata?.experience
+        ? `الخبرة المطلوبة: ${item.metadata.experience}\n`
+        : ""
+    }${
+      item.metadata?.skills?.length
+        ? `المهارات: ${item.metadata.skills.join(", ")}\n`
+        : ""
+    }\nالحالة: ${KawaderStatusLabels[item.status]}\n\nتاريخ النشر: ${formatDate(
+      item.createdAt
+    )}`;
     try {
       if (navigator.share) {
         await navigator.share({ title: item.title, text });
@@ -261,7 +286,7 @@ const KawaderDetails: React.FC<KawaderDetailsProps> = ({
     }
   };
 
-  const hasContact = !!(item?.metadata?.contact);
+  const hasContact = !!item?.metadata?.contact;
 
   if (loading) {
     return (
@@ -365,7 +390,10 @@ const KawaderDetails: React.FC<KawaderDetailsProps> = ({
           </Box>
         )}
 
-        {(item.offerType || item.jobType || item.location || item.salary != null) && (
+        {(item.offerType ||
+          item.jobType ||
+          item.location ||
+          item.salary != null) && (
           <Box sx={{ mb: 3 }}>
             <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
               التفاصيل
@@ -373,7 +401,9 @@ const KawaderDetails: React.FC<KawaderDetailsProps> = ({
             <Paper sx={{ p: 2 }}>
               {item.offerType && (
                 <Box sx={{ mb: 1 }}>
-                  <Typography variant="body2" color="text.secondary">نوع العرض:</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    نوع العرض:
+                  </Typography>
                   <Typography variant="body2" fontWeight={500}>
                     {item.offerType === "job" ? "وظيفة" : "عرض خدمة"}
                   </Typography>
@@ -381,14 +411,22 @@ const KawaderDetails: React.FC<KawaderDetailsProps> = ({
               )}
               {item.jobType && (
                 <Box sx={{ mb: 1 }}>
-                  <Typography variant="body2" color="text.secondary">نوع الوظيفة:</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    نوع الوظيفة:
+                  </Typography>
                   <Typography variant="body2" fontWeight={500}>
-                    {item.jobType === "full_time" ? "دوام كامل" : item.jobType === "part_time" ? "دوام جزئي" : "عن بُعد"}
+                    {item.jobType === "full_time"
+                      ? "دوام كامل"
+                      : item.jobType === "part_time"
+                      ? "دوام جزئي"
+                      : "عن بُعد"}
                   </Typography>
                 </Box>
               )}
               {(item.location || item.metadata?.location) && (
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                <Box
+                  sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+                >
                   <LocationOn fontSize="small" color="action" />
                   <Typography variant="body2" fontWeight={500}>
                     {item.location || item.metadata?.location}
@@ -397,7 +435,9 @@ const KawaderDetails: React.FC<KawaderDetailsProps> = ({
               )}
               {(item.salary != null || item.budget != null) && (
                 <Box>
-                  <Typography variant="body2" color="text.secondary">الراتب/الميزانية:</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    الراتب/الميزانية:
+                  </Typography>
                   <Typography variant="body2" fontWeight={500}>
                     {formatCurrency(item.salary ?? item.budget)}
                   </Typography>
@@ -433,7 +473,9 @@ const KawaderDetails: React.FC<KawaderDetailsProps> = ({
             )}
             {item.metadata.skills && item.metadata.skills.length > 0 && (
               <Paper sx={{ p: 2, mb: 1 }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                <Box
+                  sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+                >
                   <Build fontSize="small" color="action" />
                   <Typography variant="body2" fontWeight={600}>
                     المهارات المطلوبة:
@@ -512,26 +554,38 @@ const KawaderDetails: React.FC<KawaderDetailsProps> = ({
                         {getApplicantName(app)}
                       </Typography>
                       {app.coverNote && (
-                        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ mt: 0.5 }}
+                        >
                           {app.coverNote}
                         </Typography>
                       )}
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1, flexWrap: "wrap" }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
+                          mt: 1,
+                          flexWrap: "wrap",
+                        }}
+                      >
                         <Chip
                           size="small"
                           label={
                             app.status === "pending"
                               ? "قيد المراجعة"
                               : app.status === "accepted"
-                                ? "مقبول"
-                                : "مرفوض"
+                              ? "مقبول"
+                              : "مرفوض"
                           }
                           color={
                             app.status === "accepted"
                               ? "success"
                               : app.status === "rejected"
-                                ? "error"
-                                : "default"
+                              ? "error"
+                              : "default"
                           }
                         />
                         {app.status === "pending" && (
@@ -540,7 +594,9 @@ const KawaderDetails: React.FC<KawaderDetailsProps> = ({
                               size="small"
                               variant="contained"
                               color="success"
-                              onClick={() => handleAcceptReject(app._id, "accepted")}
+                              onClick={() =>
+                                handleAcceptReject(app._id, "accepted")
+                              }
                             >
                               قبول
                             </Button>
@@ -548,7 +604,9 @@ const KawaderDetails: React.FC<KawaderDetailsProps> = ({
                               size="small"
                               variant="contained"
                               color="error"
-                              onClick={() => handleAcceptReject(app._id, "rejected")}
+                              onClick={() =>
+                                handleAcceptReject(app._id, "rejected")
+                              }
                             >
                               رفض
                             </Button>
@@ -558,10 +616,16 @@ const KawaderDetails: React.FC<KawaderDetailsProps> = ({
                     </Paper>
                   ))}
                 </Box>
-              ) : !loadingApplications && (
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  لا توجد تقديمات بعد
-                </Typography>
+              ) : (
+                !loadingApplications && (
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mt: 1 }}
+                  >
+                    لا توجد تقديمات بعد
+                  </Typography>
+                )
               )}
             </Collapse>
           </Box>
@@ -612,8 +676,7 @@ const KawaderDetails: React.FC<KawaderDetailsProps> = ({
           )}
           {!hasContact && !isOwner && onChat && (
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              لم يُذكر رقم تواصل في هذا الإعلان. يمكنك المحادثة مع المعلن
-              أعلاه.
+              لم يُذكر رقم تواصل في هذا الإعلان. يمكنك المحادثة مع المعلن أعلاه.
             </Typography>
           )}
         </Box>
@@ -660,7 +723,11 @@ const KawaderDetails: React.FC<KawaderDetailsProps> = ({
                         </Box>
                       )}
                       {p.caption && (
-                        <Typography variant="caption" sx={{ p: 1, display: "block" }} noWrap>
+                        <Typography
+                          variant="caption"
+                          sx={{ p: 1, display: "block" }}
+                          noWrap
+                        >
                           {p.caption}
                         </Typography>
                       )}
@@ -679,7 +746,8 @@ const KawaderDetails: React.FC<KawaderDetailsProps> = ({
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
             <Star sx={{ color: "warning.main" }} />
             <Typography variant="body2" fontWeight={600}>
-              {averageRating > 0 ? averageRating.toFixed(1) : "—"} ({reviewCount})
+              {averageRating > 0 ? averageRating.toFixed(1) : "—"} (
+              {reviewCount})
             </Typography>
             {!isOwner && (
               <Button
@@ -697,9 +765,17 @@ const KawaderDetails: React.FC<KawaderDetailsProps> = ({
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
               {reviews.slice(0, 5).map((r) => (
                 <Paper key={r._id} sx={{ p: 1.5 }}>
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
                     <Typography variant="body2" fontWeight={600}>
-                      {typeof r.reviewerId === "object" && r.reviewerId && "name" in r.reviewerId
+                      {typeof r.reviewerId === "object" &&
+                      r.reviewerId &&
+                      "name" in r.reviewerId
                         ? (r.reviewerId as any).name
                         : "مستخدم"}
                     </Typography>
@@ -716,7 +792,11 @@ const KawaderDetails: React.FC<KawaderDetailsProps> = ({
                     </Box>
                   </Box>
                   {r.comment && (
-                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ mt: 0.5 }}
+                    >
                       {r.comment}
                     </Typography>
                   )}
@@ -730,7 +810,12 @@ const KawaderDetails: React.FC<KawaderDetailsProps> = ({
           )}
         </Box>
 
-        <Dialog open={applyModalOpen} onClose={() => setApplyModalOpen(false)} maxWidth="sm" fullWidth>
+        <Dialog
+          open={applyModalOpen}
+          onClose={() => setApplyModalOpen(false)}
+          maxWidth="sm"
+          fullWidth
+        >
           <DialogTitle>تقدم على هذا العرض</DialogTitle>
           <DialogContent>
             <TextField
@@ -756,10 +841,22 @@ const KawaderDetails: React.FC<KawaderDetailsProps> = ({
           </DialogActions>
         </Dialog>
 
-        <Dialog open={reviewModalOpen} onClose={() => setReviewModalOpen(false)} maxWidth="sm" fullWidth>
+        <Dialog
+          open={reviewModalOpen}
+          onClose={() => setReviewModalOpen(false)}
+          maxWidth="sm"
+          fullWidth
+        >
           <DialogTitle>تقييم المعلن</DialogTitle>
           <DialogContent>
-            <Box sx={{ display: "flex", justifyContent: "center", gap: 0.5, py: 2 }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                gap: 0.5,
+                py: 2,
+              }}
+            >
               {[1, 2, 3, 4, 5].map((i) => (
                 <IconButton
                   key={i}
@@ -789,7 +886,9 @@ const KawaderDetails: React.FC<KawaderDetailsProps> = ({
               variant="contained"
               onClick={handleReviewSubmit}
               disabled={submittingReview}
-              startIcon={submittingReview ? <CircularProgress size={16} /> : null}
+              startIcon={
+                submittingReview ? <CircularProgress size={16} /> : null
+              }
             >
               إرسال التقييم
             </Button>

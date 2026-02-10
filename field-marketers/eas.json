@@ -11,6 +11,13 @@
       },
       "releaseChannel": "production"
     },
+    "production-apk": {
+      "android": {
+        "buildType": "apk"
+      },
+      "environment": "production",
+      "autoIncrement": true
+    },
     "aab": {
       "android": {
         "buildType": "app-bundle",
