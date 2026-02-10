@@ -4,7 +4,17 @@ export type Es3afniStatus =
   | "pending"
   | "confirmed"
   | "completed"
-  | "cancelled";
+  | "cancelled"
+  | "expired";
+
+export type Es3afniUrgency = "low" | "normal" | "urgent" | "critical";
+export const URGENCY_LEVELS: Es3afniUrgency[] = ["low", "normal", "urgent", "critical"];
+export const URGENCY_LABELS: Record<Es3afniUrgency, string> = {
+  low: "منخفض",
+  normal: "عادي",
+  urgent: "عاجل",
+  critical: "حرج",
+};
 
 export type BloodType = "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-" | "O+" | "O-";
 
@@ -27,9 +37,12 @@ export interface Es3afniItem {
   title: string;
   description?: string;
   bloodType?: string;
+  urgency?: Es3afniUrgency | string;
   location?: Es3afniLocation;
   metadata?: Es3afniMetadata;
   status: Es3afniStatus;
+  publishedAt?: Date | string;
+  expiresAt?: Date | string;
   createdAt: Date | string;
   updatedAt: Date | string;
   owner?: {
@@ -45,6 +58,7 @@ export interface CreateEs3afniPayload {
   title: string;
   description?: string;
   bloodType?: string;
+  urgency?: Es3afniUrgency | string;
   location?: Es3afniLocation;
   metadata?: Es3afniMetadata;
   status?: Es3afniStatus;
@@ -54,6 +68,7 @@ export interface UpdateEs3afniPayload {
   title?: string;
   description?: string;
   bloodType?: string;
+  urgency?: Es3afniUrgency | string;
   location?: Es3afniLocation;
   metadata?: Es3afniMetadata;
   status?: Es3afniStatus;
@@ -62,12 +77,36 @@ export interface UpdateEs3afniPayload {
 export interface Es3afniFilters {
   status?: Es3afniStatus;
   bloodType?: BloodType;
+  urgency?: Es3afniUrgency | string;
   search?: string;
 }
 
 export interface Es3afniListResponse {
   items: Es3afniItem[];
   nextCursor?: string;
+}
+
+// المتبرعون
+export interface Es3afniDonorProfile {
+  _id: string;
+  userId: string;
+  bloodType: string;
+  lastDonation?: string;
+  available: boolean;
+  city?: string;
+  governorate?: string;
+  location?: Es3afniLocation;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface RegisterDonorPayload {
+  bloodType: string;
+  lastDonation?: string;
+  available?: boolean;
+  city?: string;
+  governorate?: string;
+  location?: Es3afniLocation;
 }
 
 export const BLOOD_TYPES = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"] as const;
@@ -79,7 +118,7 @@ export const BloodTypeLabels: Record<BloodType, string> = {
 
 export const BloodTypeValues: BloodType[] = [...BLOOD_TYPES];
 
-export const Es3afniStatusValues: Es3afniStatus[] = ["draft", "pending", "confirmed", "completed", "cancelled"];
+export const Es3afniStatusValues: Es3afniStatus[] = ["draft", "pending", "confirmed", "completed", "cancelled", "expired"];
 
 export const Es3afniStatusLabels: Record<Es3afniStatus, string> = {
   draft: "مسودة",
@@ -87,6 +126,7 @@ export const Es3afniStatusLabels: Record<Es3afniStatus, string> = {
   confirmed: "مؤكد",
   completed: "مكتمل",
   cancelled: "ملغي",
+  expired: "منتهي",
 };
 
 export const Es3afniStatusColors: Record<Es3afniStatus, string> = {
@@ -95,4 +135,5 @@ export const Es3afniStatusColors: Record<Es3afniStatus, string> = {
   confirmed: "#ff500d",
   completed: "#4caf50",
   cancelled: "#f44336",
+  expired: "#757575",
 };

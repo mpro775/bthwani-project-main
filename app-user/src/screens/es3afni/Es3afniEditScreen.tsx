@@ -10,19 +10,34 @@ import {
   ActivityIndicator,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect, useNavigation, useRoute, RouteProp } from "@react-navigation/native";
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+  RouteProp,
+} from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
-import { Picker } from '@react-native-picker/picker';
+import { Picker } from "@react-native-picker/picker";
 
 import { RootStackParamList } from "@/types/navigation";
-import { Es3afniItem, UpdateEs3afniPayload, BLOOD_TYPES, Es3afniStatus } from "@/types/types";
+import {
+  Es3afniItem,
+  UpdateEs3afniPayload,
+  BLOOD_TYPES,
+  Es3afniStatus,
+  URGENCY_LEVELS,
+  URGENCY_LABELS,
+} from "@/types/types";
 import { getEs3afniDetails, updateEs3afni } from "@/api/es3afniApi";
 import { useAuth } from "@/auth/AuthContext";
 import COLORS from "@/constants/colors";
 
 type RouteProps = RouteProp<RootStackParamList, "Es3afniEdit">;
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Es3afniEdit">;
+type NavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "Es3afniEdit"
+>;
 
 const Es3afniEditScreen = () => {
   const navigation = useNavigation<NavigationProp>();
@@ -35,14 +50,14 @@ const Es3afniEditScreen = () => {
   const [originalItem, setOriginalItem] = useState<Es3afniItem | null>(null);
 
   const [formData, setFormData] = useState<UpdateEs3afniPayload>({
-    title: '',
-    description: '',
+    title: "",
+    description: "",
     bloodType: undefined,
     location: undefined,
     metadata: {
-      contact: '',
+      contact: "",
       unitsNeeded: undefined,
-      urgency: 'عادي',
+      urgency: "عادي",
     },
     status: undefined,
   });
@@ -56,13 +71,13 @@ const Es3afniEditScreen = () => {
       // Initialize form with existing data
       setFormData({
         title: itemData.title,
-        description: itemData.description || '',
+        description: itemData.description || "",
         bloodType: itemData.bloodType,
+        urgency: (itemData.urgency as any) || "normal",
         location: itemData.location,
         metadata: itemData.metadata || {
-          contact: '',
+          contact: "",
           unitsNeeded: undefined,
-          urgency: 'عادي',
         },
         status: itemData.status,
       });
@@ -87,13 +102,21 @@ const Es3afniEditScreen = () => {
         try {
           const raw = await AsyncStorage.getItem("es3afni_location");
           if (!mounted || !raw) return;
-          const payload = JSON.parse(raw) as { lat: number; lng: number; address?: string };
+          const payload = JSON.parse(raw) as {
+            lat: number;
+            lng: number;
+            address?: string;
+          };
           setFormData((prev) => ({
             ...prev,
             location: {
               lat: payload.lat,
               lng: payload.lng,
-              address: payload.address || `إحداثيات: ${payload.lat.toFixed(5)}, ${payload.lng.toFixed(5)}`,
+              address:
+                payload.address ||
+                `إحداثيات: ${payload.lat.toFixed(5)}, ${payload.lng.toFixed(
+                  5
+                )}`,
             },
           }));
           await AsyncStorage.removeItem("es3afni_location");
@@ -101,46 +124,47 @@ const Es3afniEditScreen = () => {
           // تجاهل
         }
       })();
-      return () => { mounted = false; };
+      return () => {
+        mounted = false;
+      };
     }, [])
   );
 
   const handleSubmit = async () => {
     if (!formData.title?.trim()) {
-      Alert.alert('خطأ', 'يرجى إدخال عنوان طلب التبرع');
+      Alert.alert("خطأ", "يرجى إدخال عنوان طلب التبرع");
       return;
     }
 
     setSaving(true);
     try {
       await updateEs3afni(itemId, formData);
-      Alert.alert(
-        'نجح',
-        'تم تحديث طلب التبرع بنجاح',
-        [
-          {
-            text: 'موافق',
-            onPress: () => navigation.goBack(),
-          },
-        ]
-      );
+      Alert.alert("نجح", "تم تحديث طلب التبرع بنجاح", [
+        {
+          text: "موافق",
+          onPress: () => navigation.goBack(),
+        },
+      ]);
     } catch (error) {
-      console.error('خطأ في تحديث طلب التبرع:', error);
-      Alert.alert('خطأ', 'حدث خطأ أثناء تحديث طلب التبرع. يرجى المحاولة مرة أخرى.');
+      console.error("خطأ في تحديث طلب التبرع:", error);
+      Alert.alert(
+        "خطأ",
+        "حدث خطأ أثناء تحديث طلب التبرع. يرجى المحاولة مرة أخرى."
+      );
     } finally {
       setSaving(false);
     }
   };
 
   const updateFormData = (field: keyof UpdateEs3afniPayload, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
   };
 
   const updateMetadata = (field: string, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       metadata: {
         ...prev.metadata,
@@ -150,8 +174,8 @@ const Es3afniEditScreen = () => {
   };
 
   const updateLocation = (field: string, value: any) => {
-    setFormData(prev => {
-      const currentLocation = prev.location || { lat: 0, lng: 0, address: '' };
+    setFormData((prev) => {
+      const currentLocation = prev.location || { lat: 0, lng: 0, address: "" };
       return {
         ...prev,
         location: {
@@ -196,15 +220,18 @@ const Es3afniEditScreen = () => {
         <View style={styles.headerSpacer} />
       </View>
 
-      <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.formContainer}>
           {/* العنوان */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>عنوان طلب التبرع *</Text>
             <TextInput
               style={styles.textInput}
-              value={formData.title || ''}
-              onChangeText={(value) => updateFormData('title', value)}
+              value={formData.title || ""}
+              onChangeText={(value) => updateFormData("title", value)}
               placeholder="مثال: حاجة عاجلة لفصيلة O+ في صنعاء"
               placeholderTextColor={COLORS.textLight}
               maxLength={100}
@@ -216,8 +243,8 @@ const Es3afniEditScreen = () => {
             <Text style={styles.sectionTitle}>تفاصيل طلب التبرع</Text>
             <TextInput
               style={[styles.textInput, styles.textArea]}
-              value={formData.description || ''}
-              onChangeText={(value) => updateFormData('description', value)}
+              value={formData.description || ""}
+              onChangeText={(value) => updateFormData("description", value)}
               placeholder="وصف تفصيلي للحاجة والحالة الطبية..."
               placeholderTextColor={COLORS.textLight}
               multiline
@@ -232,14 +259,16 @@ const Es3afniEditScreen = () => {
             <View style={styles.pickerContainer}>
               <Picker
                 selectedValue={formData.bloodType}
-                onValueChange={(value) => updateFormData('bloodType', value)}
+                onValueChange={(value) => updateFormData("bloodType", value)}
                 style={styles.picker}
               >
                 <Picker.Item label="اختر فصيلة الدم" value={undefined} />
                 {BLOOD_TYPES.map((bloodType) => (
                   <Picker.Item
                     key={bloodType}
-                    label={`${bloodType} ${['O-', 'AB-', 'B-'].includes(bloodType) ? '(نادرة)' : ''}`}
+                    label={`${bloodType} ${
+                      ["O-", "AB-", "B-"].includes(bloodType) ? "(نادرة)" : ""
+                    }`}
                     value={bloodType}
                   />
                 ))}
@@ -258,7 +287,9 @@ const Es3afniEditScreen = () => {
                 </Text>
               </View>
             ) : (
-              <Text style={styles.locationPlaceholder}>لم يتم اختيار موقع بعد</Text>
+              <Text style={styles.locationPlaceholder}>
+                لم يتم اختيار موقع بعد
+              </Text>
             )}
             <TouchableOpacity
               style={styles.mapButton}
@@ -271,7 +302,9 @@ const Es3afniEditScreen = () => {
             >
               <Ionicons name="map" size={22} color={COLORS.white} />
               <Text style={styles.mapButtonText}>
-                {formData.location?.address ? "تغيير الموقع من الخريطة" : "اختر من الخريطة"}
+                {formData.location?.address
+                  ? "تغيير الموقع من الخريطة"
+                  : "اختر من الخريطة"}
               </Text>
             </TouchableOpacity>
           </View>
@@ -281,8 +314,8 @@ const Es3afniEditScreen = () => {
             <Text style={styles.sectionTitle}>رقم التواصل</Text>
             <TextInput
               style={styles.textInput}
-              value={formData.metadata?.contact || ''}
-              onChangeText={(value) => updateMetadata('contact', value)}
+              value={formData.metadata?.contact || ""}
+              onChangeText={(value) => updateMetadata("contact", value)}
               placeholder="مثال: +9677XXXXXXXX"
               placeholderTextColor={COLORS.textLight}
               keyboardType="phone-pad"
@@ -295,10 +328,10 @@ const Es3afniEditScreen = () => {
             <Text style={styles.sectionTitle}>عدد الوحدات المطلوبة</Text>
             <TextInput
               style={styles.textInput}
-              value={formData.metadata?.unitsNeeded?.toString() || ''}
+              value={formData.metadata?.unitsNeeded?.toString() || ""}
               onChangeText={(value) => {
                 const numValue = value ? parseInt(value) : undefined;
-                updateMetadata('unitsNeeded', numValue);
+                updateMetadata("unitsNeeded", numValue);
               }}
               placeholder="مثال: 3"
               placeholderTextColor={COLORS.textLight}
@@ -311,13 +344,19 @@ const Es3afniEditScreen = () => {
             <Text style={styles.sectionTitle}>درجة الاستعجال</Text>
             <View style={styles.pickerContainer}>
               <Picker
-                selectedValue={formData.metadata?.urgency || 'عادي'}
-                onValueChange={(value) => updateMetadata('urgency', value)}
+                selectedValue={formData.urgency || "normal"}
+                onValueChange={(
+                  value: "low" | "normal" | "urgent" | "critical"
+                ) => updateFormData("urgency", value)}
                 style={styles.picker}
               >
-                <Picker.Item label="عادي" value="عادي" />
-                <Picker.Item label="عاجل" value="عاجل" />
-                <Picker.Item label="طارئ جداً" value="طارئ جداً" />
+                {URGENCY_LEVELS.map((level) => (
+                  <Picker.Item
+                    key={level}
+                    label={URGENCY_LABELS[level]}
+                    value={level}
+                  />
+                ))}
               </Picker>
             </View>
           </View>
@@ -327,8 +366,8 @@ const Es3afniEditScreen = () => {
             <Text style={styles.sectionTitle}>حالة طلب التبرع</Text>
             <View style={styles.pickerContainer}>
               <Picker
-                selectedValue={formData.status ?? 'draft'}
-                onValueChange={(value) => updateFormData('status', value)}
+                selectedValue={formData.status ?? "draft"}
+                onValueChange={(value) => updateFormData("status", value)}
                 style={styles.picker}
               >
                 <Picker.Item label="مسودة" value="draft" />
@@ -336,6 +375,7 @@ const Es3afniEditScreen = () => {
                 <Picker.Item label="مؤكد" value="confirmed" />
                 <Picker.Item label="مكتمل" value="completed" />
                 <Picker.Item label="ملغي" value="cancelled" />
+                <Picker.Item label="منتهي" value="expired" />
               </Picker>
             </View>
           </View>
@@ -350,7 +390,11 @@ const Es3afniEditScreen = () => {
               <ActivityIndicator size="small" color={COLORS.white} />
             ) : (
               <>
-                <Ionicons name="checkmark-circle" size={20} color={COLORS.white} />
+                <Ionicons
+                  name="checkmark-circle"
+                  size={20}
+                  color={COLORS.white}
+                />
                 <Text style={styles.submitButtonText}>حفظ التغييرات</Text>
               </>
             )}
@@ -368,8 +412,8 @@ const styles = StyleSheet.create({
   },
   centerContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: COLORS.background,
   },
   loadingText: {
@@ -382,11 +426,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Cairo-Regular",
     color: COLORS.danger,
-    textAlign: 'center',
+    textAlign: "center",
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: COLORS.white,
@@ -401,7 +445,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
-    textAlign: 'center',
+    textAlign: "center",
   },
   headerSpacer: {
     width: 40,
@@ -433,14 +477,14 @@ const styles = StyleSheet.create({
   },
   textArea: {
     height: 80,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
   },
   pickerContainer: {
     borderWidth: 1,
     borderColor: COLORS.border,
     borderRadius: 8,
     backgroundColor: COLORS.white,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   picker: {
     height: 50,
@@ -487,9 +531,9 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     backgroundColor: COLORS.primary,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     padding: 16,
     borderRadius: 12,
     marginTop: 16,

@@ -21,7 +21,11 @@ import {
   Warning,
 } from "@mui/icons-material";
 import type { Es3afniItem } from "../types";
-import { Es3afniStatusLabels, Es3afniStatusColors } from "../types";
+import {
+  Es3afniStatusLabels,
+  Es3afniStatusColors,
+  URGENCY_LABELS,
+} from "../types";
 
 interface Es3afniDetailsProps {
   item: Es3afniItem;
@@ -43,8 +47,7 @@ const Es3afniDetails: React.FC<Es3afniDetailsProps> = ({
   const formatDate = (dateInput?: string | Date) => {
     if (!dateInput) return "غير محدد";
     try {
-      const d =
-        dateInput instanceof Date ? dateInput : new Date(dateInput);
+      const d = dateInput instanceof Date ? dateInput : new Date(dateInput);
       return d.toLocaleDateString("ar-SA", {
         year: "numeric",
         month: "long",
@@ -59,7 +62,19 @@ const Es3afniDetails: React.FC<Es3afniDetailsProps> = ({
 
   const handleShare = async () => {
     if (!item) return;
-    const text = `طلب تبرع بالدم: ${item.title}\n\n${item.description || ""}\n\nفصيلة الدم: ${item.bloodType || "غير محدد"}\n${item.location ? `الموقع: ${item.location.address}\n` : ""}${item.metadata?.unitsNeeded ? `الوحدات المطلوبة: ${item.metadata.unitsNeeded}\n` : ""}${item.metadata?.contact ? `التواصل: ${item.metadata.contact}\n` : ""}\nالحالة: ${Es3afniStatusLabels[item.status]}\n\nتاريخ النشر: ${formatDate(item.createdAt)}`;
+    const text = `طلب تبرع بالدم: ${item.title}\n\n${
+      item.description || ""
+    }\n\nفصيلة الدم: ${item.bloodType || "غير محدد"}\n${
+      item.location ? `الموقع: ${item.location.address}\n` : ""
+    }${
+      item.metadata?.unitsNeeded
+        ? `الوحدات المطلوبة: ${item.metadata.unitsNeeded}\n`
+        : ""
+    }${
+      item.metadata?.contact ? `التواصل: ${item.metadata.contact}\n` : ""
+    }\nالحالة: ${Es3afniStatusLabels[item.status]}\n\nتاريخ النشر: ${formatDate(
+      item.createdAt
+    )}`;
     try {
       if (navigator.share) {
         await navigator.share({ title: item.title, text });
@@ -163,13 +178,28 @@ const Es3afniDetails: React.FC<Es3afniDetailsProps> = ({
               {item.bloodType || "غير محدد"}
             </Typography>
           </Box>
-          <Chip
-            label={Es3afniStatusLabels[item.status]}
-            sx={{
-              backgroundColor: Es3afniStatusColors[item.status],
-              color: "white",
-            }}
-          />
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            {(item.urgency || item.metadata?.urgency) && (
+              <Chip
+                size="small"
+                label={
+                  item.urgency
+                    ? URGENCY_LABELS[
+                        item.urgency as keyof typeof URGENCY_LABELS
+                      ] || item.urgency
+                    : item.metadata?.urgency
+                }
+                sx={{ backgroundColor: "warning.dark", color: "white" }}
+              />
+            )}
+            <Chip
+              label={Es3afniStatusLabels[item.status]}
+              sx={{
+                backgroundColor: Es3afniStatusColors[item.status],
+                color: "white",
+              }}
+            />
+          </Box>
         </Box>
 
         <Typography variant="h5" fontWeight={700} sx={{ mb: 2 }}>
@@ -184,7 +214,11 @@ const Es3afniDetails: React.FC<Es3afniDetailsProps> = ({
 
         {item.bloodType && (
           <Paper sx={{ p: 2, mb: 3, backgroundColor: "grey.100" }}>
-            <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+            <Typography
+              variant="subtitle2"
+              color="text.secondary"
+              sx={{ mb: 1 }}
+            >
               فصيلة الدم المطلوبة
             </Typography>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -201,7 +235,11 @@ const Es3afniDetails: React.FC<Es3afniDetailsProps> = ({
 
         {item.location && (
           <Box sx={{ mb: 3 }}>
-            <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+            <Typography
+              variant="subtitle2"
+              color="text.secondary"
+              sx={{ mb: 1 }}
+            >
               الموقع
             </Typography>
             <Paper
@@ -231,85 +269,89 @@ const Es3afniDetails: React.FC<Es3afniDetailsProps> = ({
           </Box>
         )}
 
-        {item.metadata &&
-          (item.metadata.unitsNeeded ||
-            item.metadata.contact ||
-            item.metadata.urgency) && (
-            <Box sx={{ mb: 3 }}>
-              <Typography
-                variant="subtitle2"
-                color="text.secondary"
-                sx={{ mb: 1 }}
+        {item.metadata?.unitsNeeded ||
+        item.metadata?.contact ||
+        item.urgency ||
+        item.metadata?.urgency ? (
+          <Box sx={{ mb: 3 }}>
+            <Typography
+              variant="subtitle2"
+              color="text.secondary"
+              sx={{ mb: 1 }}
+            >
+              بيانات إضافية
+            </Typography>
+            {item.metadata?.unitsNeeded && (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  mb: 1,
+                  p: 1,
+                  backgroundColor: "background.paper",
+                  borderRadius: 1,
+                }}
               >
-                بيانات إضافية
-              </Typography>
-              {item.metadata.unitsNeeded && (
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    mb: 1,
-                    p: 1,
-                    backgroundColor: "background.paper",
-                    borderRadius: 1,
-                  }}
+                <Science fontSize="small" color="action" />
+                <Typography variant="body2">الوحدات المطلوبة:</Typography>
+                <Typography variant="body2" fontWeight={600}>
+                  {item.metadata.unitsNeeded} وحدة
+                </Typography>
+              </Box>
+            )}
+            {item.metadata?.contact && (
+              <Paper
+                component="button"
+                onClick={handleCall}
+                sx={{
+                  p: 1.5,
+                  width: "100%",
+                  textAlign: "right",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  mb: 1,
+                  border: "none",
+                  "&:hover": { backgroundColor: "action.hover" },
+                }}
+              >
+                <Phone sx={{ color: "primary.main" }} />
+                <Typography variant="body2">رقم التواصل:</Typography>
+                <Typography
+                  variant="body2"
+                  fontWeight={600}
+                  color="primary.main"
                 >
-                  <Science fontSize="small" color="action" />
-                  <Typography variant="body2">الوحدات المطلوبة:</Typography>
-                  <Typography variant="body2" fontWeight={600}>
-                    {item.metadata.unitsNeeded} وحدة
-                  </Typography>
-                </Box>
-              )}
-              {item.metadata.contact && (
-                <Paper
-                  component="button"
-                  onClick={handleCall}
-                  sx={{
-                    p: 1.5,
-                    width: "100%",
-                    textAlign: "right",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    mb: 1,
-                    border: "none",
-                    "&:hover": { backgroundColor: "action.hover" },
-                  }}
-                >
-                  <Phone sx={{ color: "primary.main" }} />
-                  <Typography variant="body2">رقم التواصل:</Typography>
-                  <Typography
-                    variant="body2"
-                    fontWeight={600}
-                    color="primary.main"
-                  >
-                    {item.metadata.contact}
-                  </Typography>
-                </Paper>
-              )}
-              {item.metadata.urgency && (
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    p: 1,
-                    backgroundColor: "background.paper",
-                    borderRadius: 1,
-                  }}
-                >
-                  <Warning fontSize="small" color="error" />
-                  <Typography variant="body2">درجة الاستعجال:</Typography>
-                  <Typography variant="body2" fontWeight={600} color="error.main">
-                    {item.metadata.urgency}
-                  </Typography>
-                </Box>
-              )}
-            </Box>
-          )}
+                  {item.metadata.contact}
+                </Typography>
+              </Paper>
+            )}
+            {(item.urgency || item.metadata?.urgency) && (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  p: 1,
+                  backgroundColor: "background.paper",
+                  borderRadius: 1,
+                }}
+              >
+                <Warning fontSize="small" color="error" />
+                <Typography variant="body2">درجة الاستعجال:</Typography>
+                <Typography variant="body2" fontWeight={600} color="error.main">
+                  {item.urgency
+                    ? URGENCY_LABELS[
+                        item.urgency as keyof typeof URGENCY_LABELS
+                      ] || item.urgency
+                    : item.metadata?.urgency}
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        ) : null}
 
         <Box sx={{ mb: 3 }}>
           <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
@@ -318,6 +360,17 @@ const Es3afniDetails: React.FC<Es3afniDetailsProps> = ({
           <Typography variant="body2">
             تاريخ الإنشاء: {formatDate(item.createdAt)}
           </Typography>
+          {item.expiresAt && (
+            <Typography
+              variant="body2"
+              color={
+                item.status === "expired" ? "text.secondary" : "warning.main"
+              }
+            >
+              ينتهي الصلاحية: {formatDate(item.expiresAt)}
+              {item.status === "expired" && " (منتهي)"}
+            </Typography>
+          )}
           <Typography variant="body2">
             آخر تحديث: {formatDate(item.updatedAt)}
           </Typography>

@@ -54,6 +54,7 @@ import Kenz from "./pages/kenz/Kenz";
 import KenzChatList from "./pages/kenz/KenzChatList";
 import KenzChatPage from "./pages/kenz/KenzChatPage";
 import Es3afni from "./pages/es3afni/Es3afni";
+import Es3afniDonor from "./pages/es3afni/Es3afniDonor";
 import Amani from "./pages/amani/Amani";
 import Sanad from "./pages/sanad/Sanad";
 
@@ -406,6 +407,14 @@ const AppContent: React.FC = () => {
         element={
           <AppLayout>
             <Es3afni />
+          </AppLayout>
+        }
+      />
+      <Route
+        path="/es3afni/donor"
+        element={
+          <AppLayout>
+            <Es3afniDonor />
           </AppLayout>
         }
       />

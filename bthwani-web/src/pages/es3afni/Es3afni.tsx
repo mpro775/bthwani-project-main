@@ -2,20 +2,16 @@
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import {
-  Snackbar,
-  Alert,
-} from '@mui/material';
+import { Snackbar, Alert } from "@mui/material";
 import {
   Es3afniList,
   Es3afniDetails,
   Es3afniForm,
   useEs3afni,
-  useEs3afniList,
   type Es3afniItem,
   type CreateEs3afniPayload,
   type UpdateEs3afniPayload,
-} from '../../features/es3afni';
+} from "../../features/es3afni";
 
 const Es3afniPage: React.FC = () => {
   const navigate = useNavigate();
@@ -26,16 +22,21 @@ const Es3afniPage: React.FC = () => {
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
-    severity: 'success' | 'error';
+    severity: "success" | "error";
   }>({
     open: false,
-    message: '',
-    severity: 'success',
+    message: "",
+    severity: "success",
   });
 
   // Hooks for data management
-  const { item: currentItem, createItem, updateItem, deleteItem, loading: itemLoading } = useEs3afni(id);
-  const { updateItem: updateListItem, removeItem: removeListItem, addItem: addListItem } = useEs3afniList();
+  const {
+    item: currentItem,
+    createItem,
+    updateItem,
+    deleteItem,
+    loading: itemLoading,
+  } = useEs3afni(id);
 
   // Handle view item
   const handleViewItem = (item: Es3afniItem) => {
@@ -51,6 +52,15 @@ const Es3afniPage: React.FC = () => {
     navigate("/es3afni/new");
   };
 
+  // سجّل كمتبرع - يتطلب تسجيل الدخول
+  const handleDonorClick = () => {
+    if (!currentUserId) {
+      navigate("/login", { state: { from: "/es3afni/donor" } });
+      return;
+    }
+    navigate("/es3afni/donor");
+  };
+
   // Handle edit item
   const handleEditItem = (item: Es3afniItem) => {
     navigate(`/es3afni/${item._id}/edit`);
@@ -58,61 +68,64 @@ const Es3afniPage: React.FC = () => {
 
   // Handle delete item
   const handleDeleteItem = async (item: Es3afniItem) => {
-    if (window.confirm(`هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.`)) {
+    if (
+      window.confirm(
+        `هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.`
+      )
+    ) {
       try {
         await deleteItem();
-        removeListItem(item._id);
         setSnackbar({
           open: true,
           message: "تم حذف طلب التبرع بنجاح",
-          severity: 'success',
+          severity: "success",
         });
-        navigate('/es3afni');
+        navigate("/es3afni");
       } catch (error) {
         setSnackbar({
           open: true,
           message: "فشل في حذف الطلب",
-          severity: 'error',
+          severity: "error",
         });
       }
     }
   };
 
   // Handle form submit
-  const handleFormSubmit = async (data: CreateEs3afniPayload | UpdateEs3afniPayload) => {
+  const handleFormSubmit = async (
+    data: CreateEs3afniPayload | UpdateEs3afniPayload
+  ) => {
     try {
-      const isCreate = id === 'new';
+      const isCreate = id === "new";
       if (isCreate) {
         const newItem = await createItem(data as CreateEs3afniPayload);
-        addListItem(newItem);
         setSnackbar({
           open: true,
           message: "تم إنشاء طلب التبرع بنجاح",
-          severity: 'success',
+          severity: "success",
         });
         navigate(`/es3afni/${newItem._id}`);
-      } else if (id && action === 'edit' && currentItem) {
+      } else if (id && action === "edit" && currentItem) {
         const updatedItem = await updateItem(data as UpdateEs3afniPayload);
-        updateListItem(updatedItem);
         setSnackbar({
           open: true,
           message: "تم تحديث طلب التبرع بنجاح",
-          severity: 'success',
+          severity: "success",
         });
         navigate(`/es3afni/${updatedItem._id}`);
       }
     } catch (error) {
-        setSnackbar({
-          open: true,
-          message: "فشل في حفظ الطلب",
-        severity: 'error',
+      setSnackbar({
+        open: true,
+        message: "فشل في حفظ الطلب",
+        severity: "error",
       });
     }
   };
 
   // Handle back navigation
   const handleBack = () => {
-    navigate('/es3afni');
+    navigate("/es3afni");
   };
 
   // Determine what to render based on route
@@ -148,7 +161,7 @@ const Es3afniPage: React.FC = () => {
       const ownerId = String(currentUserId ?? "");
       return (
         <Es3afniForm
-          item={isEdit ? (currentItem ?? undefined) : undefined}
+          item={isEdit ? currentItem ?? undefined : undefined}
           loading={itemLoading}
           mode={isEdit ? "edit" : "create"}
           onSubmit={handleFormSubmit}
@@ -163,6 +176,7 @@ const Es3afniPage: React.FC = () => {
       <Es3afniList
         onViewItem={handleViewItem}
         onCreateItem={handleCreateItem}
+        onDonorClick={handleDonorClick}
       />
     );
   };
@@ -180,7 +194,7 @@ const Es3afniPage: React.FC = () => {
         <Alert
           onClose={() => setSnackbar({ ...snackbar, open: false })}
           severity={snackbar.severity}
-          sx={{ width: '100%' }}
+          sx={{ width: "100%" }}
         >
           {snackbar.message}
         </Alert>

@@ -38,7 +38,7 @@ import {
   Bloodtype as BloodIcon,
 } from '@mui/icons-material';
 import { getEs3afniList, updateEs3afniStatus, deleteEs3afni, type Es3afniItem as ApiEs3afniItem } from '../../../api/es3afni';
-import { Es3afniStatus, Es3afniStatusLabels, Es3afniStatusColors, type Es3afniItem } from '../../../types/es3afni';
+import { Es3afniStatus, Es3afniStatusLabels, Es3afniStatusColors, URGENCY_LABELS, type Es3afniItem, type Es3afniUrgency } from '../../../types/es3afni';
 import RequireAdminPermission from '../../../components/RequireAdminPermission';
 
 const Es3afniListPage: React.FC = () => {
@@ -48,6 +48,7 @@ const Es3afniListPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [bloodTypeFilter, setBloodTypeFilter] = useState<string>('all');
+  const [urgencyFilter, setUrgencyFilter] = useState<string>('all');
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(false);
 
@@ -76,19 +77,22 @@ const Es3afniListPage: React.FC = () => {
   const fetchEs3afniItems = useCallback(async (cursor?: string, append: boolean = false) => {
     try {
       setLoading(true);
-      const params: any = { limit: 25 };
+      const params: Record<string, string | number> = { limit: 25 };
       if (cursor) params.cursor = cursor;
+      if (statusFilter !== 'all') params.status = statusFilter;
+      if (bloodTypeFilter !== 'all') params.bloodType = bloodTypeFilter;
+      if (urgencyFilter !== 'all') params.urgency = urgencyFilter;
 
       const response = await getEs3afniList(params);
       const apiItems: ApiEs3afniItem[] = response.items || [];
       
-      // Convert string status to Es3afniStatus enum
       const statusMap: Record<string, Es3afniStatus> = {
         'draft': Es3afniStatus.DRAFT,
         'pending': Es3afniStatus.PENDING,
         'confirmed': Es3afniStatus.CONFIRMED,
         'completed': Es3afniStatus.COMPLETED,
         'cancelled': Es3afniStatus.CANCELLED,
+        'expired': Es3afniStatus.EXPIRED,
       };
       
       const newItems: Es3afniItem[] = apiItems.map((item: ApiEs3afniItem): Es3afniItem => ({
@@ -97,9 +101,12 @@ const Es3afniListPage: React.FC = () => {
         title: item.title,
         description: item.description,
         bloodType: item.bloodType,
+        urgency: item.urgency,
         location: item.location,
         metadata: item.metadata,
         status: statusMap[item.status] || Es3afniStatus.DRAFT,
+        publishedAt: item.publishedAt,
+        expiresAt: item.expiresAt,
         createdAt: item.createdAt,
         updatedAt: item.updatedAt,
       }));
@@ -122,11 +129,18 @@ const Es3afniListPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [statusFilter, bloodTypeFilter, urgencyFilter]);
 
   useEffect(() => {
     fetchEs3afniItems();
   }, [fetchEs3afniItems]);
+
+  // إحصائيات بسيطة من البيانات المحملة
+  const stats = {
+    active: es3afniItems.filter((i) => i.status === Es3afniStatus.PENDING || i.status === Es3afniStatus.CONFIRMED).length,
+    completed: es3afniItems.filter((i) => i.status === Es3afniStatus.COMPLETED).length,
+    expired: es3afniItems.filter((i) => i.status === Es3afniStatus.EXPIRED).length,
+  };
 
   // تحديث حالة البلاغ
   const handleStatusUpdate = async (es3afni: Es3afniItem, newStatus: Es3afniStatus) => {
@@ -196,16 +210,12 @@ const Es3afniListPage: React.FC = () => {
     closeConfirmDialog();
   };
 
-  // فلترة العناصر محلياً للبحث
+  // فلترة محلية للبحث النصي فقط (الفلترة الأخرى من السيرفر)
   const filteredItems = es3afniItems.filter((item) => {
     const matchesSearch = searchTerm === '' ||
       item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (item.description && item.description.toLowerCase().includes(searchTerm.toLowerCase()));
-
-    const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
-    const matchesBloodType = bloodTypeFilter === 'all' || item.bloodType === bloodTypeFilter;
-
-    return matchesSearch && matchesStatus && matchesBloodType;
+    return matchesSearch;
   });
 
   // تحميل المزيد
@@ -226,7 +236,7 @@ const Es3afniListPage: React.FC = () => {
   return (
     <RequireAdminPermission permission="read">
       <Box sx={{ p: 3 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
           <Box>
             <Typography variant="h4" gutterBottom>
               إدارة بلاغات إسعفني
@@ -235,7 +245,26 @@ const Es3afniListPage: React.FC = () => {
               إدارة بلاغات الحاجة للتبرع بالدم ومتابعة حالاتها
             </Typography>
           </Box>
+          <Button variant="outlined" onClick={() => navigate('/admin/es3afni/donors')}>
+            قائمة المتبرعين
+          </Button>
         </Box>
+
+        {/* إحصائيات بسيطة */}
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 3 }}>
+          <Paper sx={{ p: 2, flex: 1, textAlign: 'center' }}>
+            <Typography variant="h4" color="warning.main">{stats.active}</Typography>
+            <Typography variant="body2" color="text.secondary">نشطة</Typography>
+          </Paper>
+          <Paper sx={{ p: 2, flex: 1, textAlign: 'center' }}>
+            <Typography variant="h4" color="success.main">{stats.completed}</Typography>
+            <Typography variant="body2" color="text.secondary">مكتملة</Typography>
+          </Paper>
+          <Paper sx={{ p: 2, flex: 1, textAlign: 'center' }}>
+            <Typography variant="h4" color="text.secondary">{stats.expired}</Typography>
+            <Typography variant="body2" color="text.secondary">منتهية</Typography>
+          </Paper>
+        </Stack>
 
         {/* فلاتر البحث */}
         <Paper sx={{ p: 3, mb: 3 }}>
@@ -285,6 +314,22 @@ const Es3afniListPage: React.FC = () => {
                 ))}
               </Select>
             </FormControl>
+
+            <FormControl sx={{ minWidth: 120 }}>
+              <InputLabel>الأولوية</InputLabel>
+              <Select
+                value={urgencyFilter}
+                onChange={(e) => setUrgencyFilter(e.target.value)}
+                label="الأولوية"
+              >
+                <MenuItem value="all">الكل</MenuItem>
+                {(['low', 'normal', 'urgent', 'critical'] as Es3afniUrgency[]).map((u) => (
+                  <MenuItem key={u} value={u}>
+                    {URGENCY_LABELS[u]}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Stack>
         </Paper>
 
@@ -295,8 +340,10 @@ const Es3afniListPage: React.FC = () => {
               <TableRow>
                 <TableCell>البلاغ</TableCell>
                 <TableCell>فصيلة الدم</TableCell>
+                <TableCell>الأولوية</TableCell>
                 <TableCell>الموقع</TableCell>
                 <TableCell>الحالة</TableCell>
+                <TableCell>ينتهي</TableCell>
                 <TableCell>تاريخ الإنشاء</TableCell>
                 <TableCell align="center">الإجراءات</TableCell>
               </TableRow>
@@ -304,13 +351,13 @@ const Es3afniListPage: React.FC = () => {
             <TableBody>
               {loading && es3afniItems.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} align="center">
+                  <TableCell colSpan={8} align="center">
                     <CircularProgress size={24} />
                   </TableCell>
                 </TableRow>
               ) : filteredItems.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} align="center">
+                  <TableCell colSpan={8} align="center">
                     <Typography color="text.secondary">
                       لا توجد بلاغات متاحة
                     </Typography>
@@ -348,6 +395,12 @@ const Es3afniListPage: React.FC = () => {
                     </TableCell>
 
                     <TableCell>
+                      <Typography variant="body2">
+                        {item.urgency ? (URGENCY_LABELS[item.urgency as Es3afniUrgency] || item.urgency) : '—'}
+                      </Typography>
+                    </TableCell>
+
+                    <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <LocationIcon fontSize="small" color="action" />
                         <Typography variant="body2">
@@ -363,6 +416,14 @@ const Es3afniListPage: React.FC = () => {
                         color={getStatusColor(item.status)}
                         variant="outlined"
                       />
+                    </TableCell>
+
+                    <TableCell>
+                      <Typography variant="body2">
+                        {item.expiresAt
+                          ? new Date(item.expiresAt).toLocaleDateString('ar-SA', { dateStyle: 'short' })
+                          : '—'}
+                      </Typography>
                     </TableCell>
 
                     <TableCell>

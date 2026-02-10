@@ -7,15 +7,29 @@ export interface Es3afniItem {
   title: string;
   description?: string;
   bloodType?: string;
+  urgency?: string;
   location?: {
     lat: number;
     lng: number;
     address: string;
   };
   metadata: Record<string, any>;
-  status: 'draft' | 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  status: 'draft' | 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'expired';
+  publishedAt?: string;
+  expiresAt?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface Es3afniDonorItem {
+  _id: string;
+  userId: string;
+  bloodType: string;
+  available: boolean;
+  lastDonation?: string;
+  city?: string;
+  governorate?: string;
+  createdAt?: string;
 }
 
 export interface UpdateEs3afniStatusRequest {
@@ -26,6 +40,9 @@ export interface UpdateEs3afniStatusRequest {
 export const getEs3afniList = async (params?: {
   cursor?: string;
   limit?: number;
+  bloodType?: string;
+  status?: string;
+  urgency?: string;
 }): Promise<{
   items: Es3afniItem[];
   nextCursor?: string;
@@ -35,6 +52,30 @@ export const getEs3afniList = async (params?: {
     return response.data;
   } catch (error) {
     console.error('خطأ في جلب قائمة البلاغات:', error);
+    throw error;
+  }
+};
+
+// جلب قائمة المتبرعين (أدمن)
+export const getEs3afniDonorsList = async (params?: {
+  cursor?: string;
+  limit?: number;
+  bloodType?: string;
+  available?: boolean;
+}): Promise<{
+  items: Es3afniDonorItem[];
+  nextCursor?: string | null;
+}> => {
+  try {
+    const q: Record<string, string | number> = {};
+    if (params?.cursor) q.cursor = params.cursor;
+    if (params?.limit) q.limit = String(params.limit);
+    if (params?.bloodType) q.bloodType = params.bloodType;
+    if (typeof params?.available === 'boolean') q.available = params.available ? 'true' : 'false';
+    const response = await api.get('/admin/es3afni/donors', { params: q });
+    return response.data;
+  } catch (error) {
+    console.error('خطأ في جلب قائمة المتبرعين:', error);
     throw error;
   }
 };

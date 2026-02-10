@@ -120,6 +120,10 @@ import Es3afniListScreen from "@/screens/es3afni/Es3afniListScreen";
 import Es3afniCreateScreen from "@/screens/es3afni/Es3afniCreateScreen";
 import Es3afniDetailsScreen from "@/screens/es3afni/Es3afniDetailsScreen";
 import Es3afniEditScreen from "@/screens/es3afni/Es3afniEditScreen";
+import Es3afniDonorRegisterScreen from "@/screens/es3afni/Es3afniDonorRegisterScreen";
+import Es3afniDonorProfileScreen from "@/screens/es3afni/Es3afniDonorProfileScreen";
+import Es3afniChatListScreen from "@/screens/es3afni/Es3afniChatListScreen";
+import Es3afniChatScreen from "@/screens/es3afni/Es3afniChatScreen";
 
 import { AuthProvider, useAuth } from "@/auth/AuthContext";
 import MyFavoritesScreen from "@/screens/FavoritesScreen";
@@ -926,6 +930,19 @@ function AppStackNavigator() {
       <AppStack.Screen name="Es3afniCreate" component={Es3afniCreateScreen} />
       <AppStack.Screen name="Es3afniDetails" component={Es3afniDetailsScreen} />
       <AppStack.Screen name="Es3afniEdit" component={Es3afniEditScreen} />
+      <AppStack.Screen
+        name="Es3afniDonorRegister"
+        component={Es3afniDonorRegisterScreen}
+      />
+      <AppStack.Screen
+        name="Es3afniDonorProfile"
+        component={Es3afniDonorProfileScreen}
+      />
+      <AppStack.Screen
+        name="Es3afniChatList"
+        component={Es3afniChatListScreen}
+      />
+      <AppStack.Screen name="Es3afniChat" component={Es3afniChatScreen} />
 
       <AppStack.Screen name="Login" component={LoginScreen} />
     </AppStack.Navigator>

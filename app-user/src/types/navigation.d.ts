@@ -92,6 +92,10 @@ export type RootStackParamList = {
   Es3afniCreate: undefined;
   Es3afniDetails: { itemId: string };
   Es3afniEdit: { itemId: string };
+  Es3afniDonorRegister: undefined;
+  Es3afniDonorProfile: undefined;
+  Es3afniChatList: undefined;
+  Es3afniChat: { conversationId: string };
 
   // أخرى
   Login: undefined;

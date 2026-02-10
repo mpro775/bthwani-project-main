@@ -1,9 +1,9 @@
-// مطابق لـ app-user - بدون فلاتر، cursor فقط
+// مطابق لـ app-user - مع فلاتر وبلاغاتي
 import { useState, useEffect, useCallback } from "react";
-import { getEs3afniList } from "../api";
-import type { Es3afniItem, Es3afniListResponse } from "../types";
+import { getEs3afniList, getMyEs3afni } from "../api";
+import type { Es3afniItem, Es3afniListResponse, Es3afniFilters } from "../types";
 
-export function useEs3afniList(limit = 25) {
+export function useEs3afniList(limit = 25, filters?: Es3afniFilters, tab: "all" | "my" = "all") {
   const [items, setItems] = useState<Es3afniItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -20,10 +20,18 @@ export function useEs3afniList(limit = 25) {
         setError(null);
       }
 
-      const response: Es3afniListResponse = await getEs3afniList({
-        cursor,
-        limit,
-      });
+      let response: Es3afniListResponse;
+      if (tab === "my") {
+        response = await getMyEs3afni(cursor);
+      } else {
+        response = await getEs3afniList({
+          cursor,
+          limit,
+          bloodType: filters?.bloodType,
+          status: filters?.status,
+          urgency: filters?.urgency,
+        });
+      }
       const list = response?.items ?? [];
 
       if (isLoadMore) {
@@ -43,7 +51,7 @@ export function useEs3afniList(limit = 25) {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [limit]);
+  }, [limit, tab, filters?.bloodType, filters?.status, filters?.urgency]);
 
   const loadMore = useCallback(() => {
     if (!loadingMore && hasMore && nextCursor) {

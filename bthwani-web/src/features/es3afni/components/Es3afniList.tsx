@@ -1,5 +1,5 @@
 // مطابق لـ app-user Es3afniListScreen
-import React from "react";
+import React, { useState, useMemo } from "react";
 import {
   Box,
   Typography,
@@ -7,30 +7,38 @@ import {
   CircularProgress,
   Alert,
   Container,
+  Tabs,
+  Tab,
 } from "@mui/material";
-import { Add as AddIcon } from "@mui/icons-material";
+import { Add as AddIcon, PersonAdd as DonorIcon } from "@mui/icons-material";
 import { WaterDrop } from "@mui/icons-material";
 import Es3afniCard from "./Es3afniCard";
+import Es3afniFiltersComponent from "./Es3afniFilters";
 import { useEs3afniList } from "../hooks/useEs3afniList";
-import type { Es3afniItem } from "../types";
+import type { Es3afniItem, Es3afniFilters } from "../types";
 
 interface Es3afniListProps {
   onViewItem?: (item: Es3afniItem) => void;
   onCreateItem?: () => void;
+  onDonorClick?: () => void;
 }
 
 const Es3afniList: React.FC<Es3afniListProps> = ({
   onViewItem,
   onCreateItem,
+  onDonorClick,
 }) => {
-  const {
-    items,
-    loading,
-    loadingMore,
-    hasMore,
-    error,
-    loadMore,
-  } = useEs3afniList();
+  const [filters, setFilters] = useState<Es3afniFilters>({});
+  const [tab, setTab] = useState<"all" | "my">("all");
+  const effectiveFilters = useMemo(
+    () => (tab === "all" ? filters : {}),
+    [tab, filters]
+  );
+
+  const { items, loading, loadingMore, hasMore, error, loadMore, refresh } =
+    useEs3afniList(25, effectiveFilters, tab);
+
+  const handleResetFilters = () => setFilters({});
 
   return (
     <Box
@@ -69,12 +77,43 @@ const Es3afniList: React.FC<Es3afniListProps> = ({
             شبكة تبرع بالدم عاجلة
           </Typography>
         </Box>
-        <Button variant="text" onClick={onCreateItem} sx={{ p: 0.5, minWidth: 0 }}>
-          <AddIcon sx={{ fontSize: 28, color: "error.main" }} />
-        </Button>
+        <Box sx={{ display: "flex", gap: 0.5 }}>
+          {onDonorClick && (
+            <Button
+              variant="outlined"
+              size="small"
+              color="error"
+              startIcon={<DonorIcon />}
+              onClick={onDonorClick}
+            >
+              سجّل متبرع
+            </Button>
+          )}
+          <Button
+            variant="text"
+            onClick={onCreateItem}
+            sx={{ p: 0.5, minWidth: 0 }}
+          >
+            <AddIcon sx={{ fontSize: 28, color: "error.main" }} />
+          </Button>
+        </Box>
       </Box>
 
       <Container maxWidth="md" sx={{ py: 2 }}>
+        <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 2 }}>
+          <Tab label="كل الطلبات" value="all" />
+          <Tab label="بلاغاتي" value="my" />
+        </Tabs>
+
+        {tab === "all" && (
+          <Es3afniFiltersComponent
+            filters={filters}
+            onFiltersChange={setFilters}
+            onReset={handleResetFilters}
+            loading={loading}
+          />
+        )}
+
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {error}
@@ -117,11 +156,7 @@ const Es3afniList: React.FC<Es3afniListProps> = ({
               لا توجد طلبات تبرع بالدم في الوقت الحالي
             </Typography>
             {onCreateItem && (
-              <Button
-                variant="contained"
-                color="error"
-                onClick={onCreateItem}
-              >
+              <Button variant="contained" color="error" onClick={onCreateItem}>
                 إنشاء طلب تبرع
               </Button>
             )}

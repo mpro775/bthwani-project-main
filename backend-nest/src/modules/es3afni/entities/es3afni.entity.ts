@@ -8,7 +8,11 @@ export enum Es3afniStatus {
   CONFIRMED = 'confirmed',
   COMPLETED = 'completed',
   CANCELLED = 'cancelled',
+  EXPIRED = 'expired',
 }
+
+export const ES3AFNI_URGENCY = ['low', 'normal', 'urgent', 'critical'] as const;
+export type Es3afniUrgency = (typeof ES3AFNI_URGENCY)[number];
 
 @Schema({ timestamps: true })
 export class Es3afni extends Document {
@@ -44,12 +48,44 @@ export class Es3afni extends Document {
   bloodType?: string;
 
   @ApiProperty({
+    description: 'مستوى الأولوية',
+    required: false,
+    enum: ['low', 'normal', 'urgent', 'critical'],
+  })
+  @Prop({ enum: ES3AFNI_URGENCY, default: 'normal' })
+  urgency?: string;
+
+  @ApiProperty({
     description: 'الموقع',
     required: false,
     example: { lat: 24.7136, lng: 46.6753, address: 'الرياض' },
   })
   @Prop({ type: Object })
   location?: any;
+
+  @ApiProperty({
+    description: 'الموقع بصيغة GeoJSON للبحث الجغرافي',
+    required: false,
+  })
+  @Prop({
+    type: { type: String, enum: ['Point'] },
+    coordinates: [Number],
+  })
+  locationGeo?: { type: 'Point'; coordinates: [number, number] };
+
+  @ApiProperty({
+    description: 'وقت النشر (عند تحويل الحالة إلى pending)',
+    required: false,
+  })
+  @Prop({ type: Date })
+  publishedAt?: Date;
+
+  @ApiProperty({
+    description: 'انتهاء الصلاحية (48 ساعة من النشر)',
+    required: false,
+  })
+  @Prop({ type: Date })
+  expiresAt?: Date;
 
   @ApiProperty({
     description: 'بيانات إضافية',

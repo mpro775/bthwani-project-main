@@ -448,7 +448,17 @@ export type WorkScope = typeof WORK_SCOPES[number];
 
 // ==================== اسعفني (Emergency Blood Donation) Types ====================
 
-export type Es3afniStatus = 'draft' | 'pending' | 'confirmed' | 'completed' | 'cancelled';
+export type Es3afniStatus = 'draft' | 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'expired';
+
+export const URGENCY_LEVELS = ['low', 'normal', 'urgent', 'critical'] as const;
+export type Es3afniUrgency = (typeof URGENCY_LEVELS)[number];
+
+export const URGENCY_LABELS: Record<Es3afniUrgency, string> = {
+  low: 'منخفض',
+  normal: 'عادي',
+  urgent: 'عاجل',
+  critical: 'حرج',
+};
 
 export interface Es3afniLocation {
   lat: number;
@@ -469,9 +479,12 @@ export interface Es3afniItem {
   title: string;
   description?: string;
   bloodType?: string;
+  urgency?: string;
   location?: Es3afniLocation;
   metadata?: Es3afniMetadata;
   status: Es3afniStatus;
+  publishedAt?: Date | string;
+  expiresAt?: Date | string;
   createdAt: Date | string;
   updatedAt: Date | string;
 }
@@ -481,6 +494,7 @@ export interface CreateEs3afniPayload {
   title: string;
   description?: string;
   bloodType?: string;
+  urgency?: Es3afniUrgency;
   location?: Es3afniLocation;
   metadata?: Es3afniMetadata;
   status?: Es3afniStatus;
@@ -490,6 +504,7 @@ export interface UpdateEs3afniPayload {
   title?: string;
   description?: string;
   bloodType?: string;
+  urgency?: Es3afniUrgency;
   location?: Es3afniLocation;
   metadata?: Es3afniMetadata;
   status?: Es3afniStatus;

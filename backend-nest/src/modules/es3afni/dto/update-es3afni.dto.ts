@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsObject, IsEnum } from 'class-validator';
-import { Es3afniStatus } from './create-es3afni.dto';
+import { IsString, IsOptional, IsObject, IsEnum, IsIn } from 'class-validator';
+import { Es3afniStatus, BLOOD_TYPES, URGENCY_LEVELS } from './create-es3afni.dto';
 
 export default class UpdateEs3afniDto {
   @ApiProperty({ description: 'عنوان البلاغ', required: false, example: 'نداء محدث لفصيلة O+' })
@@ -13,10 +13,17 @@ export default class UpdateEs3afniDto {
   @IsString()
   description?: string;
 
-  @ApiProperty({ description: 'فصيلة الدم المطلوبة', required: false, example: 'O+' })
+  @ApiProperty({ description: 'فصيلة الدم المطلوبة', required: false, example: 'O+', enum: BLOOD_TYPES })
   @IsOptional()
   @IsString()
+  @IsIn(BLOOD_TYPES)
   bloodType?: string;
+
+  @ApiProperty({ description: 'مستوى الأولوية', required: false, enum: URGENCY_LEVELS })
+  @IsOptional()
+  @IsString()
+  @IsIn(URGENCY_LEVELS)
+  urgency?: string;
 
   @ApiProperty({ description: 'الموقع', required: false, example: { lat: 24.7, lng: 46.6, address: 'الرياض' } })
   @IsOptional()

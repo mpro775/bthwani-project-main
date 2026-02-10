@@ -184,6 +184,7 @@ import ArabonDetailsPage from "./pages/admin/arabon/ArabonDetailsPage";
 // ==================== ES3AFNI ====================
 import Es3afniListPage from "./pages/admin/es3afni/Es3afniListPage";
 import Es3afniDetailsPage from "./pages/admin/es3afni/Es3afniDetailsPage";
+import Es3afniDonorsPage from "./pages/admin/es3afni/Es3afniDonorsPage";
 
 // ==================== KAWADER ====================
 import KawaderListPage from "./pages/admin/kawader/KawaderListPage";
@@ -529,6 +530,7 @@ export default function App() {
 
           {/* ==================== ES3AFNI ==================== */}
           <Route path="es3afni" element={<Es3afniListPage />} />
+          <Route path="es3afni/donors" element={<Es3afniDonorsPage />} />
           <Route path="es3afni/:id" element={<Es3afniDetailsPage />} />
 
           {/* ==================== KAWADER ==================== */}

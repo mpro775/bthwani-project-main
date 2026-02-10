@@ -35,7 +35,7 @@ import {
   Bloodtype as BloodIcon,
 } from '@mui/icons-material';
 import { getEs3afni, updateEs3afniStatus, deleteEs3afni, type Es3afniItem as ApiEs3afniItem } from '../../../api/es3afni';
-import { Es3afniStatus, Es3afniStatusLabels, Es3afniStatusColors, type Es3afniItem } from '../../../types/es3afni';
+import { Es3afniStatus, Es3afniStatusLabels, Es3afniStatusColors, URGENCY_LABELS, type Es3afniItem, type Es3afniUrgency } from '../../../types/es3afni';
 import RequireAdminPermission from '../../../components/RequireAdminPermission';
 
 const Es3afniDetailsPage: React.FC = () => {
@@ -79,6 +79,7 @@ const Es3afniDetailsPage: React.FC = () => {
         'confirmed': Es3afniStatus.CONFIRMED,
         'completed': Es3afniStatus.COMPLETED,
         'cancelled': Es3afniStatus.CANCELLED,
+        'expired': Es3afniStatus.EXPIRED,
       };
       const convertedData: Es3afniItem = {
         ...data,
@@ -233,15 +234,22 @@ const Es3afniDetailsPage: React.FC = () => {
           </Box>
         </Box>
 
-        {/* Status Chip */}
-        <Box sx={{ mb: 3 }}>
+        {/* Status & Urgency */}
+        <Stack direction="row" spacing={1} sx={{ mb: 3 }}>
           <Chip
             label={Es3afniStatusLabels[es3afni.status]}
             size="medium"
             color={getStatusColor(es3afni.status)}
             variant="outlined"
           />
-        </Box>
+          {es3afni.urgency && (
+            <Chip
+              label={URGENCY_LABELS[es3afni.urgency as Es3afniUrgency] || es3afni.urgency}
+              size="medium"
+              variant="outlined"
+            />
+          )}
+        </Stack>
 
         {/* Main Content */}
         <Grid container spacing={3}>
@@ -358,6 +366,24 @@ const Es3afniDetailsPage: React.FC = () => {
                       })}
                     </Typography>
                   </Box>
+
+                  {es3afni.expiresAt && (
+                    <Box>
+                      <Typography variant="body2" color="text.secondary" gutterBottom>
+                        ينتهي الصلاحية
+                      </Typography>
+                      <Typography variant="body2" color={es3afni.status === Es3afniStatus.EXPIRED ? 'text.secondary' : 'warning.main'}>
+                        {new Date(es3afni.expiresAt).toLocaleDateString('ar-SA', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                        {es3afni.status === Es3afniStatus.EXPIRED && ' (منتهي)'}
+                      </Typography>
+                    </Box>
+                  )}
 
                   <Box>
                     <Typography variant="body2" color="text.secondary" gutterBottom>

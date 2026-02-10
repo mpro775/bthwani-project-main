@@ -16,7 +16,7 @@ const getAuthHeaders = async () => {
 
 // ==================== Types ====================
 
-export type Es3afniStatus = 'draft' | 'pending' | 'confirmed' | 'completed' | 'cancelled';
+export type Es3afniStatus = 'draft' | 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'expired';
 
 export interface Es3afniLocation {
   lat: number;
@@ -36,6 +36,7 @@ export interface CreateEs3afniPayload {
   title: string;
   description?: string;
   bloodType?: string;
+  urgency?: string;
   location?: Es3afniLocation;
   metadata?: Es3afniMetadata;
   status?: Es3afniStatus;
@@ -45,6 +46,7 @@ export interface UpdateEs3afniPayload {
   title?: string;
   description?: string;
   bloodType?: string;
+  urgency?: string;
   location?: Es3afniLocation;
   metadata?: Es3afniMetadata;
   status?: Es3afniStatus;
@@ -56,9 +58,12 @@ export interface Es3afniItem {
   title: string;
   description?: string;
   bloodType?: string;
+  urgency?: string;
   location?: Es3afniLocation;
   metadata?: Es3afniMetadata;
   status: Es3afniStatus;
+  publishedAt?: Date | string;
+  expiresAt?: Date | string;
   createdAt: Date | string;
   updatedAt: Date | string;
 }
@@ -92,18 +97,21 @@ export const createEs3afni = async (
 };
 
 /**
- * جلب قائمة البلاغات
+ * جلب قائمة البلاغات مع فلترة
  */
 export const getEs3afniList = async (
-  cursor?: string
+  opts?: { cursor?: string; bloodType?: string; status?: string; urgency?: string }
 ): Promise<Es3afniListResponse> => {
   const headers = await getAuthHeaders();
-  const params = cursor ? { cursor } : {};
+  const params: Record<string, string> = {};
+  if (opts?.cursor) params.cursor = opts.cursor;
+  if (opts?.bloodType) params.bloodType = opts.bloodType;
+  if (opts?.status) params.status = opts.status;
+  if (opts?.urgency) params.urgency = opts.urgency;
   const response = await axiosInstance.get("/es3afni", {
     headers,
     params,
   });
-  // Backend يرجع { success, data: { items, nextCursor }, meta }
   const payload = (response.data as any)?.data ?? response.data;
   return {
     items: payload?.items ?? [],
@@ -204,4 +212,75 @@ export const getEs3afniStats = async () => {
     headers,
   });
   return (response.data as any)?.data ?? response.data;
+};
+
+// ==================== المتبرعون (Donors) ====================
+
+export interface Es3afniDonorProfile {
+  _id: string;
+  userId: string;
+  bloodType: string;
+  lastDonation?: string;
+  available: boolean;
+  city?: string;
+  governorate?: string;
+  location?: Es3afniLocation;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface RegisterDonorPayload {
+  bloodType: string;
+  lastDonation?: string;
+  available?: boolean;
+  city?: string;
+  governorate?: string;
+  location?: Es3afniLocation;
+}
+
+export const getDonorProfile = async (): Promise<Es3afniDonorProfile> => {
+  const headers = await getAuthHeaders();
+  const response = await axiosInstance.get("/es3afni/donors/me", { headers });
+  return (response.data as any)?.data ?? response.data;
+};
+
+export const registerDonor = async (
+  payload: RegisterDonorPayload
+): Promise<Es3afniDonorProfile> => {
+  const headers = await getAuthHeaders();
+  const response = await axiosInstance.post("/es3afni/donors/me", payload, {
+    headers,
+  });
+  return (response.data as any)?.data ?? response.data;
+};
+
+export const updateDonor = async (
+  payload: Partial<RegisterDonorPayload>
+): Promise<Es3afniDonorProfile> => {
+  const headers = await getAuthHeaders();
+  const response = await axiosInstance.patch("/es3afni/donors/me", payload, {
+    headers,
+  });
+  return (response.data as any)?.data ?? response.data;
+};
+
+export const getDonorsNearby = async (opts: {
+  lat: number;
+  lng: number;
+  radiusKm?: number;
+  bloodType?: string;
+}): Promise<{ items: Es3afniDonorProfile[] }> => {
+  const headers = await getAuthHeaders();
+  const params: Record<string, string | number> = {
+    lat: opts.lat,
+    lng: opts.lng,
+  };
+  if (opts.radiusKm != null) params.radiusKm = opts.radiusKm;
+  if (opts.bloodType) params.bloodType = opts.bloodType;
+  const response = await axiosInstance.get("/es3afni/donors/nearby", {
+    headers,
+    params,
+  });
+  const data = (response.data as any)?.data ?? response.data;
+  return { items: data?.items ?? [] };
 };

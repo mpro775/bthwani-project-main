@@ -23,13 +23,15 @@ import type {
   UpdateEs3afniPayload,
   Es3afniLocation,
 } from "../types";
-import { BLOOD_TYPES } from "../types";
+import { BLOOD_TYPES, URGENCY_LEVELS, URGENCY_LABELS } from "../types";
 import { storage } from "../../../utils/storage";
 
 interface Es3afniFormProps {
   item?: Es3afniItem;
   loading?: boolean;
-  onSubmit: (data: CreateEs3afniPayload | UpdateEs3afniPayload) => Promise<void>;
+  onSubmit: (
+    data: CreateEs3afniPayload | UpdateEs3afniPayload
+  ) => Promise<void>;
   onCancel?: () => void;
   mode: "create" | "edit";
   ownerId?: string;
@@ -52,11 +54,11 @@ const Es3afniForm: React.FC<Es3afniFormProps> = ({
     title: "",
     description: "",
     bloodType: undefined as string | undefined,
+    urgency: "normal" as string,
     location: undefined as Es3afniLocation | undefined,
     metadata: {
       contact: "",
       unitsNeeded: undefined as number | undefined,
-      urgency: "عادي",
     },
     status: "draft" as string,
   });
@@ -85,11 +87,11 @@ const Es3afniForm: React.FC<Es3afniFormProps> = ({
         title: item.title,
         description: item.description || "",
         bloodType: item.bloodType,
+        urgency: (item as { urgency?: string }).urgency || "normal",
         location: item.location,
         metadata: {
           contact: item.metadata?.contact || "",
           unitsNeeded: item.metadata?.unitsNeeded,
-          urgency: item.metadata?.urgency || "عادي",
         },
         status: item.status,
       });
@@ -109,11 +111,11 @@ const Es3afniForm: React.FC<Es3afniFormProps> = ({
 
   const handleSelectLocation = () => {
     const returnPath =
-      mode === "create"
-        ? "/es3afni/new"
-        : `/es3afni/${item?._id}/edit`;
+      mode === "create" ? "/es3afni/new" : `/es3afni/${item?._id}/edit`;
     navigate(
-      `/select-location?storageKey=${ES3AFNI_STORAGE_KEY}&returnTo=${encodeURIComponent(returnPath)}`
+      `/select-location?storageKey=${ES3AFNI_STORAGE_KEY}&returnTo=${encodeURIComponent(
+        returnPath
+      )}`
     );
   };
 
@@ -135,11 +137,11 @@ const Es3afniForm: React.FC<Es3afniFormProps> = ({
         title: formData.title,
         description: formData.description || undefined,
         bloodType: formData.bloodType,
+        urgency: formData.urgency,
         location: formData.location,
         metadata: {
           contact: formData.metadata.contact || undefined,
           unitsNeeded: formData.metadata.unitsNeeded,
-          urgency: formData.metadata.urgency,
         },
       };
       if (mode === "create") {
@@ -150,9 +152,7 @@ const Es3afniForm: React.FC<Es3afniFormProps> = ({
       }
       await onSubmit(payload);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "حدث خطأ أثناء حفظ الطلب"
-      );
+      setError(err instanceof Error ? err.message : "حدث خطأ أثناء حفظ الطلب");
     } finally {
       setSaving(false);
     }
@@ -182,7 +182,11 @@ const Es3afniForm: React.FC<Es3afniFormProps> = ({
       <Paper sx={{ p: 3 }}>
         <form onSubmit={handleSubmit}>
           {error && (
-            <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
+            <Alert
+              severity="error"
+              sx={{ mb: 2 }}
+              onClose={() => setError(null)}
+            >
               {error}
             </Alert>
           )}
@@ -218,7 +222,9 @@ const Es3afniForm: React.FC<Es3afniFormProps> = ({
                 <Select
                   value={formData.bloodType || ""}
                   label="فصيلة الدم المطلوبة"
-                  onChange={(e) => updateForm("bloodType", e.target.value || undefined)}
+                  onChange={(e) =>
+                    updateForm("bloodType", e.target.value || undefined)
+                  }
                 >
                   <MenuItem value="">اختر فصيلة الدم</MenuItem>
                   {BLOOD_TYPES.map((bt) => (
@@ -251,7 +257,11 @@ const Es3afniForm: React.FC<Es3afniFormProps> = ({
                   </Typography>
                 </Box>
               ) : (
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mb: 1 }}
+                >
                   لم يتم اختيار موقع بعد
                 </Typography>
               )}
@@ -299,13 +309,15 @@ const Es3afniForm: React.FC<Es3afniFormProps> = ({
               <FormControl fullWidth>
                 <InputLabel>درجة الاستعجال</InputLabel>
                 <Select
-                  value={formData.metadata.urgency}
+                  value={formData.urgency}
                   label="درجة الاستعجال"
-                  onChange={(e) => updateMetadata("urgency", e.target.value)}
+                  onChange={(e) => updateForm("urgency", e.target.value)}
                 >
-                  <MenuItem value="عادي">عادي</MenuItem>
-                  <MenuItem value="عاجل">عاجل</MenuItem>
-                  <MenuItem value="طارئ جداً">طارئ جداً</MenuItem>
+                  {URGENCY_LEVELS.map((u) => (
+                    <MenuItem key={u} value={u}>
+                      {URGENCY_LABELS[u]}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </Grid>
@@ -324,6 +336,7 @@ const Es3afniForm: React.FC<Es3afniFormProps> = ({
                     <MenuItem value="confirmed">مؤكد</MenuItem>
                     <MenuItem value="completed">مكتمل</MenuItem>
                     <MenuItem value="cancelled">ملغي</MenuItem>
+                    <MenuItem value="expired">منتهي</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
@@ -337,9 +350,7 @@ const Es3afniForm: React.FC<Es3afniFormProps> = ({
               color="error"
               disabled={saving}
               startIcon={
-                saving ? (
-                  <CircularProgress size={16} color="inherit" />
-                ) : null
+                saving ? <CircularProgress size={16} color="inherit" /> : null
               }
             >
               {mode === "create" ? "إنشاء طلب التبرع" : "حفظ التغييرات"}

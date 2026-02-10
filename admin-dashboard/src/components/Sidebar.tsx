@@ -369,6 +369,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
       link("/admin/amani/pricing", "إدارة أسعار أماني", <ReceiptLongIcon />),
       link("/admin/arabon", "أربون", <ReceiptLongIcon />),
       link("/admin/es3afni", "اسعفني", <ReceiptLongIcon />),
+      link("/admin/es3afni/donors", "اسعفني - المتبرعون", <ReceiptLongIcon />),
       link("/admin/kawader", "كوادر", <ReceiptLongIcon />),
       link("/admin/kenz", "كينز", <ReceiptLongIcon />),
       link("/admin/maarouf", "معروف", <ReceiptLongIcon />),

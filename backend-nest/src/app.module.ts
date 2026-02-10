@@ -36,6 +36,7 @@ import { MerchantModule } from './modules/merchant/merchant.module';
 import { ContentModule } from './modules/content/content.module';
 import { ERModule } from './modules/er/er.module';
 import { Es3afniModule } from './modules/es3afni/es3afni.module';
+import { Es3afniChatModule } from './modules/es3afni-chat/es3afni-chat.module';
 import { GatewaysModule } from './gateways/gateways.module';
 import { MarketerModule } from './modules/marketer/marketer.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
@@ -187,6 +188,7 @@ import { envValidationSchema } from './config/env.validation';
     ERModule,
 
     Es3afniModule,
+    Es3afniChatModule,
 
     MarketerModule,
 
