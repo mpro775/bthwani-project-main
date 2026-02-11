@@ -27,13 +27,15 @@ interface OptionItem {
   route: keyof RootStackParamList;
 }
 
+const NAVY = "#1a237e"; // كحلي غامق لصفحة اخدمني
+
 const OPTIONS: OptionItem[] = [
   {
     id: "akhdimni",
     name: "اخدمني",
     description: "أغراض خاصة ومهام مخصصة",
     icon: "hand-left-outline",
-    color: "#1976D2",
+    color: NAVY,
     route: "AkhdimniScreen",
   },
   {
@@ -118,7 +120,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: Platform.OS === "ios" ? 50 : 20,
     paddingBottom: 16,
-    backgroundColor: "#1976D2",
+    backgroundColor: COLORS.primary,
   },
   backButton: {
     padding: 8,

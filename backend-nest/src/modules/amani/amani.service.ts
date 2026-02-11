@@ -69,6 +69,32 @@ export class AmaniService {
     return { items, nextCursor, hasMore: !!nextCursor };
   }
 
+  /** طلبات المستخدم الحالي فقط (للتطبيق) */
+  async findMyByOwnerId(
+    ownerId: string,
+    opts: { cursor?: string; status?: string; populateDriver?: boolean },
+  ) {
+    const limit = 25;
+    const filter: Record<string, unknown> = { ownerId: new Types.ObjectId(ownerId) };
+    if (opts?.status) {
+      filter.status = opts.status;
+    }
+    let query = this.model.find(filter).sort({ _id: -1 }).limit(limit);
+    if (opts?.cursor) {
+      try {
+        query = query.where('_id').lt(new Types.ObjectId(opts.cursor) as any);
+      } catch {
+        // تجاهل cursor غير صالح
+      }
+    }
+    if (opts?.populateDriver) {
+      query = query.populate('driver', 'fullName phone email');
+    }
+    const items = await query.exec();
+    const nextCursor = items.length === limit ? String(items[items.length - 1]._id) : null;
+    return { items, nextCursor, hasMore: !!nextCursor };
+  }
+
   async findOne(id: string) {
     const doc = await this.model.findById(id).populate('driver').exec();
     if (!doc) throw new NotFoundException('Not found');

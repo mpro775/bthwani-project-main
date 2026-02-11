@@ -17,14 +17,22 @@ import { Ionicons } from "@expo/vector-icons";
 
 import { RootStackParamList } from "@/types/navigation";
 import { KawaderMessage } from "@/types/types";
-import { getConversation, getMessages, sendMessage, markAsRead } from "@/api/kawaderChatApi";
+import {
+  getConversation,
+  getMessages,
+  sendMessage,
+  markAsRead,
+} from "@/api/kawaderChatApi";
 import { connectKawaderChatSocket } from "@/hooks/useKawaderChatSocket";
 import { useAuth } from "@/auth/AuthContext";
 import { refreshIdToken } from "@/api/authService";
 import COLORS from "@/constants/colors";
 
 type RouteProps = RouteProp<RootStackParamList, "KawaderChat">;
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, "KawaderChat">;
+type NavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "KawaderChat"
+>;
 
 const KawaderChatScreen = () => {
   const navigation = useNavigation<NavigationProp>();
@@ -39,9 +47,14 @@ const KawaderChatScreen = () => {
   const [messageText, setMessageText] = useState("");
   const [nextCursor, setNextCursor] = useState<string | undefined>();
   const [loadingMore, setLoadingMore] = useState(false);
-  const [typing, setTyping] = useState<{ userId: string; isTyping: boolean } | null>(null);
+  const [typing, setTyping] = useState<{
+    userId: string;
+    isTyping: boolean;
+  } | null>(null);
 
-  const socketRef = useRef<ReturnType<typeof connectKawaderChatSocket> | null>(null);
+  const socketRef = useRef<ReturnType<typeof connectKawaderChatSocket> | null>(
+    null,
+  );
   const flatListRef = useRef<FlatList>(null);
   const inputRef = useRef<TextInput>(null);
 
@@ -56,30 +69,33 @@ const KawaderChatScreen = () => {
     }
   }, [conversationId, navigation]);
 
-  const loadMessages = useCallback(async (cursor?: string, isLoadMore = false) => {
-    try {
-      if (isLoadMore) {
-        setLoadingMore(true);
-      } else {
-        setLoading(true);
+  const loadMessages = useCallback(
+    async (cursor?: string, isLoadMore = false) => {
+      try {
+        if (isLoadMore) {
+          setLoadingMore(true);
+        } else {
+          setLoading(true);
+        }
+
+        const response = await getMessages(conversationId, cursor, 25);
+
+        if (isLoadMore) {
+          setMessages((prev) => [...response.items, ...prev]);
+        } else {
+          setMessages(response.items);
+        }
+
+        setNextCursor(response.nextCursor);
+      } catch (error) {
+        console.error("خطأ في تحميل الرسائل:", error);
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
       }
-
-      const response = await getMessages(conversationId, cursor, 25);
-
-      if (isLoadMore) {
-        setMessages(prev => [...response.items, ...prev]);
-      } else {
-        setMessages(response.items);
-      }
-
-      setNextCursor(response.nextCursor);
-    } catch (error) {
-      console.error("خطأ في تحميل الرسائل:", error);
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  }, [conversationId]);
+    },
+    [conversationId],
+  );
 
   const handleSend = useCallback(async () => {
     if (!messageText.trim() || sending) return;
@@ -95,7 +111,7 @@ const KawaderChatScreen = () => {
       } else {
         // Fallback إلى REST API
         const newMessage = await sendMessage(conversationId, text);
-        setMessages(prev => [...prev, newMessage]);
+        setMessages((prev) => [...prev, newMessage]);
       }
     } catch (error) {
       console.error("خطأ في إرسال الرسالة:", error);
@@ -125,9 +141,9 @@ const KawaderChatScreen = () => {
           token,
           conversationId,
           (newMessage) => {
-            setMessages(prev => {
+            setMessages((prev) => {
               // تجنب التكرار
-              if (prev.some(m => m._id === newMessage._id)) return prev;
+              if (prev.some((m) => m._id === newMessage._id)) return prev;
               return [...prev, newMessage];
             });
             // تحديث حالة القراءة
@@ -145,7 +161,7 @@ const KawaderChatScreen = () => {
           },
           () => {
             // onRead - لا حاجة لعمل شيء
-          }
+          },
         );
 
         socketRef.current = socket;
@@ -190,7 +206,10 @@ const KawaderChatScreen = () => {
   const formatTime = (date?: Date | string) => {
     if (!date) return "";
     const d = typeof date === "string" ? new Date(date) : date;
-    return d.toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" });
+    return d.toLocaleTimeString("ar-SA", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   const renderMessage = ({ item }: { item: KawaderMessage }) => {
@@ -305,7 +324,10 @@ const KawaderChatScreen = () => {
           onSubmitEditing={handleSend}
         />
         <TouchableOpacity
-          style={[styles.sendButton, (!messageText.trim() || sending) && styles.sendButtonDisabled]}
+          style={[
+            styles.sendButton,
+            (!messageText.trim() || sending) && styles.sendButtonDisabled,
+          ]}
           onPress={handleSend}
           disabled={!messageText.trim() || sending}
         >
@@ -334,6 +356,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 16,
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.gray,
   },
   errorContainer: {
@@ -344,6 +367,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.danger,
   },
   header: {
@@ -364,11 +388,12 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
   },
   headerSubtitle: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.gray,
     marginTop: 2,
   },
@@ -400,12 +425,13 @@ const styles = StyleSheet.create({
   },
   senderName: {
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.primary,
     marginBottom: 4,
   },
   messageText: {
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.text,
     marginBottom: 4,
   },
@@ -414,6 +440,7 @@ const styles = StyleSheet.create({
   },
   messageTime: {
     fontSize: 12,
+    fontFamily: "Cairo-Regular",
     color: COLORS.gray,
     alignSelf: "flex-end",
   },
@@ -427,6 +454,7 @@ const styles = StyleSheet.create({
   },
   typingText: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     fontStyle: "italic",
     color: COLORS.gray,
   },
@@ -447,6 +475,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.text,
     maxHeight: 100,
     marginRight: 8,

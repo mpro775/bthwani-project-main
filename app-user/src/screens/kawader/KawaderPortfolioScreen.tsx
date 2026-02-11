@@ -59,7 +59,7 @@ const KawaderPortfolioScreen = () => {
   useFocusEffect(
     useCallback(() => {
       loadItems();
-    }, [loadItems])
+    }, [loadItems]),
   );
 
   const handleRefresh = () => {
@@ -316,7 +316,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  loadingText: { marginTop: 12, fontSize: 14, color: COLORS.textLight },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 14,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.textLight,
+  },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -330,7 +335,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     fontSize: 18,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     textAlign: "center",
   },
@@ -360,18 +365,37 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cardBody: { flex: 1, marginLeft: 12 },
-  cardCaption: { fontSize: 14, color: COLORS.text, marginBottom: 4 },
-  cardCaptionEmpty: { fontSize: 14, color: COLORS.textLight, marginBottom: 4 },
-  cardDate: { fontSize: 12, color: COLORS.textLight },
+  cardCaption: {
+    fontSize: 14,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.text,
+    marginBottom: 4,
+  },
+  cardCaptionEmpty: {
+    fontSize: 14,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.textLight,
+    marginBottom: 4,
+  },
+  cardDate: {
+    fontSize: 12,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.textLight,
+  },
   deleteBtn: { padding: 8 },
   empty: { alignItems: "center", paddingVertical: 48 },
   emptyTitle: {
     fontSize: 18,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     marginTop: 16,
   },
-  emptySub: { fontSize: 14, color: COLORS.textLight, marginTop: 8 },
+  emptySub: {
+    fontSize: 14,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.textLight,
+    marginTop: 8,
+  },
   emptyAddBtn: {
     marginTop: 20,
     paddingHorizontal: 24,
@@ -379,7 +403,11 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     borderRadius: 10,
   },
-  emptyAddBtnText: { fontSize: 16, fontWeight: "600", color: COLORS.white },
+  emptyAddBtnText: {
+    fontSize: 16,
+    fontFamily: "Cairo-SemiBold",
+    color: COLORS.white,
+  },
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
@@ -396,7 +424,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     marginBottom: 12,
     textAlign: "center",
@@ -407,6 +435,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 12,
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.text,
     minHeight: 72,
     textAlignVertical: "top",
@@ -428,8 +457,18 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     resizeMode: "cover",
   },
-  pickImageText: { marginTop: 8, fontSize: 14, color: COLORS.primary },
-  removeImageText: { fontSize: 14, color: COLORS.danger, marginBottom: 12 },
+  pickImageText: {
+    marginTop: 8,
+    fontSize: 14,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.primary,
+  },
+  removeImageText: {
+    fontSize: 14,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.danger,
+    marginBottom: 12,
+  },
   removeImageBtn: { alignSelf: "flex-start", marginBottom: 8 },
   modalActions: {
     flexDirection: "row",
@@ -438,7 +477,11 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   modalCancelBtn: { paddingHorizontal: 16, paddingVertical: 10 },
-  modalCancelText: { fontSize: 16, color: COLORS.textLight },
+  modalCancelText: {
+    fontSize: 16,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.textLight,
+  },
   modalSubmitBtn: {
     backgroundColor: COLORS.primary,
     paddingHorizontal: 20,
@@ -446,7 +489,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   modalSubmitDisabled: { opacity: 0.6 },
-  modalSubmitText: { fontSize: 16, fontWeight: "600", color: COLORS.white },
+  modalSubmitText: {
+    fontSize: 16,
+    fontFamily: "Cairo-SemiBold",
+    color: COLORS.white,
+  },
 });
 
 export default KawaderPortfolioScreen;

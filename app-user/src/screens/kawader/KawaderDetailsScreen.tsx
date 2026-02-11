@@ -56,12 +56,12 @@ const KawaderDetailsScreen = () => {
   const [coverNote, setCoverNote] = useState("");
   const [applying, setApplying] = useState(false);
   const [applications, setApplications] = useState<KawaderApplicationItem[]>(
-    []
+    [],
   );
   const [loadingApplications, setLoadingApplications] = useState(false);
   const [applicationsVisible, setApplicationsVisible] = useState(false);
   const [portfolioItems, setPortfolioItems] = useState<KawaderPortfolioItem[]>(
-    []
+    [],
   );
   const [reviews, setReviews] = useState<KawaderReviewItem[]>([]);
   const [averageRating, setAverageRating] = useState(0);
@@ -165,7 +165,7 @@ const KawaderDetailsScreen = () => {
             }
           },
         },
-      ]
+      ],
     );
   };
 
@@ -176,7 +176,7 @@ const KawaderDetailsScreen = () => {
       const message = `عرض وظيفي: ${item.title}\n\n${
         item.description || ""
       }\n\nالنطاق: ${item.scope || "غير محدد"}\nالميزانية: ${formatCurrency(
-        item.budget
+        item.budget,
       )}\n${
         item.metadata?.location ? `الموقع: ${item.metadata.location}\n` : ""
       }${item.metadata?.remote ? "متاح العمل عن بعد\n" : ""}${
@@ -188,7 +188,7 @@ const KawaderDetailsScreen = () => {
           ? `المهارات: ${item.metadata.skills.join(", ")}\n`
           : ""
       }\nالحالة: ${getStatusText(item.status)}\n\nتاريخ النشر: ${new Date(
-        item.createdAt
+        item.createdAt,
       ).toLocaleDateString("ar-SA")}`;
 
       await Share.share({
@@ -282,7 +282,7 @@ const KawaderDetailsScreen = () => {
       setCoverNote("");
       Alert.alert(
         "تم",
-        "تم إرسال تقديمك بنجاح. يمكنك متابعة التقديمات من قسم تقدماتي."
+        "تم إرسال تقديمك بنجاح. يمكنك متابعة التقديمات من قسم تقدماتي.",
       );
     } catch (e: any) {
       const msg =
@@ -311,7 +311,7 @@ const KawaderDetailsScreen = () => {
 
   const handleAcceptReject = async (
     appId: string,
-    status: "accepted" | "rejected"
+    status: "accepted" | "rejected",
   ) => {
     try {
       await updateApplicationStatus(appId, status);
@@ -380,7 +380,7 @@ const KawaderDetailsScreen = () => {
       await createKawaderReview(
         item._id,
         reviewRating,
-        reviewComment.trim() || undefined
+        reviewComment.trim() || undefined,
       );
       setReviewModalVisible(false);
       setReviewComment("");
@@ -539,8 +539,8 @@ const KawaderDetailsScreen = () => {
                     {item.jobType === "full_time"
                       ? "دوام كامل"
                       : item.jobType === "part_time"
-                      ? "دوام جزئي"
-                      : "عن بُعد"}
+                        ? "دوام جزئي"
+                        : "عن بُعد"}
                   </Text>
                 </View>
               )}
@@ -687,8 +687,8 @@ const KawaderDetailsScreen = () => {
                                 app.status === "accepted"
                                   ? COLORS.success
                                   : app.status === "rejected"
-                                  ? COLORS.danger
-                                  : COLORS.orangeDark,
+                                    ? COLORS.danger
+                                    : COLORS.orangeDark,
                             },
                           ]}
                         >
@@ -696,8 +696,8 @@ const KawaderDetailsScreen = () => {
                             {app.status === "pending"
                               ? "قيد المراجعة"
                               : app.status === "accepted"
-                              ? "مقبول"
-                              : "مرفوض"}
+                                ? "مقبول"
+                                : "مرفوض"}
                           </Text>
                         </View>
                         {app.status === "pending" && (
@@ -1062,10 +1062,12 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 16,
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
   },
   errorText: {
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.danger,
   },
   header: {
@@ -1083,7 +1085,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     fontSize: 18,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     textAlign: "center",
   },
@@ -1114,7 +1116,7 @@ const styles = StyleSheet.create({
   },
   budgetText: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontFamily: "Cairo-Bold",
     color: COLORS.success,
   },
   statusBadge: {
@@ -1124,18 +1126,19 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.white,
   },
   title: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontFamily: "Cairo-Bold",
     color: COLORS.text,
     marginBottom: 16,
     lineHeight: 32,
   },
   description: {
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.text,
     lineHeight: 24,
     marginBottom: 24,
@@ -1145,7 +1148,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     marginBottom: 12,
   },
@@ -1159,7 +1162,7 @@ const styles = StyleSheet.create({
   scopeText: {
     fontSize: 16,
     color: COLORS.primary,
-    fontWeight: "500",
+    fontFamily: "Cairo-SemiBold",
     marginLeft: 8,
   },
   metadataSection: {
@@ -1175,15 +1178,15 @@ const styles = StyleSheet.create({
   },
   metadataLabel: {
     fontSize: 14,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     marginLeft: 8,
     flex: 1,
   },
   metadataValue: {
     fontSize: 14,
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.primary,
-    fontWeight: "500",
   },
   skillsContainer: {
     backgroundColor: COLORS.white,
@@ -1192,7 +1195,7 @@ const styles = StyleSheet.create({
   },
   skillsTitle: {
     fontSize: 14,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     marginBottom: 8,
     marginLeft: 24,
@@ -1204,6 +1207,7 @@ const styles = StyleSheet.create({
   },
   skill: {
     fontSize: 12,
+    fontFamily: "Cairo-Regular",
     color: COLORS.primary,
     backgroundColor: COLORS.lightBlue,
     paddingHorizontal: 8,
@@ -1224,12 +1228,13 @@ const styles = StyleSheet.create({
   },
   dateLabel: {
     fontSize: 14,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     width: 100,
   },
   dateValue: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
     flex: 1,
   },
@@ -1260,16 +1265,18 @@ const styles = StyleSheet.create({
   },
   contactButtonText: {
     fontSize: 15,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.white,
   },
   phoneDisplay: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
     marginTop: 8,
   },
   noContactHint: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
     marginTop: 8,
   },
@@ -1286,12 +1293,13 @@ const styles = StyleSheet.create({
   },
   applicantName: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     marginBottom: 4,
   },
   applicationCoverNote: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
     marginBottom: 8,
   },
@@ -1308,7 +1316,7 @@ const styles = StyleSheet.create({
   },
   appStatusText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.white,
   },
   applicationActions: {
@@ -1323,11 +1331,12 @@ const styles = StyleSheet.create({
   },
   appActionText: {
     fontSize: 13,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.white,
   },
   noApplications: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
     marginTop: 8,
   },
@@ -1355,6 +1364,7 @@ const styles = StyleSheet.create({
   },
   portfolioCaption: {
     fontSize: 12,
+    fontFamily: "Cairo-Regular",
     color: COLORS.text,
     padding: 8,
   },
@@ -1369,14 +1379,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 4,
   },
-  ratingText: { fontSize: 16, fontWeight: "600", color: COLORS.text },
+  ratingText: {
+    fontSize: 16,
+    fontFamily: "Cairo-SemiBold",
+    color: COLORS.text,
+  },
   addReviewBtn: {
     paddingHorizontal: 14,
     paddingVertical: 8,
     backgroundColor: COLORS.primary,
     borderRadius: 8,
   },
-  addReviewBtnText: { fontSize: 14, fontWeight: "600", color: COLORS.white },
+  addReviewBtnText: {
+    fontSize: 14,
+    fontFamily: "Cairo-SemiBold",
+    color: COLORS.white,
+  },
   reviewsList: { gap: 10 },
   reviewCard: {
     backgroundColor: COLORS.white,
@@ -1391,10 +1409,23 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 4,
   },
-  reviewRating: { fontSize: 14, fontWeight: "600", color: COLORS.text },
+  reviewRating: {
+    fontSize: 14,
+    fontFamily: "Cairo-SemiBold",
+    color: COLORS.text,
+  },
   reviewStars: { flexDirection: "row", gap: 2 },
-  reviewComment: { fontSize: 14, color: COLORS.textLight },
-  noReviews: { fontSize: 14, color: COLORS.textLight, marginTop: 4 },
+  reviewComment: {
+    fontSize: 14,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.textLight,
+  },
+  noReviews: {
+    fontSize: 14,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.textLight,
+    marginTop: 4,
+  },
   reviewStarsRow: {
     flexDirection: "row",
     justifyContent: "center",
@@ -1418,7 +1449,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     marginBottom: 12,
     textAlign: "center",
@@ -1429,6 +1460,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 12,
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.text,
     minHeight: 80,
     textAlignVertical: "top",
@@ -1445,6 +1477,7 @@ const styles = StyleSheet.create({
   },
   modalCancelText: {
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
   },
   modalSubmitBtn: {
@@ -1458,7 +1491,7 @@ const styles = StyleSheet.create({
   },
   modalSubmitText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.white,
   },
 });

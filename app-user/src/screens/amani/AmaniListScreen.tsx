@@ -14,12 +14,15 @@ import { Ionicons } from "@expo/vector-icons";
 
 import { RootStackParamList } from "@/types/navigation";
 import { AmaniItem, AmaniListResponse } from "@/types/types";
-import { getAmaniList } from "@/api/amaniApi";
+import { getMyAmani } from "@/api/amaniApi";
 import { useAuth } from "@/auth/AuthContext";
 import COLORS from "@/constants/colors";
 import AmaniCard from "@/components/amani/AmaniCard";
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, "AmaniList">;
+type NavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "AmaniList"
+>;
 
 const AmaniListScreen = () => {
   const navigation = useNavigation<NavigationProp>();
@@ -39,10 +42,10 @@ const AmaniListScreen = () => {
         setLoading(true);
       }
 
-      const response: AmaniListResponse = await getAmaniList(cursor);
+      const response: AmaniListResponse = await getMyAmani(cursor);
 
       if (isLoadMore) {
-        setItems(prev => [...prev, ...response.data]);
+        setItems((prev) => [...prev, ...response.data]);
       } else {
         setItems(response.data);
       }
@@ -76,7 +79,7 @@ const AmaniListScreen = () => {
   const renderItem = ({ item }: { item: AmaniItem }) => (
     <AmaniCard
       item={item}
-      onPress={() => navigation.navigate('AmaniDetails', { itemId: item._id })}
+      onPress={() => navigation.navigate("AmaniDetails", { itemId: item._id })}
     />
   );
 
@@ -116,7 +119,7 @@ const AmaniListScreen = () => {
         <Text style={styles.headerSubtitle}>النقل النسائي للعائلات</Text>
         <TouchableOpacity
           style={styles.addButton}
-          onPress={() => navigation.navigate('AmaniCreate')}
+          onPress={() => navigation.navigate("AmaniCreate")}
         >
           <Ionicons name="add" size={20} color={COLORS.white} />
           <Text style={styles.addButtonText}>طلب نقل جديد</Text>
@@ -151,15 +154,15 @@ const styles = StyleSheet.create({
   },
   centerContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: COLORS.background,
   },
   loadingText: {
     marginTop: 16,
     fontSize: 16,
     color: COLORS.textLight,
-    fontFamily: 'Cairo-Regular',
+    fontFamily: "Cairo-Regular",
   },
   header: {
     padding: 20,
@@ -169,22 +172,21 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
     color: COLORS.text,
-    textAlign: 'center',
-    fontFamily: 'Cairo-Bold',
+    textAlign: "center",
+    fontFamily: "Cairo-Bold", // خط كايرو للهيدر
   },
   headerSubtitle: {
     fontSize: 14,
     color: COLORS.textLight,
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 4,
-    fontFamily: 'Cairo-Regular',
+    fontFamily: "Cairo-Regular", // خط كايرو للهيدر
   },
   addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: COLORS.primary,
     paddingVertical: 12,
     paddingHorizontal: 20,
@@ -194,43 +196,43 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: COLORS.white,
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     marginLeft: 8,
-    fontFamily: 'Cairo-SemiBold',
+    fontFamily: "Cairo-SemiBold",
   },
   listContainer: {
     padding: 16,
   },
   emptyContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingVertical: 60,
   },
   emptyTitle: {
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.text,
     marginTop: 16,
-    fontFamily: 'Cairo-SemiBold',
+    fontFamily: "Cairo-SemiBold",
   },
   emptySubtitle: {
     fontSize: 14,
     color: COLORS.textLight,
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 8,
     paddingHorizontal: 32,
-    fontFamily: 'Cairo-Regular',
+    fontFamily: "Cairo-Regular",
   },
   footerLoader: {
     paddingVertical: 16,
-    alignItems: 'center',
+    alignItems: "center",
   },
   footerText: {
     fontSize: 14,
     color: COLORS.textLight,
     marginTop: 8,
-    fontFamily: 'Cairo-Regular',
+    fontFamily: "Cairo-Regular",
   },
 });
 

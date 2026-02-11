@@ -1150,7 +1150,7 @@ const AkhdimniScreen: React.FC<ScreenProps> = ({ navigation }) => {
           onPress={() => navigation.goBack()}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
-          <Icon name="arrow-back-ios" size={20} color={COLORS.blue} />
+          <Icon name="arrow-back-ios" size={20} color={COLORS.white} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>سند — إنشاء طلب</Text>
         <View style={{ width: 24 }} />
@@ -1212,8 +1212,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 14,
     marginBottom: 8,
+    backgroundColor: "#1a237e",
   },
-  headerTitle: { color: COLORS.blue, fontFamily: "Cairo-Bold", fontSize: 14 },
+  headerTitle: { color: COLORS.white, fontFamily: "Cairo-Bold", fontSize: 14 },
   card: {
     backgroundColor: "#fff",
     borderRadius: 16,

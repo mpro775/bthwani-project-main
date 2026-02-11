@@ -18,7 +18,10 @@ import { getConversations } from "@/api/kawaderChatApi";
 import { useAuth } from "@/auth/AuthContext";
 import COLORS from "@/constants/colors";
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, "KawaderChatList">;
+type NavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "KawaderChatList"
+>;
 
 const KawaderChatListScreen = () => {
   const navigation = useNavigation<NavigationProp>();
@@ -29,36 +32,46 @@ const KawaderChatListScreen = () => {
   const [nextCursor, setNextCursor] = useState<string | undefined>();
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [filter, setFilter] = useState<"all" | "as-owner" | "as-interested">("all");
+  const [filter, setFilter] = useState<"all" | "as-owner" | "as-interested">(
+    "all",
+  );
 
-  const loadConversations = useCallback(async (cursor?: string, isLoadMore = false) => {
-    try {
-      if (isLoadMore) {
-        setLoadingMore(true);
-      } else if (!cursor) {
-        setLoading(true);
+  const loadConversations = useCallback(
+    async (cursor?: string, isLoadMore = false) => {
+      try {
+        if (isLoadMore) {
+          setLoadingMore(true);
+        } else if (!cursor) {
+          setLoading(true);
+        }
+
+        const response: KawaderChatListResponse = await getConversations(
+          cursor,
+          25,
+        );
+        const list = Array.isArray(response?.items) ? response.items : [];
+
+        if (isLoadMore) {
+          setConversations((prev) => [
+            ...(Array.isArray(prev) ? prev : []),
+            ...list,
+          ]);
+        } else {
+          setConversations(list);
+        }
+
+        setNextCursor(response?.nextCursor);
+        setHasMore(!!response?.nextCursor);
+      } catch (error) {
+        console.error("خطأ في تحميل المحادثات:", error);
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+        setRefreshing(false);
       }
-
-      const response: KawaderChatListResponse = await getConversations(cursor, 25);
-      const list = Array.isArray(response?.items) ? response.items : [];
-
-      if (isLoadMore) {
-        setConversations(prev => [...(Array.isArray(prev) ? prev : []), ...list]);
-      } else {
-        setConversations(list);
-      }
-
-      setNextCursor(response?.nextCursor);
-      setHasMore(!!response?.nextCursor);
-
-    } catch (error) {
-      console.error("خطأ في تحميل المحادثات:", error);
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-      setRefreshing(false);
-    }
-  }, []);
+    },
+    [],
+  );
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -71,19 +84,27 @@ const KawaderChatListScreen = () => {
     }
   }, [hasMore, loadingMore, nextCursor, loadConversations]);
 
-  const handleConversationPress = useCallback((conversation: KawaderConversation) => {
-    navigation.navigate("KawaderChat", { conversationId: conversation._id });
-  }, [navigation]);
+  const handleConversationPress = useCallback(
+    (conversation: KawaderConversation) => {
+      navigation.navigate("KawaderChat", { conversationId: conversation._id });
+    },
+    [navigation],
+  );
 
-  const handleFilterChange = useCallback((newFilter: "all" | "as-owner" | "as-interested") => {
-    setFilter(newFilter);
-  }, []);
+  const handleFilterChange = useCallback(
+    (newFilter: "all" | "as-owner" | "as-interested") => {
+      setFilter(newFilter);
+    },
+    [],
+  );
 
   useEffect(() => {
     loadConversations();
   }, [loadConversations]);
 
-  const filteredConversations = (Array.isArray(conversations) ? conversations : []).filter((conv) => {
+  const filteredConversations = (
+    Array.isArray(conversations) ? conversations : []
+  ).filter((conv) => {
     if (filter === "all") return true;
     if (filter === "as-owner") {
       return conv.ownerId?._id === user?.uid;
@@ -132,23 +153,44 @@ const KawaderChatListScreen = () => {
         style={[styles.filterTab, filter === "all" && styles.filterTabActive]}
         onPress={() => handleFilterChange("all")}
       >
-        <Text style={[styles.filterText, filter === "all" && styles.filterTextActive]}>
+        <Text
+          style={[
+            styles.filterText,
+            filter === "all" && styles.filterTextActive,
+          ]}
+        >
           الكل
         </Text>
       </TouchableOpacity>
       <TouchableOpacity
-        style={[styles.filterTab, filter === "as-owner" && styles.filterTabActive]}
+        style={[
+          styles.filterTab,
+          filter === "as-owner" && styles.filterTabActive,
+        ]}
         onPress={() => handleFilterChange("as-owner")}
       >
-        <Text style={[styles.filterText, filter === "as-owner" && styles.filterTextActive]}>
+        <Text
+          style={[
+            styles.filterText,
+            filter === "as-owner" && styles.filterTextActive,
+          ]}
+        >
           كمعلن
         </Text>
       </TouchableOpacity>
       <TouchableOpacity
-        style={[styles.filterTab, filter === "as-interested" && styles.filterTabActive]}
+        style={[
+          styles.filterTab,
+          filter === "as-interested" && styles.filterTabActive,
+        ]}
         onPress={() => handleFilterChange("as-interested")}
       >
-        <Text style={[styles.filterText, filter === "as-interested" && styles.filterTextActive]}>
+        <Text
+          style={[
+            styles.filterText,
+            filter === "as-interested" && styles.filterTextActive,
+          ]}
+        >
           كمهتم
         </Text>
       </TouchableOpacity>
@@ -258,7 +300,9 @@ const KawaderChatListScreen = () => {
         }
         ListFooterComponent={renderFooter}
         ListEmptyComponent={renderEmpty}
-        contentContainerStyle={filteredConversations.length === 0 ? styles.emptyList : styles.list}
+        contentContainerStyle={
+          filteredConversations.length === 0 ? styles.emptyList : styles.list
+        }
         showsVerticalScrollIndicator={false}
       />
     </View>
@@ -285,7 +329,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     fontSize: 20,
-    fontWeight: "bold",
+    fontFamily: "Cairo-Bold",
     color: COLORS.text,
     textAlign: "center",
   },
@@ -314,12 +358,12 @@ const styles = StyleSheet.create({
   },
   filterText: {
     fontSize: 14,
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.gray,
-    fontWeight: "500",
   },
   filterTextActive: {
     color: COLORS.white,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
   },
   list: {
     padding: 16,
@@ -353,12 +397,13 @@ const styles = StyleSheet.create({
   },
   conversationTitle: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     marginBottom: 4,
   },
   conversationUser: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.gray,
   },
   unreadBadge: {
@@ -373,15 +418,17 @@ const styles = StyleSheet.create({
   unreadText: {
     color: COLORS.white,
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
   },
   lastMessage: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
     marginBottom: 4,
   },
   lastMessageTime: {
     fontSize: 12,
+    fontFamily: "Cairo-Regular",
     color: COLORS.gray,
   },
   footer: {
@@ -393,6 +440,7 @@ const styles = StyleSheet.create({
   footerText: {
     marginLeft: 8,
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.gray,
   },
   emptyContainer: {
@@ -402,13 +450,14 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontFamily: "Cairo-Bold",
     color: COLORS.dark,
     marginTop: 16,
     marginBottom: 8,
   },
   emptySubtitle: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.gray,
     textAlign: "center",
   },
@@ -421,6 +470,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 16,
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.gray,
   },
 });

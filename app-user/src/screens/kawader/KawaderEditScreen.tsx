@@ -129,7 +129,7 @@ const KawaderEditScreen = () => {
       console.error("خطأ في تحديث العرض الوظيفي:", error);
       Alert.alert(
         "خطأ",
-        "حدث خطأ أثناء تحديث العرض الوظيفي. يرجى المحاولة مرة أخرى."
+        "حدث خطأ أثناء تحديث العرض الوظيفي. يرجى المحاولة مرة أخرى.",
       );
     } finally {
       setSaving(false);
@@ -470,7 +470,7 @@ const KawaderEditScreen = () => {
                       {getStatusText(status)}
                     </Text>
                   </TouchableOpacity>
-                )
+                ),
               )}
             </View>
           </View>
@@ -511,10 +511,12 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 16,
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
   },
   errorText: {
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.danger,
     textAlign: "center",
     marginTop: 16,
@@ -534,7 +536,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     fontSize: 18,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     textAlign: "center",
   },
@@ -552,7 +554,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     marginBottom: 12,
   },
@@ -563,6 +565,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.text,
     backgroundColor: COLORS.white,
     marginBottom: 8,
@@ -594,12 +597,12 @@ const styles = StyleSheet.create({
   },
   scopeOptionText: {
     fontSize: 14,
-    fontWeight: "500",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
   },
   scopeOptionTextSelected: {
     color: COLORS.primary,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
   },
   checkboxContainer: {
     flexDirection: "row",
@@ -623,6 +626,7 @@ const styles = StyleSheet.create({
   },
   checkboxLabel: {
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
     color: COLORS.text,
   },
   statusSelector: {
@@ -643,11 +647,11 @@ const styles = StyleSheet.create({
   },
   statusOptionText: {
     fontSize: 14,
-    fontWeight: "500",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
   },
   statusOptionTextSelected: {
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
   },
   footer: {
     padding: 16,
@@ -669,7 +673,7 @@ const styles = StyleSheet.create({
   submitButtonText: {
     color: COLORS.white,
     fontSize: 18,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     marginLeft: 8,
   },
 });

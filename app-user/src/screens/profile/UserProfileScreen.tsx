@@ -225,12 +225,18 @@ export default function UserProfileScreen() {
 
       {/* المحتوى */}
       <View style={styles.content}>
-        {/* المحفظة */}
+        {/* المحفظة - تنقل لصفحة المحفظة */}
         <Text style={styles.sectionTitle}>المحفظة</Text>
-        <View style={styles.disabledCard}>
+        <TouchableOpacity
+          activeOpacity={0.9}
+          onPress={() => navigation.navigate("WalletScreen" as never)}
+          style={styles.walletCardTouchable}
+        >
           <LinearGradient
-            colors={[COLORS.gray, COLORS.gray]}
+            colors={[COLORS.primary, COLORS.primary]}
             style={styles.walletCard}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
           >
             <View>
               <Text style={styles.walletLabel}>الرصيد المتاح</Text>
@@ -242,8 +248,8 @@ export default function UserProfileScreen() {
               <Ionicons name="wallet" size={22} color="#fff" />
             </View>
           </LinearGradient>
-          <Text style={styles.comingSoonText}>قريباً - قيد التطوير</Text>
-        </View>
+          <Text style={styles.walletHint}>اضغط للدخول إلى المحفظة</Text>
+        </TouchableOpacity>
 
         {/* إدارة العناوين */}
         <SectionButton
@@ -252,21 +258,12 @@ export default function UserProfileScreen() {
           onPress={() => navigation.navigate("DeliveryAddresses", {})}
         />
 
-        {/* محفظتي */}
+        {/* التسديد والشحن */}
         <SectionButton
-          icon="wallet"
-          label="محفظتي"
-          onPress={() => (navigation as any).navigate("WalletScreen")}
+          icon="card"
+          label="التسديد والشحن"
+          onPress={() => navigation.navigate("WalletScreen")}
         />
-
-        {/* التسديد والسداد */}
-        <View style={styles.disabledSectionButton}>
-          <Ionicons name="card" size={20} color={COLORS.gray} />
-          <Text style={styles.disabledSectionButtonText} numberOfLines={1}>
-            التسديد زالشحن
-          </Text>
-          <Text style={styles.comingSoonBadge}>قريباً</Text>
-        </View>
 
         {/* الاشتراكات */}
         <SectionButton
@@ -637,6 +634,9 @@ const styles = StyleSheet.create({
     fontFamily: "Cairo-Regular",
     fontSize: 12,
     marginTop: 8,
+    marginBottom: 14,
+  },
+  walletCardTouchable: {
     marginBottom: 14,
   },
   disabledCard: {

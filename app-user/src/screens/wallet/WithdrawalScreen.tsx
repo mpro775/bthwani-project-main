@@ -52,12 +52,37 @@ const WithdrawalScreen = () => {
   const loadMethods = async () => {
     try {
       const data = await getWithdrawMethods();
-      setMethods(data);
-      if (data.length > 0) {
-        setSelectedMethod(data[0].id);
+      const list = Array.isArray(data) ? data : [];
+      setMethods(list);
+      if (list.length > 0) {
+        setSelectedMethod(list[0].id);
+      } else {
+        const fallback: WithdrawMethod[] = [
+          {
+            id: "bank_transfer",
+            name: "تحويل بنكي",
+            type: "bank_transfer",
+            enabled: true,
+            minAmount: 100,
+            processingTime: "1-3 أيام عمل",
+          },
+        ];
+        setMethods(fallback);
+        setSelectedMethod("bank_transfer");
       }
     } catch (error) {
-      Alert.alert("خطأ", "تعذر تحميل طرق السحب");
+      const fallback: WithdrawMethod[] = [
+        {
+          id: "bank_transfer",
+          name: "تحويل بنكي",
+          type: "bank_transfer",
+          enabled: true,
+          minAmount: 100,
+          processingTime: "1-3 أيام عمل",
+        },
+      ];
+      setMethods(fallback);
+      setSelectedMethod("bank_transfer");
     }
   };
 
@@ -231,7 +256,7 @@ const WithdrawalScreen = () => {
         {/* طرق السحب */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>اختر طريقة السحب</Text>
-          {methods.map((method) => (
+          {(Array.isArray(methods) ? methods : []).map((method) => (
             <TouchableOpacity
               key={method.id}
               style={[

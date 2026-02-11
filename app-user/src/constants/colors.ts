@@ -12,7 +12,7 @@ const COLORS = {
   dark: "#212121", // ✅ لون نص داكن
   secondary: "#5D4037",
   background: "#FFFFFF",
-  text: "#4E342E",
+  text: "#1A3052",
   accent: "#8B4B47",
   white: "#FFFFFF", // ✅ لون أبيض للنصوص على خلفيات ملونة
   border: "#E0E0E0", // ✅ لون الحدود

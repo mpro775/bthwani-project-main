@@ -22,4 +22,4 @@ const isLocal =
  * غيّر LOCAL_API إلى IP جهازك الذي يشغّل الـ backend إن لزم.
  * في الإنتاج: استخدم الـ API البعيد.
  */
-export const API_URL =  PRODUCTION_API;
+export const API_URL = PRODUCTION_API;

@@ -39,12 +39,37 @@ const TopupScreen = () => {
   const loadMethods = async () => {
     try {
       const data = await getTopupMethods();
-      setMethods(data);
-      if (data.length > 0) {
-        setSelectedMethod(data[0].id);
+      const list = Array.isArray(data) ? data : [];
+      setMethods(list);
+      if (list.length > 0) {
+        setSelectedMethod(list[0].id);
+      } else {
+        // افتراضي: كريمي متاح حتى لو لم يرجع الباكند قائمة
+        setMethods([
+          {
+            id: "kuraimi",
+            name: "كريمي",
+            type: "kuraimi",
+            enabled: true,
+            minAmount: 1,
+            maxAmount: 100000,
+          },
+        ]);
+        setSelectedMethod("kuraimi");
       }
     } catch (error) {
-      Alert.alert("خطأ", "تعذر تحميل طرق الشحن");
+      // عند الفشل نعرض طريقة كريمي افتراضياً لئلا تتعطل الشاشة
+      setMethods([
+        {
+          id: "kuraimi",
+          name: "كريمي",
+          type: "kuraimi",
+          enabled: true,
+          minAmount: 1,
+          maxAmount: 100000,
+        },
+      ]);
+      setSelectedMethod("kuraimi");
     }
   };
 
@@ -136,7 +161,7 @@ const TopupScreen = () => {
         {/* طرق الشحن */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>اختر طريقة الشحن</Text>
-          {methods.map((method) => (
+          {(Array.isArray(methods) ? methods : []).map((method) => (
             <TouchableOpacity
               key={method.id}
               style={[

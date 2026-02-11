@@ -1,4 +1,4 @@
-// src/components/auth/AuthBanner.tsx
+// src/components/AuthBanner.tsx — حوار تحقق احترافي يظهر من الأسفل
 import { useAuth } from "@/auth/AuthContext";
 import { useVerificationState } from "@/context/verify";
 import { setAuthBannerController } from "@/guards/bannerGateway";
@@ -18,7 +18,14 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Pressable,
+  Dimensions,
+  Platform,
 } from "react-native";
+import COLORS from "@/constants/colors";
+
+// هامش سفلي ثابت (لا نعتمد على SafeAreaProvider لأنه قد يكون أسفل AuthBannerProvider)
+const BOTTOM_PADDING = Platform.OS === "ios" ? 34 : 24;
 
 type BannerType = "login" | "verify" | null;
 
@@ -28,43 +35,60 @@ type Ctx = {
 };
 
 const C = createContext<Ctx | null>(null);
+const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 export function AuthBannerProvider({ children }: React.PropsWithChildren) {
   const [type, setType] = useState<BannerType>(null);
-  const slide = useRef(new Animated.Value(-80)).current;
+  const slideY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
+  const overlayOpacity = useRef(new Animated.Value(0)).current;
   const { isLoggedIn } = useAuth();
   const { verified } = useVerificationState();
+
+  const hide = useMemo(
+    () => () => {
+      Animated.parallel([
+        Animated.timing(slideY, {
+          toValue: SCREEN_HEIGHT,
+          duration: 280,
+          easing: Easing.in(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.timing(overlayOpacity, {
+          toValue: 0,
+          duration: 220,
+          useNativeDriver: true,
+        }),
+      ]).start(() => setType(null));
+    },
+    [slideY, overlayOpacity]
+  );
+
   useEffect(() => {
-    if (type === "login" && isLoggedIn) {
-      hide();
-    } else if (type === "verify" && verified) {
-      hide();
-    }
-  }, [type, isLoggedIn, verified]);
+    if (type === "login" && isLoggedIn) hide();
+    else if (type === "verify" && verified) hide();
+  }, [type, isLoggedIn, verified, hide]);
+
   const show = (t: BannerType) => {
     setType(t);
-    Animated.timing(slide, {
-      toValue: 0,
-      duration: 220,
-      easing: Easing.out(Easing.quad),
-      useNativeDriver: true,
-    }).start();
+    slideY.setValue(SCREEN_HEIGHT);
+    overlayOpacity.setValue(0);
+    Animated.parallel([
+      Animated.spring(slideY, {
+        toValue: 0,
+        useNativeDriver: true,
+        damping: 24,
+        stiffness: 280,
+      }),
+      Animated.timing(overlayOpacity, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start();
   };
 
-  const hide = () => {
-    Animated.timing(slide, {
-      toValue: -80,
-      duration: 180,
-      useNativeDriver: true,
-    }).start(() => setType(null));
-  };
-
-  // سجّل الـ controller في الـ gateway
   useEffect(() => {
-    setAuthBannerController({
-      show: (t) => show(t),
-      hide,
-    });
+    setAuthBannerController({ show, hide });
     return () => setAuthBannerController(null);
   }, []);
 
@@ -73,105 +97,171 @@ export function AuthBannerProvider({ children }: React.PropsWithChildren) {
   return (
     <C.Provider value={value}>
       {children}
-      <Animated.View
-        pointerEvents={type ? "auto" : "none"}
-        style={[styles.wrap, { transform: [{ translateY: slide }] }]}
-      >
-        {!!type && (
-          <View style={styles.banner}>
-            <Ionicons
-              name={
-                type === "login" ? "log-in-outline" : "shield-checkmark-outline"
-              }
-              size={18}
-              color="#D84315"
-            />
-            <Text style={styles.text}>
-              {type === "login"
-                ? "سجّل الدخول للمتابعة"
-                : "وثّق حسابك لإكمال العملية"}
-            </Text>
-
-            <TouchableOpacity
-              style={styles.cta}
-              onPress={() => {
-                hide();
-                import("@/navigation/RootNavigation").then(
-                  ({ safeNavigate }) => {
-                    safeNavigate(
-                      type === "login" ? "Login" : "OTPVerification"
-                    );
+      {type !== null && (
+        <>
+          <Animated.View
+            pointerEvents="auto"
+            style={[styles.overlay, { opacity: overlayOpacity }]}
+          >
+            <Pressable style={StyleSheet.absoluteFill} onPress={hide} />
+          </Animated.View>
+          <Animated.View
+            pointerEvents="auto"
+            style={[
+              styles.panelWrap,
+              {
+                paddingBottom: BOTTOM_PADDING,
+                transform: [{ translateY: slideY }],
+              },
+            ]}
+          >
+            <View style={styles.handle} />
+            <View style={styles.panel}>
+              <View style={styles.iconWrap}>
+                <Ionicons
+                  name={
+                    type === "login"
+                      ? "log-in-outline"
+                      : "shield-checkmark-outline"
                   }
-                );
-              }}
-              accessible={true}
-              accessibilityRole="button"
-              accessibilityLabel={type === "login" ? "تسجيل الدخول" : "توثيق الحساب"}
-              accessibilityHint={type === "login" ? "يفتح صفحة تسجيل الدخول" : "يفتح صفحة توثيق الحساب"}
-            >
-              <Text style={styles.ctaText}>
-                {type === "login" ? "تسجيل الدخول" : "توثيق الآن"}
+                  size={28}
+                  color={COLORS.primary}
+                />
+              </View>
+              <Text style={styles.title}>
+                {type === "login"
+                  ? "تسجيل الدخول"
+                  : "توثيق الحساب"}
               </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.close}
-              onPress={hide}
-              accessible={true}
-              accessibilityRole="button"
-              accessibilityLabel="إغلاق البانر"
-              accessibilityHint="يغلق رسالة البيانات المؤقتة"
-            >
-              <Ionicons
-                name="close"
-                size={18}
-                color="#555"
-                accessible={false}
-                importantForAccessibility="no"
-              />
-            </TouchableOpacity>
-          </View>
-        )}
-      </Animated.View>
+              <Text style={styles.message}>
+                {type === "login"
+                  ? "سجّل الدخول للوصول إلى هذه الميزة ومتابعة استخدام التطبيق."
+                  : "وثّق حسابك لإكمال العملية والاستفادة من الخدمات."}
+              </Text>
+              <View style={styles.actions}>
+                <TouchableOpacity
+                  style={styles.primaryBtn}
+                  onPress={() => {
+                    hide();
+                    import("@/navigation/RootNavigation").then(
+                      ({ safeNavigate }) => {
+                        safeNavigate(
+                          type === "login" ? "Login" : "OTPVerification"
+                        );
+                      }
+                    );
+                  }}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.primaryBtnText}>
+                    {type === "login" ? "تسجيل الدخول" : "توثيق الآن"}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.secondaryBtn}
+                  onPress={hide}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.secondaryBtnText}>لاحقاً</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Animated.View>
+        </>
+      )}
     </C.Provider>
   );
 }
 
 export function useAuthBanner() {
   const ctx = useContext(C);
-  if (!ctx) throw new Error("useAuthBanner must be inside AuthBannerProvider");
+  if (!ctx)
+    throw new Error("useAuthBanner must be inside AuthBannerProvider");
   return ctx;
 }
 
 const styles = StyleSheet.create({
-  wrap: {
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    zIndex: 999,
+  },
+  panelWrap: {
     position: "absolute",
-    top: 0,
     left: 0,
     right: 0,
+    bottom: 0,
     zIndex: 1000,
-    padding: 10,
+    paddingHorizontal: 20,
   },
-  banner: {
-    flexDirection: "row",
+  handle: {
+    alignSelf: "center",
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "rgba(255,255,255,0.5)",
+    marginBottom: 12,
+  },
+  panel: {
+    backgroundColor: COLORS.background,
+    borderRadius: 24,
+    paddingHorizontal: 24,
+    paddingTop: 20,
+    paddingBottom: 24,
     alignItems: "center",
-    backgroundColor: "#FFF3E0",
-    borderRadius: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
     shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    elevation: 3,
-    gap: 8,
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 12,
   },
-  text: { flex: 1, color: "#333", fontFamily: "Cairo-Regular" },
-  cta: {
-    backgroundColor: "#D84315",
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 10,
+  iconWrap: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: `${COLORS.primary}18`,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 16,
   },
-  ctaText: { color: "#fff", fontFamily: "Cairo-Bold" },
-  close: { padding: 6, marginLeft: 2 },
+  title: {
+    fontFamily: "Cairo-Bold",
+    fontSize: 20,
+    color: COLORS.text,
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  message: {
+    fontFamily: "Cairo-Regular",
+    fontSize: 14,
+    color: COLORS.lightText,
+    textAlign: "center",
+    lineHeight: 22,
+    marginBottom: 24,
+    paddingHorizontal: 8,
+  },
+  actions: {
+    width: "100%",
+    gap: 12,
+  },
+  primaryBtn: {
+    backgroundColor: COLORS.primary,
+    paddingVertical: 14,
+    borderRadius: 14,
+    alignItems: "center",
+  },
+  primaryBtnText: {
+    fontFamily: "Cairo-Bold",
+    fontSize: 16,
+    color: COLORS.white,
+  },
+  secondaryBtn: {
+    paddingVertical: 12,
+    alignItems: "center",
+  },
+  secondaryBtnText: {
+    fontFamily: "Cairo-SemiBold",
+    fontSize: 15,
+    color: COLORS.gray,
+  },
 });

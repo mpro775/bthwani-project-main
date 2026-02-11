@@ -51,24 +51,42 @@ const WalletScreen = () => {
 
   const loadWalletData = useCallback(async () => {
     try {
-      // ✅ استخدام API الجديد بدلاً من axios مباشرة
-      const [balance, transactions, coupons] = await Promise.all([
-        getWalletBalance(),
-        getTransactions({ limit: 10 }),
-        getMyCoupons(),
-      ]);
+      // الرصيد أساسي — إن فشل نعرض شاشة إعادة المحاولة فقط
+      let balance;
+      try {
+        balance = await getWalletBalance();
+      } catch (e) {
+        console.error("Wallet balance error:", e);
+        setWalletData(null);
+        setLoading(false);
+        return;
+      }
+
+      // المعاملات والقسائم — إن فشلا نعرض مصفوفة فارغة ونكمل عرض الصفحة
+      let transactionsData: Transaction[] = [];
+      let couponsData: Coupon[] = [];
+      try {
+        const [transactions, coupons] = await Promise.all([
+          getTransactions({ limit: 10 }).catch(() => ({ data: [], hasMore: false })),
+          getMyCoupons().catch(() => [] as Coupon[]),
+        ]);
+        transactionsData = transactions?.data ?? [];
+        couponsData = Array.isArray(coupons) ? coupons : [];
+      } catch (e) {
+        console.warn("Wallet transactions/coupons load warning:", e);
+      }
 
       setWalletData({
         balance: balance.balance,
         onHold: balance.onHold,
         available: balance.available,
         loyaltyPoints: balance.loyaltyPoints,
-        transactions: transactions.data || [],
+        transactions: transactionsData,
       });
-      setCoupons(coupons);
+      setCoupons(couponsData);
     } catch (error: any) {
-      Alert.alert("خطأ", "تعذر تحميل بيانات المحفظة");
       console.error("Wallet load error:", error);
+      setWalletData(null);
     } finally {
       setLoading(false);
     }
@@ -197,48 +215,74 @@ const WalletScreen = () => {
         </View>
       </LinearGradient>
 
-      {/* الأزرار السريعة */}
-      <View style={styles.quickActionsSection}>
-        <View style={styles.quickActionsGrid}>
-          <TouchableOpacity
-            style={styles.quickActionCard}
-            onPress={() => navigation.navigate("TopupScreen" as never)}
-          >
-            <View style={[styles.quickActionIcon, { backgroundColor: COLORS.success + "20" }]}>
-              <Ionicons name="add-circle" size={24} color={COLORS.success} />
-            </View>
-            <Text style={styles.quickActionText}>شحن</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.quickActionCard}
-            onPress={() => navigation.navigate("WithdrawalScreen" as never)}
-          >
-            <View style={[styles.quickActionIcon, { backgroundColor: COLORS.primary + "20" }]}>
-              <Ionicons name="arrow-down-circle" size={24} color={COLORS.primary} />
-            </View>
-            <Text style={styles.quickActionText}>سحب</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.quickActionCard}
-            onPress={() => navigation.navigate("TransferScreen" as never)}
-          >
-            <View style={[styles.quickActionIcon, { backgroundColor: COLORS.blue + "20" }]}>
-              <Ionicons name="send" size={24} color={COLORS.blue} />
-            </View>
-            <Text style={styles.quickActionText}>تحويل</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.quickActionCard}
-            onPress={() => navigation.navigate("PayBillScreen" as never)}
-          >
-            <View style={[styles.quickActionIcon, { backgroundColor: COLORS.orangeDark + "20" }]}>
-              <Ionicons name="receipt" size={24} color={COLORS.orangeDark} />
-            </View>
-            <Text style={styles.quickActionText}>فواتير</Text>
-          </TouchableOpacity>
+      {/* خدمات المحفظة — مربعات الوصول للصفحات */}
+      <View style={styles.servicesSection}>
+        <Text style={styles.servicesSectionTitle}>خدمات المحفظة</Text>
+        <Text style={styles.servicesSectionSubtitle}>الوصول السريع لجميع الخدمات</Text>
+        <View style={styles.servicesGrid}>
+          {[
+            {
+              route: "TopupScreen" as const,
+              title: "تعبئة الرصيد",
+              subtitle: "شحن المحفظة",
+              icon: "add-circle" as const,
+              color: COLORS.success,
+            },
+            {
+              route: "PayBillScreen" as const,
+              title: "سداد الفواتير",
+              subtitle: "كهرباء، ماء، إنترنت",
+              icon: "receipt" as const,
+              color: COLORS.orangeDark,
+            },
+            {
+              route: "TransferScreen" as const,
+              title: "تحويل رصيد",
+              subtitle: "إرسال لأي رقم",
+              icon: "send" as const,
+              color: COLORS.blue,
+            },
+            {
+              route: "WithdrawalScreen" as const,
+              title: "سحب من المحفظة",
+              subtitle: "تحويل للبنك أو وكيل",
+              icon: "arrow-down-circle" as const,
+              color: COLORS.primary,
+            },
+            {
+              route: "RefundRequestScreen" as const,
+              title: "طلب استرداد",
+              subtitle: "استرجاع مبلغ",
+              icon: "return-up-back" as const,
+              color: COLORS.accent,
+            },
+          ].map((item) => (
+            <TouchableOpacity
+              key={item.route}
+              style={styles.serviceCard}
+              onPress={() => navigation.navigate(item.route as never)}
+              activeOpacity={0.8}
+            >
+              <View
+                style={[
+                  styles.serviceCardIconWrap,
+                  { backgroundColor: item.color + "18" },
+                ]}
+              >
+                <Ionicons
+                  name={item.icon}
+                  size={28}
+                  color={item.color}
+                />
+              </View>
+              <Text style={styles.serviceCardTitle} numberOfLines={1}>
+                {item.title}
+              </Text>
+              <Text style={styles.serviceCardSubtitle} numberOfLines={1}>
+                {item.subtitle}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
       </View>
 
@@ -453,39 +497,59 @@ const styles = StyleSheet.create({
     color: "#FFD700",
     marginLeft: 8,
   },
-  quickActionsSection: {
+  servicesSection: {
     margin: 16,
     marginTop: 0,
-  },
-  quickActionsGrid: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 12,
-  },
-  quickActionCard: {
-    flex: 1,
-    backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 12,
-    alignItems: "center",
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-  },
-  quickActionIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: "center",
-    justifyContent: "center",
     marginBottom: 8,
   },
-  quickActionText: {
-    fontSize: 12,
+  servicesSectionTitle: {
+    fontSize: 18,
     fontFamily: "Cairo-Bold",
     color: COLORS.text,
+    marginBottom: 4,
+  },
+  servicesSectionSubtitle: {
+    fontSize: 13,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.lightText,
+    marginBottom: 16,
+  },
+  servicesGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+  },
+  serviceCard: {
+    width: "47%",
+    backgroundColor: "#fff",
+    padding: 16,
+    borderRadius: 16,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    borderWidth: 1,
+    borderColor: COLORS.lightGray,
+  },
+  serviceCardIconWrap: {
+    width: 52,
+    height: 52,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
+  },
+  serviceCardTitle: {
+    fontSize: 15,
+    fontFamily: "Cairo-Bold",
+    color: COLORS.text,
+    marginBottom: 4,
+  },
+  serviceCardSubtitle: {
+    fontSize: 12,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.lightText,
   },
   couponsSection: {
     margin: 16,

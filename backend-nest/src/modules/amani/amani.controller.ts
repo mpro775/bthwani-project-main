@@ -223,6 +223,35 @@ export class AmaniController {
     return this.service.findAll({ cursor, status });
   }
 
+  @Get('my')
+  @UseGuards(UnifiedAuthGuard)
+  @Auth(AuthType.JWT)
+  @ApiOperation({
+    summary: 'طلباتي (أماني)',
+    description: 'استرجاع قائمة طلبات أماني الخاصة بالمستخدم المسجل فقط',
+  })
+  @ApiQuery({
+    name: 'cursor',
+    required: false,
+    description: 'مؤشر للصفحة التالية',
+    schema: { type: 'string' },
+  })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    description: 'فلترة حسب الحالة',
+    schema: { type: 'string' },
+  })
+  @ApiResponse({ status: HttpStatus.OK, description: 'تم استرجاع طلباتي بنجاح' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'يجب تسجيل الدخول' })
+  async getMyOrders(
+    @CurrentUser('id') userId: string,
+    @Query('cursor') cursor?: string,
+    @Query('status') status?: string,
+  ) {
+    return this.service.findMyByOwnerId(userId, { cursor, status, populateDriver: true });
+  }
+
   @Get('driver/my-orders')
   @UseGuards(UnifiedAuthGuard, RolesGuard)
   @Auth(AuthType.JWT)

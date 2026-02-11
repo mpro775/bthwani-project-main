@@ -74,14 +74,14 @@ const KawaderListScreen = () => {
         setRefreshing(false);
       }
     },
-    [tab, searchQuery]
+    [tab, searchQuery],
   );
 
   const prevTabRef = React.useRef<TabType>(tab);
   useFocusEffect(
     useCallback(() => {
       loadItems();
-    }, [loadItems])
+    }, [loadItems]),
   );
   React.useEffect(() => {
     if (prevTabRef.current !== tab) {
@@ -271,6 +271,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     fontSize: 16,
     color: COLORS.textLight,
+    fontFamily: "Cairo-Regular",
   },
   header: {
     padding: 20,
@@ -280,12 +281,13 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontFamily: "Cairo-Bold",
     color: COLORS.text,
     textAlign: "center",
   },
   headerSubtitle: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
     textAlign: "center",
     marginTop: 4,
@@ -306,11 +308,12 @@ const styles = StyleSheet.create({
   },
   statValue: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontFamily: "Cairo-Bold",
     color: COLORS.primary,
   },
   statLabel: {
     fontSize: 12,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
     marginTop: 2,
   },
@@ -334,8 +337,8 @@ const styles = StyleSheet.create({
   tabActive: {
     backgroundColor: COLORS.primary,
   },
-  tabText: { fontSize: 14, fontWeight: "600", color: COLORS.text },
-  tabTextActive: { color: COLORS.white },
+  tabText: { fontSize: 14, fontFamily: "Cairo-SemiBold", color: COLORS.text },
+  tabTextActive: { color: COLORS.white, fontFamily: "Cairo-SemiBold" },
   searchInput: {
     marginTop: 12,
     borderWidth: 1,
@@ -344,6 +347,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
     fontSize: 15,
+    fontFamily: "Cairo-Regular",
     color: COLORS.text,
     backgroundColor: COLORS.white,
   },
@@ -360,7 +364,7 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: COLORS.white,
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     marginLeft: 8,
   },
   listContainer: {
@@ -374,12 +378,13 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 20,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     marginTop: 16,
   },
   emptySubtitle: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
     textAlign: "center",
     marginTop: 8,
@@ -391,6 +396,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.textLight,
     marginTop: 8,
   },

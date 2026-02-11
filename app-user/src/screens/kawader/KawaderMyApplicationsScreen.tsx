@@ -69,7 +69,7 @@ const KawaderMyApplicationsScreen = () => {
   useFocusEffect(
     useCallback(() => {
       loadItems();
-    }, [loadItems])
+    }, [loadItems]),
   );
 
   const handleRefresh = () => {
@@ -189,7 +189,12 @@ const KawaderMyApplicationsScreen = () => {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
   centerContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
-  loadingText: { marginTop: 12, fontSize: 14, color: COLORS.textLight },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 14,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.textLight,
+  },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -203,7 +208,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     fontSize: 18,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     textAlign: "center",
   },
@@ -218,27 +223,45 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     marginBottom: 8,
   },
-  coverNote: { fontSize: 14, color: COLORS.textLight, marginBottom: 12 },
+  coverNote: {
+    fontSize: 14,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.textLight,
+    marginBottom: 12,
+  },
   cardFooter: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
   statusBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
-  statusText: { fontSize: 12, fontWeight: "600", color: COLORS.white },
-  dateText: { fontSize: 12, color: COLORS.textLight },
+  statusText: {
+    fontSize: 12,
+    fontFamily: "Cairo-SemiBold",
+    color: COLORS.white,
+  },
+  dateText: {
+    fontSize: 12,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.textLight,
+  },
   empty: { alignItems: "center", paddingVertical: 48 },
   emptyTitle: {
     fontSize: 18,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     marginTop: 16,
   },
-  emptySub: { fontSize: 14, color: COLORS.textLight, marginTop: 8 },
+  emptySub: {
+    fontSize: 14,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.textLight,
+    marginTop: 8,
+  },
   footerLoader: { paddingVertical: 16, alignItems: "center" },
 });
 

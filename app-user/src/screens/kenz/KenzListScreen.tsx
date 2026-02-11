@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,9 @@ import {
   RefreshControl,
   ActivityIndicator,
   TextInput,
+  Modal,
+  ScrollView,
+  Pressable,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -40,7 +43,7 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList, "KenzList">;
 
 const KenzListScreen = () => {
   const navigation = useNavigation<NavigationProp>();
-  const { user } = useAuth();
+  const { user, isLoggedIn } = useAuth();
   const [items, setItems] = useState<KenzItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -60,15 +63,22 @@ const KenzListScreen = () => {
     KenzDeliveryOption | undefined
   >();
   const [categoryOptions, setCategoryOptions] = useState<string[]>(
-    KENZ_CATEGORIES as unknown as string[]
+    KENZ_CATEGORIES as unknown as string[],
   );
   const [favoritedIds, setFavoritedIds] = useState<Set<string>>(new Set());
+  const [openDropdown, setOpenDropdown] = useState<
+    "category" | "city" | "condition" | "delivery" | "sort" | null
+  >(null);
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const loadItemsRef = useRef<
+    ((cursor?: string, isLoadMore?: boolean) => Promise<void>) | null
+  >(null);
 
   useEffect(() => {
     getKenzCategoriesTree()
       .then((tree) => {
         const flatten = (
-          list: { nameAr: string; children?: unknown[] }[]
+          list: { nameAr: string; children?: unknown[] }[],
         ): string[] => {
           const out: string[] = [];
           for (const node of list) {
@@ -76,8 +86,8 @@ const KenzListScreen = () => {
             if (node.children?.length)
               out.push(
                 ...flatten(
-                  node.children as { nameAr: string; children?: unknown[] }[]
-                )
+                  node.children as { nameAr: string; children?: unknown[] }[],
+                ),
               );
           }
           return out;
@@ -122,7 +132,7 @@ const KenzListScreen = () => {
         });
       }
     },
-    [favoritedIds]
+    [favoritedIds],
   );
 
   const loadItems = useCallback(
@@ -142,7 +152,7 @@ const KenzListScreen = () => {
           searchQuery.trim() || undefined,
           sortOption,
           selectedCondition,
-          selectedDeliveryOption
+          selectedDeliveryOption,
         );
         const list = response?.items ?? [];
 
@@ -169,7 +179,7 @@ const KenzListScreen = () => {
       selectedDeliveryOption,
       searchQuery,
       sortOption,
-    ]
+    ],
   );
 
   const onRefresh = useCallback(() => {
@@ -187,7 +197,7 @@ const KenzListScreen = () => {
     (item: KenzItem) => {
       navigation.navigate("KenzDetails", { itemId: item._id });
     },
-    [navigation]
+    [navigation],
   );
 
   const handleCreatePress = useCallback(() => {
@@ -202,7 +212,7 @@ const KenzListScreen = () => {
       setHasMore(true);
       loadItems(undefined, false);
     },
-    [loadItems]
+    [loadItems],
   );
 
   const handleCityChange = useCallback(
@@ -213,7 +223,7 @@ const KenzListScreen = () => {
       setHasMore(true);
       loadItems(undefined, false);
     },
-    [loadItems]
+    [loadItems],
   );
 
   const handleConditionChange = useCallback(
@@ -224,7 +234,7 @@ const KenzListScreen = () => {
       setHasMore(true);
       loadItems(undefined, false);
     },
-    [loadItems]
+    [loadItems],
   );
 
   const handleDeliveryOptionChange = useCallback(
@@ -235,237 +245,246 @@ const KenzListScreen = () => {
       setHasMore(true);
       loadItems(undefined, false);
     },
-    [loadItems]
+    [loadItems],
   );
+
+  useEffect(() => {
+    loadItemsRef.current = loadItems;
+  }, [loadItems]);
 
   useEffect(() => {
     loadItems();
   }, [loadItems]);
 
-  const renderCategoryFilter = () => (
-    <View style={styles.categoryFilter}>
-      <TouchableOpacity
-        style={[
-          styles.categoryButton,
-          !selectedCategory && styles.categoryButtonActive,
-        ]}
-        onPress={() => handleCategoryChange(undefined)}
-      >
-        <Text
-          style={[
-            styles.categoryText,
-            !selectedCategory && styles.categoryTextActive,
-          ]}
-        >
-          الكل
-        </Text>
-      </TouchableOpacity>
-      {categoryOptions.slice(0, 6).map((category) => (
-        <TouchableOpacity
-          key={category}
-          style={[
-            styles.categoryButton,
-            selectedCategory === category && styles.categoryButtonActive,
-          ]}
-          onPress={() => handleCategoryChange(category as KenzCategory)}
-        >
-          <Text
-            style={[
-              styles.categoryText,
-              selectedCategory === category && styles.categoryTextActive,
-            ]}
-          >
-            {category}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
+  // بحث مع تأخير (debounce) لتفادي الطلبات الكثيرة عند الكتابة
+  const searchDebounceFirstRef = useRef(true);
+  useEffect(() => {
+    if (searchDebounceFirstRef.current) {
+      searchDebounceFirstRef.current = false;
+      return;
+    }
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    searchDebounceRef.current = setTimeout(() => {
+      setItems([]);
+      setNextCursor(undefined);
+      setHasMore(true);
+      loadItemsRef.current?.(undefined, false);
+    }, 400);
+    return () => {
+      if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    };
+  }, [searchQuery]);
 
   const CONDITION_OPTIONS: { value: KenzCondition; label: string }[] = [
     { value: "new", label: "جديد" },
     { value: "used", label: "مستعمل" },
     { value: "refurbished", label: "مجدد" },
   ];
-
-  const renderConditionFilter = () => (
-    <View style={styles.cityFilter}>
-      <TouchableOpacity
-        style={[
-          styles.cityButton,
-          !selectedCondition && styles.cityButtonActive,
-        ]}
-        onPress={() => handleConditionChange(undefined)}
-      >
-        <Text
-          style={[
-            styles.cityButtonText,
-            !selectedCondition && styles.cityButtonTextActive,
-          ]}
-        >
-          كل الحالات
-        </Text>
-      </TouchableOpacity>
-      {CONDITION_OPTIONS.map((opt) => (
-        <TouchableOpacity
-          key={opt.value}
-          style={[
-            styles.cityButton,
-            selectedCondition === opt.value && styles.cityButtonActive,
-          ]}
-          onPress={() => handleConditionChange(opt.value)}
-        >
-          <Text
-            style={[
-              styles.cityButtonText,
-              selectedCondition === opt.value && styles.cityButtonTextActive,
-            ]}
-          >
-            {opt.label}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
-
   const DELIVERY_OPTIONS: { value: KenzDeliveryOption; label: string }[] = [
     { value: "meetup", label: "لقاء" },
     { value: "delivery", label: "توصيل" },
     { value: "both", label: "لقاء وتوصيل" },
   ];
-
-  const renderDeliveryOptionFilter = () => (
-    <View style={styles.cityFilter}>
-      <TouchableOpacity
-        style={[
-          styles.cityButton,
-          !selectedDeliveryOption && styles.cityButtonActive,
-        ]}
-        onPress={() => handleDeliveryOptionChange(undefined)}
-      >
-        <Text
-          style={[
-            styles.cityButtonText,
-            !selectedDeliveryOption && styles.cityButtonTextActive,
-          ]}
-        >
-          الكل
-        </Text>
-      </TouchableOpacity>
-      {DELIVERY_OPTIONS.map((opt) => (
-        <TouchableOpacity
-          key={opt.value}
-          style={[
-            styles.cityButton,
-            selectedDeliveryOption === opt.value && styles.cityButtonActive,
-          ]}
-          onPress={() => handleDeliveryOptionChange(opt.value)}
-        >
-          <Text
-            style={[
-              styles.cityButtonText,
-              selectedDeliveryOption === opt.value &&
-                styles.cityButtonTextActive,
-            ]}
-          >
-            {opt.label}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
-
-  const renderCityFilter = () => (
-    <View style={styles.cityFilter}>
-      <TouchableOpacity
-        style={[styles.cityButton, !selectedCity && styles.cityButtonActive]}
-        onPress={() => handleCityChange(undefined)}
-      >
-        <Text
-          style={[
-            styles.cityButtonText,
-            !selectedCity && styles.cityButtonTextActive,
-          ]}
-        >
-          كل المدن
-        </Text>
-      </TouchableOpacity>
-      {KENZ_YEMEN_CITIES.slice(0, 5).map((city) => (
-        <TouchableOpacity
-          key={city}
-          style={[
-            styles.cityButton,
-            selectedCity === city && styles.cityButtonActive,
-          ]}
-          onPress={() => handleCityChange(city)}
-        >
-          <Text
-            style={[
-              styles.cityButtonText,
-              selectedCity === city && styles.cityButtonTextActive,
-            ]}
-          >
-            {city}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
-
   const SORT_OPTIONS: { value: KenzSortOption; label: string }[] = [
     { value: "newest", label: "الأحدث" },
-    { value: "price_asc", label: "السعر ↑" },
-    { value: "price_desc", label: "السعر ↓" },
-    { value: "views_desc", label: "المشاهدات" },
+    { value: "price_asc", label: "السعر (أقل أولاً)" },
+    { value: "price_desc", label: "السعر (أعلى أولاً)" },
+    { value: "views_desc", label: "الأكثر مشاهدة" },
   ];
 
-  const renderSearchAndSort = () => (
-    <View style={styles.searchSortRow}>
-      <View style={styles.searchBox}>
-        <Ionicons name="search" size={18} color={COLORS.gray} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="بحث..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          onSubmitEditing={() => {
-            setItems([]);
-            setNextCursor(undefined);
-            setHasMore(true);
-            loadItems(undefined, false);
-          }}
-          returnKeyType="search"
-        />
+  const applySort = useCallback(
+    (opt: KenzSortOption) => {
+      setSortOption(opt);
+      setItems([]);
+      setNextCursor(undefined);
+      setHasMore(true);
+      loadItems(undefined, false);
+    },
+    [loadItems],
+  );
+
+  const renderFilterBar = () => (
+    <View style={styles.filterBar}>
+      <View style={styles.searchRow}>
+        <View style={styles.searchBox}>
+          <Ionicons name="search" size={20} color={COLORS.gray} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="ابحث في الإعلانات..."
+            placeholderTextColor={COLORS.gray}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            returnKeyType="search"
+          />
+        </View>
+        <TouchableOpacity
+          style={styles.selectTrigger}
+          onPress={() => setOpenDropdown("sort")}
+        >
+          <Text style={styles.selectTriggerText} numberOfLines={1}>
+            {SORT_OPTIONS.find((o) => o.value === sortOption)?.label ?? "ترتيب"}
+          </Text>
+          <Ionicons name="chevron-down" size={18} color={COLORS.gray} />
+        </TouchableOpacity>
       </View>
-      <View style={styles.sortRow}>
-        {SORT_OPTIONS.map((opt) => (
-          <TouchableOpacity
-            key={opt.value}
-            style={[
-              styles.sortChip,
-              sortOption === opt.value && styles.sortChipActive,
-            ]}
-            onPress={() => {
-              setSortOption(opt.value);
-              setItems([]);
-              setNextCursor(undefined);
-              setHasMore(true);
-              loadItems(undefined, false);
-            }}
-          >
-            <Text
-              style={[
-                styles.sortChipText,
-                sortOption === opt.value && styles.sortChipTextActive,
-              ]}
-            >
-              {opt.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.filtersRow}
+      >
+        <TouchableOpacity
+          style={styles.selectChip}
+          onPress={() => setOpenDropdown("category")}
+        >
+          <Text style={styles.selectChipLabel}>الفئة</Text>
+          <Text style={styles.selectChipValue} numberOfLines={1}>
+            {selectedCategory ?? "الكل"}
+          </Text>
+          <Ionicons name="chevron-down" size={14} color={COLORS.gray} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.selectChip}
+          onPress={() => setOpenDropdown("condition")}
+        >
+          <Text style={styles.selectChipLabel}>الحالة</Text>
+          <Text style={styles.selectChipValue} numberOfLines={1}>
+            {selectedCondition
+              ? CONDITION_OPTIONS.find((o) => o.value === selectedCondition)
+                  ?.label
+              : "الكل"}
+          </Text>
+          <Ionicons name="chevron-down" size={14} color={COLORS.gray} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.selectChip}
+          onPress={() => setOpenDropdown("delivery")}
+        >
+          <Text style={styles.selectChipLabel}>التوصيل</Text>
+          <Text style={styles.selectChipValue} numberOfLines={1}>
+            {selectedDeliveryOption
+              ? DELIVERY_OPTIONS.find((o) => o.value === selectedDeliveryOption)
+                  ?.label
+              : "الكل"}
+          </Text>
+          <Ionicons name="chevron-down" size={14} color={COLORS.gray} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.selectChip}
+          onPress={() => setOpenDropdown("city")}
+        >
+          <Text style={styles.selectChipLabel}>المدينة</Text>
+          <Text style={styles.selectChipValue} numberOfLines={1}>
+            {selectedCity ?? "الكل"}
+          </Text>
+          <Ionicons name="chevron-down" size={14} color={COLORS.gray} />
+        </TouchableOpacity>
+      </ScrollView>
     </View>
   );
+
+  const renderDropdownModal = () => {
+    if (!openDropdown) return null;
+    const close = () => setOpenDropdown(null);
+
+    const optionsCategory = [
+      { value: undefined, label: "الكل" },
+      ...categoryOptions.map((c) => ({ value: c as KenzCategory, label: c })),
+    ];
+    const optionsCity = [
+      { value: undefined, label: "الكل" },
+      ...KENZ_YEMEN_CITIES.map((c) => ({ value: c, label: c })),
+    ];
+    const optionsCondition = [
+      { value: undefined, label: "الكل" },
+      ...CONDITION_OPTIONS.map((o) => ({ value: o.value, label: o.label })),
+    ];
+    const optionsDelivery = [
+      { value: undefined, label: "الكل" },
+      ...DELIVERY_OPTIONS.map((o) => ({ value: o.value, label: o.label })),
+    ];
+
+    let title = "";
+    let options: { value: unknown; label: string }[] = [];
+    let onSelect: (value: unknown) => void = () => {};
+
+    if (openDropdown === "category") {
+      title = "اختر الفئة";
+      options = optionsCategory;
+      onSelect = (v) => {
+        handleCategoryChange(v as KenzCategory | undefined);
+        close();
+      };
+    } else if (openDropdown === "city") {
+      title = "اختر المدينة";
+      options = optionsCity;
+      onSelect = (v) => {
+        handleCityChange(v as KenzYemenCity | undefined);
+        close();
+      };
+    } else if (openDropdown === "condition") {
+      title = "الحالة";
+      options = optionsCondition;
+      onSelect = (v) => {
+        handleConditionChange(v as KenzCondition | undefined);
+        close();
+      };
+    } else if (openDropdown === "delivery") {
+      title = "طريقة التوصيل";
+      options = optionsDelivery;
+      onSelect = (v) => {
+        handleDeliveryOptionChange(v as KenzDeliveryOption | undefined);
+        close();
+      };
+    } else if (openDropdown === "sort") {
+      title = "ترتيب النتائج";
+      options = SORT_OPTIONS.map((o) => ({ value: o.value, label: o.label }));
+      onSelect = (v) => {
+        applySort(v as KenzSortOption);
+        close();
+      };
+    }
+
+    return (
+      <Modal visible transparent animationType="fade">
+        <Pressable style={styles.modalOverlay} onPress={close}>
+          <Pressable style={styles.modalBox} onPress={() => {}}>
+            <Text style={styles.modalTitle}>{title}</Text>
+            <ScrollView
+              style={styles.modalScroll}
+              keyboardShouldPersistTaps="handled"
+            >
+              {options.map((opt) => (
+                <TouchableOpacity
+                  key={opt.label}
+                  style={styles.modalOption}
+                  onPress={() => onSelect(opt.value)}
+                >
+                  <Text style={styles.modalOptionText}>{opt.label}</Text>
+                  {(openDropdown === "category" &&
+                    selectedCategory === opt.value) ||
+                  (openDropdown === "city" && selectedCity === opt.value) ||
+                  (openDropdown === "condition" &&
+                    selectedCondition === opt.value) ||
+                  (openDropdown === "delivery" &&
+                    selectedDeliveryOption === opt.value) ||
+                  (openDropdown === "sort" && sortOption === opt.value) ? (
+                    <Ionicons
+                      name="checkmark-circle"
+                      size={22}
+                      color={COLORS.primary}
+                    />
+                  ) : null}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <TouchableOpacity style={styles.modalCloseBtn} onPress={close}>
+              <Text style={styles.modalCloseText}>إغلاق</Text>
+            </TouchableOpacity>
+          </Pressable>
+        </Pressable>
+      </Modal>
+    );
+  };
 
   const renderItem = ({ item }: { item: KenzItem }) => (
     <KenzCard
@@ -547,11 +566,8 @@ const KenzListScreen = () => {
         </View>
       </View>
 
-      {renderCategoryFilter()}
-      {renderConditionFilter()}
-      {renderDeliveryOptionFilter()}
-      {renderCityFilter()}
-      {renderSearchAndSort()}
+      {renderFilterBar()}
+      {renderDropdownModal()}
 
       <FlatList
         data={items ?? []}
@@ -617,121 +633,131 @@ const styles = StyleSheet.create({
   createIconButton: {
     padding: 4,
   },
-  categoryFilter: {
-    flexDirection: "row",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+  filterBar: {
     backgroundColor: COLORS.white,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.lightGray,
-  },
-  categoryButton: {
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    marginHorizontal: 4,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: COLORS.lightGray,
-    backgroundColor: COLORS.white,
+    paddingTop: 10,
+    paddingBottom: 8,
   },
-  categoryButtonActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
-  },
-  categoryText: {
-    fontSize: 12,
-    fontFamily: "Cairo-Regular",
-    color: COLORS.gray,
-  },
-  categoryTextActive: {
-    fontFamily: "Cairo-SemiBold",
-    color: COLORS.white,
-  },
-  cityFilter: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    backgroundColor: COLORS.white,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.lightGray,
-  },
-  cityButton: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    marginHorizontal: 4,
-    marginVertical: 4,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: COLORS.lightGray,
-    backgroundColor: COLORS.white,
-  },
-  cityButtonActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
-  },
-  cityButtonText: {
-    fontSize: 12,
-    fontFamily: "Cairo-Regular",
-    color: COLORS.gray,
-  },
-  cityButtonTextActive: {
-    fontFamily: "Cairo-SemiBold",
-    color: COLORS.white,
-  },
-  searchSortRow: {
+  searchRow: {
     flexDirection: "row",
     alignItems: "center",
-    flexWrap: "wrap",
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    backgroundColor: COLORS.white,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.lightGray,
     gap: 8,
+    marginBottom: 8,
   },
   searchBox: {
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
-    minWidth: 120,
-    height: 40,
-    backgroundColor: COLORS.background,
-    borderRadius: 8,
-    paddingHorizontal: 10,
+    minWidth: 0,
+    height: 42,
+    backgroundColor: COLORS.lightGray,
+    borderRadius: 10,
+    paddingHorizontal: 12,
     gap: 8,
   },
   searchInput: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 15,
     fontFamily: "Cairo-Regular",
     paddingVertical: 0,
+    color: COLORS.dark,
   },
-  sortRow: {
+  selectTrigger: {
     flexDirection: "row",
-    flexWrap: "wrap",
+    alignItems: "center",
+    justifyContent: "space-between",
+    minWidth: 100,
+    maxWidth: 140,
+    height: 42,
+    paddingHorizontal: 12,
+    backgroundColor: COLORS.lightGray,
+    borderRadius: 10,
     gap: 6,
   },
-  sortChip: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: COLORS.lightGray,
-    backgroundColor: COLORS.white,
+  selectTriggerText: {
+    fontSize: 14,
+    fontFamily: "Cairo-SemiBold",
+    color: COLORS.dark,
   },
-  sortChipActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+  filtersRow: {
+    flexDirection: "row",
+    gap: 8,
+    paddingVertical: 2,
   },
-  sortChipText: {
-    fontSize: 12,
+  selectChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: COLORS.lightGray,
+    borderRadius: 10,
+    gap: 6,
+    maxWidth: 130,
+  },
+  selectChipLabel: {
+    fontSize: 11,
     fontFamily: "Cairo-Regular",
     color: COLORS.gray,
   },
-  sortChipTextActive: {
+  selectChipValue: {
+    fontSize: 13,
     fontFamily: "Cairo-SemiBold",
-    color: COLORS.white,
+    color: COLORS.dark,
+    flex: 1,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 24,
+  },
+  modalBox: {
+    width: "100%",
+    maxWidth: 360,
+    maxHeight: "70%",
+    backgroundColor: COLORS.white,
+    borderRadius: 16,
+    padding: 20,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontFamily: "Cairo-Bold",
+    color: COLORS.dark,
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  modalScroll: {
+    maxHeight: 320,
+  },
+  modalOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.lightGray,
+  },
+  modalOptionText: {
+    fontSize: 15,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.dark,
+  },
+  modalCloseBtn: {
+    marginTop: 12,
+    paddingVertical: 12,
+    alignItems: "center",
+    backgroundColor: COLORS.lightGray,
+    borderRadius: 10,
+  },
+  modalCloseText: {
+    fontSize: 15,
+    fontFamily: "Cairo-SemiBold",
+    color: COLORS.dark,
   },
   list: {
     padding: 16,

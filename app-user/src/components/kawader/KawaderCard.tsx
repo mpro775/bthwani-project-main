@@ -56,10 +56,10 @@ const KawaderCard: React.FC<KawaderCardProps> = ({ item, onPress }) => {
     item.jobType === "full_time"
       ? "دوام كامل"
       : item.jobType === "part_time"
-      ? "جزئي"
-      : item.jobType === "remote"
-      ? "عن بُعد"
-      : null;
+        ? "جزئي"
+        : item.jobType === "remote"
+          ? "عن بُعد"
+          : null;
 
   return (
     <TouchableOpacity style={styles.card} onPress={onPress}>
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   },
   budgetText: {
     fontSize: 14,
-    fontWeight: "bold",
+    fontFamily: "Cairo-Bold",
     color: COLORS.success,
   },
   statusBadge: {
@@ -174,18 +174,19 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.background,
   },
   title: {
     fontSize: 18,
-    fontWeight: "600",
+    fontFamily: "Cairo-SemiBold",
     color: COLORS.text,
     marginBottom: 8,
     lineHeight: 24,
   },
   description: {
     fontSize: 14,
+    fontFamily: "Cairo-Regular",
     color: COLORS.lightText,
     marginBottom: 12,
     lineHeight: 20,
@@ -198,7 +199,7 @@ const styles = StyleSheet.create({
   scopeText: {
     fontSize: 14,
     color: COLORS.primary,
-    fontWeight: "500",
+    fontFamily: "Cairo-SemiBold",
     marginLeft: 6,
   },
   skillsContainer: {
@@ -206,6 +207,7 @@ const styles = StyleSheet.create({
   },
   skillsLabel: {
     fontSize: 12,
+    fontFamily: "Cairo-Regular",
     color: COLORS.lightText,
     marginBottom: 4,
   },
@@ -215,6 +217,7 @@ const styles = StyleSheet.create({
   },
   skill: {
     fontSize: 12,
+    fontFamily: "Cairo-Regular",
     color: COLORS.primary,
     backgroundColor: COLORS.blue,
     paddingHorizontal: 8,
@@ -225,6 +228,7 @@ const styles = StyleSheet.create({
   },
   moreSkills: {
     fontSize: 12,
+    fontFamily: "Cairo-Regular",
     color: COLORS.lightText,
     marginLeft: 4,
   },
@@ -234,6 +238,7 @@ const styles = StyleSheet.create({
   },
   locationText: {
     fontSize: 12,
+    fontFamily: "Cairo-Regular",
     color: COLORS.lightText,
     marginLeft: 4,
   },
@@ -245,6 +250,7 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: 12,
+    fontFamily: "Cairo-Regular",
     color: COLORS.lightText,
   },
 });

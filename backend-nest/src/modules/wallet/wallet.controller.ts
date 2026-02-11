@@ -461,7 +461,49 @@ export class WalletController {
   }
 
   // ==================== Coupons ====================
-  // ✅ تم نقل إدارة الكوبونات إلى FinanceController - استخدم /finance/coupons
+
+  @Auth(AuthType.JWT)
+  @Post('coupons/apply')
+  @ApiResponse({ status: 200, description: 'Success' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiOperation({ summary: 'تطبيق قسيمة' })
+  async applyCoupon(
+    @CurrentUser('id') userId: string,
+    @Body() body: { code: string; amount?: number },
+  ) {
+    return this.walletService.applyCoupon(userId, body.code, body.amount);
+  }
+
+  @Auth(AuthType.JWT)
+  @Post('coupons/validate')
+  @ApiResponse({ status: 200, description: 'Success' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiOperation({ summary: 'التحقق من صلاحية قسيمة' })
+  async validateCoupon(
+    @CurrentUser('id') userId: string,
+    @Body() body: { code: string; amount?: number },
+  ) {
+    return this.walletService.validateCoupon(userId, body.code, body.amount);
+  }
+
+  @Auth(AuthType.JWT)
+  @Get('coupons/my')
+  @ApiResponse({ status: 200, description: 'Success' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiOperation({ summary: 'قسائمي' })
+  async getMyCoupons(@CurrentUser('id') userId: string) {
+    return this.walletService.getMyCoupons(userId);
+  }
+
+  @Auth(AuthType.JWT)
+  @Get('coupons/history')
+  @ApiResponse({ status: 200, description: 'Success' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiOperation({ summary: 'سجل القسائم' })
+  async getCouponsHistory(@CurrentUser('id') userId: string) {
+    return this.walletService.getCouponsHistory(userId);
+  }
 
   // ==================== Subscriptions ====================
   // ✅ تم نقل الاشتراكات إلى ContentController - استخدم /content/subscription-plans

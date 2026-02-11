@@ -93,3 +93,16 @@ export const SERVICES: Service[] = [
     enabled: true,
   },
 ];
+
+/** قسم المحفظة - يظهر في أعلى الصفحة الرئيسية */
+export const WALLET_SERVICES: Service[] = [
+  {
+    id: 'wallet',
+    name: 'المحفظة',
+    description: 'رصيدك، الشحن، التحويل والدفع',
+    icon: 'wallet-outline',
+    color: '#27976A',
+    route: 'WalletScreen',
+    enabled: true,
+  },
+];
