@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from 'react';
-import { ensureSocket } from '../realtime/socket';
+import { ensureSocket, getSocket } from '../realtime/socket';
 import Toast from 'react-native-toast-message';
 
 interface OrderUpdateData {

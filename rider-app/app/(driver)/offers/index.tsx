@@ -26,6 +26,33 @@ interface Offer {
   createdAt: string;
 }
 
+/** Map Order response from API to Offer format */
+function mapOrderToOffer(order: any): Offer {
+  const user = order.user || {};
+  const address = order.address || {};
+  const pickupLocation = order.pickupLocation || {};
+  const totalPrice = (order.price || 0) + (order.deliveryFee || 0);
+  const createdAt = order.createdAt
+    ? new Date(order.createdAt).toISOString()
+    : new Date().toISOString();
+
+  return {
+    _id: order._id,
+    orderId: order._id,
+    customerName: user.fullName || user.phone || "عميل",
+    pickupAddress:
+      pickupLocation.label ||
+      pickupLocation.street ||
+      (order.items?.[0]?.store?.name) ||
+      "—",
+    deliveryAddress: address.label || `${address.street || ""}, ${address.city || ""}`.trim() || "—",
+    price: totalPrice,
+    distance: order.distance ?? order.deliveryDistance ?? 0,
+    estimatedTime: 15,
+    createdAt,
+  };
+}
+
 export default function OffersScreen() {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,8 +61,10 @@ export default function OffersScreen() {
   const fetchOffers = async () => {
     try {
       setLoading(true);
-      const data = await listOffers();
-      setOffers(data);
+      const response = await listOffers();
+      const rawData = response?.data ?? response;
+      const orders = Array.isArray(rawData) ? rawData : [];
+      setOffers(orders.map(mapOrderToOffer));
     } catch (error) {
       console.error("Error fetching offers:", error);
       Alert.alert("خطأ", "فشل في تحميل العروض");

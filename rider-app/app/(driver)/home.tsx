@@ -71,7 +71,7 @@ export default function DriverDashboardScreen() {
     setAvailable(next);
     try {
       await updateAvailability(next);
-    } catch (e) {
+    } catch {
       setAvailable(!next); // rollback
       Alert.alert("خطأ", "فشل تحديث التوفر");
     }

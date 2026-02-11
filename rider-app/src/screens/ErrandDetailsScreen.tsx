@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   Linking,
 } from "react-native";
-import { useRoute, useNavigation } from "@react-navigation/native";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   getErrandDetails,
   updateErrandStatus,
@@ -20,30 +20,30 @@ import {
 } from "../api/akhdimni";
 
 const ErrandDetailsScreen: React.FC = () => {
-  const route = useRoute();
-  const navigation = useNavigation();
-  const { errandId } = route.params as { errandId: string };
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
+  const errandId = id;
 
   const [errand, setErrand] = useState<ErrandOrder | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
 
-  const fetchDetails = async () => {
+  const fetchDetails = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getErrandDetails(errandId);
       setErrand(data);
     } catch (error: any) {
       Alert.alert("خطأ", error?.response?.data?.message || "فشل في جلب التفاصيل");
-      navigation.goBack();
+      router.back();
     } finally {
       setLoading(false);
     }
-  };
+  }, [errandId, router]);
 
   useEffect(() => {
     fetchDetails();
-  }, [errandId]);
+  }, [fetchDetails]);
 
   const handleUpdateStatus = async (newStatus: string, note?: string) => {
     if (!errand) return;

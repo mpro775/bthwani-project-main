@@ -10,11 +10,11 @@ import {
   View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { COLORS } from "../../constants/colors";
+import { COLORS } from "@/constants/colors";
 import {
   MaaroufDeliveryItem,
   getMaaroufDeliveryTasks,
-} from "../../src/api/maarouf";
+} from "@/api/maarouf";
 import { useRouter } from "expo-router";
 
 const MaaroufDeliveriesScreen: React.FC = () => {

@@ -13,7 +13,7 @@ export async function ensureSocket(): Promise<Socket> {
   if (socket?.connected) return socket;
 
   const token = await getAuthToken();
-  const API_BASE = Constants.expoConfig?.extra?.apiBase || "https://api.bthwani.com";
+  const API_BASE = Constants.expoConfig?.extra?.apiBase || "https://api.btwani.smartagency-ye.com";
 
   socket = io(API_BASE, {
     transports: ["websocket"],

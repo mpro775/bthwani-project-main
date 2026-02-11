@@ -27,7 +27,7 @@ function SplashGate() {
 
   useEffect(() => {
     if (!loading) onReady();
-  }, [loading]);
+  }, [loading, onReady]);
 
   if (loading || !ready) return null;
 

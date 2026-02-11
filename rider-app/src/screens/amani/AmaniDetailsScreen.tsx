@@ -7,7 +7,6 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
-  Linking,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -77,6 +76,7 @@ export default function AmaniDetailsScreen() {
         sendLocation(id, loc.coords.latitude, loc.coords.longitude);
       } catch (e) {
         // تجاهل أخطاء الموقع
+        console.error("Error sending location:", e);
       }
     };
 

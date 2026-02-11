@@ -52,6 +52,7 @@ export default function WithdrawScreen() {
         setSelectedMethod(data[0].id);
       }
     } catch (error) {
+      console.error("Error loading withdraw methods:", error);
       Alert.alert("خطأ", "تعذر تحميل طرق السحب");
     }
   };
@@ -71,6 +72,7 @@ export default function WithdrawScreen() {
       const data = await getMyWithdrawals({ limit: 20 });
       setWithdrawals(data.data || []);
     } catch (error) {
+      console.error("Error loading withdrawals history:", error);
       Alert.alert("خطأ", "تعذر تحميل سجل السحوبات");
     } finally {
       setLoadingHistory(false);
@@ -196,6 +198,7 @@ export default function WithdrawScreen() {
               loadBalance();
             }
           } catch (error: any) {
+            console.error("Error cancelling withdrawal:", error);
             Alert.alert("خطأ", "فشل إلغاء طلب السحب");
           }
         },

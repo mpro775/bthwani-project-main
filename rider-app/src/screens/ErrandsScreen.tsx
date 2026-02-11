@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useRouter } from "expo-router";
 import {
   getMyDriverErrands,
   ErrandOrder,
@@ -18,13 +18,13 @@ import {
 } from "../api/akhdimni";
 
 const ErrandsScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const router = useRouter();
   const [errands, setErrands] = useState<ErrandOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<string | undefined>(undefined);
 
-  const fetchErrands = async (showLoading = true) => {
+  const fetchErrands = useCallback(async (showLoading = true) => {
     try {
       if (showLoading) setLoading(true);
       const data = await getMyDriverErrands(filter);
@@ -35,11 +35,11 @@ const ErrandsScreen: React.FC = () => {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [filter]);
 
   useEffect(() => {
     fetchErrands();
-  }, [filter]);
+  }, [fetchErrands]);
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -53,9 +53,7 @@ const ErrandsScreen: React.FC = () => {
     return (
       <TouchableOpacity
         style={styles.card}
-        onPress={() =>
-          navigation.navigate("ErrandDetails" as never, { errandId: item._id } as never)
-        }
+        onPress={() => router.push(`/errands/${item._id}`)}
       >
         <View style={styles.cardHeader}>
           <Text style={styles.orderNumber}>#{item.orderNumber}</Text>

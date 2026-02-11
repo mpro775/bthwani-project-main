@@ -5,7 +5,7 @@ import Constants from "expo-constants";
 
 const SOCKET_BASE =
   Constants.expoConfig?.extra?.apiBase ||
-  "https://api.bthwani.com";
+  "https://api.btwani.smartagency-ye.com";
 
 export interface AmaniDriverSocketCallbacks {
   onNewAssignment?: (data: { amaniId: string; timestamp: Date }) => void;
@@ -107,7 +107,7 @@ export function useAmaniDriverSocket(callbacks?: AmaniDriverSocketCallbacks) {
       mountedRef.current = false;
       disconnect();
     };
-  }, []);
+  }, [disconnect]);
 
   return {
     connected,

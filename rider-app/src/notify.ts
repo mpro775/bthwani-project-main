@@ -1,5 +1,5 @@
 // rider-app/notify.ts
-import axiosInstance from "@/api/axiosInstance";
+import apiClient from "@/api/axiosInstance";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
@@ -40,7 +40,7 @@ export async function registerPushToken(app: "driver") {
   const endpoint = "/drivers/push-token";
 
   try {
-    await axiosInstance.post(endpoint, {
+    await apiClient.post(endpoint, {
       token,
       platform: Device.osName?.toLowerCase().includes("android")
         ? "android"
@@ -102,6 +102,6 @@ export async function unregisterPushToken(
 ) {
   const endpoint = "/drivers/push-token";
   try {
-    await axiosInstance.delete(endpoint, { data: { token } });
+    await apiClient.delete(endpoint, { data: { token } });
   } catch {}
 }

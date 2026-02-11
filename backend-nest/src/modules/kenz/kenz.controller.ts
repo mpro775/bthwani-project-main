@@ -133,6 +133,41 @@ export class KenzController {
     return this.service.listFavorites(String(userId), cursor, 25);
   }
 
+  @Get('deliveries/list')
+  @UseGuards(UnifiedAuthGuard)
+  @ApiOperation({
+    summary: 'قائمة مهام توصيل كنز',
+    description: 'تعيد الإعلانات التي عليها deliveryToggle=true وتطلب توصيل — للسائق (light_driver)',
+  })
+  @ApiResponse({ status: HttpStatus.OK, description: 'تم الاسترجاع بنجاح' })
+  getDeliveryTasks(@Req() req: AuthenticatedRequest) {
+    const driverId = req.user?._id ?? req.user?.id;
+    return this.service.findDeliveryTasks(driverId ? String(driverId) : undefined);
+  }
+
+  @Post(':id/assign-delivery')
+  @UseGuards(UnifiedAuthGuard)
+  @ApiOperation({
+    summary: 'تعيين سائق توصيل لإعلان كنز',
+    description: 'ربط إعلان كنز بسائق (light_driver) للتوصيل',
+  })
+  @ApiParam({ name: 'id', description: 'معرف إعلان كنز' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { deliveryId: { type: 'string', description: 'معرف السائق' } },
+      required: ['deliveryId'],
+    },
+  })
+  @ApiResponse({ status: HttpStatus.OK, description: 'تم التعيين بنجاح' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'غير موجود' })
+  assignDelivery(
+    @Param('id') id: string,
+    @Body('deliveryId') deliveryId: string,
+  ) {
+    return this.service.assignDelivery(id, deliveryId);
+  }
+
   @Post(':id/favorite')
   @UseGuards(UnifiedAuthGuard)
   @ApiOperation({ summary: 'إضافة للمفضلة', description: 'إضافة إعلان إلى المفضلة (يتطلب مصادقة)' })

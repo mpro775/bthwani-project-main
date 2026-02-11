@@ -41,7 +41,6 @@ instance.interceptors.response.use(
       }
     }
 
-    const status = error?.response?.status;
     const code = error?.response?.data?.error?.code;
 
     if (code && ERROR_MAP[code]) {

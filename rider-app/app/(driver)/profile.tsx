@@ -1,6 +1,7 @@
 // app/(driver)/profile.tsx
 import { getProfile, updateProfile } from "@/api/profile";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -30,6 +31,7 @@ interface ProfileData {
 }
 
 export default function ProfileScreen() {
+  const router = useRouter();
   const [profileData, setProfileData] = useState<ProfileData>({
     fullName: "",
     email: "",
@@ -311,6 +313,28 @@ export default function ProfileScreen() {
         </TouchableOpacity>
       </View>
 
+      {/* Quick Links */}
+      <View style={styles.quickLinksContainer}>
+        <TouchableOpacity
+          style={styles.quickLinkButton}
+          onPress={() => router.push("/change-password")}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="key" size={20} color={COLORS.primary} />
+          <Text style={styles.quickLinkText}>تغيير كلمة المرور</Text>
+          <Ionicons name="chevron-back" size={20} color={COLORS.gray} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.quickLinkButton}
+          onPress={() => router.push("/support")}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="headset" size={20} color={COLORS.primary} />
+          <Text style={styles.quickLinkText}>الدعم الفني</Text>
+          <Ionicons name="chevron-back" size={20} color={COLORS.gray} />
+        </TouchableOpacity>
+      </View>
+
       {/* Danger Zone */}
       <View style={styles.dangerContainer}>
         <Text style={styles.dangerTitle}>منطقة الخطر</Text>
@@ -495,6 +519,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Cairo-Bold",
     marginLeft: 8,
+  },
+  quickLinksContainer: {
+    marginHorizontal: 20,
+    marginBottom: 24,
+  },
+  quickLinkButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.background,
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: COLORS.lightGray,
+  },
+  quickLinkText: {
+    flex: 1,
+    fontSize: 16,
+    fontFamily: "Cairo-Bold",
+    color: COLORS.text,
+    marginHorizontal: 12,
+    textAlign: "right",
   },
   dangerContainer: {
     marginHorizontal: 20,

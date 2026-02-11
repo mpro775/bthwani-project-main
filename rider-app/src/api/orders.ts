@@ -4,11 +4,11 @@ export interface DriverOrder {
   _id: string;
   user: { fullName: string; phone: string };
   store?: { name: string };
-  items: Array<{
+  items: {
     product: { name: string };
     quantity: number;
     price: number;
-  }>;
+  }[];
   status: string;
   totalPrice: number;
   deliveryFee: number;

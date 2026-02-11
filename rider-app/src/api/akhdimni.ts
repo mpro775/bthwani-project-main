@@ -41,11 +41,11 @@ export interface ErrandOrder {
   deliveredAt?: Date;
   createdAt: Date;
   updatedAt: Date;
-  statusHistory?: Array<{
+  statusHistory?: {
     status: string;
     timestamp: Date;
     note?: string;
-  }>;
+  }[];
   rating?: {
     driver: number;
     service: number;

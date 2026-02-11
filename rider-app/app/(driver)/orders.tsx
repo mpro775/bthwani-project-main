@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import { completeOrder, getDriverOrders } from "@/api/driver";
 import { triggerSOS } from "@/componant/triggerSOS";
-import { useAuth } from "@/context/AuthContext";
 import { useLocalSearchParams } from "expo-router";
 
 interface OrderType {
@@ -22,9 +21,7 @@ interface OrderType {
 }
 
 export default function DriverOrdersScreen() {
-  const { driver } = useAuth(); // نحصل على type من driver نفسه
   const { type = "rider_driver" } = useLocalSearchParams();
-  const driverType = type as "rider_driver" | "light_driver" | "women_driver";
 
   const [orders, setOrders] = useState<OrderType[]>([]);
   const [loading, setLoading] = useState(true);

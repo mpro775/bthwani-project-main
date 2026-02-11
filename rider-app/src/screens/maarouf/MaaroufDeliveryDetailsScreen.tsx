@@ -10,14 +10,14 @@ import {
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { COLORS } from "../../constants/colors";
+import { COLORS } from "@/constants/colors";
 import {
   MaaroufDeliveryItem,
   RewardHold,
   getMaaroufDetails,
   getMaaroufRewardHolds,
   verifyMaaroufRewardCode,
-} from "../../src/api/maarouf";
+} from "@/api/maarouf";
 
 const MaaroufDeliveryDetailsScreen: React.FC = () => {
   const { id } = useLocalSearchParams<{ id: string }>();

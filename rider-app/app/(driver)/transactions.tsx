@@ -58,7 +58,7 @@ export default function TransactionsScreen() {
 
   useEffect(() => {
     loadTransactions(true);
-  }, [filter]);
+  }, [loadTransactions]);
 
   const onRefresh = () => {
     setRefreshing(true);

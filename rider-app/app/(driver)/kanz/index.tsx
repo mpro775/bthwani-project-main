@@ -1,32 +1,33 @@
-// app/(driver)/women.tsx
+// app/(driver)/kanz/index.tsx
+// قسم كنز — التوصيل الخفيف (السوق المفتوح / إعلانات)
 import { useRouter } from "expo-router";
 import React from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 
-export default function AmaniScreen() {
+export default function KanzOrdersScreen() {
   const router = useRouter();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>أهلاً بك في أماني</Text>
+      <Text style={styles.title}>مرحباً بك في قسم كنز</Text>
 
       <Button
-        title="🚗 رحلاتي"
-        onPress={() => router.push({ pathname: "/orders", params: { type: "women_driver" } })}
+        title="🚚 طلبات التوصيل"
+        onPress={() => router.push({ pathname: "/orders", params: { type: "light_driver" } })}
       />
 
       <Button
-        title="🚺 طلبات أماني"
-        onPress={() => router.push("/amani")}
+        title="📦 مهام توصيل كنز"
+        onPress={() => router.push("/kanz/deliveries")}
       />
 
       <Button
-        title="💳 الرصيد"
+        title="💰 المحفظة"
         onPress={() => router.push("/wallet")}
       />
 
       <Button
-        title="⚙️ الإعدادات"
+        title="👤 الحساب"
         onPress={() => router.push("/profile")}
       />
     </View>

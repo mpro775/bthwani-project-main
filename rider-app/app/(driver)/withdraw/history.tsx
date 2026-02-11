@@ -1,15 +1,15 @@
 // app/(driver)/withdraw/history.tsx
-import { requestWithdrawal, listWithdrawals } from "@/api/driver";
+import { getMyWithdrawals, requestWithdrawal } from "@/api/walletApi";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Alert, Button, FlatList, StyleSheet, Text, TextInput, View } from "react-native";
 
-interface Withdrawal {
-  _id: string;
-  amount: number;
-  status: string;
-  requestedAt: string;
-}
+const STATUS_LABELS: Record<string, string> = {
+  pending: "معلق",
+  approved: "موافق",
+  rejected: "مرفوض",
+  cancelled: "ملغي",
+};
 
 export default function WithdrawRequestScreen() {
   const router = useRouter();
@@ -17,7 +17,7 @@ export default function WithdrawRequestScreen() {
   const [accountInfo, setAccountInfo] = useState("");
   const [method] = useState("agent");
   const [loading, setLoading] = useState(false);
-  const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
+  const [withdrawals, setWithdrawals] = useState<{ _id: string; amount: number; status: string; createdAt: string }[]>([]);
 
   useEffect(() => {
     fetchWithdrawals();
@@ -25,8 +25,8 @@ export default function WithdrawRequestScreen() {
 
   const fetchWithdrawals = async () => {
     try {
-      const withdrawalsData = await listWithdrawals();
-      setWithdrawals(withdrawalsData);
+      const result = await getMyWithdrawals({ limit: 50 });
+      setWithdrawals(result.data || []);
     } catch (e) {
       console.error("❌ فشل في جلب السحوبات", e);
     }
@@ -41,7 +41,11 @@ export default function WithdrawRequestScreen() {
 
     setLoading(true);
     try {
-      await requestWithdrawal({ amount: num, method, accountInfo });
+      await requestWithdrawal({
+        amount: num,
+        method,
+        accountInfo: { details: accountInfo },
+      });
       Alert.alert("✅", "تم إرسال طلب السحب بنجاح");
       setAmount("");
       setAccountInfo("");
@@ -79,8 +83,8 @@ export default function WithdrawRequestScreen() {
         renderItem={({ item }) => (
           <View style={styles.item}>
             <Text>المبلغ: {item.amount} ﷼</Text>
-            <Text>الحالة: {item.status}</Text>
-            <Text>التاريخ: {new Date(item.requestedAt).toLocaleDateString()}</Text>
+            <Text>الحالة: {STATUS_LABELS[item.status] || item.status}</Text>
+            <Text>التاريخ: {new Date(item.createdAt).toLocaleDateString("ar-SA")}</Text>
           </View>
         )}
       />

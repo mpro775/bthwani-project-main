@@ -11,11 +11,11 @@ export interface SupportTicket {
   category: 'technical' | 'billing' | 'general' | 'complaint';
   priority: 'low' | 'medium' | 'high' | 'urgent';
   status: 'open' | 'in_progress' | 'resolved' | 'closed';
-  messages: Array<{
+  messages: {
     sender: string;
     message: string;
     timestamp: string;
-  }>;
+  }[];
   createdAt: string;
   updatedAt: string;
 }

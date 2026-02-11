@@ -348,6 +348,43 @@ export class KenzService {
   }
 
   /**
+   * تعيين سائق توصيل لإعلان كنز
+   */
+  async assignDelivery(id: string, deliveryId: string) {
+    if (!Types.ObjectId.isValid(id) || !Types.ObjectId.isValid(deliveryId)) {
+      throw new NotFoundException('معرف غير صالح');
+    }
+    const doc = await this.model
+      .findByIdAndUpdate(
+        id,
+        { $set: { deliveryToggle: true, deliveryId: new Types.ObjectId(deliveryId) } },
+        { new: true },
+      )
+      .exec();
+    if (!doc) throw new NotFoundException('Not found');
+    return doc;
+  }
+
+  /**
+   * قائمة مهام توصيل كنز للسائق (light_driver)
+   * - إن تم تمرير driverId: يعيد الطلبات المعينة لهذا السائق
+   * - إن لم يُمرر: يعيد الإعلانات التي عليها deliveryToggle=true وتطلب توصيل (غير معينة)
+   */
+  async findDeliveryTasks(driverId?: string) {
+    const filter: Record<string, unknown> = {
+      deliveryToggle: true,
+      status: { $in: ['pending', 'confirmed'] },
+      deliveryOption: { $in: ['delivery', 'both'] },
+    };
+    if (driverId && Types.ObjectId.isValid(driverId)) {
+      filter.deliveryId = new Types.ObjectId(driverId);
+    } else {
+      filter.deliveryId = { $in: [null, undefined] };
+    }
+    return this.model.find(filter).sort({ createdAt: -1 }).populate('ownerId', 'fullName phone').exec();
+  }
+
+  /**
    * أرشفة الإعلانات المباعة الأقدم من 90 يوماً (يُستدعى يومياً عبر Cron)
    */
   async archiveOldCompleted(): Promise<{ archived: number }> {

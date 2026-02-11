@@ -119,6 +119,14 @@ export class Kenz extends Document {
   @ApiProperty({ description: 'مبلغ المزايدة الفائزة', required: false })
   @Prop()
   winningBidAmount?: number;
+
+  @ApiProperty({ description: 'تفعيل طلب توصيل (لربط السائق)', required: false, default: false })
+  @Prop({ default: false })
+  deliveryToggle?: boolean;
+
+  @ApiProperty({ description: 'معرف السائق المعيّن للتوصيل', required: false })
+  @Prop({ type: Types.ObjectId, ref: 'Driver', default: null })
+  deliveryId?: Types.ObjectId | null;
 }
 
 export const KenzSchema = SchemaFactory.createForClass(Kenz);

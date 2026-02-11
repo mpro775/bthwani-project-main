@@ -18,7 +18,7 @@ import { Order } from '../order/entities/order.entity';
 import { CursorPaginationDto } from '../../common/dto/pagination.dto';
 import { WalletService } from '../wallet/wallet.service';
 import { OrderService } from '../order/order.service';
-import { OrderStatus } from '../order/enums/order-status.enum';
+import { OrderStatus, OrderType } from '../order/enums/order-status.enum';
 import { PaymentMethod } from '../order/enums/order-status.enum';
 import { OrderGateway } from '../../gateways/order.gateway';
 import {
@@ -334,12 +334,19 @@ export class DriverService {
       return { data: [] };
     }
 
-    // 3. جلب الطلبات الجاهزة بدون سائق
+    // 3. جلب الطلبات الجاهزة بدون سائق (مع فلترة حسب دور السائق)
+    const query: Record<string, any> = {
+      status: OrderStatus.READY,
+      driver: { $exists: false },
+    };
+    if (driver.role === 'light_driver') {
+      query.orderType = OrderType.MARKETPLACE;
+    } else if (driver.role === 'women_driver') {
+      // أماني يستخدم موديولها الخاص — لا نعرض طلبات Order العامة لسائقة أماني
+      return { data: [] };
+    }
     const orders = await this.orderModel
-      .find({
-        status: OrderStatus.READY,
-        driver: { $exists: false },
-      })
+      .find(query)
       .populate('user', 'fullName phone')
       .populate('items.store', 'name')
       .sort({ createdAt: -1 })

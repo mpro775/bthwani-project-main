@@ -41,7 +41,7 @@ export default function WalletScreen() {
   const loadWalletData = async () => {
     try {
       setLoading(true);
-      const [summaryData, balanceData, transactionsData] = await Promise.all([
+      const [summaryData, , transactionsData] = await Promise.all([
         getWalletSummary(),
         getWalletBalance().catch(() => null),
         getTransactions({ limit: 5 }).catch(() => null),

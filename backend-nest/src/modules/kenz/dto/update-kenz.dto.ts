@@ -91,6 +91,11 @@ export default class UpdateKenzDto {
   @IsNumber()
   deliveryFee?: number;
 
+  @ApiProperty({ description: 'تفعيل طلب توصيل (لربط السائق)', required: false })
+  @IsOptional()
+  @IsBoolean()
+  deliveryToggle?: boolean;
+
   @ApiProperty({ description: 'يقبل الدفع بالإيكرو', required: false })
   @IsOptional()
   @IsBoolean()
