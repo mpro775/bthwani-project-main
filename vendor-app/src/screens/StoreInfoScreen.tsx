@@ -17,7 +17,7 @@ import {
 } from 'react-native';
 import MapView, { MapPressEvent, Marker } from "react-native-maps";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import axiosInstance from '../api/axiosInstance';
+import * as storeApi from '../api/store';
 import { useUser } from '../hooks/userContext';
 
 
@@ -69,13 +69,12 @@ const StoreInfoScreen = () => {
 
   const fetchStore = async (storeId: string) => {
     try {
-
       setLoading(true);
-      const res = await axiosInstance.get(`/delivery/stores/${storeId}`);
-      setStore(res.data);
-      setForm(res.data);
-    } catch (err) {
-      Alert.alert('خطأ', 'فشل تحميل بيانات المتجر');
+      const data = await storeApi.getStore(storeId);
+      setStore(data as Store);
+      setForm(data);
+    } catch (err: any) {
+      Alert.alert('خطأ', err?.message || 'فشل تحميل بيانات المتجر');
     } finally {
       setLoading(false);
     }
@@ -118,14 +117,15 @@ const StoreInfoScreen = () => {
     });
   };
   const handleSave = async () => {
+    if (!user?.storeId) return;
     try {
       setLoading(true);
-      await axiosInstance.put(`/delivery/stores/${user.storeId}`, form);
+      await storeApi.updateStore(user.storeId, form);
       Alert.alert('نجح', 'تم حفظ بيانات المتجر بنجاح');
       setEditMode(false);
       fetchStore(user.storeId);
-    } catch (err) {
-      Alert.alert('خطأ', 'فشل تحديث بيانات المتجر');
+    } catch (err: any) {
+      Alert.alert('خطأ', err?.message || 'فشل تحديث بيانات المتجر');
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,6 @@
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -11,11 +11,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
 import { LineChart } from "react-native-chart-kit";
 import { Card } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import axiosInstance from "../api/axiosInstance";
+import * as vendorApi from "../api/vendor";
+import * as ordersApi from "../api/orders";
 import { COLORS } from "../constants/colors";
 import { exportToExcel } from "../components/export-exel";
 
@@ -27,42 +27,39 @@ const StatisticsScreen: React.FC = () => {
   const [todayOrders, setTodayOrders] = useState<any[]>([]);
   const [exportLoading, setExportLoading] = useState(false);
 
-  useEffect(() => {
-    fetchDashboard();
-  }, []);
-
-  const fetchDashboard = async () => {
+  const fetchTodayOrders = useCallback(async () => {
     try {
-      const res = await axiosInstance.get("/vendors/dashboard/overview");
-      setData(res.data);
-
-      // جلب طلبات اليوم للتصدير
-      await fetchTodayOrders();
-    } catch (err) {
-      // Handle error
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchTodayOrders = async () => {
-    try {
-      // جلب الطلبات بدون تحديد تاريخ للحصول على جميع الطلبات ثم فلترة اليوم
-      const res = await axiosInstance.get("/delivery/order/vendor/orders");
-      const allOrders = res.data?.data || res.data || [];
-
-      // فلترة طلبات اليوم
-      const today = new Date().toISOString().split('T')[0];
+      const res = await ordersApi.getVendorOrders(undefined, 100);
+      const allOrders = res?.data ?? [];
+      const today = new Date().toISOString().split("T")[0];
       const filteredOrders = allOrders.filter((order: any) => {
-        const orderDate = new Date(order.createdAt).toISOString().split('T')[0];
+        const orderDate = order.createdAt
+          ? new Date(order.createdAt).toISOString().split("T")[0]
+          : "";
         return orderDate === today;
       });
-
       setTodayOrders(filteredOrders);
     } catch (error) {
       console.error("Error fetching today orders:", error);
+      setTodayOrders([]);
     }
-  };
+  }, []);
+
+  const fetchDashboard = useCallback(async () => {
+    try {
+      const dashboardData = await vendorApi.getDashboard();
+      setData(dashboardData ?? null);
+      await fetchTodayOrders();
+    } catch {
+      setData(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchTodayOrders]);
+
+  useEffect(() => {
+    fetchDashboard();
+  }, [fetchDashboard]);
 
   const handleExportTodayOrders = async () => {
     if (todayOrders.length === 0) {
@@ -90,12 +87,16 @@ const StatisticsScreen: React.FC = () => {
     );
   }
 
-  const timelineLabels = (data.timeline || []).map((t: any) => t._id.slice(5));
-  const timelineCounts = (data.timeline || []).map((t: any) => t.count);
+  if (!data) {
+    return (
+      <View style={styles.centered}>
+        <Text style={styles.loadingText}>تعذر تحميل البيانات</Text>
+      </View>
+    );
+  }
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("ar-OM").format(value || 0);
-  };
+  const timelineLabels = (data.timeline || []).map((t: any) => t._id?.slice?.(5) ?? "");
+  const timelineCounts = (data.timeline || []).map((t: any) => t.count);
 
   return (
     <SafeAreaView style={styles.container}>

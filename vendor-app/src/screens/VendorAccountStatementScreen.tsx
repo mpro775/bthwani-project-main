@@ -3,7 +3,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   FlatList,
-  I18nManager,
   Modal,
   ScrollView,
   StyleSheet,
@@ -14,7 +13,7 @@ import {
 } from "react-native";
 import { Card } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import axiosInstance from "../api/axiosInstance";
+import * as vendorApi from "../api/vendor";
 import { COLORS } from "../constants/colors";
 
 // --- Types ---
@@ -55,9 +54,6 @@ const STATUS_COLOR: Record<SettlementRequest["status"], string> = {
 
 // --- Component ---
 const VendorAccountStatementScreen: React.FC = () => {
-  // Ensure RTL (does not force app-wide, just sets direction for layouts we control)
-  const isRTL = I18nManager.isRTL;
-
   const [currentBalance, setCurrentBalance] = useState(0);
   const [settlementRequests, setSettlementRequests] = useState<
     SettlementRequest[]
@@ -75,39 +71,38 @@ const VendorAccountStatementScreen: React.FC = () => {
     (async () => {
       try {
         const [stmt, settlements, sales] = await Promise.all([
-          axiosInstance.get("/vendors/account/statement"),
-          axiosInstance.get("/vendors/settlements"),
-          axiosInstance.get("/vendors/sales?limit=100"),
+          vendorApi.getAccountStatement(),
+          vendorApi.getSettlements(),
+          vendorApi.getSales(100),
         ]);
 
-        setCurrentBalance(stmt.data.currentBalance || 0);
+        setCurrentBalance(stmt?.currentBalance ?? 0);
 
         setSettlementRequests(
-          (settlements.data || []).map((r: any) => ({
-            id: r.id,
-            amount: r.amount,
-            status: r.status,
-            requestedDate: r.requestedDate,
+          settlements.map((r: any) => ({
+            id: r._id || r.id || "",
+            amount: r.amount ?? 0,
+            status: r.status || "pending",
+            requestedDate: r.requestedDate || r.requestedAt?.slice?.(0, 10) || "",
             processedDate: r.processedDate,
-            bankAccount: r.bankAccount,
+            bankAccount: r.bankAccount || "",
           }))
         );
 
         setSalesHistory(
-          (sales.data || []).map((s: any) => ({
-            id: s.id,
-            orderId: s.orderId,
-            amount: s.amount,
-            date: s.date,
-            // ⚠️ الباك-إند أصلاً لا يعيد أسماء عملاء
-            customerName: s.customerCode, // رمز بديل لتمييز السجلات
-            commission: s.commission,
-            netAmount: s.netAmount,
+          sales.map((s: any) => ({
+            id: s._id || s.id || "",
+            orderId: s.orderId || "",
+            amount: s.amount ?? 0,
+            date: s.date || "",
+            customerName: s.customerCode || "",
+            commission: s.commission ?? 0,
+            netAmount: s.netAmount ?? 0,
           }))
         );
       } catch (e: any) {
-        // اعرض مودال الخطأ لديك
-        showError(e.response?.data?.message || "تعذر تحميل البيانات");
+        setErrorMessage(e?.message || e?.response?.data?.message || "تعذر تحميل البيانات");
+        setShowErrorModal(true);
       }
     })();
   }, []);
@@ -157,18 +152,16 @@ const VendorAccountStatementScreen: React.FC = () => {
     }
 
     try {
-      const res = await axiosInstance.post("/vendors/settlements", {
+      const r = await vendorApi.createSettlement({
         amount,
-        bankAccount: "YE09 1234 5678 9012 3456 7890", // أو خذه من نموذج إدخال
+        bankAccount: "YE09 1234 5678 9012 3456 7890",
       });
-      // أضِف الناتج للقائمة مباشرةً (تفاؤليًا)
-      const r = res.data;
       setSettlementRequests(prev => [{
-        id: r._id,
-        amount: r.amount,
-        status: r.status,
-        requestedDate: new Date(r.createdAt || r.requestedAt).toISOString().slice(0,10),
-        bankAccount: r.bankAccount || "",
+        id: (r as any)._id || (r as any).id || "",
+        amount: (r as any).amount ?? amount,
+        status: (r as any).status || "pending",
+        requestedDate: new Date((r as any).createdAt || (r as any).requestedAt || Date.now()).toISOString().slice(0, 10),
+        bankAccount: (r as any).bankAccount || "",
       }, ...prev]);
 
       setShowSettlementModal(false);
@@ -176,7 +169,8 @@ const VendorAccountStatementScreen: React.FC = () => {
       setSettlementType('custom');
       showSuccess();
     } catch (e: any) {
-      showError(e.response?.data?.message || "تعذر إرسال الطلب");
+      setErrorMessage(e?.message || e?.response?.data?.message || "تعذر إرسال الطلب");
+      setShowErrorModal(true);
     }
   };
 

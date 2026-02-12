@@ -20,30 +20,43 @@ export class VendorService {
     private jwtService: JwtService,
   ) {}
 
-  // تسجيل دخول التاجر
-  async vendorLogin(email: string, password: string) {
-    // البحث عن التاجر
-    const vendor = await this.vendorModel.findOne({ email }).select('+password');
+  // تسجيل دخول التاجر (بالهاتف وكلمة المرور)
+  async vendorLogin(phone: string, password: string) {
+    // البحث عن التاجر برقم الهاتف
+    const vendor = await this.vendorModel.findOne({ phone }).select('+password');
 
     if (!vendor) {
-      throw new NotFoundException('Invalid credentials');
+      throw new NotFoundException({
+        code: 'INVALID_CREDENTIALS',
+        message: 'Invalid credentials',
+        userMessage: 'رقم الهاتف أو كلمة المرور غير صحيحة',
+      });
     }
 
     // التحقق من كلمة المرور
     const isValidPassword = await this.comparePassword(password, vendor.password);
     if (!isValidPassword) {
-      throw new NotFoundException('Invalid credentials');
+      throw new NotFoundException({
+        code: 'INVALID_CREDENTIALS',
+        message: 'Invalid credentials',
+        userMessage: 'رقم الهاتف أو كلمة المرور غير صحيحة',
+      });
     }
 
-    // التحقق من حالة التاجر (لا يوجد status field في Vendor entity)
-    // TODO: Add status field to Vendor entity if needed
-    // For now, assume all vendors are active
+    // التحقق من حالة التاجر
+    if (!vendor.isActive) {
+      throw new UnauthorizedException({
+        code: 'VENDOR_INACTIVE',
+        message: 'Vendor account is inactive',
+        userMessage: 'حسابك معطل، يرجى التواصل مع الدعم',
+      });
+    }
 
     // توليد token
     const token = await this.generateVendorToken(vendor);
 
     return {
-      user: this.sanitizeVendor(vendor),
+      vendor: this.sanitizeVendor(vendor),
       token,
       type: 'vendor',
     };

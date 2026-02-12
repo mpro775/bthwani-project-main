@@ -7,6 +7,22 @@ import type { ApiResponse } from "../types/api";
 import type { AxiosResponse } from "axios";
 
 /**
+ * استخراج المحتوى الفعلي من استجابة API الموحدة
+ * يدعم: axios response أو body مباشر
+ * الشكل المتوقع: { success, data?, error?, meta? }
+ */
+export function unwrapResponse<T>(response: any): T {
+  const body = response?.data ?? response;
+  if (body?.success !== undefined && body?.success === false) {
+    const err = body?.error;
+    throw new Error(
+      err?.userMessage ?? err?.message ?? "فشلت العملية"
+    );
+  }
+  return (body?.data ?? body) as T;
+}
+
+/**
  * استخراج البيانات من استجابة API بشكل آمن
  * يرمي خطأ إذا فشل الطلب
  */

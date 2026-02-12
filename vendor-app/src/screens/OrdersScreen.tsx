@@ -1,10 +1,11 @@
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Animated,
-  Dimensions,
   FlatList,
   RefreshControl,
   StyleSheet,
@@ -13,11 +14,13 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import axiosInstance from "../api/axiosInstance";
+import { SafeAreaView } from "react-native-safe-area-context";
+import * as ordersApi from "../api/orders";
 import { exportToExcel } from "../components/export-exel";
+import { RootStackParamList } from "../AppNavigator";
+import { COLORS } from "../constants/colors";
 import { useUser } from "../hooks/userContext";
-const { width } = Dimensions.get("window");
+
 const STATUS_FILTERS = [
   { key: "all", label: "الكل" },
   { key: "pending_confirmation", label: "بانتظار التأكيد" },
@@ -27,16 +30,12 @@ const STATUS_FILTERS = [
   { key: "delivered", label: "تم التوصيل" },
   { key: "cancelled", label: "ملغي" },
 ];
+
 type Order = {
   _id: string;
   status: string;
   [key: string]: any;
 };
-
-import { useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../AppNavigator";
-import { COLORS } from "../constants/colors";
 
 const OrdersScreen = () => {
   const navigation =
@@ -47,7 +46,7 @@ const OrdersScreen = () => {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [page, setPage] = useState(1);
-  const [hasMoreOrders, setHasMoreOrders] = useState(true);
+  const [, setHasMoreOrders] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const fadeAnim = useState(new Animated.Value(0))[0];
 
@@ -64,16 +63,13 @@ const OrdersScreen = () => {
     return statusOk && searchOk;
   });
 
-  const paginatedOrders = filteredOrders.slice(0, page * 10);
   const calculatedHasMoreOrders = filteredOrders.length > page * 10;
-  const insets = useSafeAreaInsets();
 
   const fetchOrders = useCallback(async () => {
- 
     try {
-      const res = await axiosInstance.get("/delivery/order/vendor/orders");
-      const data = res.data?.data || res.data || [];
-      setOrders(data);
+      const res = await ordersApi.getVendorOrders(undefined, 100);
+      const list = res?.data ?? [];
+      setOrders(list);
       setLoading(false);
       setRefreshing(false);
       setHasMoreOrders(true);
@@ -85,23 +81,18 @@ const OrdersScreen = () => {
     }
   }, []);
 
-// بدّل هذه الدالة
-const updateStatus = async (id: string, status: "preparing" | "cancelled") => {
-  try {
-    if (status === "preparing") {
-      // القبول = vendor-accept (لا يحتاج body)
-      await axiosInstance.post(`/delivery/order/${id}/vendor-accept`);
-    } else if (status === "cancelled") {
-      // وفّر مسار إلغاء للتاجر (إن لم يكن موجوداً، أضِفه في الباك)
-      await axiosInstance.post(`/delivery/order/${id}/vendor-cancel`, {
-        reason: "Cancelled by vendor",
-      });
+  const updateStatus = async (id: string, status: "preparing" | "cancelled") => {
+    try {
+      if (status === "preparing") {
+        await ordersApi.acceptOrder(id);
+      } else if (status === "cancelled") {
+        await ordersApi.cancelOrder(id, "Cancelled by vendor");
+      }
+      fetchOrders();
+    } catch (error) {
+      console.error("Error updating order status:", error);
     }
-    fetchOrders();
-  } catch (error) {
-    console.error("Error updating order status:", error);
-  }
-};
+  };
 
 
   const loadMoreOrders = () => {
@@ -111,20 +102,16 @@ const updateStatus = async (id: string, status: "preparing" | "cancelled") => {
       setTimeout(() => setIsLoadingMore(false), 500);
     }
   };
-  const { user } = useUser();
+  useUser();
 
-  useEffect(() => {
-    console.log("USER DATA IN SCREEN:", user);
-  }, []);
   useEffect(() => {
     fetchOrders();
-
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 800,
       useNativeDriver: true,
     }).start();
-  }, []);
+  }, [fetchOrders, fadeAnim]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -188,8 +175,9 @@ const updateStatus = async (id: string, status: "preparing" | "cancelled") => {
   };
 
   const sortedOrders = [...filteredOrders].sort(
-    (a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)
+    (a, b) => (Date.parse(b.createdAt || "0") - Date.parse(a.createdAt || "0"))
   );
+  const paginatedOrders = sortedOrders.slice(0, page * 10);
 
   const renderItem = ({ item, index }: any) => {
     const itemAnim = new Animated.Value(0);

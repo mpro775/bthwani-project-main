@@ -12,6 +12,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse, ApiParam, ApiQuery, 
 import { VendorService } from './vendor.service';
 import { CreateVendorDto } from './dto/create-vendor.dto';
 import { UpdateVendorDto } from './dto/update-vendor.dto';
+import { VendorLoginDto } from './dto/vendor-login.dto';
 import { CursorPaginationDto } from '../../common/dto/pagination.dto';
 import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -19,6 +20,7 @@ import {
   Auth,
   Roles,
   CurrentUser,
+  Public,
 } from '../../common/decorators/auth.decorator';
 import { AuthType } from '../../common/guards/unified-auth.guard';
 
@@ -31,13 +33,15 @@ export class VendorController {
 
   // ==================== Vendor Authentication ====================
 
+  @Public()
   @Post('auth/vendor-login')
+  @ApiBody({ type: VendorLoginDto })
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiOperation({ summary: 'تسجيل دخول التاجر' })
-  async vendorLogin(@Body() loginDto: { email: string; password: string }) {
-    return this.vendorService.vendorLogin(loginDto.email, loginDto.password);
+  async vendorLogin(@Body() loginDto: VendorLoginDto) {
+    return this.vendorService.vendorLogin(loginDto.phone, loginDto.password);
   }
 
   @Auth(AuthType.JWT)

@@ -1,5 +1,5 @@
-import XLSX from 'xlsx';
-import * as FileSystem from 'expo-file-system';
+import { utils as xlsxUtils, write as xlsxWrite } from 'xlsx';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 
 // دالة مساعدة لتحويل حالة الطلب إلى نص عربي
@@ -31,13 +31,14 @@ export const exportToExcel = async (orders: any[]) => {
   }));
 
   // أنشئ ملف إكسل
-  const ws = XLSX.utils.json_to_sheet(excelData);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Orders');
-  const wbout = XLSX.write(wb, { type: 'base64', bookType: 'xlsx' });
+  const ws = xlsxUtils.json_to_sheet(excelData);
+  const wb = xlsxUtils.book_new();
+  xlsxUtils.book_append_sheet(wb, ws, 'Orders');
+  const wbout = xlsxWrite(wb, { type: 'base64', bookType: 'xlsx' });
 
   // احفظه على الجهاز
-  const uri = FileSystem.cacheDirectory + `orders_${Date.now()}.xlsx`;
+  const cacheDir = FileSystem.cacheDirectory ?? '';
+  const uri = cacheDir + `orders_${Date.now()}.xlsx`;
   await FileSystem.writeAsStringAsync(uri, wbout, { encoding: FileSystem.EncodingType.Base64 });
 
   // شارك أو حمّل الملف

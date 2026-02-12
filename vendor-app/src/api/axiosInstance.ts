@@ -1,25 +1,24 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import Constants from "expo-constants";
 import { ERROR_MAP } from "../utils/errorMap";
 import type { ApiResponse } from "../types/api";
 
 // قراءة متغير البيئة من app.json أو استخدام قيمة افتراضية
 const getBaseURL = () => {
   try {
-    // في Expo، يمكننا الوصول للمتغيرات من Constants.expoConfig.extra
-    const Constants = require('expo-constants');
-    const apiUrls = Constants.default?.expoConfig?.extra?.apiUrl;
+    const apiUrls = Constants.expoConfig?.extra?.apiUrl;
 
     if (__DEV__) {
       return apiUrls?.development || "http://localhost:3000/api/v1";
     } else {
-      return apiUrls?.production || "https://bthwani-backend-9u4r.onrender.com/api/v1";
+      return apiUrls?.production || "https://api.bthwani.smartagency-ye.com/api/v1";
     }
   } catch {
     // في حالة عدم توفر Constants، استخدم قيمة افتراضية
     return __DEV__
       ? "http://localhost:3000/api/v1"
-      : "https://bthwani-backend-9u4r.onrender.com/api/v1";
+      : "https://api.bthwani.smartagency-ye.com/api/v1";
   }
 };
 
@@ -59,7 +58,6 @@ axiosInstance.interceptors.response.use(
       }
     }
 
-    const status = error?.response?.status;
     const code = error?.response?.data?.error?.code;
 
     if (code && ERROR_MAP[code]) {

@@ -15,14 +15,13 @@ function StartupScreen({ navigation }: Props) {
     const checkAuth = async () => {
       const token = await AsyncStorage.getItem('token');
       if (token) {
-        // (اختياري: تحقق من صلاحية التوكن بالـ backend)
-        navigation.replace('Vendor'); // انتقل مباشرة للشاشة الرئيسية
+        navigation.replace('Vendor');
       } else {
-        navigation.replace('Login'); // انتقل لشاشة تسجيل الدخول
+        navigation.replace('Login');
       }
     };
     checkAuth();
-  }, []);
+  }, [navigation]);
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>

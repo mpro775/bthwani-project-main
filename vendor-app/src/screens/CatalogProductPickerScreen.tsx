@@ -20,7 +20,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { RootStackParamList } from "../AppNavigator";
-import axiosInstance from "../api/axiosInstance";
+import * as merchantApi from "../api/merchant";
 import { COLORS } from "../constants/colors";
 
 interface CatalogProduct {
@@ -52,8 +52,8 @@ const CatalogProductPickerScreen = () => {
     try {
       setLoading(true);
 
-      const res = await axiosInstance.get("/groceries/catalog");
-      setProducts(res.data);
+      const data = await merchantApi.getCatalogProducts("grocery");
+      setProducts(Array.isArray(data) ? data : []);
     } catch {
       // خطأ
     } finally {

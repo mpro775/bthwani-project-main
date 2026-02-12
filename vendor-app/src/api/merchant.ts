@@ -1,4 +1,5 @@
 import axiosInstance from "./axiosInstance";
+import { unwrapResponse } from "../utils/apiHelpers";
 
 export interface MerchantProduct {
   _id: string;
@@ -18,7 +19,8 @@ export interface MerchantProduct {
 
 export interface CreateMerchantProductDto {
   product: string;
-  merchant: string;
+  merchant?: string;
+  vendorId?: string;
   store: string;
   price: number;
   stock?: number;
@@ -27,29 +29,37 @@ export interface CreateMerchantProductDto {
   customImage?: string;
 }
 
-// GET products for current merchant
+// GET products for current merchant (by merchantId)
 export const getMyProducts = async (merchantId: string) => {
-  const { data } = await axiosInstance.get<MerchantProduct[]>(
-    `/merchant/${merchantId}/products`
+  const res = await axiosInstance.get(`/merchants/${merchantId}/products`);
+  return unwrapResponse<MerchantProduct[]>(res);
+};
+
+// GET products for vendor (by vendorId) - يُستخدم من تطبيق التاجر
+export const getVendorProducts = async (
+  vendorId: string,
+  storeId?: string
+) => {
+  const params: Record<string, string> = {};
+  if (storeId) params.storeId = storeId;
+  const res = await axiosInstance.get(
+    `/merchants/vendor/${vendorId}/products`,
+    { params: Object.keys(params).length ? params : undefined }
   );
-  return data;
+  const data = unwrapResponse<MerchantProduct[]>(res);
+  return Array.isArray(data) ? data : [];
 };
 
 // GET single product
 export const getProduct = async (productId: string) => {
-  const { data } = await axiosInstance.get<MerchantProduct>(
-    `/merchant/products/${productId}`
-  );
-  return data;
+  const res = await axiosInstance.get(`/merchants/products/${productId}`);
+  return unwrapResponse<MerchantProduct>(res);
 };
 
 // CREATE product
 export const createProduct = async (productData: CreateMerchantProductDto) => {
-  const { data } = await axiosInstance.post<MerchantProduct>(
-    "/merchant/products",
-    productData
-  );
-  return data;
+  const res = await axiosInstance.post("/merchants/products", productData);
+  return unwrapResponse<MerchantProduct>(res);
 };
 
 // UPDATE product
@@ -57,33 +67,33 @@ export const updateProduct = async (
   productId: string,
   productData: Partial<CreateMerchantProductDto>
 ) => {
-  const { data } = await axiosInstance.patch<MerchantProduct>(
-    `/merchant/products/${productId}`,
+  const res = await axiosInstance.patch(
+    `/merchants/products/${productId}`,
     productData
   );
-  return data;
+  return unwrapResponse<MerchantProduct>(res);
 };
 
 // DELETE product
 export const deleteProduct = async (productId: string) => {
-  const { data } = await axiosInstance.delete(`/merchant/products/${productId}`);
-  return data;
+  const res = await axiosInstance.delete(`/merchants/products/${productId}`);
+  return unwrapResponse<any>(res);
 };
 
 // UPDATE stock
 export const updateStock = async (productId: string, quantity: number) => {
-  const { data } = await axiosInstance.patch(
-    `/merchant/products/${productId}/stock`,
+  const res = await axiosInstance.patch(
+    `/merchants/products/${productId}/stock`,
     { quantity }
   );
-  return data;
+  return unwrapResponse<any>(res);
 };
 
 // GET catalog products
 export const getCatalogProducts = async (usageType = "grocery") => {
-  const { data } = await axiosInstance.get("/merchant/catalog/products", {
+  const res = await axiosInstance.get("/merchants/catalog/products", {
     params: { usageType },
   });
-  return data;
+  return unwrapResponse<any>(res);
 };
 

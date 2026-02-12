@@ -49,11 +49,6 @@ const MenuItem: React.FC<MenuItemProps> = ({
 const MoreScreen: React.FC = () => {
   const navigation = useNavigation();
 
-  const handlePaymentPress = () => {
-    // Navigate to payment screen
-    navigation.navigate('PaymentStack' as never);
-  };
-
   const handleSettingsPress = () => {
     navigation.navigate('Settings' as never);
   };

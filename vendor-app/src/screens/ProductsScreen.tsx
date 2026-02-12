@@ -18,9 +18,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { RootStackParamList } from "../AppNavigator";
-import axiosInstance from "../api/axiosInstance";
 import { COLORS } from "../constants/colors";
 import * as merchantApi from "../api/merchant";
 import { useUser } from "../hooks/userContext";
@@ -169,7 +168,6 @@ const ProductsScreen = () => {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const insets = useSafeAreaInsets();
 
   // للفلاتر، اجمع جميع التصنيفات المستخدمة
   const categories = useMemo(() => {
@@ -194,7 +192,10 @@ const ProductsScreen = () => {
       setRefreshing(true);
       if (!user?._id) return;
       
-      const data = await merchantApi.getMyProducts(user._id);
+      const data = await merchantApi.getVendorProducts(
+        user._id,
+        user.storeId || user.store
+      );
 
       // تحديث واحد لجميع الحالات
       setProducts(data);
@@ -205,11 +206,11 @@ const ProductsScreen = () => {
     } finally {
       setRefreshing(false);
     }
-  }, [user?._id]);
+  }, [user?._id, user?.storeId, user?.store]);
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [fetchProducts]);
 
   // Debounce للبحث
   useEffect(() => {

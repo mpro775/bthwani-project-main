@@ -2,7 +2,7 @@
  * Support Screen - vendor-app
  */
 
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -12,33 +12,51 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getMySupportTickets, createSupportTicket } from '../api/support';
 
 export default function SupportScreen() {
-  const queryClient = useQueryClient();
+  const [tickets, setTickets] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [subject, setSubject] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('general');
+  const [submitting, setSubmitting] = useState(false);
 
-  const { data: tickets, isLoading } = useQuery({
-    queryKey: ['vendor-support-tickets'],
-    queryFn: getMySupportTickets,
-  });
+  const fetchTickets = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await getMySupportTickets();
+      setTickets(Array.isArray(data) ? data : data?.data ?? []);
+    } catch {
+      setTickets([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  const createMutation = useMutation({
-    mutationFn: createSupportTicket,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['vendor-support-tickets'] });
+  useEffect(() => {
+    fetchTickets();
+  }, [fetchTickets]);
+
+  const handleSubmit = async () => {
+    if (!subject.trim()) return;
+    try {
+      setSubmitting(true);
+      await createSupportTicket({ subject: subject.trim(), description, category });
       setShowForm(false);
       setSubject('');
       setDescription('');
       setCategory('general');
-    },
-  });
+      await fetchTickets();
+    } catch {
+      // error could be shown in UI
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <View style={styles.loading}>
         <ActivityIndicator size="large" />
@@ -75,16 +93,17 @@ export default function SupportScreen() {
           />
           <TouchableOpacity
             style={styles.submitButton}
-            onPress={() => createMutation.mutate({ subject, description, category })}
+            onPress={handleSubmit}
+            disabled={submitting}
           >
-            <Text style={styles.buttonText}>إرسال</Text>
+            <Text style={styles.buttonText}>{submitting ? 'جاري الإرسال...' : 'إرسال'}</Text>
           </TouchableOpacity>
         </View>
       )}
 
       <FlatList
-        data={tickets}
-        keyExtractor={(item) => item.id}
+        data={tickets ?? []}
+        keyExtractor={(item) => item._id ?? item.id ?? String(item)}
         renderItem={({ item }) => (
           <View style={styles.ticket}>
             <Text style={styles.ticketSubject}>{item.subject}</Text>

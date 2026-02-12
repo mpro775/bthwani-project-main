@@ -30,6 +30,7 @@ export class SupportService {
   async getTickets(query: GetTicketsQueryDto) {
     const matchQuery: Record<string, any> = {};
 
+    if (query.userId) matchQuery.userId = new Types.ObjectId(query.userId);
     if (query.status) matchQuery.status = query.status;
     if (query.priority) matchQuery.priority = query.priority;
     if (query.assignedTo) matchQuery.assignedTo = new Types.ObjectId(query.assignedTo);

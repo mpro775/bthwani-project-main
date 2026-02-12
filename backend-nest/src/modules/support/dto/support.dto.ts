@@ -69,6 +69,11 @@ export class CreateTicketDto {
 }
 
 export class GetTicketsQueryDto {
+  @ApiPropertyOptional({ description: 'معرف المستخدم (للتصفية - تُستخدم تلقائياً للتاجر/المستخدم)' })
+  @IsOptional()
+  @IsMongoId()
+  userId?: string;
+
   @ApiPropertyOptional({
     enum: [
       'open',

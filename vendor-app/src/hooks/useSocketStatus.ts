@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ensureSocket, getSocket, disconnectSocket } from '../realtime/socket';
+import { ensureSocket, disconnectSocket } from '../realtime/socket';
 
 export const useSocketStatus = () => {
   const [isConnected, setIsConnected] = useState(false);

@@ -13,6 +13,8 @@ import { ApiTags, ApiOperation, ApiBearerAuth , ApiResponse, ApiParam, ApiQuery 
 import { Request } from 'express';
 import { SupportService } from './support.service';
 import { UnifiedAuthGuard } from '../../common/guards/unified-auth.guard';
+import { Auth } from '../../common/decorators/auth.decorator';
+import { AuthType } from '../../common/guards/unified-auth.guard';
 import {
   CreateTicketDto,
   GetTicketsQueryDto,
@@ -24,6 +26,8 @@ interface AuthenticatedRequest extends Request {
   user: {
     _id?: string;
     id?: string;
+    role?: string;
+    authType?: string;
     constructor?: {
       modelName?: string;
     };
@@ -34,6 +38,7 @@ interface AuthenticatedRequest extends Request {
 @ApiBearerAuth()
 @Controller('support')
 @UseGuards(UnifiedAuthGuard)
+@Auth(AuthType.JWT, AuthType.VENDOR_JWT)
 export class SupportController {
   constructor(private readonly supportService: SupportService) {}
 
@@ -47,7 +52,10 @@ export class SupportController {
     @Req() req: AuthenticatedRequest,
   ) {
     dto.userId = req.user._id || req.user.id || '';
-    dto.userModel = req.user.constructor?.modelName || 'User';
+    dto.userModel =
+      req.user.authType === 'vendor_jwt' || req.user.role === 'vendor'
+        ? 'Vendor'
+        : req.user.constructor?.modelName || 'User';
     return this.supportService.createTicket(dto);
   }
 
@@ -55,7 +63,16 @@ export class SupportController {
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiOperation({ summary: 'جلب التذاكر' })
-  async getTickets(@Query() query: GetTicketsQueryDto) {
+  async getTickets(
+    @Query() query: GetTicketsQueryDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const userId = req.user._id || req.user.id || '';
+    const isAdmin =
+      req.user.role === 'admin' || req.user.role === 'superadmin';
+    if (userId && !isAdmin) {
+      return this.supportService.getTickets({ ...query, userId });
+    }
     return this.supportService.getTickets(query);
   }
 
@@ -82,7 +99,10 @@ export class SupportController {
     @Req() req: AuthenticatedRequest,
   ) {
     const userId = req.user._id || req.user.id || '';
-    const userModel = req.user.constructor?.modelName || 'User';
+    const userModel =
+      req.user.authType === 'vendor_jwt' || req.user.role === 'vendor'
+        ? 'Vendor'
+        : req.user.constructor?.modelName || 'User';
     return this.supportService.addMessage(id, dto, userId, userModel);
   }
 

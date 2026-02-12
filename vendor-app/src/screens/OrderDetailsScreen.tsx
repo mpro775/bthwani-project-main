@@ -128,7 +128,7 @@ const AnimatedCard: React.FC<{ children: React.ReactNode; delay?: number }> = ({
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
+  }, [delay, fadeAnim, translateY]);
 
   return (
     <Animated.View

@@ -22,6 +22,7 @@ import {
 } from "react-native-safe-area-context";
 import { RootStackParamList } from "../AppNavigator";
 import axios from "../api/axiosInstance";
+import * as vendorApi from "../api/vendor";
 import CustomInput from "../components/CustomInput";
 import { COLORS } from "../constants/colors";
 import { useUser } from "../hooks/userContext";
@@ -87,9 +88,9 @@ const LoginScreen = () => {
       setTimeout(async () => {
         const token = await registerForPushNotificationsAsync();
         if (token && res.data?.vendor?._id) {
-          await axios.patch("/vendors/me", {
-            expoPushToken: token,
-          });
+          try {
+            await vendorApi.updatePushToken(token);
+          } catch {}
         }
       }, 300);
     } catch (err: any) {

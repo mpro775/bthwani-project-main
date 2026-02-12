@@ -8,6 +8,7 @@ import {
   Param,
   Query,
   SetMetadata,
+  ForbiddenException,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOperation , ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { MerchantService } from './services/merchant.service';
@@ -31,7 +32,10 @@ import {
   CreateAttributeDto,
   UpdateAttributeDto,
 } from './dto/create-attribute.dto';
-import { Auth } from '../../common/decorators/auth.decorator';
+import {
+  Auth,
+  CurrentUser,
+} from '../../common/decorators/auth.decorator';
 import { AuthType } from '../../common/guards/unified-auth.guard';
 
 const Roles = (...roles: string[]) => SetMetadata('roles', roles);
@@ -143,7 +147,16 @@ export class MerchantController {
   @Auth(AuthType.VENDOR_JWT)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'إضافة منتج لمتجر التاجر' })
-  async createMerchantProduct(@Body() dto: CreateMerchantProductDto) {
+  async createMerchantProduct(
+    @Body() dto: CreateMerchantProductDto,
+    @CurrentUser('id') currentVendorId?: string,
+  ) {
+    if (dto.vendorId && currentVendorId && dto.vendorId !== currentVendorId) {
+      throw new ForbiddenException({
+        message: 'غير مصرح لك بإضافة منتجات باسم تاجر آخر',
+        userMessage: 'غير مصرح',
+      });
+    }
     return this.merchantService.createMerchantProduct(dto);
   }
 
@@ -155,6 +168,33 @@ export class MerchantController {
   @ApiOperation({ summary: 'الحصول على منتج تاجر محدد' })
   async getMerchantProduct(@Param('id') id: string) {
     return this.merchantService.findMerchantProductById(id);
+  }
+
+  @Get('vendor/:vendorId/products')
+  @ApiParam({ name: 'vendorId', type: String })
+  @ApiResponse({ status: 200, description: 'Success' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @Auth(AuthType.VENDOR_JWT)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'منتجات التاجر (Vendor) عبر معرفه' })
+  async getVendorProducts(
+    @Param('vendorId') vendorId: string,
+    @CurrentUser('id') currentVendorId: string,
+    @Query('storeId') storeId?: string,
+    @Query('isAvailable') isAvailable?: boolean,
+  ) {
+    if (currentVendorId && vendorId !== currentVendorId) {
+      throw new ForbiddenException({
+        message: 'غير مصرح لك بالوصول لمنتجات تاجر آخر',
+        userMessage: 'غير مصرح',
+      });
+    }
+    return this.merchantService.findVendorProducts(
+      vendorId,
+      storeId,
+      isAvailable,
+    );
   }
 
   @Get(':merchantId/products')

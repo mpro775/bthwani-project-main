@@ -181,8 +181,8 @@ const AddProductScreen = () => {
         price: Number(product.price),
         stock: product.stock ? Number(product.stock) : undefined,
         isAvailable: product.isAvailable,
-        merchant: user._id,
-        store: user.storeId,
+        vendorId: user._id,
+        store: user.storeId || user.store,
       };
 
       console.log("[AddProduct] submit payload:", payload);

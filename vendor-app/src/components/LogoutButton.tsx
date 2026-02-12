@@ -1,9 +1,8 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useUser } from '../hooks/userContext'; // غيّر المسار حسب ملفك
-import { useNavigation } from '@react-navigation/native';
-import { CommonActions } from '@react-navigation/native';
+import { useUser } from '../hooks/userContext';
+import { useNavigation, CommonActions } from '@react-navigation/native';
 
 const LogoutButton = () => {
   const { setUser } = useUser();

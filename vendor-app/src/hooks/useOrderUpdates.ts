@@ -1,6 +1,6 @@
 import { useEffect, useCallback } from 'react';
-import { ensureSocket } from '../realtime/socket';
-import Toast from 'react-native-toast-message';
+import { Alert } from 'react-native';
+import { ensureSocket, getSocket } from '../realtime/socket';
 
 interface OrderUpdateData {
   orderId: string;
@@ -48,38 +48,22 @@ export const useOrderUpdates = (vendorId?: string) => {
 
         // Order created (new order for vendor)
         socket.on('order.created', (data: OrderUpdateData) => {
-          Toast.show({
-            type: 'info',
-            text1: 'طلب جديد',
-            text2: `طلب رقم ${data.orderId}`,
-          });
+          Alert.alert('طلب جديد', `طلب رقم ${data.orderId}`);
         });
 
         // Order status changed (vendor accepted, preparing, etc.)
         socket.on('order.status', (data: OrderUpdateData) => {
-          Toast.show({
-            type: 'info',
-            text1: 'تحديث حالة طلب',
-            text2: `طلب رقم ${data.orderId}`,
-          });
+          Alert.alert('تحديث حالة طلب', `طلب رقم ${data.orderId}`);
         });
 
         // Sub-order status changed (specific to vendor's products)
         socket.on('order.sub.status', (data: OrderUpdateData) => {
-          Toast.show({
-            type: 'info',
-            text1: 'تحديث حالة منتج',
-            text2: `طلب رقم ${data.orderId}`,
-          });
+          Alert.alert('تحديث حالة منتج', `طلب رقم ${data.orderId}`);
         });
 
         // Order note added
         socket.on('order.note.added', (data: OrderUpdateData) => {
-          Toast.show({
-            type: 'info',
-            text1: 'ملاحظة جديدة',
-            text2: `طلب رقم ${data.orderId}`,
-          });
+          Alert.alert('ملاحظة جديدة', `طلب رقم ${data.orderId}`);
         });
 
       } catch (error) {

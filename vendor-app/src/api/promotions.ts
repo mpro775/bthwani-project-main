@@ -1,4 +1,5 @@
 import axiosInstance from "./axiosInstance";
+import { unwrapResponse } from "../utils/apiHelpers";
 
 export interface VendorPromotion {
   _id: string;
@@ -21,25 +22,22 @@ export const getPromotionsByPlacement = async (
 ) => {
   const params: any = { channel };
   if (placement) params.placement = placement;
-
-  const { data } = await axiosInstance.get<VendorPromotion[]>(
-    "/promotions/by-placement",
-    { params }
-  );
-  return data;
+  const res = await axiosInstance.get("/promotions/by-placement", { params });
+  const data = unwrapResponse<VendorPromotion[]>(res);
+  return Array.isArray(data) ? data : [];
 };
 
 // Record click on promotion
 export const recordClick = async (promotionId: string) => {
-  const { data } = await axiosInstance.post(`/promotions/${promotionId}/click`);
-  return data;
+  const res = await axiosInstance.post(`/promotions/${promotionId}/click`);
+  return unwrapResponse<any>(res);
 };
 
 // Record conversion (order from promotion)
 export const recordConversion = async (promotionId: string) => {
-  const { data } = await axiosInstance.post(
+  const res = await axiosInstance.post(
     `/promotions/${promotionId}/conversion`
   );
-  return data;
+  return unwrapResponse<any>(res);
 };
 

@@ -24,8 +24,13 @@ export class MerchantProductAttributeDto {
 }
 
 export class CreateMerchantProductDto {
+  @IsOptional()
   @IsMongoId({ message: 'معرف التاجر غير صحيح' })
-  merchant: string;
+  merchant?: string;
+
+  @IsOptional()
+  @IsMongoId({ message: 'معرف التاجر (Vendor) للربط' })
+  vendorId?: string;
 
   @IsMongoId({ message: 'معرف المتجر غير صحيح' })
   store: string;

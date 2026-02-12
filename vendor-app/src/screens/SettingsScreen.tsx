@@ -16,7 +16,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import axiosInstance from "../api/axiosInstance";
+import * as vendorApi from "../api/vendor";
 import { COLORS } from "../constants/colors";
 import { UserContext } from "../hooks/userContext";
 
@@ -71,31 +71,23 @@ useEffect(() => {
   let mounted = true;
   (async () => {
     try {
-      // 1) استخدم المسار الموجود فعلاً في الباك:
-      const me = await axiosInstance.get("/vendors/me");
-
-      if (mounted) {
-        // 2) اقرأ الحقول الصحيحة كما يرجعها الباك
-        setAccountInfo({
-          merchantName: me.data?.fullName || "",
-          phoneNumber: me.data?.phone || "",
-          email: me.data?.email || "",
-        });
-      }
-
-      // Get notification settings from vendor entity
-      const prefs = me.data?.notificationSettings || {};
-      if (mounted) {
-        setNotificationSettings({
-          enabled: prefs?.enabled ?? true,
-          orderAlerts: prefs?.orderAlerts ?? true,
-          financialAlerts: prefs?.financialAlerts ?? true,
-          marketingAlerts: prefs?.marketingAlerts ?? false,
-          systemUpdates: prefs?.systemUpdates ?? true,
-        });
-      }
+      const me = await vendorApi.getProfile();
+      if (!mounted) return;
+      setAccountInfo({
+        merchantName: me?.fullName || "",
+        phoneNumber: me?.phone || "",
+        email: me?.email || "",
+      });
+      const prefs = me?.notificationSettings || {};
+      setNotificationSettings({
+        enabled: prefs?.enabled ?? true,
+        orderAlerts: prefs?.orderAlerts ?? true,
+        financialAlerts: prefs?.financialAlerts ?? true,
+        marketingAlerts: prefs?.marketingAlerts ?? false,
+        systemUpdates: prefs?.systemUpdates ?? true,
+      });
     } catch (e: any) {
-      Alert.alert("خطأ", e?.response?.data?.message || "تعذر تحميل الإعدادات");
+      Alert.alert("خطأ", e?.message || e?.response?.data?.message || "تعذر تحميل الإعدادات");
     } finally {
       if (mounted) setLoadingPrefs(false);
     }
@@ -107,12 +99,10 @@ useEffect(() => {
   const updatePrefs = async (next: NotificationSettings) => {
     try {
       setSavingPrefs(true);
-      setNotificationSettings(next); // تحديث تفاؤلي
-      await axiosInstance.patch("/vendors/me", {
-        notificationSettings: next
-      });
+      setNotificationSettings(next);
+      await vendorApi.updateProfile({ notificationSettings: next });
     } catch (e: any) {
-      Alert.alert("خطأ", e?.response?.data?.message || "تعذر حفظ الإعدادات");
+      Alert.alert("خطأ", e?.message || e?.response?.data?.message || "تعذر حفظ الإعدادات");
     } finally {
       setSavingPrefs(false);
     }
@@ -171,8 +161,8 @@ useEffect(() => {
 
     try {
       setDeleting(true);
-      await axiosInstance.post("/vendors/account/delete-request", {
-        reason: deleteReason || null,
+      await vendorApi.requestAccountDeletion({
+        reason: deleteReason || undefined,
         exportData: !!exportData,
       });
 

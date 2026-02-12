@@ -145,7 +145,25 @@ export class MerchantService {
       throw new NotFoundException('المنتج غير موجود في الكتالوج');
     }
 
-    const merchantProduct = new this.merchantProductModel(dto);
+    let merchantId = dto.merchant;
+    if (dto.vendorId) {
+      const merchant = await this.findMerchantByVendor(dto.vendorId);
+      if (!merchant) {
+        throw new BadRequestException({
+          message: 'لا يوجد تاجر (Merchant) مرتبط بحسابك',
+          userMessage: 'يجب ربط حسابك بتاجر أولاً. تواصل مع الإدارة.',
+        });
+      }
+      merchantId = (merchant as any)._id.toString();
+    } else if (!merchantId) {
+      throw new BadRequestException('معرف التاجر (merchant) أو التاجر (vendorId) مطلوب');
+    }
+
+    const { vendorId: _, ...safeDto } = dto as any;
+    const merchantProduct = new this.merchantProductModel({
+      ...safeDto,
+      merchant: merchantId,
+    });
     return merchantProduct.save();
   }
 
@@ -164,6 +182,40 @@ export class MerchantService {
       .sort({ createdAt: -1 })
       .lean()
       .exec();
+  }
+
+  /**
+   * جلب التاجر (Merchant) المرتبط بـ Vendor
+   */
+  async findMerchantByVendor(vendorId: string): Promise<Merchant | null> {
+    return this.merchantModel
+      .findOne({ vendor: vendorId })
+      .lean()
+      .exec();
+  }
+
+  /**
+   * جلب منتجات التاجر عبر vendorId (للتطبيق التاجر)
+   * يبحث عن Merchant المرتبط ثم يرجع منتجاته، أو منتجات المتجر إذا لم يوجد Merchant
+   */
+  async findVendorProducts(
+    vendorId: string,
+    storeId?: string,
+    isAvailable?: boolean,
+  ): Promise<any[]> {
+    const merchant = await this.findMerchantByVendor(vendorId);
+    if (merchant) {
+      return this.findMerchantProducts(
+        (merchant as any)._id.toString(),
+        storeId,
+        isAvailable,
+      );
+    }
+    // Fallback: منتجات المتجر إذا لم يوجد Merchant مرتبط
+    if (storeId) {
+      return this.findStoreProducts(storeId, undefined);
+    }
+    return [];
   }
 
   async findStoreProducts(storeId: string, sectionId?: string): Promise<any[]> {
