@@ -190,7 +190,6 @@ export class MerchantService {
   async findMerchantByVendor(vendorId: string): Promise<Merchant | null> {
     return this.merchantModel
       .findOne({ vendor: vendorId })
-      .lean()
       .exec();
   }
 
